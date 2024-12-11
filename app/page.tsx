@@ -26,26 +26,6 @@ export default function Home() {
                 <p className="text-muted-foreground">• Comunicados</p>
               </div>
             </div>
-
-            {/* Department Updates */}
-            <div className="bg-white rounded-lg shadow-sm p-6 border">
-              <h2 className="text-lg font-semibold mb-4">Atualizações Departamentais</h2>
-              <div className="space-y-2">
-                <p className="text-muted-foreground">• TI: Manutenção Programada</p>
-                <p className="text-muted-foreground">• Marketing: Nova Campanha</p>
-                <p className="text-muted-foreground">• RH: Processo Seletivo</p>
-              </div>
-            </div>
-
-            {/* Social Media Feed */}
-            <div className="bg-white rounded-lg shadow-sm p-6 border">
-              <h2 className="text-lg font-semibold mb-4">Feed de Mídias Sociais</h2>
-              <div className="space-y-2">
-                <p className="text-muted-foreground">• Últimas Postagens</p>
-                <p className="text-muted-foreground">• Engajamento</p>
-                <p className="text-muted-foreground">• Análises</p>
-              </div>
-            </div>
           </div>
         </div>
       </main>

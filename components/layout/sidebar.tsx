@@ -1,5 +1,6 @@
 "use client";
 
+import routes from "@/app/routes";
 import { cn } from "@/lib/utils";
 import {
   Building2,
@@ -9,6 +10,7 @@ import {
   Settings,
   HelpCircle,
   MessageSquare,
+  StickyNote 
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -22,30 +24,16 @@ export function Sidebar({ isOpen }: SidebarProps) {
 
   const menuItems = [
     {
+      name: "NoPaper",
+      icon: StickyNote ,
+      href: "/noPaper/list", 
+    },
+    {
       name: "Departamentos",
       icon: Building2,
       href: "/departments",
     },
-    {
-      name: "Colaboradores",
-      icon: Users,
-      href: "/employees",
-    },
-    {
-      name: "Documentos",
-      icon: FileText,
-      href: "/documents",
-    },
-    {
-      name: "Agenda",
-      icon: Calendar,
-      href: "/calendar",
-    },
-    {
-      name: "Chat Interno",
-      icon: MessageSquare,
-      href: "/chat",
-    },
+    
     {
       name: "Configurações",
       icon: Settings,

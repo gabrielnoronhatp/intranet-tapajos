@@ -12,13 +12,12 @@ import { FormSection } from "@/components/nopaper/form-section";
 import { Popover, PopoverTrigger, PopoverContent } from "@radix-ui/react-popover";
 import { Eye } from "lucide-react";
 
-// Define a type for centrosCusto
 interface CentroCusto {
   centroCusto: string;
   valor: number;
 }
 
-// Define a type for the items
+
 interface Item {
   descricao: string;
   valor: number;
@@ -269,11 +268,9 @@ const handleSubmit = async (e: React.FormEvent) => {
     return;
   }
 
-  
   const produtosOP = itens.map(item => {
     const centroCusto = item.centroCusto;
 
-   
     const centroCustoFormatado = typeof centroCusto === 'string'
       ? [{ centrocusto: centroCusto, valor: item.valor || 0 }]
       : centroCusto;
@@ -285,53 +282,52 @@ const handleSubmit = async (e: React.FormEvent) => {
     };
   });
 
-  
   const totalProdutos = produtosOP.reduce((acc, produto) => acc + produto.valor, 0);
   const totalCentrosCusto = centrosCusto.reduce((acc, ccusto) => acc + ccusto.valor, 0);
 
-  if (totalProdutos !== totalCentrosCusto) {
-    const diferenca = totalProdutos - totalCentrosCusto;
+  const valorItensMenosImposto = totalProdutos - valorImposto;
 
- 
+  if (valorItensMenosImposto !== totalCentrosCusto) {
+    const diferenca = valorItensMenosImposto - totalCentrosCusto;
+
     produtosOP.forEach(produto => {
-      produto.valor -= diferenca / produtosOP.length; 
+      produto.valor -= diferenca / produtosOP.length;
     });
 
-   
     centrosCusto.forEach(ccusto => {
-      ccusto.valor += diferenca / centrosCusto.length; 
+      ccusto.valor += diferenca / centrosCusto.length;
     });
   }
 
   const orderData = {
     dtlanc: new Date().toISOString(),
-    ramoOP: ramo,
-    notaOP: notaFiscal,
-    qtparcelasOP: installments,
-    contagerencialOP: contaOP,
-    fornecedorOP: selectedFornecedor?.fornecedor || "",
-    lojaOP: selectedFilial?.loja || "",
-    serieOP: serie,
-    metodoOP: formaPagamento,
-    qtitensOP: quantidadeProdutos,
-    valorimpostoOP: valorImposto,
-    dtavistaOP: dtavista,
-    bancoOP: banco,
-    agenciaOP: agencia,
-    contaOP: conta,
-    dtdepositoOP: dtdeposito,
-    parcelasOP: installmentDates.map(date => ({ parcela: date })),
+    ramoOP: ramo || null,
+    notaOP: notaFiscal || null,
+    qtparcelasOP: installments || null,
+    contagerencialOP: contaOP || null,
+    fornecedorOP: selectedFornecedor?.fornecedor || null,
+    lojaOP: selectedFilial?.loja || null,
+    serieOP: serie || null,
+    metodoOP: formaPagamento || null,
+    qtitensOP: quantidadeProdutos || null,
+    valorimpostoOP: valorImposto || null,
+    dtavistaOP: dtavista || null,
+    bancoOP: banco || null,
+    agenciaOP: agencia || null,
+    contaOP: conta || null,
+    dtdepositoOP: dtdeposito || null,
+    parcelasOP: installmentDates.length > 0 ? installmentDates.map(date => ({ parcela: date })) : null,
     produtosOP: produtosOP,
-    observacaoOP: observacao,
-    tipopixOP: tipopix,
-    chavepixOP: chavepix,
-    datapixOP: datapix,
-    opcaoLancOP: tipoLancamento,
+    observacaoOP: observacao || null,
+    tipopixOP: tipopix || null,
+    chavepixOP: chavepix || null,
+    datapixOP: datapix || null,
+    opcaoLancOP: tipoLancamento || null,
     ccustoOP: centrosCusto.map(centro => ({
       centrocusto: centro.centroCusto,
       valor: centro.valor
     })),
-    userOP: user,
+    userOP: user || null,
   };
 
   console.log("Order Data:", orderData);

@@ -10,7 +10,20 @@ import { useEffect, useState } from "react";
 import { SelectField } from "@/components/nopaper/select-field";
 import { FormSection } from "@/components/nopaper/form-section";
 import { Popover, PopoverTrigger, PopoverContent } from "@radix-ui/react-popover";
-import { Command } from "lucide-react";
+import { Eye } from "lucide-react";
+
+// Define a type for centrosCusto
+interface CentroCusto {
+  centroCusto: string;
+  valor: number;
+}
+
+// Define a type for the items
+interface Item {
+  descricao: string;
+  valor: number;
+  centroCusto: CentroCusto[];
+}
 
 export default function NoPaper() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -21,10 +34,31 @@ export default function NoPaper() {
   const [open, setOpen] = useState(false);
   const [selectedFornecedor, setSelectedFornecedor] = useState<any>(null);
   const [quantidadeProdutos, setQuantidadeProdutos] = useState(1);
-  const [centrosCusto, setCentrosCusto] = useState([{ centroCusto: '', valor: 0 }]);
+  const [centrosCusto, setCentrosCusto] = useState<CentroCusto[]>([]);
   const [installments, setInstallments] = useState(1);
   const [installmentDates, setInstallmentDates] = useState<string[]>([]);
   const [valorTotal, setValorTotal] = useState(0);
+  const [itens, setItens] = useState<Item[]>([{ descricao: '', valor: 0, centroCusto: [] }]);
+  const [isViewOpen, setIsViewOpen] = useState(false);
+  const [filiais, setFiliais] = useState<any>([]);
+  const [selectedFilial, setSelectedFilial] = useState<any>(null);
+  const [filialOpen, setFilialOpen] = useState(false);
+  const [notaFiscal, setNotaFiscal] = useState("");
+  const [serie, setSerie] = useState("");
+  const [valorImposto, setValorImposto] = useState(0);
+  const [observacao, setObservacao] = useState("");
+  const [user, setUser] = useState("");
+  const [dtavista, setDtavista] = useState("");
+  const [banco, setBanco] = useState("");
+  const [agencia, setAgencia] = useState("");
+  const [conta, setConta] = useState("");
+  const [dtdeposito, setDtdeposito] = useState("");
+  const [tipopix, setTipopix] = useState("");
+  const [chavepix, setChavepix] = useState("");
+  const [datapix, setDatapix] = useState("");
+  const [contasGerenciais, setContasGerenciais] = useState<any[]>([]);
+  const [centrosCustoOptions, setCentrosCustoOptions] = useState<any[]>([]);
+  const [contaOP, setContaOP] = useState("");
 
   useEffect(() => {
     const fetchFornecedores = async () => {
@@ -38,6 +72,81 @@ export default function NoPaper() {
     };
     fetchFornecedores();
   }, []);
+
+  useEffect(() => {
+    const fetchFiliais = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/api/dadoslojas');
+        const data = await response.json();
+        setFiliais(data);
+      } catch (error) {
+        console.error('Error fetching filiais:', error);
+      }
+    };
+    fetchFiliais();
+  }, []);
+
+  useEffect(() => {
+    const fetchContasGerenciais = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/api/dadoscontager');
+        const data = await response.json();
+        setContasGerenciais(data);
+      } catch (error) {
+        console.error('Error fetching contas gerenciais:', error);
+      }
+    };
+    fetchContasGerenciais();
+  }, []);
+
+  useEffect(() => {
+    const fetchCentrosCusto = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/api/dadosccusto');
+        const data = await response.json();
+        setCentrosCustoOptions(data);
+      } catch (error) {
+        console.error('Error fetching centros de custo:', error);
+      }
+    };
+    fetchCentrosCusto();
+  }, []);
+
+  const FilialSelect = () => (
+    <div>
+      <Label className="text-xs font-semibold text-primary uppercase">
+        Selecione a Filial que Pagará
+      </Label>
+      <Popover open={filialOpen} onOpenChange={setFilialOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={filialOpen}
+            className="justify-between w-full"
+          >
+            {selectedFilial ? selectedFilial.loja : "Selecione uma filial..."}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[300px] p-0">
+          <div className="max-h-[200px] overflow-auto">
+            {filiais.map((filial: any) => (
+              <div
+                key={filial.loja}
+                className="px-4 py-2 hover:bg-primary/10 cursor-pointer"
+                onClick={() => {
+                  setSelectedFilial(filial);
+                  setFilialOpen(false);
+                }}
+              >
+                {filial.loja}
+              </div>
+            ))}
+          </div>
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
 
   const FornecedorSelect = () => (
     <div className="flex flex-col space-y-1.5">
@@ -55,23 +164,21 @@ export default function NoPaper() {
             {selectedFornecedor ? selectedFornecedor.fornecedor : "Selecione um fornecedor..."}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[400px] p-0">
-          {/* <Command> */}
-            <div className="max-h-[300px] overflow-auto">
-              {fornecedores.map((fornecedor:any) => (
-                <div
-                  key={fornecedor}
-                  className="px-4 py-2 hover:bg-primary/10 cursor-pointer"
-                  onClick={() => {
-                    setSelectedFornecedor(fornecedor);
-                    setOpen(false);
-                  }}
-                >
-                  {fornecedor.fornecedor}
-                </div>
-              ))}
-            </div>
-          {/* </Command> */}
+        <PopoverContent className="w-[300px] p-0">
+          <div className="max-h-[200px] overflow-auto">
+            {fornecedores.map((fornecedor:any) => (
+              <div
+                key={fornecedor}
+                className="px-4 py-2 hover:bg-primary/10 cursor-pointer"
+                onClick={() => {
+                  setSelectedFornecedor(fornecedor);
+                  setOpen(false);
+                }}
+              >
+                {fornecedor.fornecedor}
+              </div>
+            ))}
+          </div>
         </PopoverContent>
       </Popover>
     </div>
@@ -80,10 +187,19 @@ export default function NoPaper() {
   const handleQuantidadeProdutosChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const quantidade = parseInt(e.target.value, 10);
     setQuantidadeProdutos(quantidade);
+    const newItens = Array.from({ length: quantidade }, (_, index) => (
+      itens[index] || { descricao: '', valor: 0, centroCusto: [] }
+    ));
+    setItens(newItens);
+    calculateValorTotal(newItens);
   };
 
   const handleCentrosCustoNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const numCentros = parseInt(e.target.value, 10);
+    if (numCentros < 1) {
+      console.error("Número de centros de custo deve ser pelo menos 1.");
+      return;
+    }
     const newCentrosCusto = Array.from({ length: numCentros }, (_, index) => (
       centrosCusto[index] || { centroCusto: '', valor: 0 }
     ));
@@ -91,8 +207,12 @@ export default function NoPaper() {
   };
 
   const handleCentrosCustoChange = (index: number, field: 'centroCusto' | 'valor', value: string | number) => {
-    const newCentrosCusto:any = [...centrosCusto];
-    newCentrosCusto[index][field] = value;
+    const newCentrosCusto = [...centrosCusto];
+    if (field === 'centroCusto') {
+      newCentrosCusto[index][field] = value as string;
+    } else {
+      newCentrosCusto[index][field] = value as number;
+    }
     setCentrosCusto(newCentrosCusto);
   };
 
@@ -116,8 +236,20 @@ export default function NoPaper() {
     setInstallmentDates(newDates);
   };
 
-  const calculateValorTotal = () => {
-    const total = centrosCusto.reduce((acc, centro) => acc + (centro.valor || 0), 0);
+  const handleItensChange = (index: number, field: keyof Item, value: any) => {
+    const newItens = [...itens];
+    if (field === 'centroCusto') {
+      newItens[index][field] = value as CentroCusto[];
+    } else if (field === 'valor') {
+      newItens[index][field] = value as number;
+    } else {
+      newItens[index][field] = value as string;
+    }
+    setItens(newItens);
+  };
+
+  const calculateValorTotal = (itensToCalculate = itens) => {
+    const total = itensToCalculate.reduce((acc, item) => acc + (item.valor || 0), 0);
     setValorTotal(total);
   };
 
@@ -125,21 +257,127 @@ export default function NoPaper() {
     calculateValorTotal();
   }, [centrosCusto]);
 
+  const toggleView = () => {
+    setIsViewOpen(!isViewOpen);
+  };
+
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  if (!itens || itens.length === 0) {
+    console.error("Itens are not defined or empty.");
+    return;
+  }
+
+  
+  const produtosOP = itens.map(item => {
+    const centroCusto = item.centroCusto;
+
+   
+    const centroCustoFormatado = typeof centroCusto === 'string'
+      ? [{ centrocusto: centroCusto, valor: item.valor || 0 }]
+      : centroCusto;
+
+    return {
+      produto: item.descricao,
+      valor: item.valor,
+      centroCusto: centroCustoFormatado,
+    };
+  });
+
+  
+  const totalProdutos = produtosOP.reduce((acc, produto) => acc + produto.valor, 0);
+  const totalCentrosCusto = centrosCusto.reduce((acc, ccusto) => acc + ccusto.valor, 0);
+
+  if (totalProdutos !== totalCentrosCusto) {
+    const diferenca = totalProdutos - totalCentrosCusto;
+
+ 
+    produtosOP.forEach(produto => {
+      produto.valor -= diferenca / produtosOP.length; 
+    });
+
+   
+    centrosCusto.forEach(ccusto => {
+      ccusto.valor += diferenca / centrosCusto.length; 
+    });
+  }
+
+  const orderData = {
+    dtlanc: new Date().toISOString(),
+    ramoOP: ramo,
+    notaOP: notaFiscal,
+    qtparcelasOP: installments,
+    contagerencialOP: contaOP,
+    fornecedorOP: selectedFornecedor?.fornecedor || "",
+    lojaOP: selectedFilial?.loja || "",
+    serieOP: serie,
+    metodoOP: formaPagamento,
+    qtitensOP: quantidadeProdutos,
+    valorimpostoOP: valorImposto,
+    dtavistaOP: dtavista,
+    bancoOP: banco,
+    agenciaOP: agencia,
+    contaOP: conta,
+    dtdepositoOP: dtdeposito,
+    parcelasOP: installmentDates.map(date => ({ parcela: date })),
+    produtosOP: produtosOP,
+    observacaoOP: observacao,
+    tipopixOP: tipopix,
+    chavepixOP: chavepix,
+    datapixOP: datapix,
+    opcaoLancOP: tipoLancamento,
+    ccustoOP: centrosCusto.map(centro => ({
+      centrocusto: centro.centroCusto,
+      valor: centro.valor
+    })),
+    userOP: user,
+  };
+
+  console.log("Order Data:", orderData);
+
+  try {
+    const response = await fetch("http://localhost:3001/api/cadastrar-ordem", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(orderData),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to submit order");
+    }
+
+    const result = await response.json();
+    console.log("Order submitted successfully:", result);
+  } catch (error) {
+    console.error("Error submitting order:", error);
+  }
+};
+
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
       <Sidebar isOpen={isSidebarOpen} />
       
-      <main className={`pt-16 transition-all duration-300 ${isSidebarOpen ? "ml-64" : "ml-0"}`}>
-        <div className="p-6">
-          <h1 className="text-2xl font-bold text-primary mb-6">Lançamento NoPaper</h1>
+      <main
+        className={`pt-16 transition-all duration-300 ${
+          isSidebarOpen ? "ml-64" : "ml-16"
+        }`}
+      >
+        <div className="p-4">
+          <h1 className="text-xl font-bold text-primary mb-4">
+            Lançamento NoPaper
+          </h1>
           
-          <div className="max-w-4xl">
-            <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
+          <div className="max-w-3xl mx-auto">
+            <form onSubmit={handleSubmit} className="space-y-4">
               {/* Dados de Origem */}
               <FormSection title="Dados de Origem da Nota Fiscal">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
                     <SelectField
                       label="Selecione o Ramo"
                       value={ramo}
@@ -163,40 +401,44 @@ export default function NoPaper() {
                     )}
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="space-y-2">
                     <div>
-                      <Label className="text-xs font-semibold text-primary uppercase">
-                        Selecione a Filial que Pagará
-                      </Label>
-                      <Input placeholder="Filial de Lançamento" />
+                    <FilialSelect />
                     </div>
 
                     <div>
-                      
                       <FornecedorSelect />
                     </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 mt-4">
+                <div className="grid grid-cols-2 gap-2 mt-2">
                   <div>
                     <Label className="text-xs font-semibold text-primary uppercase">
                       Número da Nota Fiscal
                     </Label>
-                    <Input placeholder="Nota" />
+                    <Input
+                      placeholder="Nota"
+                      value={notaFiscal}
+                      onChange={(e) => setNotaFiscal(e.target.value)}
+                    />
                   </div>
                   <div>
                     <Label className="text-xs font-semibold text-primary uppercase">
                       Série
                     </Label>
-                    <Input placeholder="Serie" />
+                    <Input
+                      placeholder="Serie"
+                      value={serie}
+                      onChange={(e) => setSerie(e.target.value)}
+                    />
                   </div>
                 </div>
               </FormSection>
 
               {/* Dados Financeiros */}
               <FormSection title="Dados Financeiros">
-                <div className="space-y-4">
+                <div className="space-y-2">
                   <SelectField
                     label="Escolha a Forma de Pagamento"
                     value={formaPagamento}
@@ -210,24 +452,28 @@ export default function NoPaper() {
                   />
 
                   {formaPagamento === 'avista' && (
-                    <div className="space-y-4">
+                    <div className="space-y-2">
                       <Label className="text-xs font-semibold text-primary uppercase">
                         Data de Vencimento
                       </Label>
                       <Input
                         type="date"
+                        value={dtavista}
+                        onChange={(e) => setDtavista(e.target.value)}
                         className="form-control"
                       />
                     </div>
                   )}
 
                   {formaPagamento === 'deposito' && (
-                    <div className="space-y-4">
+                    <div className="space-y-2">
                       <Label className="text-xs font-semibold text-primary uppercase">
                         Banco
                       </Label>
                       <Input
                         type="text"
+                        value={banco}
+                        onChange={(e) => setBanco(e.target.value)}
                         placeholder="Banco"
                         className="form-control"
                       />
@@ -236,6 +482,8 @@ export default function NoPaper() {
                       </Label>
                       <Input
                         type="text"
+                        value={agencia}
+                        onChange={(e) => setAgencia(e.target.value)}
                         placeholder="Agência"
                         className="form-control"
                       />
@@ -244,21 +492,25 @@ export default function NoPaper() {
                       </Label>
                       <Input
                         type="text"
+                        value={conta}
+                        onChange={(e) => setConta(e.target.value)}
                         placeholder="Conta"
                         className="form-control"
                       />
                       <Label className="text-xs font-semibold text-primary uppercase">
-                        Data de Vencimento
+                        Data de Depósito
                       </Label>
                       <Input
                         type="date"
+                        value={dtdeposito}
+                        onChange={(e) => setDtdeposito(e.target.value)}
                         className="form-control"
                       />
                     </div>
                   )}
 
                   {formaPagamento === 'boleto' && (
-                    <div className="space-y-4">
+                    <div className="space-y-2">
                       <Label className="text-xs font-semibold text-primary uppercase">
                         Número de Parcelas
                       </Label>
@@ -271,7 +523,7 @@ export default function NoPaper() {
                         className="form-control"
                       />
                       {Array.from({ length: installments }).map((_, index) => (
-                        <div key={index} className="space-y-2">
+                        <div key={index} className="space-y-1">
                           <Label className="text-xs font-semibold text-primary uppercase">
                             Data de Vencimento {index + 1}
                           </Label>
@@ -287,13 +539,13 @@ export default function NoPaper() {
                   )}
 
                   {formaPagamento === 'pix' && (
-                    <div className="space-y-4">
+                    <div className="space-y-2">
                       <Label className="text-xs font-semibold text-primary uppercase">
                         Tipo de Chave PIX
                       </Label>
                       <SelectField
-                        value=""
-                        onChange={() => {}}
+                        value={tipopix}
+                        onChange={setTipopix}
                         options={[
                           { value: "cpf/cnpj", label: "CPF/CNPJ" },
                           { value: "telefone", label: "Telefone" },
@@ -307,39 +559,41 @@ export default function NoPaper() {
                       </Label>
                       <Input
                         type="text"
+                        value={chavepix}
+                        onChange={(e) => setChavepix(e.target.value)}
                         placeholder="Insira a Chave PIX"
                         className="form-control"
                       />
                       <Label className="text-xs font-semibold text-primary uppercase">
-                        Data de Vencimento
+                        Data de Pagamento PIX
                       </Label>
                       <Input
                         type="date"
+                        value={datapix}
+                        onChange={(e) => setDatapix(e.target.value)}
                         className="form-control"
                       />
                     </div>
                   )}
                 </div>
-                <div className="space-y-4">
+                <div className="space-y-2">
                   <Label className="text-xs font-semibold text-primary uppercase">
                     Conta Gerencial
                   </Label>
-                  <Input
-                    type="text"
-                    placeholder="Conta Gerencial"
-                    className="form-control"
+                  <SelectField
+                    value={contaOP}
+                    onChange={setContaOP}
+                    options={contasGerenciais.map(conta => ({ value: conta.conta, label: conta.conta }))}
+                    label=""
                   />
                 </div>
               </FormSection>
 
-              {/* Conta Gerencial de Lançamento */}
-            
-
               {/* Dados de itens e Imposto */}
               <FormSection title="Dados de itens e Imposto">
-                <div className="space-y-4">
+                <div className="space-y-2">
                   <Label className="text-xs font-semibold text-primary uppercase">
-                    Dados de itens e Imposto
+                    Itens da Nota
                   </Label>
                   <Input
                     type="number"
@@ -348,12 +602,53 @@ export default function NoPaper() {
                     min={1}
                     className="form-control"
                   />
+
+                  {itens.map((item, index) => (
+                    <div key={index} className="space-y-1">
+                      <Label className="text-xs font-semibold text-primary uppercase">
+                        Insira a Descrição e Valor do Item: {index + 1}
+                      </Label>
+                      <Input
+                        type="text"
+                        value={item.descricao}
+                        onChange={(e) => handleItensChange(index, 'descricao', e.target.value)}
+                        placeholder="Insira a Descrição do Item"
+                        className="form-control"
+                      />
+                      <Input
+                        type="number"
+                        value={item.valor}
+                        onChange={(e) => handleItensChange(index, 'valor', parseFloat(e.target.value))}
+                        placeholder="Insira o Valor do Item"
+                        min={0.01}
+                        step={0.01}
+                        className="form-control"
+                      />
+                      <SelectField
+                        value={item.centroCusto?.toString()}
+                        onChange={(value) => handleItensChange(index, 'centroCusto', value)}
+                        options={centrosCustoOptions.map(option => ({ value: option.centrocusto, label: option.centrocusto }))}
+                        label="Centro de Custo"
+                      />
+                    </div>
+                  ))}
+
+                  <Label className="text-xs font-semibold text-primary uppercase">
+                    Valor do Imposto
+                  </Label>
+                  <Input
+                    type="number"
+                    value={valorImposto}
+                    onChange={(e) => setValorImposto(parseFloat(e.target.value))}
+                    min={0}
+                    className="form-control"
+                  />
                 </div>
               </FormSection>
 
               {/* Centro de Custo */}
               <FormSection title="Centro de Custo">
-                <div className="space-y-4">
+                <div className="space-y-2">
                   <Label className="text-xs font-semibold text-primary uppercase">
                     Número de Centros de Custo
                   </Label>
@@ -366,16 +661,15 @@ export default function NoPaper() {
                   />
                 </div>
                 {centrosCusto.map((centro, index) => (
-                  <div key={index} className="space-y-4">
+                  <div key={index} className="space-y-2">
                     <Label className="text-xs font-semibold text-primary uppercase">
                       Centro de Custo {index + 1}
                     </Label>
-                    <Input
-                      type="text"
+                    <SelectField
                       value={centro.centroCusto}
-                      onChange={(e) => handleCentrosCustoChange(index, 'centroCusto', e.target.value)}
-                      placeholder="Insira o Centro de Custo"
-                      className="form-control"
+                      onChange={(value) => handleCentrosCustoChange(index, 'centroCusto', value)}
+                      options={centrosCustoOptions.map(option => ({ value: option.centrocusto, label: option.centrocusto }))}
+                      label=""
                     />
                     <Input
                       type="number"
@@ -388,7 +682,7 @@ export default function NoPaper() {
                     />
                   </div>
                 ))}
-                <div className="space-y-4">
+                <div className="space-y-2">
                   <Label className="text-xs font-semibold text-primary uppercase">
                     Valor Total dos Itens
                   </Label>
@@ -409,6 +703,26 @@ export default function NoPaper() {
             </form>
           </div>
         </div>
+
+        {/* View Icon */}
+        <div className="fixed bottom-4 right-4">
+          <Button onClick={toggleView} className="bg-primary hover:bg-primary/90 p-2 rounded-full">
+            <Eye className="text-white" />
+          </Button>
+        </div>
+
+        {/* View Modal or Section */}
+        {isViewOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+            <div className="bg-white p-4 rounded-lg shadow-lg max-w-sm">
+              <h2 className="text-lg font-bold mb-2">Visualização</h2>
+              {/* Add content for viewing here */}
+              <Button onClick={toggleView} className="mt-2 bg-primary hover:bg-primary/90">
+                Fechar
+              </Button>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

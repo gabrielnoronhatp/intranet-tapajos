@@ -8,20 +8,43 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Order } from "@/lib/data/mock-orders";
-import { CheckCircle2, XCircle } from "lucide-react";
+import { Order } from "@/types/OrderTypes";
+import { CheckCircle2, XCircle, Eye } from "lucide-react";
+import { useState, useEffect } from "react";
 
 
-interface DataTableProps {
-  orders: Order[];
-}
+export function DataTable() {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [isViewOpen, setIsViewOpen] = useState(false);
+  const [selectedItem, setSelectedItem]: any = useState(null);
 
-export function DataTable({ orders }: DataTableProps) {
-  const formatCurrency = (value: number) => {
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const response = await fetch("http://localhost:3001/api/consultar-ordem");
+        if (!response.ok) {
+          throw new Error("Failed to fetch orders");
+        }
+        const data: Order[] = await response.json();
+        setOrders(data);
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      }
+    };
+
+    fetchOrders();
+  }, []);
+
+  const formatCurrency = (value: string) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL'
-    }).format(value);
+    }).format(parseFloat(value));
+  };
+
+  const toggleView = (item: any) => {
+    setSelectedItem(item);
+    setIsViewOpen(!isViewOpen);
   };
 
   return (
@@ -41,6 +64,7 @@ export function DataTable({ orders }: DataTableProps) {
             <TableHead className="text-center">Assinatura 1</TableHead>
             <TableHead className="text-center">Assinatura 2</TableHead>
             <TableHead className="text-center">Assinatura 3</TableHead>
+            <TableHead className="text-center">Ações</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -49,37 +73,58 @@ export function DataTable({ orders }: DataTableProps) {
               <TableCell className="font-medium">{order.id}</TableCell>
               <TableCell>{order.fornecedor}</TableCell>
               <TableCell>{order.cnpj}</TableCell>
-              <TableCell>{order.notaFiscal}</TableCell>
-              <TableCell>{order.formaPagamento}</TableCell>
-              <TableCell>{order.contaGerencial}</TableCell>
+              <TableCell>{order.notafiscal}</TableCell>
+              <TableCell>{order.formapag}</TableCell>
+              <TableCell>{order.contagerencial}</TableCell>
               <TableCell className="text-center">{order.itens}</TableCell>
               <TableCell className="text-center">{order.parcelas}</TableCell>
               <TableCell className="text-right">{formatCurrency(order.valor)}</TableCell>
               <TableCell className="text-center">
-                {order.assinaturas.primeira ? (
+                {order.assinatura1 ? (
                   <CheckCircle2 className="h-5 w-5 text-primary mx-auto" />
                 ) : (
                   <XCircle className="h-5 w-5 text-muted-foreground mx-auto" />
                 )}
               </TableCell>
               <TableCell className="text-center">
-                {order.assinaturas.segunda ? (
+                {order.assinatura2 ? (
                   <CheckCircle2 className="h-5 w-5 text-primary mx-auto" />
                 ) : (
                   <XCircle className="h-5 w-5 text-muted-foreground mx-auto" />
                 )}
               </TableCell>
               <TableCell className="text-center">
-                {order.assinaturas.terceira ? (
+                {order.assinatura3 ? (
                   <CheckCircle2 className="h-5 w-5 text-primary mx-auto" />
                 ) : (
                   <XCircle className="h-5 w-5 text-muted-foreground mx-auto" />
                 )}
+              </TableCell>
+              <TableCell className="text-center">
+                <button onClick={() => toggleView(order)} className="p-2">
+                  <Eye className="text-primary" />
+                </button>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+
+      {/* View Modal or Section */}
+      {isViewOpen && selectedItem && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-lg shadow-lg">
+            <h2 className="text-xl font-bold mb-4">Detalhes do Item</h2>
+            <p>ID: {selectedItem.id}</p>
+            <p>Fornecedor: {selectedItem.fornecedor}</p>
+            <p>Valor: {selectedItem.valor}</p>
+            {/* Add more details as needed */}
+            <button onClick={() => setIsViewOpen(false)} className="mt-4 bg-primary hover:bg-primary/90">
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

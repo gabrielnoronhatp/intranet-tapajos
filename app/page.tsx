@@ -12,7 +12,7 @@ export default function Home() {
       <Navbar onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
       <Sidebar isOpen={isSidebarOpen} />
       
-      <main className={`pt-16 transition-all duration-300 ${isSidebarOpen ? "ml-64" : "ml-0"}`}>
+      <main className={`pt-16 transition-all duration-300 ${isSidebarOpen ? "10" : "ml-0"}`}>
         <div className="p-6">
           <h1 className="text-2xl font-bold text-primary mb-6">Bem-vindo à Sangue Verde !!! </h1>
           

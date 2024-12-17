@@ -6,6 +6,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { X } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
+import { toast } from '@/hooks/use-toast';
 
 const ToastProvider = ToastPrimitives.Provider;
 
@@ -127,3 +128,11 @@ export {
   ToastClose,
   ToastAction,
 };
+
+export function TestToast() {
+  return (
+    <button onClick={() => toast({ title: "Teste", description: "Teste de toast!" })}>
+      Testar Toast
+    </button>
+  );
+}

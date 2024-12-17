@@ -1,12 +1,17 @@
+import ReduxProvider from '@/redux-provider';
 import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import { ToastProvider } from '@/components/ui/toast';
+import { Toaster } from 'react-hot-toast';
+
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Intranet',
+  title: 'Intranet Tapajós',
   description: 'Portal interno da empresa',
+  
 };
 
 export default function RootLayout({
@@ -16,7 +21,17 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
-      <body className={inter.className}>{children}</body>
+        <head>
+            <link rel="icon" href="/favicon.ico" />
+      </head>
+      <body className={inter.className}>
+        
+      <ReduxProvider> 
+        <Toaster/>
+          {children}
+        </ReduxProvider>
+
+        </body>
     </html>
   );
 }

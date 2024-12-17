@@ -34,10 +34,10 @@ export function Navbar({ onToggleSidebar }: NavbarProps) {
             <Menu className="h-5 w-5" />
           </Button>
           <Image
-            src={tpLogo} // Ajuste o caminho para seu arquivo de logo
+            src={tpLogo} 
             alt="Logo"
-            width={120} // Ajuste o tamanho conforme necessário
-            height={40} // Ajuste o tamanho conforme necessário
+            width={120} 
+            height={40} 
             className="object-contain"
           />
         </div>
@@ -56,7 +56,7 @@ export function Navbar({ onToggleSidebar }: NavbarProps) {
           ))}
         </div>
 
-        <div className="w-10" /> {/* Spacer for balance */}
+        <div className="w-10" /> 
       </div>
     </nav>
   );

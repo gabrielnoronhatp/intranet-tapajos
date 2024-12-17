@@ -8,13 +8,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Order } from "@/types/OrderTypes";
+
+
+
 import { CheckCircle2, XCircle, Eye } from "lucide-react";
 import { useState, useEffect } from "react";
 
 
-export function DataTable() {
-  const [orders, setOrders] = useState<Order[]>([]);
+export function DataTableOrder() {
+  const [orders, setOrders] = useState<Array<any>>([]);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [selectedItem, setSelectedItem]: any = useState(null);
 
@@ -25,7 +27,7 @@ export function DataTable() {
         if (!response.ok) {
           throw new Error("Failed to fetch orders");
         }
-        const data: Order[] = await response.json();
+        const data = await response.json();
         setOrders(data);
       } catch (error) {
         console.error("Error fetching orders:", error);
@@ -110,7 +112,7 @@ export function DataTable() {
         </TableBody>
       </Table>
 
-      {/* View Modal or Section */}
+    
       {isViewOpen && selectedItem && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-lg">
@@ -118,7 +120,6 @@ export function DataTable() {
             <p>ID: {selectedItem.id}</p>
             <p>Fornecedor: {selectedItem.fornecedor}</p>
             <p>Valor: {selectedItem.valor}</p>
-            {/* Add more details as needed */}
             <button onClick={() => setIsViewOpen(false)} className="mt-4 bg-primary hover:bg-primary/90">
               Fechar
             </button>

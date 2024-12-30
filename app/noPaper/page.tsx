@@ -1,5 +1,4 @@
 "use client";
-
 import { Navbar } from "@/components/layout/navbar";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Input } from "@/components/ui/input";
@@ -9,6 +8,8 @@ import { useEffect, useState } from "react";
 import { SelectField } from "@/components/nopaper/select-field";
 import { FormSection } from "@/components/nopaper/form-section";
 import { useDispatch, useSelector } from "react-redux";
+import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
+
 import {
   fetchFornecedores,
   fetchFiliais,
@@ -24,6 +25,17 @@ import {
 import { FilialSelect } from "@/components/FilialSelect";
 import { FornecedorSelect } from "@/components/FornecedorSelect";
 import { Item } from "@/types/Order/OrderTypes";
+import { message, GetProp, Upload, UploadProps } from "antd";
+
+type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
+
+const getBase64 = (img: FileType, callback: (url: string) => void) => {
+  const reader = new FileReader();
+  reader.addEventListener("load", () => callback(reader.result as string));
+  reader.readAsDataURL(img);
+};
+
+
 
 export default function NoPaper() {
   const dispatch = useDispatch();
@@ -61,6 +73,7 @@ export default function NoPaper() {
   const {
     fornecedores,
     filiais,
+    searchQuery,
     contasGerenciais,
     centrosCustoOptions,
     loading,
@@ -74,6 +87,8 @@ export default function NoPaper() {
     { centroCusto: "", valor: 0 },
   ]);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [loadingUpload, setLoadingUpload] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string>();
 
   const handleSetState = (field: keyof any, value: any) => {
     dispatch(setOrderState({ [field]: value }));
@@ -197,9 +212,7 @@ export default function NoPaper() {
     handleSetState("isViewOpen", !isViewOpen);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const handleUploadSubmit = async (files: FileType[]) => {
     const newErrors: { [key: string]: string } = {};
 
     if (!ramo) newErrors.ramo = "O campo Ramo é obrigatório.";
@@ -226,6 +239,7 @@ export default function NoPaper() {
       setErrors(newErrors);
       return;
     }
+
     setErrors({});
 
     dispatch(
@@ -257,12 +271,158 @@ export default function NoPaper() {
       })
     );
 
+    try {
+      const response = await dispatch(submitOrder(orderData) as any);
+      const orderId = response.payload?.id;
+
+      if (orderId) {
+        const formData = new FormData();
+        files.forEach((file) => {
+          formData.append("files", file as File);
+        });
+
+        const uploadResponse = await fetch(
+          `http://localhost:3001/api/upload/${orderId}`,
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+        if (uploadResponse.ok) {
+          message.success("Arquivos enviados com sucesso!");
+        } else {
+          throw new Error("Erro no upload dos arquivos.");
+        }
+      } else {
+        message.error("Erro ao obter o ID da operação.");
+      }
+    } catch (error) {
+      console.error("Erro ao submeter a operação ou fazer upload:", error);
+      message.error("Erro ao processar a operação.");
+    }
+  };
+
+  const beforeUpload = async (file: FileType) => {
+    const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
+    if (!isJpgOrPng) {
+      message.error("Você só pode enviar arquivos JPG/PNG!");
+      return false;
+    }
+
+    const isLt2M = file.size / 1024 / 1024 < 2;
+    if (!isLt2M) {
+      message.error("A imagem deve ter menos de 2MB!");
+      return false;
+    }
+
+    await handleUploadSubmit([file]);
+    return false;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const newErrors: { [key: string]: string } = {};
+
+    if (!ramo) newErrors.ramo = "O campo Ramo é obrigatório.";
+    if (!tipoLancamento)
+      newErrors.tipoLancamento = "O campo Tipo Lançamento é obrigatório.";
+    if (!centrosCusto.length)
+      newErrors.centrosCusto = "O campo Centro de Custo é obrigatório.";
+    if (!formaPagamento)
+      newErrors.formaPagamento = "O campo Forma de Pagamento é obrigatório.";
+    if (!notaFiscal)
+      newErrors.notaFiscal = "O campo Nota Fiscal é obrigatório.";
+    if (!serie) newErrors.serie = "O campo Série é obrigatório.";
+    if (!selectedFornecedor)
+      newErrors.selectedFornecedor = "O campo Fornecedor é obrigatório.";
+    if (!selectedFilial)
+      newErrors.selectedFilial = "O campo Filial é obrigatório.";
+    if (!quantidadeProdutos || quantidadeProdutos <= 0)
+      newErrors.quantidadeProdutos =
+        "O campo Quantidade de Produtos é obrigatório.";
+    if (!itens.every((item) => item.descricao && item.valor > 0))
+      newErrors.itens = "Todos os itens devem ter descrição e valor.";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    setErrors({});
+
+    // Preparar os dados para envio
+    dispatch(
+      prepareOrderData({
+        itens,
+        centrosCusto,
+        valorImposto,
+        ramo,
+        notaFiscal,
+        installments,
+        contaOP,
+        selectedFornecedor,
+        selectedFilial,
+        serie,
+        formaPagamento,
+        quantidadeProdutos,
+        dtavista,
+        banco,
+        agencia,
+        conta,
+        dtdeposito,
+        installmentDates,
+        observacao,
+        tipopix,
+        chavepix,
+        datapix,
+        tipoLancamento,
+        user,
+      })
+    );
+
     if (orderData) {
       try {
-        await dispatch(submitOrder(orderData) as any);
+        const response = await dispatch(submitOrder(orderData) as any);
+        const orderId = response.payload?.id;
+
+        if (imageUrl && orderId) {
+          const formData = new FormData();
+          formData.append("files ", imageUrl);
+
+          const uploadResponse = await fetch(
+            `https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload/${orderId}`,
+            {
+              method: "POST",
+              body: formData,
+            }
+          );
+
+          if (!uploadResponse.ok) {
+            throw new Error("Erro no upload do arquivo.");
+          }
+
+          message.success("Arquivo enviado com sucesso!");
+        } else if (!imageUrl) {
+          message.info("Formulário enviado sem anexo.");
+        }
       } catch (error) {
-        console.error("Erro ao enviar a ordem:", error);
+        console.error("Erro ao enviar a ordem ou o arquivo:", error);
+        message.error("Erro ao processar o formulário.");
       }
+    }
+  };
+
+  const handleChange: UploadProps["onChange"] = (info) => {
+    if (info.file.status === "uploading") {
+      setLoadingUpload(true);
+      return;
+    }
+    if (info.file.status === "done") {
+      getBase64(info.file.originFileObj as FileType, (url) => {
+        setLoadingUpload(false);
+        setImageUrl(url);
+      });
     }
   };
 
@@ -272,11 +432,11 @@ export default function NoPaper() {
   }));
 
   useEffect(() => {
-    dispatch(fetchFornecedores() as any);
+    dispatch(fetchFornecedores(searchQuery) as any);
     dispatch(fetchFiliais() as any);
     dispatch(fetchContasGerenciais() as any);
     dispatch(fetchCentrosCusto() as any);
-  }, [dispatch]);
+  }, [dispatch, searchQuery]);
 
   useEffect(() => {
     calculateProportionalCentrosCusto();
@@ -285,6 +445,13 @@ export default function NoPaper() {
   useEffect(() => {
     calculateValorTotal(itens);
   }, [itens, valorImposto]);
+
+  const uploadButton = (
+    <button style={{ border: 0, background: "none" }} type="button">
+      {loadingUpload ? <LoadingOutlined /> : <PlusOutlined />}
+      <div style={{ marginTop: 8 }}>Upload</div>
+    </button>
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -295,7 +462,7 @@ export default function NoPaper() {
 
       <main
         className={`pt-16 transition-all duration-300 ${
-          isSidebarOpen ? "ml-64" : "ml-16"
+          isSidebarOpen ? "ml-64" : "ml-20"
         }`}
       >
         <div className="p-4">
@@ -363,6 +530,7 @@ export default function NoPaper() {
                     <div>
                       <FornecedorSelect
                         open={open}
+                        searchQuery={searchQuery}
                         selectedFornecedor={selectedFornecedor}
                         fornecedores={fornecedores}
                         handleSetState={handleSetState}
@@ -736,6 +904,26 @@ export default function NoPaper() {
                   />
                 </div>
               </FormSection>
+
+              <div className="mt-6">
+                <Upload
+                  name="avatar"
+                  listType="picture-card"
+                  className="avatar-uploader"
+                  showUploadList={false}
+                  beforeUpload={beforeUpload}
+                >
+                  {imageUrl ? (
+                    <img
+                      src={imageUrl}
+                      alt="avatar"
+                      style={{ width: "100%" }}
+                    />
+                  ) : (
+                    uploadButton
+                  )}
+                </Upload>
+              </div>
 
               <div className="flex justify-end">
                 <Button

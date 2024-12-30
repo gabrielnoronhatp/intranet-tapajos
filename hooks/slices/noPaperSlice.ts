@@ -4,10 +4,10 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 
 
-
 const initialState: NoPaperState = {
   fornecedores: [],
   filiais: [],
+  searchQuery: '',
   contasGerenciais: [],
   centrosCustoOptions: [],
   loading: false,
@@ -15,10 +15,36 @@ const initialState: NoPaperState = {
 };
 
 
-export const fetchFornecedores = createAsyncThunk('noPaper/fetchFornecedores', async () => {
-  const response = await api.get('fornec_dist?q=1');
-  return response.data;
-});
+export const fetchFornecedores = createAsyncThunk(
+  'noPaper/fetchFornecedores',
+  async (query?: any) => { 
+    const response = await api.get(`fornec_dist?q=${query}`); 
+    return response.data;
+  }
+);
+
+
+
+export const uploadFiles = createAsyncThunk(
+  'noPaper/uploadFiles',
+  async ({ opId, files }: { opId: string; files: File[] }) => {
+    const formData = new FormData();
+    files.forEach(file => {
+      formData.append('files', file);
+    });
+
+    const response = await api.post(`/upload/${opId}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    return response.data;
+  }
+);
+
+
+
 
 export const fetchFiliais = createAsyncThunk('noPaper/fetchFiliais', async () => {
   const response = await api.get('dadoslojas');

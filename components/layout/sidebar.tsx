@@ -12,10 +12,12 @@ import { usePathname } from "next/navigation";
 
 interface SidebarProps {
   isOpen: boolean;
+ 
 }
 
 export function Sidebar({ isOpen }: SidebarProps) {
   const pathname = usePathname();
+  
 
   const menuItems = [
     {
@@ -42,8 +44,9 @@ export function Sidebar({ isOpen }: SidebarProps) {
 
   return (
     <aside
+  
       className={`fixed left-0 top-16 h-[calc(100vh-4rem)] bg-white border-r transition-all duration-300 z-40 ${
-        isOpen ? "w-64" : "w-16"
+        isOpen ? "w-64" :  "w-16"
       }`}
     >
       <Menu

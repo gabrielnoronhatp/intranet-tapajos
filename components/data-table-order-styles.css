@@ -1,0 +1,88 @@
+.table-container {
+    overflow-x: auto;
+  }
+  
+  .table th, .table td {
+    padding: 8px;
+    text-align: center;
+  }
+  
+  .table th {
+    font-size: 14px;
+  }
+  
+  .table td {
+    font-size: 12px;
+  }
+  
+  @media screen and (max-width: 1024px) {
+    .table th, .table td {
+      font-size: 12px;
+      padding: 6px;
+    }
+  
+    .table th {
+      white-space: nowrap;
+    }
+  
+    .table td {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  
+    .table-container {
+      margin: 0 10px;
+    }
+  
+    .modal-content {
+      width: 90%;
+      padding: 20px;
+      max-height: 90%;
+      overflow-y: auto;
+    }
+  
+    .modal img {
+      max-width: 100%;
+      height: auto;
+    }
+  }
+  
+  @media screen and (max-width: 768px) {
+    .table th, .table td {
+      font-size: 10px;
+      padding: 4px;
+    }
+  
+    .table th, .table td {
+      text-align: left;
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+    }
+  
+    .table td {
+      padding-left: 20px;
+      position: relative;
+      text-align: left;
+    }
+  
+    .table td::before {
+      content: attr(data-label);
+      position: absolute;
+      left: 0;
+      top: 0;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+  
+    .modal-content {
+      width: 95%;
+    }
+  
+    .modal img {
+      width: 100%;
+    }
+  }
+  
+  

@@ -72,3 +72,16 @@ export interface OrderState {
   datapix: string;
   contaOP: string;
 }
+
+export interface UploadParams {
+  orderId: string;
+  files: File[];
+}
+
+export interface File {
+  name: string;
+  size: number;
+  type: string;
+  lastModified: number; 
+}
+  

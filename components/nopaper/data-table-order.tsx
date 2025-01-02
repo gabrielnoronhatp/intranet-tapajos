@@ -21,8 +21,9 @@ export function DataTableOrder() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null); 
 
   
-  const handlePreview = (url: string) => {
-    setPreviewUrl(url); 
+  const handlePreview = (e: React.MouseEvent, url: string) => {
+    e.preventDefault();
+    setPreviewUrl(url);
   };
 
   useEffect(() => {
@@ -98,37 +99,41 @@ export function DataTableOrder() {
     <TableBody>
       {orders.map((order) => (
         <TableRow key={order.id}>
-          <TableCell className="font-medium">{order.id}</TableCell>
-          <TableCell>{order.fornecedor}</TableCell>
-          <TableCell>{order.cnpj}</TableCell>
-          <TableCell>{order.notafiscal}</TableCell>
-          <TableCell>{order.formapag}</TableCell>
-          <TableCell>{order.contagerencial}</TableCell>
-          <TableCell className="text-center">{order.itens}</TableCell>
-          <TableCell className="text-center">{order.parcelas}</TableCell>
-          <TableCell className="text-right">{formatCurrency(order.valor)}</TableCell>
-          <TableCell className="text-center">
+          <TableCell className="font-medium text-sm">{order.id}</TableCell>
+          <TableCell className="text-sm fornecedor-column" data-label={order.fornecedor}>
+            {order.fornecedor}
+          </TableCell>
+          <TableCell className="text-sm">{order.cnpj}</TableCell>
+          <TableCell className="text-sm">{order.notafiscal}</TableCell>
+          <TableCell className="text-sm">{order.formapag}</TableCell>
+          <TableCell className="text-sm contagerencial-column" data-label={order.contagerencial}>
+            {order.contagerencial}
+          </TableCell>
+          <TableCell className="text-center text-sm">{order.itens}</TableCell>
+          <TableCell className="text-center text-sm">{order.parcelas}</TableCell>
+          <TableCell className="text-right text-sm">{formatCurrency(order.valor)}</TableCell>
+          <TableCell className="text-center text-sm">
             {order.assinatura1 ? (
               <CheckCircle2 className="h-5 w-5 text-primary mx-auto" />
             ) : (
               <XCircle className="h-5 w-5 text-muted-foreground mx-auto" />
             )}
           </TableCell>
-          <TableCell className="text-center">
+          <TableCell className="text-center text-sm">
             {order.assinatura2 ? (
               <CheckCircle2 className="h-5 w-5 text-primary mx-auto" />
             ) : (
               <XCircle className="h-5 w-5 text-muted-foreground mx-auto" />
             )}
           </TableCell>
-          <TableCell className="text-center">
+          <TableCell className="text-center text-sm">
             {order.assinatura3 ? (
               <CheckCircle2 className="h-5 w-5 text-primary mx-auto" />
             ) : (
               <XCircle className="h-5 w-5 text-muted-foreground mx-auto" />
             )}
           </TableCell>
-          <TableCell className="text-center">
+          <TableCell className="text-center text-sm">
             <button onClick={() => toggleView(order)} className="p-2">
               <Eye className="text-primary" />
             </button>
@@ -140,60 +145,72 @@ export function DataTableOrder() {
 
       {isViewOpen && selectedItem && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg">
-            <h2 className="text-xl font-bold mb-4">Detalhes do Item</h2>
-            <p>ID: {selectedItem.id}</p>
-            <p>Fornecedor: {selectedItem.fornecedor}</p>
-            <p>CNPJ: {selectedItem.cnpj}</p>
-            <p>Nota Fiscal: {selectedItem.notafiscal}</p>
-            <p>Forma de Pagamento: {selectedItem.formapag}</p>
-            <p>Conta Gerencial: {selectedItem.contagerencial}</p>
-            <p>Itens: {selectedItem.itens}</p>
-            <p>Parcelas: {selectedItem.parcelas}</p>
-            <p>Valor: {formatCurrency(selectedItem.valor)}</p>
-            <p>Assinatura 1: {selectedItem.assinatura1 ? "Sim" : "Não"}</p>
-            <p>Assinatura 2: {selectedItem.assinatura2 ? "Sim" : "Não"}</p>
-            <p>Assinatura 3: {selectedItem.assinatura3 ? "Sim" : "Não"}</p>
-            <h3 className="text-lg font-bold mt-4">Arquivos:</h3>
-            <ul>
-              {fileUrls.map((url, index) => (
-                <li key={index}>
-                  <a
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => handlePreview(url)}
-                  >
-                    {url}
-                  </a>
-                </li>
-              ))}
-            </ul>
-
-            {previewUrl && (
-              <div className="mt-4">
-                <h4 className="text-lg font-bold">Pré-visualização:</h4>
-                {previewUrl.endsWith(".png") ||
-                previewUrl.endsWith(".jpg") ||
-                previewUrl.endsWith(".jpeg") ? (
-                  <img
-                    src={previewUrl}
-                    alt="Preview"
-                    className="max-w-full h-auto"
-                  />
-                ) : previewUrl.endsWith(".pdf") ? (
-                  <iframe
-                    src={previewUrl}
-                    width="100%"
-                    height="500px"
-                    title="Preview PDF"
-                  />
-                ) : (
-                  <p>Formato de arquivo não suportado para visualização.</p>
+          <div className="bg-white p-6 rounded-lg shadow-lg w-[800px] max-h-[90vh] overflow-y-auto">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <h2 className="text-xl font-bold mb-4">Detalhes do Item</h2>
+                <p>ID: {selectedItem.id}</p>
+                <p>Fornecedor: {selectedItem.fornecedor}</p>
+                <p>CNPJ: {selectedItem.cnpj}</p>
+                <p>Nota Fiscal: {selectedItem.notafiscal}</p>
+                <p>Forma de Pagamento: {selectedItem.formapag}</p>
+                <p>Conta Gerencial: {selectedItem.contagerencial}</p>
+                <p>Itens: {selectedItem.itens}</p>
+                <p>Parcelas: {selectedItem.parcelas}</p>
+                <p>Valor: {formatCurrency(selectedItem.valor)}</p>
+                <p>Assinatura 1: {selectedItem.assinatura1 ? "Sim" : "Não"}</p>
+                <p>Assinatura 2: {selectedItem.assinatura2 ? "Sim" : "Não"}</p>
+                <p>Assinatura 3: {selectedItem.assinatura3 ? "Sim" : "Não"}</p>
+                
+                {fileUrls.length > 0 && (
+                  <>
+                    <h3 className="text-lg font-bold mt-4">Arquivos:</h3>
+                    <ul className="space-y-2">
+                      {fileUrls.map((url, index) => (
+                        <li key={index}>
+                          <a
+                            href={url}
+                            className="text-blue-600 hover:text-blue-800"
+                            onClick={(e) => handlePreview(e, url)}
+                          >
+                            Arquivo {index + 1}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
                 )}
               </div>
-            )}
-            <button onClick={() => setIsViewOpen(false)} className="mt-4">
+
+              <div className="h-full">
+                {previewUrl && (
+                  <div className="h-[600px] w-full">
+                    {previewUrl.endsWith(".png") ||
+                    previewUrl.endsWith(".jpg") ||
+                    previewUrl.endsWith(".jpeg") ? (
+                      <img
+                        src={previewUrl}
+                        alt="Preview"
+                        className="w-full h-full object-contain bg-gray-100"
+                      />
+                    ) : previewUrl.endsWith(".pdf") ? (
+                      <iframe
+                        src={previewUrl}
+                        className="w-full h-full border-0"
+                        title="Preview PDF"
+                      />
+                    ) : (
+                      <p>Formato de arquivo não suportado para visualização.</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <button 
+              onClick={() => setIsViewOpen(false)}
+              className="mt-4 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+            >
               Fechar
             </button>
           </div>

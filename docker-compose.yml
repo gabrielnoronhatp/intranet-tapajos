@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  react-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "2002:80"
+    restart: always
+    networks:
+      - monitor_pedido_coletor_rede_maidson
+networks:
+  monitor_pedido_coletor_rede_maidson:
+    external: true
+

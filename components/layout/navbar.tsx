@@ -92,7 +92,7 @@ export function Navbar({ onToggleSidebar }: NavbarProps) {
               </Button>
             </>
           ) : (
-            <Link href="/login" className="text-white">
+            <Link href="/" className="text-white">
               Login
             </Link>
           )}

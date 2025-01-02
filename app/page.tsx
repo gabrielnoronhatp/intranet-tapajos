@@ -9,7 +9,7 @@ export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   return (
-    <ProtectedRoute>
+    // <ProtectedRoute>
   <div className="min-h-screen bg-background">
       <Navbar onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
       <Sidebar isOpen={isSidebarOpen} />
@@ -33,7 +33,7 @@ export default function Home() {
         </div>
       </main>
     </div>
-    </ProtectedRoute>
+    // </ProtectedRoute>
     
   );
 }

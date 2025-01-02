@@ -13,6 +13,26 @@
   
   .table td {
     font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    position: relative;
+  }
+  
+  .table td:hover::after {
+    content: attr(data-label);
+    position: absolute;
+    left: 0;
+    top: 100%;
+    background-color: rgba(0, 0, 0, 0.75);
+    color: #fff;
+    padding: 5px;
+    border-radius: 3px;
+    white-space: normal;
+    z-index: 1;
+    width: max-content;
+    max-width: 200px;
+    overflow-wrap: break-word;
   }
   
   @media screen and (max-width: 1024px) {
@@ -52,6 +72,9 @@
     .table th, .table td {
       font-size: 10px;
       padding: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   
     .table th, .table td {
@@ -84,5 +107,8 @@
       width: 100%;
     }
   }
+  
+ 
+ 
   
   

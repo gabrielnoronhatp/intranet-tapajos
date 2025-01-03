@@ -1,34 +1,15 @@
 "use client";
-import { Navbar } from "@/components/layout/navbar";
-import { Sidebar } from "@/components/layout/sidebar";
 import { setOrderState } from "@/hooks/slices/orderSlice";
-
-import { SelectField } from "./select-field";
-import { FormSection } from "./form-section";
-
-
+import { SelectField } from "../select-field";
+import { FormSection } from "../form-section";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-
-
 import { useDispatch, useSelector } from "react-redux";
-import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
-
 import {
-  fetchFornecedores,
-  fetchFiliais,
   fetchContasGerenciais,
-  fetchCentrosCusto,
 } from "@/hooks/slices/noPaperSlice";
-import { CentroCusto } from "@/types/Order/CentroCustoType";
-import {
-  submitOrder,
-  prepareOrderData,
-} from "@/hooks/slices/orderSlice";
-import { FilialSelect } from "@/components/FilialSelect";
-import { FornecedorSelect } from "@/components/FornecedorSelect";
+
 
 export default function FinancialData() {
 const dispatch = useDispatch();
@@ -36,24 +17,9 @@ const dispatch = useDispatch();
     dispatch(setOrderState({ [field]: value }));
   };
   const {
-    isSidebarOpen,
-    ramo,
-    tipoLancamento,
     formaPagamento,
-    open,
-    selectedFornecedor,
-    quantidadeProdutos,
     installments,
     installmentDates,
-    valorTotal,
-    isViewOpen,
-    selectedFilial,
-    filialOpen,
-    notaFiscal,
-    serie,
-    valorImposto,
-    observacao,
-    user,
     dtavista,
     banco,
     agencia,
@@ -66,13 +32,8 @@ const dispatch = useDispatch();
   } = useSelector((state: any) => state.order);
 
   const {
-    fornecedores,
-    filiais,
     searchQuery,
     contasGerenciais,
-    centrosCustoOptions,
-    loading,
-    error,
   } = useSelector((state: any) => state.noPaper);
 
   
@@ -116,11 +77,7 @@ const dispatch = useDispatch();
            { value: "pix", label: "PIX" },
          ]}
        />
-       {/* {errors.formaPagamento && (
-         <p className="text-red-500 text-xs">
-           {errors.formaPagamento}
-         </p>
-       )} */}
+     
 
        {formaPagamento === "avista" && (
          <div className="space-y-2">
@@ -152,9 +109,7 @@ const dispatch = useDispatch();
              placeholder="Banco"
              className="form-control"
            />
-           {/* {errors.banco && (
-             <p className="text-red-500 text-xs">{errors.banco}</p>
-           )} */}
+           
            <Label className="text-xs font-semibold text-primary uppercase">
              Agência
            </Label>
@@ -167,9 +122,7 @@ const dispatch = useDispatch();
              placeholder="Agência"
              className="form-control"
            />
-           {/* {errors.agencia && (
-             <p className="text-red-500 text-xs">{errors.agencia}</p>
-           )} */}
+       
            <Label className="text-xs font-semibold text-primary uppercase">
              Conta
            </Label>
@@ -182,9 +135,8 @@ const dispatch = useDispatch();
              placeholder="Conta"
              className="form-control"
            />
-           {/* {errors.conta && (
-             <p className="text-red-500 text-xs">{errors.conta}</p>
-           )} */}
+         
+        
            <Label className="text-xs font-semibold text-primary uppercase">
              Data de Depósito
            </Label>
@@ -290,9 +242,7 @@ const dispatch = useDispatch();
          label=""
        />
      </div>
-     {/* {errors.contaOP && (
-       <p className="text-red-500 text-xs">{errors.contaOP}</p>
-     )} */}
+   
    </FormSection>
 
    

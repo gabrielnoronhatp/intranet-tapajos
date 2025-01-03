@@ -14,6 +14,8 @@ import { CheckCircle2, XCircle, Eye,  } from "lucide-react";
 import { useState, useEffect, ChangeEvent } from "react";
 import { Upload, message } from "antd";
 import { UploadProps } from "antd";
+import { PinModal } from "@/components/nopaper/pin-modal";
+import api from '@/app/service/api';
 
 export function DataTableOrder() {
   const [orders, setOrders] = useState<Array<any>>([]);
@@ -23,6 +25,8 @@ export function DataTableOrder() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null); 
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
   const [fileList, setFileList] = useState<any[]>([]);
+  const [isPinModalOpen, setIsPinModalOpen] = useState(false);
+  const [selectedSignature, setSelectedSignature] = useState<number | null>(null);
 
   
   const handlePreview = (e: React.MouseEvent, url: string) => {
@@ -33,12 +37,8 @@ export function DataTableOrder() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await fetch("http://localhost:3001/api/consultar-ordem");
-        if (!response.ok) {
-          throw new Error("Failed to fetch orders");
-        }
-        const data = await response.json();
-        setOrders(data);
+        const response = await api.get('consultar-ordem');
+        setOrders(response.data);
       } catch (error) {
         console.error("Error fetching orders:", error);
       }
@@ -61,20 +61,14 @@ export function DataTableOrder() {
 
     if (!isViewOpen) {
       try {
-        const response = await fetch(
-          `http://localhost:3001/api/arquivos/${item.id}`
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch files");
-        }
-        const data = await response.json();
-        setFileUrls(data.urls); 
+        const response = await api.get(`arquivos/${item.id}`);
+        setFileUrls(response.data.urls);
       } catch (error) {
         console.error("Error fetching files:", error);
-        setFileUrls([]); 
+        setFileUrls([]);
       }
     } else {
-      setFileUrls([]); 
+      setFileUrls([]);
     }
   };
 
@@ -91,14 +85,11 @@ export function DataTableOrder() {
     formData.append("file", fileToUpload);
 
     try {
-      const response = await fetch(`http://localhost:3001/api/upload/${selectedItem.id}`, {
-        method: "POST",
-        body: formData,
+      const response = await api.post(`upload/${selectedItem.id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to upload file");
-      }
 
       alert("File uploaded successfully");
       setFileToUpload(null);
@@ -117,21 +108,21 @@ export function DataTableOrder() {
         const formData = new FormData();
         formData.append('files', info.file.originFileObj as File);
         
-        const response = await fetch(`http://localhost:3001/api/upload/${selectedItem.id}`, {
-          method: 'POST',
-          body: formData
+        const response = await api.post(`upload/${selectedItem.id}`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
         });
 
-        if (!response.ok) {
+        if (!response.data) {
           throw new Error('Falha no upload');
         }
 
         message.success(`${info.file.name} arquivo enviado com sucesso`);
         
-        // Atualiza a lista de arquivos
-        const updatedFiles = await fetch(`http://localhost:3001/api/arquivos/${selectedItem.id}`);
-        const data = await updatedFiles.json();
-        setFileUrls(data.urls);
+
+        const updatedFiles = await api.get(`arquivos/${selectedItem.id}`);
+        setFileUrls(updatedFiles.data.urls);
 
       } catch (error) {
         message.error(`${info.file.name} falha no upload.`);
@@ -154,6 +145,22 @@ export function DataTableOrder() {
       return Upload.LIST_IGNORE;
     }
     return true;
+  };
+
+  const handleOpenPinModal = (signatureNumber: number) => {
+    setSelectedSignature(signatureNumber);
+    setIsPinModalOpen(true);
+  };
+
+  const handleClosePinModal = () => {
+    setIsPinModalOpen(false);
+    setSelectedSignature(null);
+  };
+
+  const handleConfirmPin = (pin: string) => {
+    console.log(`PIN confirmado para assinatura ${selectedSignature}:`, pin);
+    
+    handleClosePinModal();
   };
 
   return (
@@ -211,6 +218,7 @@ export function DataTableOrder() {
           <TableCell
             className="text-center text-sm assinatura-column"
             title={order.assinatura1 ? "Assinado" : "Não Assinado"}
+            onClick={() => handleOpenPinModal(1)}
           >
             {order.assinatura1 ? (
               <CheckCircle2 className="h-4 w-4 text-primary mx-auto" />
@@ -221,6 +229,7 @@ export function DataTableOrder() {
           <TableCell
             className="text-center text-sm assinatura-column"
             title={order.assinatura2 ? "Assinado" : "Não Assinado"}
+            onClick={() => handleOpenPinModal(2)}
           >
             {order.assinatura2 ? (
               <CheckCircle2 className="h-4 w-4 text-primary mx-auto" />
@@ -231,6 +240,7 @@ export function DataTableOrder() {
           <TableCell
             className="text-center text-sm assinatura-column"
             title={order.assinatura3 ? "Assinado" : "Não Assinado"}
+            onClick={() => handleOpenPinModal(3)}
           >
             {order.assinatura3 ? (
               <CheckCircle2 className="h-4 w-4 text-primary mx-auto" />
@@ -358,6 +368,12 @@ export function DataTableOrder() {
           </div>
         </div>
       )}
+
+      <PinModal
+        isOpen={isPinModalOpen}
+        onClose={handleClosePinModal}
+        onConfirm={handleConfirmPin}
+      />
     </div>
   );
 }

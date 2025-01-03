@@ -14,10 +14,10 @@ import {
 import { Item } from "@/types/Order/OrderTypes";
 import { message, GetProp, Upload, UploadProps } from "antd";
 import api from "@/app/service/api";
-import OriginData from "@/components/nopaper/OriginData";
-import FinancialData from "@/components/nopaper/FinancialData";
-import TaxesData from "@/components/nopaper/TaxesData";
-import CenterOfCoust from "@/components/nopaper/CenterOfCoust";
+import OriginData from "@/components/nopaper/form/origin-data-form";
+import FinancialData from "@/components/nopaper/form/financial-data-form";
+import TaxesData from "@/components/nopaper/form/taxes-data-form";
+import CenterOfCoust from "@/components/nopaper/form/center-of-coust-form";
 
 type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
 

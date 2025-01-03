@@ -6,8 +6,8 @@ import { Navbar } from "@/components/layout/navbar";
 import { Sidebar } from "@/components/layout/sidebar";
 import { setOrderState } from "@/hooks/slices/orderSlice";
 
-import { SelectField } from "./select-field";
-import { FormSection } from "./form-section";
+import { SelectField } from "../select-field";
+import { FormSection } from "../form-section";
 
 
 import { Input } from "@/components/ui/input";

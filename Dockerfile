@@ -1,32 +1,31 @@
-FROM node:18-alpine as build
+# Use a imagem base do Node.js
+FROM node:17
 
-WORKDIR /
+# Defina o diretório de trabalho dentro do contêiner
+WORKDIR /app
 
-# Criar e configurar usuário não-root
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-RUN chown -R appuser:appgroup /app
+# Copie o package.json e o package-lock.json para o diretório de trabalho
+COPY package*.json ./
 
-# Mudar para o usuário não-root
-USER appuser
+# Instale as dependências com permissões adequadas
+RUN npm install --unsafe-perm=true
 
-# Copiar package.json e package-lock.json
-COPY --chown=appuser:appgroup package*.json ./
+# Copie o restante do código da aplicação
+COPY . .
 
-# Instalar dependências com flags específicas
-RUN npm install --legacy-peer-deps --no-optional
+# Corrija permissões para os arquivos
+RUN  chmod -R 755 /app 
 
-# Copiar o resto dos arquivos
-COPY --chown=appuser:appgroup . .
 
-# Build da aplicação
+# Construa a aplicação para produção
+# Construa a aplicação para produção
 RUN npm run build
 
-# Estágio de produção
-FROM nginx:alpine
+# Instale um servidor para servir os arquivos estáticos
+RUN npm install -g serve
 
-COPY --from=build /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Comando para iniciar o servidor
+CMD ["serve", "-s", "build"]
 
+# Exponha a porta 80 para o tráfego HTTP
 EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]

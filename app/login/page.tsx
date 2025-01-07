@@ -10,6 +10,8 @@ import {
 import { toast } from "react-hot-toast";
 import "../../components/styles/login.css";
 import { tpGrupoTapajos } from "../assets/index";
+import { Navbar } from "@/components/layout/navbar";
+import { Sidebar } from "@/components/layout/sidebar";
 
 
 const msalConfig = {
@@ -90,8 +92,22 @@ export default function LoginPage() {
       toast.error("Erro ao obter informações do usuário.");
     }
   };
+  
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
 
   return (
+    <div className="min-h-screen bg-background">
+    <Navbar
+      onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+    />
+    <Sidebar isOpen={isSidebarOpen} />
+
+    <main
+      className={`pt-16 transition-all duration-300 ${
+        isSidebarOpen ? "ml-64" : "ml-20"
+      }`}
+    >
     <div className="login-container">
       <form>
         <Image src={tpGrupoTapajos} alt="Login Logo" width={400} height={400} />
@@ -103,6 +119,8 @@ export default function LoginPage() {
           Login
         </button>
       </form>
+    </div>
+    </main>
     </div>
   );
 }

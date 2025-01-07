@@ -56,7 +56,9 @@ export const FornecedorSelect = ({
           aria-expanded={open}
           className="justify-between"
         >
-          {selectedFornecedor ? selectedFornecedor.fornecedor : "Selecione um fornecedor..."}
+            <span className="truncate block max-w-[90%]">
+              {selectedFornecedor ? selectedFornecedor.fornecedor : "Selecione um fornecedor..."}
+            </span>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[300px] p-0">

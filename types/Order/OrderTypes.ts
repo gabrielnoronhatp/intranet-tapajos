@@ -4,7 +4,7 @@ export interface CentroCusto {
 }
 
 export interface Item {
-  descricao: string;
+  produto: any;
   valor: number;
   centroCusto: CentroCusto[];
 }

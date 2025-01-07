@@ -35,7 +35,9 @@ export const FilialSelect = ({
             aria-expanded={filialOpen}
             className="justify-between w-full"
           >
-            {selectedFilial ? selectedFilial.loja : "Selecione uma filial..."}
+           <span className="truncate block max-w-[90%]">
+              {selectedFilial ? selectedFilial.loja : "Selecione uma filial..."}
+            </span>
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[300px] p-0">

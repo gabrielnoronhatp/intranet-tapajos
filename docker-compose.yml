@@ -1,16 +1,18 @@
 version: '3.8'
 
 services:
-  react-app:
+  frontend:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - "2002:80"
     restart: always
+    environment:
+      - VITE_API_URL=http://10.2.10.17:3001
     networks:
-      - monitor_pedido_coletor_rede_maidson
-networks:
-  monitor_pedido_coletor_rede_maidson:
-    external: true
+      - app_network
 
+networks:
+  app_network:
+    driver: bridge

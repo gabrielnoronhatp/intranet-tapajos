@@ -10,52 +10,43 @@ import { submitOrder, prepareOrderData } from "@/hooks/slices/orderSlice";
 import { FilialSelect } from "@/components/FilialSelect";
 import { FornecedorSelect } from "@/components/FornecedorSelect";
 import { Item } from "@/types/Order/OrderTypes";
+import { RootState } from "@/hooks/store";
 
 export default function TaxesData() {
   const dispatch = useDispatch();
   const handleSetState = (field: keyof any, value: any) => {
     dispatch(setOrderState({ [field]: value }));
   };
-  const { quantidadeProdutos, valorImposto } = useSelector(
-    (state: any) => state.order
+  const { quantidadeProdutos, valorImposto, centrosCusto } = useSelector(
+    (state: RootState) => state.order
   );
 
-  const { searchQuery } = useSelector((state: any) => state.noPaper);
+  const { searchQuery } = useSelector((state: RootState) => state.noPaper);
   const [itens, setItens] = useState<Item[]>([
-    { descricao: "", valor: 0, centroCusto: [] },
+    { produto: "", valor: 0, centroCusto: [] }
   ]);
 
   useEffect(() => {
     dispatch(fetchContasGerenciais() as any);
   }, [dispatch, searchQuery]);
 
-  const calculateValorTotal = (itensToCalculate = itens) => {
-    const total = itensToCalculate.reduce(
-      (acc: number, item: Item) => acc + (item.valor || 0),
-      0
-    );
-    handleSetState("valorTotal", total - valorImposto);
-  };
-
-  useEffect(() => {
-    calculateValorTotal(itens);
-  }, [itens, valorImposto]);
-
   const handleItensChange = (
     index: number,
-    field: "descricao" | "valor" | "centroCusto",
-    value: string
+    field: "produto" | "valor" | "centroCusto",
+    value: string | number
   ) => {
-    setItens((prevItens) => {
+    setItens(prevItens => {
       const updatedItens = prevItens.map((item, i) => {
         if (i === index) {
           return {
             ...item,
-            [field]: field === "valor" ? parseFloat(value) : value,
+            [field]: field === "valor" ? Number(value) : value,
           };
         }
         return item;
       });
+      
+      dispatch(setOrderState({ itens: updatedItens }));
       return updatedItens;
     });
   };
@@ -65,12 +56,21 @@ export default function TaxesData() {
   ) => {
     const quantidade = parseInt(e.target.value, 10);
     handleSetState("quantidadeProdutos", quantidade);
+    
     const newItens = Array.from(
       { length: quantidade },
-      (_, index) => itens[index] || { descricao: "", valor: 0, centroCusto: [] }
+      (_, index) => itens[index] || { 
+        produto: "Produto " + (index + 1),
+        valor: 0, 
+        centroCusto: centrosCusto.map(cc => ({
+          centroCusto: cc.centroCusto,
+          valor: 0
+        }))
+      }
     );
+    
     setItens(newItens);
-    calculateValorTotal(newItens);
+    dispatch(setOrderState({ itens: newItens }));
   };
 
   return (
@@ -94,12 +94,14 @@ export default function TaxesData() {
             </Label>
             <Input
               type="text"
-              value={item.descricao}
+              value={item.produto}
               onChange={(e) =>
-                handleItensChange(index, "descricao", e.target.value)
+                    handleItensChange(index, "produto", e.target.value)
               }
               placeholder="Insira a Descrição do Item"
               className="form-control"
+              required
+              minLength={1}
             />
 
             <Input

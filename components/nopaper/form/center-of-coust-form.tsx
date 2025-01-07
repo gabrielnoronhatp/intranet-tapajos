@@ -7,75 +7,86 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { CentroCusto } from "@/types/Order/CentroCustoType";
 import { fetchCentrosCusto } from "@/hooks/slices/noPaperSlice";
+import { setOrderState } from "@/hooks/slices/orderSlice";
+
 export default function CenterOfCoust() {
   const dispatch = useDispatch();
-    const {
-    valorTotal,
-  } = useSelector((state: any) => state.order);
+  
+  const { valorTotal, valorImposto } = useSelector((state: any) => state.order);
 
-  const {
-    centrosCustoOptions,
-    searchQuery,
-    isLoading
-  } = useSelector((state: any) => state.noPaper);
- 
+  const { centrosCustoOptions, searchQuery } = useSelector((state: any) => state.noPaper);
+
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
- 
   const [centrosCusto, setCentrosCusto] = useState<CentroCusto[]>([
     { centroCusto: "", valor: 0 },
   ]);
 
   const formattedOptions = centrosCustoOptions.map((option: any) => ({
-    label: option.nome,
-    value: option.id,
+    label: option.nome || option.centrocusto,
+    value: option.nome || option.centrocusto,
   }));
 
-    const handleCentrosCustoNumberChange = (
-        e: React.ChangeEvent<HTMLInputElement>
-      ) => {
-        const numCentros = parseInt(e.target.value, 10);
-        if (numCentros < 1) {
-          console.error("Número de centros de custo deve ser pelo menos 1.");
-        }
-        setCentrosCusto((prevCentrosCusto) => {
-          const newCentrosCusto = Array.from(
-            { length: numCentros },
-            (_, index) => prevCentrosCusto[index] || { centroCusto: "", valor: 0 }
-          );
-          return newCentrosCusto;
-        });
+  const handleCentrosCustoNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const numCentros = parseInt(e.target.value, 10);
+    if (numCentros < 1) {
+      console.error("Número de centros de custo deve ser pelo menos 1.");
+    }
+    setCentrosCusto((prevCentrosCusto) => {
+      const newCentrosCusto = Array.from(
+        { length: numCentros },
+        (_, index) => prevCentrosCusto[index] || { centroCusto: "", valor: 0 }
+      );
+      return newCentrosCusto;
+    });
+  };
+
+  const handleCentrosCustoChange = (
+    index: number,
+    field: "centroCusto" | "valor",
+    value: any
+  ) => {
+    console.log(`Changing ${field} at index ${index} to:`, value);
+    setCentrosCusto((prevCentrosCusto) => {
+      const newCentrosCusto = [...prevCentrosCusto];
+      newCentrosCusto[index] = {
+        ...newCentrosCusto[index],
+        [field]: value,
       };
-    
-      const handleCentrosCustoChange = (
-        index: number,
-        field: "centroCusto" | "valor",
-        value: any
-      ) => {
-        setCentrosCusto((prevCentrosCusto) => {
-          const newCentrosCusto = [...prevCentrosCusto];
-          if (field === "centroCusto") {
-            newCentrosCusto[index] = {
-              ...newCentrosCusto[index],
-              centroCusto: value as string,
-            };
-          } else {
-            newCentrosCusto[index] = {
-              ...newCentrosCusto[index],
-              valor: value,
-            };
-          }
-          return newCentrosCusto;
-        });
-      };
-    
-      useEffect(() => {
-        
-        dispatch(fetchCentrosCusto() as any);
-      }, [dispatch, searchQuery]);
-    
+      return newCentrosCusto;
+    });
+  };
+
+  useEffect(() => {
+    dispatch(fetchCentrosCusto() as any);
+  }, [dispatch, searchQuery]);
+
+  useEffect(() => {
+    dispatch(setOrderState({ centrosCusto }));
+  }, [centrosCusto, dispatch]);
+
+
+  const valorTotalMenosImposto = valorTotal - (valorImposto || 0);
+
+
+  const totalCentrosCusto = centrosCusto.reduce((sum, centro) => sum + (centro.valor || 0), 0);
+
+
+  useEffect(() => {
+    if (totalCentrosCusto !== valorTotalMenosImposto) {
+      setErrors({
+        ...errors,
+        centrosCusto: "O valor total dos centros de custo deve ser igual ao valor total dos itens menos o imposto"
+      });
+    } else {
+
+      const newErrors = { ...errors };
+      delete newErrors.centrosCusto;
+      setErrors(newErrors);
+    }
+  }, [totalCentrosCusto, valorTotalMenosImposto]);
 
   return (
-      <FormSection title="Centro de Custo">
+    <FormSection title="Centro de Custo">
       <div className="space-y-2">
         <Label className="text-xs font-semibold text-primary uppercase">
           Número de Centros de Custo
@@ -98,12 +109,13 @@ export default function CenterOfCoust() {
           </Label>
           <SelectField
             label=""
-            value={centro.centroCusto || ""}
-            onChange={(value: string) =>
-              handleCentrosCustoChange(index, "centroCusto", value)
-            }
+            value={formattedOptions.find((opt: any) => opt.value === centro.centroCusto)?.value || ''}
+            onChange={(value: string) => {
+              console.log('Selected value:', value);
+              handleCentrosCustoChange(index, "centroCusto", value);
+            }}
             options={formattedOptions}
-            
+            className="w-full"
           />
           {errors.centrosCusto && (
             <p className="text-red-500 text-xs">
@@ -142,7 +154,5 @@ export default function CenterOfCoust() {
         />
       </div>
     </FormSection>
- 
-   
   );
 }

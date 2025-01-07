@@ -20,7 +20,7 @@ const initialState: OrderState = {
   installments: 1,
   installmentDates: [],
   valorTotal: 0,
-  itens: [{ descricao: '', valor: 0, centroCusto: [] }],
+  itens: [{ produto: '', valor: 0, centroCusto: [] }],
   isViewOpen: false,
   selectedFilial: null,
   filialOpen: false,
@@ -48,7 +48,9 @@ export const submitOrder = createAsyncThunk(
 
       if (response.status === 200 || response.status === 201) {
         toast.success('Pedido enviado com sucesso!');
-        //  window.location.href = '/noPaper/list';
+        setTimeout(() => {
+          window.location.href = '/noPaper/list';
+        }, 2000);
         return response.data;
       } else {
         toast.error('Erro ao enviar o pedido.');
@@ -72,72 +74,55 @@ const orderSlice = createSlice({
       state.orderData = null;
     },
     prepareOrderData: (state, action) => {
-      const { itens, centrosCusto, valorImposto, ramo, notaFiscal, installments, contaOP, selectedFornecedor, selectedFilial, serie, formaPagamento, quantidadeProdutos, dtavista, banco, agencia, conta, dtdeposito, installmentDates, observacao, tipopix, chavepix, datapix, tipoLancamento, user } = action.payload;
+      const { itens, centrosCusto, valorImposto, ...rest } = action.payload;
 
       const produtosOP = itens.map((item: Item) => {
-        const centroCusto = item.centroCusto;
+        const centroCustoFormatado = centrosCusto.map((cc: CentroCusto) => ({
+          centrocusto: cc.centroCusto,
+          valor: cc.valor
+        }));
+          
+        const totalCentroCusto = centroCustoFormatado.reduce((acc: number, cc: CentroCusto) => acc + cc.valor, 0);
 
-        const centroCustoFormatado = typeof centroCusto === 'string'
-          ? [{ centrocusto: centroCusto, valor: item.valor || 0 }]
-          : centroCusto;
-
+        const valorFinal = totalCentroCusto + valorImposto       
         return {
-          produto: item.descricao,
-          valor: item.valor,
+          produto: item.produto,
+          valor: valorFinal,
           centroCusto: centroCustoFormatado,
         };
       });
 
-      const totalProdutos = produtosOP.reduce((acc: number, produto: Item) => acc + produto.valor, 0);
-      const totalCentrosCusto = centrosCusto.reduce((acc: number, ccusto: CentroCusto) => acc + ccusto.valor, 0);
-
-      const valorItensMenosImposto = totalProdutos - valorImposto;
-
-      if (valorItensMenosImposto !== totalCentrosCusto) {
-        const diferenca = valorItensMenosImposto - totalCentrosCusto;
-
-        produtosOP.forEach((produto: Item) => {
-          const updatedProduto = {
-            ...produto,
-            valor: produto.valor - diferenca / produtosOP.length,
-          };
-          Object.assign(produto, updatedProduto);
-        });
-
-        centrosCusto.forEach((ccusto: CentroCusto) => {
-          ccusto.valor += diferenca / centrosCusto.length;
-        });
-      }
-
       state.orderData = {
         dtlanc: new Date().toISOString(),
-        ramoOP: ramo || null,
-        notaOP: notaFiscal || null,
-        qtparcelasOP: installments || null,
-        contagerencialOP: contaOP || null,
-        fornecedorOP: selectedFornecedor?.fornecedor || null,
-        lojaOP: selectedFilial?.loja || null,
-        serieOP: serie || null,
-        metodoOP: formaPagamento || null,
-        qtitensOP: quantidadeProdutos || null,
+        ramoOP: rest.ramo || null,
+        notaOP: rest.notaFiscal || null,
+        qtparcelasOP: rest.installments || null,
+        contagerencialOP: rest.contaOP || null,
+        fornecedorOP: rest.selectedFornecedor?.fornecedor || null,
+        lojaOP: rest.selectedFilial?.loja || null,
+        serieOP: rest.serie || null,
+        metodoOP: rest.formaPagamento || null,
+        qtitensOP: rest.quantidadeProdutos || null,
         valorimpostoOP: valorImposto || 0,
-        dtavistaOP: dtavista || null,
-        bancoOP: banco || null,
-        agenciaOP: agencia || null,
-        contaOP: conta || null,
-        dtdepositoOP: dtdeposito || null,
-        parcelasOP: installmentDates.length > 0 ? installmentDates.map((date: string) => ({ parcela: date })) : null,
+        dtavistaOP: rest.dtavista || null,
+        bancoOP: rest.banco || null,
+        agenciaOP: rest.agencia || null,
+        contaOP: rest.conta || null,
+        dtdepositoOP: rest.dtdeposito || null,
+        parcelasOP: rest.installmentDates?.length > 0 
+          ? rest.installmentDates.map((date: string) => ({ parcela: date })) 
+          : null,
         produtosOP: produtosOP,
-        observacaoOP: observacao || null,
-        tipopixOP: tipopix || null,
-        chavepixOP: chavepix || null,
-        datapixOP: datapix || null,
-        opcaoLancOP: tipoLancamento || null,
+        observacaoOP: rest.observacao || null,
+        tipopixOP: rest.tipopix || null,
+        chavepixOP: rest.chavepix || null,
+        datapixOP: rest.datapix || null,
+        opcaoLancOP: rest.tipoLancamento || null,
         ccustoOP: centrosCusto.map((centro: CentroCusto) => ({
           centrocusto: centro.centroCusto,
           valor: centro.valor
         })),
-        userOP: user || null,
+        userOP: rest.user || null,
       };
     },
     setOrderState: (state, action: PayloadAction<Partial<OrderState>>) => {

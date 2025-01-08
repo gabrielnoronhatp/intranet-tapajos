@@ -48,9 +48,9 @@ export const submitOrder = createAsyncThunk(
 
       if (response.status === 200 || response.status === 201) {
         toast.success('Pedido enviado com sucesso!');
-        setTimeout(() => {
-          window.location.href = '/noPaper/list';
-        }, 2000);
+        // setTimeout(() => {
+        //   window.location.href = '/noPaper/list';
+        // }, 1000);
         return response.data;
       } else {
         toast.error('Erro ao enviar o pedido.');
@@ -126,7 +126,14 @@ const orderSlice = createSlice({
       };
     },
     setOrderState: (state, action: PayloadAction<Partial<OrderState>>) => {
-      return { ...state, ...action.payload };
+      const newState = { ...state, ...action.payload };
+      
+      if (action.payload.itens || action.payload.valorImposto) {
+        const somaItens = newState.itens.reduce((sum, item) => sum + (item.valor || 0), 0);
+        newState.valorTotal = somaItens;
+      }
+      
+      return newState;
     },
   },
   extraReducers: (builder) => {

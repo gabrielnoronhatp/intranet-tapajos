@@ -11,11 +11,13 @@ import { FilialSelect } from "@/components/FilialSelect";
 import { FornecedorSelect } from "@/components/FornecedorSelect";
 import { Item } from "@/types/Order/OrderTypes";
 import { RootState } from "@/hooks/store";
+import { setFieldError, clearFieldError } from "@/hooks/slices/errorSlice";
 
 export default function TaxesData() {
   const dispatch = useDispatch();
   const handleSetState = (field: keyof any, value: any) => {
     dispatch(setOrderState({ [field]: value }));
+    validateField(field as string, value);
   };
   const { quantidadeProdutos, valorImposto, centrosCusto } = useSelector(
     (state: RootState) => state.order
@@ -25,6 +27,8 @@ export default function TaxesData() {
   const [itens, setItens] = useState<Item[]>([
     { produto: "", valor: 0, centroCusto: [] }
   ]);
+
+  const { formErrors } = useSelector((state: any) => state.error);
 
   useEffect(() => {
     dispatch(fetchContasGerenciais() as any);
@@ -73,6 +77,17 @@ export default function TaxesData() {
     dispatch(setOrderState({ itens: newItens }));
   };
 
+  const validateField = (field: string, value: any) => {
+    if (!value || (typeof value === 'string' && !value.trim())) {
+      dispatch(setFieldError({ 
+        field, 
+        message: `O campo ${field} é obrigatório` 
+      }));
+    } else {
+      dispatch(clearFieldError(field));
+    }
+  };
+
   return (
     <FormSection title="Dados de itens e Imposto">
       <div className="space-y-2">
@@ -86,6 +101,7 @@ export default function TaxesData() {
           min={1}
           className="form-control"
         />
+        {formErrors.quantidadeProdutos && <p className="text-red-500 text-xs">{formErrors.quantidadeProdutos}</p>}
 
         {itens.map((item: Item, index: number) => (
           <div key={index} className="space-y-1">
@@ -135,4 +151,4 @@ export default function TaxesData() {
   );
 }
 
-//
+

@@ -19,6 +19,7 @@ import FinancialData from "@/components/nopaper/form/financial-data-form";
 import TaxesData from "@/components/nopaper/form/taxes-data-form";
 import CenterOfCoust from "@/components/nopaper/form/center-of-coust-form";
 import { RootState } from "@/hooks/store";
+import { setFieldError, clearFieldError, clearAllErrors } from "@/hooks/slices/errorSlice";
 
 type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
 
@@ -67,6 +68,7 @@ export default function NoPaper() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [loadingUpload, setLoadingUpload] = useState(false);
   const [imageUrl, setImageUrl] = useState<string>();
+  const { formErrors } = useSelector((state: any) => state.error);
 
   const handleSetState = (field: keyof any, value: any) => {
     dispatch(setOrderState({ [field]: value }));
@@ -157,12 +159,38 @@ export default function NoPaper() {
     return false;
   };
 
+  const validateFields = () => {
+    const requiredFields = [
+      { field: "ramo", value: ramo },
+      { field: "tipoLancamento", value: tipoLancamento },
+      { field: "formaPagamento", value: formaPagamento },
+      { field: "selectedFornecedor", value: selectedFornecedor },
+      { field: "selectedFilial", value: selectedFilial },
+      { field: "notaFiscal", value: notaFiscal },
+      { field: "serie", value: serie },
+      { field: "valorImposto", value: valorImposto },
+      { field: "contaOP", value: contaOP },
+    ];
+
+    let isValid = true;
+    requiredFields.forEach(({ field, value }) => {
+      if (!value || (typeof value === 'string' && !value.trim())) {
+        dispatch(setFieldError({ field, message: `O campo ${field} é obrigatório` }));
+        isValid = false;
+      } else {
+        dispatch(clearFieldError(field));
+      }
+    });
+
+    return isValid;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const newErrors: { [key: string]: string } = {};
-
-    setErrors({});
+    if (!validateFields()) {
+      return;
+    }
 
     dispatch(
       prepareOrderData({

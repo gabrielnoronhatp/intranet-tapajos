@@ -1,11 +1,11 @@
 import { Popover, PopoverTrigger, PopoverContent } from "@radix-ui/react-popover";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { fetchFornecedores } from "@/hooks/slices/noPaperSlice";
 import { useDispatch, useSelector } from "react-redux";
+import debounce from 'lodash/debounce';
 
 interface Fornecedor {
   fornecedor: string;
@@ -31,16 +31,28 @@ export const FornecedorSelect = ({
   
   const dispatch = useDispatch();
   const searchQuery = useSelector((state: any) => state.noPaper.searchQuery || "");
+  const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
  
-  function handleSearchQuery(value: any) {
+
+  const debouncedSearch = debounce((value: string) => {
     handleSetState("searchQuery", value);
-    if (value === "" || !isNaN(value)) {
-      dispatch(fetchFornecedores(value) as any);
-    }
+    dispatch(fetchFornecedores(value) as any);
+  }, 500); 
+
+  function handleSearchQuery(value: string) {
+    setLocalSearchQuery(value);
+    debouncedSearch(value);
   }
 
+
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, []);
+
   const filteredFornecedores = fornecedores.filter((fornecedor: Fornecedor) =>
-    fornecedor.fornecedor.toLowerCase().includes(searchQuery.toLowerCase())
+    fornecedor.fornecedor.toLowerCase().includes(localSearchQuery.toLowerCase())
   );
 
   return (
@@ -61,20 +73,18 @@ export const FornecedorSelect = ({
             </span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[300px] p-0">
-        <div className="max-h-[200px] overflow-auto">
-          <Input
-            type="text"
-            placeholder="Pesquisar fornecedor..."
-            
-            value={searchQuery}
-            onChange={(e) => handleSearchQuery(e.target.value)}
-            className="p-2 border border-gray-300 rounded"
-          />
+      <PopoverContent className="w-[300px] p-2">
+        <Input
+          type="text"
+          placeholder="Pesquisar fornecedor..."
+          value={localSearchQuery}
+          onChange={(e) => handleSearchQuery(e.target.value)}
+          className="mb-2"
+        />
+        <div className="max-h-[200px] overflow-y-auto">
           {filteredFornecedores.map((fornecedor: Fornecedor) => (
             <div
               key={fornecedor.fornecedor}
-              
               className="px-4 py-2 hover:bg-primary/10 cursor-pointer"
               onClick={() => {
                 handleSetState("selectedFornecedor", fornecedor);

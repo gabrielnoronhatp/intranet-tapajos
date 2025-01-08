@@ -12,11 +12,13 @@ import {
 } from "@/hooks/slices/noPaperSlice";
 import { FilialSelect } from "@/components/FilialSelect";
 import { FornecedorSelect } from "@/components/FornecedorSelect";
+import { setFieldError, clearFieldError, clearAllErrors } from "@/hooks/slices/errorSlice";
 
 export default function OriginData() {
   const dispatch = useDispatch();
   const handleSetState = (field: keyof any, value: any) => {
     dispatch(setOrderState({ [field]: value }));
+    validateField(field as string, value);
   };
   const {
     ramo,
@@ -34,10 +36,24 @@ export default function OriginData() {
     (state: any) => state.noPaper
   );
 
+  const { formErrors } = useSelector((state: any) => state.error);
+
   useEffect(() => {
     dispatch(fetchFornecedores(searchQuery) as any);
     dispatch(fetchFiliais() as any);
   }, [dispatch, searchQuery]);
+
+  const validateField = (field: string, value: any) => {
+    if (!value || (typeof value === 'string' && !value.trim())) {
+      dispatch(setFieldError({ 
+        field, 
+        message: `O campo ${field} é obrigatório` 
+      }));
+    } else {
+      dispatch(clearFieldError(field));
+    }
+  };
+
   return (
     <FormSection title="Dados de Origem da Nota Fiscal">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -52,7 +68,9 @@ export default function OriginData() {
               { value: "industria", label: "INDÚSTRIA" },
               { value: "servicos", label: "SERVIÇOS" },
             ]}
+             
           />
+          {formErrors.ramo && <p className="text-red-500 text-xs">{formErrors.ramo}</p>}
 
           {ramo && (
             <SelectField
@@ -117,6 +135,7 @@ export default function OriginData() {
             value={notaFiscal}
             onChange={(e) => handleSetState("notaFiscal", e.target.value)}
           />
+          {formErrors.notaFiscal && <p className="text-red-500 text-xs">{formErrors.notaFiscal}</p>}
         </div>
         <div>
           <Label className="text-xs font-semibold text-primary uppercase">
@@ -127,6 +146,7 @@ export default function OriginData() {
             value={serie}
             onChange={(e) => handleSetState("serie", e.target.value)}
           />
+          {formErrors.serie && <p className="text-red-500 text-xs">{formErrors.serie}</p>}
         </div>
         <div>
           <Label className="text-xs font-semibold text-primary uppercase">

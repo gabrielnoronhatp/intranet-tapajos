@@ -9,12 +9,14 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   fetchContasGerenciais,
 } from "@/hooks/slices/noPaperSlice";
+import { setFieldError, clearFieldError } from "@/hooks/slices/errorSlice";
 
 
 export default function FinancialData() {
 const dispatch = useDispatch();
   const handleSetState = (field: keyof any, value: any) => {
     dispatch(setOrderState({ [field]: value }));
+    validateField(field as string, value);
   };
   const {
     formaPagamento,
@@ -35,6 +37,19 @@ const dispatch = useDispatch();
     searchQuery,
     contasGerenciais,
   } = useSelector((state: any) => state.noPaper);
+
+  const { formErrors } = useSelector((state: any) => state.error);
+
+  const validateField = (field: string, value: any) => {
+    if (!value || (typeof value === 'string' && !value.trim())) {
+      dispatch(setFieldError({ 
+        field, 
+        message: `O campo ${field} é obrigatório` 
+      }));
+    } else {
+      dispatch(clearFieldError(field));
+    }
+  };
 
   
    
@@ -77,6 +92,7 @@ const dispatch = useDispatch();
            { value: "pix", label: "PIX" },
          ]}
        />
+       {formErrors.formaPagamento && <p className="text-red-500 text-xs">{formErrors.formaPagamento}</p>}
      
 
        {formaPagamento === "avista" && (

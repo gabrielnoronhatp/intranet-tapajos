@@ -1,5 +1,5 @@
 "use client";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useState, useEffect } from "react";
@@ -12,6 +12,7 @@ import "../../components/styles/login.css";
 import { tpGrupoTapajos } from "../assets/index";
 import { Navbar } from "@/components/layout/navbar";
 import { Sidebar } from "@/components/layout/sidebar";
+import { RootState } from "@/hooks/store";
 
 
 const msalConfig = {
@@ -32,35 +33,50 @@ export default function LoginPage() {
   const [msalClient, setMsalClient] = useState<PublicClientApplication | null>(
     null 
   );
-  
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
   useEffect(() => {
+    if (isAuthenticated) {
+      router.push("/noPaper/list");
+    }
+
     const pca = new PublicClientApplication(msalConfig);
     setMsalClient(pca);
     pca
       .initialize()
-      .then(() => console.log("MSAL client initialized"))
+      .then(() => {
+        const accounts = pca.getAllAccounts();
+        if (accounts.length > 0) {
+          handleSilentLogin(accounts[0]);
+        }
+      })
       .catch((error) => console.error("Erro ao inicializar o MSAL:", error));
-  }, []);
+  }, [isAuthenticated, router]);
+
+  const handleSilentLogin = async (account: any) => {
+    try {
+      const silentResult = await msalClient?.acquireTokenSilent({
+        scopes: ["User.Read", "GroupMember.Read.All"],
+        account: account
+      });
+
+      if (silentResult) {
+        await fetchProfileData(silentResult);
+      }
+    } catch (error) {
+      console.error("Erro no login silencioso:", error);
+    }
+  };
 
   const handleAzureLogin = async () => {
-    console.log("Iniciando login..."); 
     if (msalClient) {
       try {
         const loginResponse = await msalClient.loginPopup({
-          scopes: ["User.Read", "GroupMember.Read.All"], 
+          scopes: ["User.Read", "GroupMember.Read.All"],
         });
-  
+
         if (loginResponse?.account) {
-          console.log("Login bem-sucedido:", loginResponse.account);
-  
-        
-          const { accessToken, account } = loginResponse;
-  
-    
-          sessionStorage.setItem("access_token", accessToken);
-  
-          
           await fetchProfileData(loginResponse);
         }
       } catch (error) {
@@ -71,21 +87,16 @@ export default function LoginPage() {
   };
   
   const fetchProfileData = async (accessToken: any) => {
-    console.log(accessToken);
-
-    const userData = accessToken.account
-    console.log("Dados do usuário:", userData);
+    const userData = accessToken.account;
     try {
       dispatch(
         login({
           name: userData.name,
           email: userData.username,
           profilePicture: userData.foto_perfil_url,
-          accessToken,
+          accessToken: accessToken.accessToken,
         })
       );
-
-     
       router.push("/noPaper/list");
     } catch (error) {
       console.error("Erro ao obter dados do perfil:", error);
@@ -93,7 +104,7 @@ export default function LoginPage() {
     }
   };
   
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
 
 
   return (

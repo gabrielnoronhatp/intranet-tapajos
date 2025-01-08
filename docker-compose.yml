@@ -10,6 +10,9 @@ services:
     restart: always
     environment:
       - VITE_API_URL=http://10.2.10.17:3001
+      - NODE_ENV=production
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - app_network
 

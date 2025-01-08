@@ -1,24 +1,44 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface ErrorState {
-  [key: string]: string;
+  formErrors: {
+    ramo?: string;
+    tipoLancamento?: string;
+    selectedFilial?: string;
+    selectedFornecedor?: string;
+    notaFiscal?: string;
+    serie?: string;
+    dataEmissao?: string;
+  };
+  hasErrors: boolean;
 }
 
-const initialState: ErrorState = {};
+const initialState: ErrorState = {
+  formErrors: {},
+  hasErrors: false,
+};
 
 const errorSlice = createSlice({
-  name: 'errors',
+  name: 'error',
   initialState,
   reducers: {
-    setError: (state, action: PayloadAction<{ field: string; message: string }>) => {
-      state[action.payload.field] = action.payload.message;
+    setFieldError: (
+      state:any,
+      action: PayloadAction<{ field: string; message: string }>
+    ) => {
+      state.formErrors[action.payload.field] = action.payload.message;
+      state.hasErrors = true;
     },
-    clearError: (state, action: PayloadAction<string>) => {
-      delete state[action.payload];
+    clearFieldError: (state:any, action: PayloadAction<string>) => {
+      delete state.formErrors[action.payload];
+      state.hasErrors = Object.keys(state.formErrors).length > 0;
     },
-    clearAllErrors: () => initialState,
+    clearAllErrors: (state:any) => {
+      state.formErrors = {};
+      state.hasErrors = false;
+    },
   },
 });
 
-export const { setError, clearError, clearAllErrors } = errorSlice.actions;
+export const { setFieldError, clearFieldError, clearAllErrors } = errorSlice.actions;
 export default errorSlice.reducer; 

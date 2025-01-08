@@ -2,17 +2,28 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface AuthState {
   isAuthenticated: boolean;
-  user: null | { name: string; email: string }; // Garante que `name` e `email` sejam `string`
+  user: null | { name: string; email: string };
   accessToken: string | null;
-  profilePicture:any;
+  profilePicture: any;
 }
 
-const initialState: AuthState = {
-  isAuthenticated: false,
-  user: null,
-  accessToken: null,
-  profilePicture:null
+
+const loadInitialState = (): AuthState => {
+  if (typeof window !== 'undefined') {
+    const savedAuth = localStorage.getItem('auth');
+    if (savedAuth) {
+      return JSON.parse(savedAuth);
+    }
+  }
+  return {
+    isAuthenticated: false,
+    user: null,
+    accessToken: null,
+    profilePicture: null
+  };
 };
+
+const initialState: AuthState = loadInitialState();
 
 const authSlice = createSlice({
   name: 'auth',
@@ -20,21 +31,31 @@ const authSlice = createSlice({
   reducers: {
     login(
       state,
-      action: PayloadAction<{ name: string; email: string; accessToken: string,profilePicture:any }>
+      action: PayloadAction<{ name: string; email: string; accessToken: string; profilePicture: any }>
     ) {
       state.isAuthenticated = true;
       state.user = { name: action.payload.name, email: action.payload.email };
       state.accessToken = action.payload.accessToken;
-      state.profilePicture =  action.payload.profilePicture;
+      state.profilePicture = action.payload.profilePicture;
+      
+
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('auth', JSON.stringify(state));
+      }
     },
     logout(state) {
       state.isAuthenticated = false;
       state.user = null;
       state.accessToken = null;
+      state.profilePicture = null;
+      
+
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('auth');
+      }
     },
   },
 });
 
-// Exporta as ações de login e logout
 export const { login, logout } = authSlice.actions;
 export default authSlice.reducer;

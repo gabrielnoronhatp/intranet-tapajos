@@ -17,8 +17,10 @@ const initialState: NoPaperState = {
 
 export const fetchFornecedores = createAsyncThunk(
   'noPaper/fetchFornecedores',
-  async (query?: any) => { 
-    const response = await api.get(`fornec_dist?q=${query}`); 
+  async (query: string = '') => {
+    const sanitizedQuery = query.trim();
+    
+    const response = await api.get(`fornec_dist?q=${sanitizedQuery}`);
     return response.data;
   }
 );
@@ -65,7 +67,11 @@ export const fetchCentrosCusto = createAsyncThunk('noPaper/fetchCentrosCusto', a
 const noPaperSlice = createSlice({
   name: 'noPaper',
   initialState,
-  reducers: {},
+  reducers: {
+    setSearchQuery: (state, action) => {
+      state.searchQuery = action.payload;
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchFornecedores.pending, (state) => {
@@ -115,4 +121,5 @@ const noPaperSlice = createSlice({
   },
 });
 
+export const { setSearchQuery } = noPaperSlice.actions;
 export default noPaperSlice.reducer; 

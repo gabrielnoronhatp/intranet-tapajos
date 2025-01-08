@@ -8,12 +8,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { CentroCusto } from "@/types/Order/CentroCustoType";
 import { fetchCentrosCusto } from "@/hooks/slices/noPaperSlice";
 import { setOrderState } from "@/hooks/slices/orderSlice";
+import { setFieldError, clearFieldError } from "@/hooks/slices/errorSlice";
 
 export default function CenterOfCoust() {
   const dispatch = useDispatch();
   
-  const { valorTotal, valorImposto } = useSelector((state: any) => state.order);
-
+  const { valorTotal, valorImposto, valorCentrosCusto,itens } = useSelector((state: any) => state.order);
+  
   const { centrosCustoOptions, searchQuery } = useSelector((state: any) => state.noPaper);
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -25,6 +26,7 @@ export default function CenterOfCoust() {
     label: option.nome || option.centrocusto,
     value: option.nome || option.centrocusto,
   }));
+ 
 
   const handleCentrosCustoNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const numCentros = parseInt(e.target.value, 10);
@@ -65,11 +67,12 @@ export default function CenterOfCoust() {
   }, [centrosCusto, dispatch]);
 
 
-  const valorTotalMenosImposto = valorTotal - (valorImposto || 0);
+  const valorTotalMenosImposto = valorTotal + (valorImposto || 0);
 
 
-  const totalCentrosCusto = centrosCusto.reduce((sum, centro) => sum + (centro.valor || 0), 0);
-
+  const totalCentrosCusto = centrosCusto.reduce((sum:any, centro:any) => sum + (centro.valor || 0), 0);
+  const totalItens = itens.reduce((sum:any, item:any) => sum + (item.valor || 0), 0) - valorImposto;
+  
 
   useEffect(() => {
     if (totalCentrosCusto !== valorTotalMenosImposto) {
@@ -85,6 +88,24 @@ export default function CenterOfCoust() {
     }
   }, [totalCentrosCusto, valorTotalMenosImposto]);
 
+  const { formErrors } = useSelector((state: any) => state.error);
+
+  const handleSetState = (field: keyof any, value: any) => {
+    dispatch(setOrderState({ [field]: value }));
+    validateField(field as string, value);
+  };
+
+  const validateField = (field: string, value: any) => {
+    if (!value || (typeof value === 'string' && !value.trim())) {
+      dispatch(setFieldError({ 
+        field, 
+        message: `O campo ${field} é obrigatório` 
+      }));
+    } else {
+      dispatch(clearFieldError(field));
+    }
+  };
+
   return (
     <FormSection title="Centro de Custo">
       <div className="space-y-2">
@@ -98,6 +119,7 @@ export default function CenterOfCoust() {
           min={1}
           className="form-control"
         />
+        {formErrors.centrosCusto && <p className="text-red-500 text-xs">{formErrors.centrosCusto}</p>}
       </div>
       {errors.centrosCusto && (
         <p className="text-red-500 text-xs">{errors.centrosCusto}</p>
@@ -148,7 +170,7 @@ export default function CenterOfCoust() {
         <Input
           type="number"
           disabled
-          value={valorTotal}
+          value={totalItens}
           readOnly
           className="form-control"
         />

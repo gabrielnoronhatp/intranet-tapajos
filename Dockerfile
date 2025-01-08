@@ -30,7 +30,7 @@ USER node
 RUN npm run build
 
 # Exponha a porta 3000 (Next.js usa 3000 por padrão)
-EXPOSE 3000
+EXPOSE 3000 3001
 
 # Comando para rodar o Next.js em produção
 CMD ["npm", "start"]

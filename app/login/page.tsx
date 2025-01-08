@@ -25,6 +25,10 @@ const msalConfig = {
     cacheLocation: "sessionStorage", 
     storeAuthStateInCookie: false,
   },
+  system: {
+    allowNativeBroker: false,
+    hashNavigationEnabled: true  // Habilita navegação por hash
+  }
 };
 
 export default function LoginPage() {

@@ -1,31 +1,23 @@
-# Use a imagem base do Node.js
-FROM node:17
+# Use uma versão LTS do Node
+FROM node:18-alpine
 
-# Defina o diretório de trabalho dentro do contêiner
+# Diretório de trabalho
 WORKDIR /app
 
-# Copie o package.json e o package-lock.json para o diretório de trabalho
+# Copie os arquivos de dependências
 COPY package*.json ./
 
-# Instale as dependências com permissões adequadas
-RUN npm install --unsafe-perm=true
+# Instale as dependências
+RUN npm install
 
-# Copie o restante do código da aplicação
+# Copie o resto dos arquivos
 COPY . .
 
-# Corrija permissões para os arquivos
-RUN  chmod -R 755 /app 
-
-
-# Construa a aplicação para produção
-# Construa a aplicação para produção
+# Build do Next.js
 RUN npm run build
 
-# Instale um servidor para servir os arquivos estáticos
-RUN npm install -g serve
+# Exponha a porta 3000 (Next.js usa 3000 por padrão)
+EXPOSE 3000
 
-# Comando para iniciar o servidor
-CMD ["serve", "-s", "build"]
-
-# Exponha a porta 80 para o tráfego HTTP
-EXPOSE 80
+# Comando para rodar o Next.js em produção
+CMD ["npm", "start"]

@@ -7,15 +7,21 @@ WORKDIR /app
 # Copie os arquivos de dependências
 COPY package*.json ./
 
-# Instale as dependências e o next globalmente
-RUN npm install
-RUN npm install -g next
+# Limpe o cache do npm e instale as dependências
+RUN npm cache clean --force
+RUN npm install --legacy-peer-deps
+
+# Instale o next globalmente com versão específica
+RUN npm install -g next@13.5.6
 
 # Copie o resto dos arquivos
 COPY . .
 
-# Ajuste as permissões
+# Crie o diretório .next e ajuste as permissões
+RUN mkdir -p .next
 RUN chown -R node:node /app
+RUN chmod -R 755 /app
+RUN chmod -R 777 .next
 
 # Mude para o usuário node
 USER node

@@ -252,7 +252,7 @@ export default function NoPaper() {
       }
     }
   };
-
+ //c
   const uploadButton = (
     <button style={{ border: 0, background: "none" }} type="button">
       {loadingUpload ? <LoadingOutlined /> : <PlusOutlined />}

@@ -1,9 +1,15 @@
-if (typeof window !== 'undefined' && !window.crypto) {
-  const nodeCrypto = require('crypto');
-  window.crypto = {
-    getRandomValues: function(buffer: any) {
-      return nodeCrypto.randomFillSync(buffer);
-    },
-    subtle: {} as SubtleCrypto
-  } as Crypto;
-} 
+import { cn } from '@/lib/utils';
+
+// Polyfill for crypto.randomUUID() if not available
+if (typeof crypto !== 'undefined' && !crypto.randomUUID) {
+  crypto.randomUUID = () => {
+    return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
+      (
+        Number(c) ^
+        (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (Number(c) / 4)))
+      ).toString(16)
+    );
+  };
+}
+
+export default crypto;

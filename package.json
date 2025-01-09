@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@azure/msal-browser": "^3.28.0",
+    "@azure/msal-common": "^14.16.0",
+    "@azure/msal-react": "^2.2.0",
     "@hookform/resolvers": "^3.9.0",
     "@next/swc-wasm-nodejs": "13.5.1",
     "@radix-ui/react-accordion": "^1.2.0",
@@ -46,6 +48,7 @@
     "antd": "^5.22.4",
     "autoprefixer": "10.4.15",
     "axios": "^1.7.9",
+    "azure": "^0.10.6",
     "buffer": "^6.0.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",

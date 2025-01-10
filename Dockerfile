@@ -11,14 +11,14 @@ COPY package*.json ./
 RUN npm cache clean --force
 RUN npm install --legacy-peer-deps
 
-# Instale o next globalmente com versão específica
+# Instale o Next.js globalmente com versão específica
 RUN npm install -g next@13.5.6
 
-# Copie o resto dos arquivos
+# Copie o restante dos arquivos
 COPY . .
 
 # Crie o diretório .next e ajuste as permissões
-
+RUN mkdir -p .next && chown -R node:node .next /app
 
 # Mude para o usuário node
 USER node
@@ -26,7 +26,7 @@ USER node
 # Build do Next.js
 RUN npm run build
 
-# Exponha a porta 3000 (Next.js usa 3000 por padrão)
+# Exponha as portas 3000 e 3001 (Next.js usa 3000 por padrão)
 EXPOSE 3000 3001
 
 # Comando para rodar o Next.js em produção

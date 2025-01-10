@@ -29,11 +29,7 @@ const msalConfig = {
   system: {
     allowNativeBroker: false,
     hashNavigationEnabled: true,
-    cryptoOptions: {
-      useMsrCrypto: true,         
-      libraryName: "msCrypto",
-      libraryVersion: "1.0"
-    }
+   
   }
 };
 

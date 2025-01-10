@@ -1,6 +1,5 @@
 'use client';
 
-import '../lib/crypto-polyfill';
 import { PublicClientApplication, EventType } from '@azure/msal-browser';
 import { MsalProvider } from '@azure/msal-react';
 import { msalConfig } from '../lib/auth/msal-config';

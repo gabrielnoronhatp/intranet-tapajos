@@ -48,9 +48,9 @@ export const submitOrder = createAsyncThunk(
 
       if (response.status === 200 || response.status === 201) {
         toast.success('Pedido enviado com sucesso!');
-        // setTimeout(() => {
-        //   window.location.href = '/noPaper/list';
-        // }, 1000);
+        setTimeout(() => {
+          window.location.href = '/noPaper/list';
+        }, 1000);
         return response.data;
       } else {
         toast.error('Erro ao enviar o pedido.');

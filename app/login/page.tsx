@@ -15,6 +15,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { RootState } from "@/hooks/store";
 
 
+
 const msalConfig = {
   auth: {
     clientId: process.env.NEXT_PUBLIC_REACT_APP_CLIENT_ID!,
@@ -22,12 +23,17 @@ const msalConfig = {
     redirectUri: process.env.NEXT_PUBLIC_REACT_APP_REDIRECT_URI!,
   },
   cache: {
-    cacheLocation: "sessionStorage", 
-    storeAuthStateInCookie: false,
+    cacheLocation: "localStorage", 
+    storeAuthStateInCookie: true   
   },
   system: {
     allowNativeBroker: false,
-    hashNavigationEnabled: true  // Habilita navegação por hash
+    hashNavigationEnabled: true,
+    cryptoOptions: {
+      useMsrCrypto: true,         
+      libraryName: "msCrypto",
+      libraryVersion: "1.0"
+    }
   }
 };
 
@@ -38,7 +44,7 @@ export default function LoginPage() {
     null 
   );
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
   
   useEffect(() => {
     if (isAuthenticated) {
@@ -108,7 +114,7 @@ export default function LoginPage() {
     }
   };
   
-
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
 
   return (
@@ -120,7 +126,7 @@ export default function LoginPage() {
 
     <main
       className={`pt-16 transition-all duration-300 ${
-        isSidebarOpen ? "ml-64" : "ml-20"
+        isSidebarOpen ? "ml-64" : "ml-16"
       }`}
     >
     <div className="login-container">

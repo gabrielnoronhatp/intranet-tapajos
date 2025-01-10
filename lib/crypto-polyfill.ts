@@ -1,12 +1,6 @@
 import { cn } from '@/lib/utils';
-
-// Verifica se estamos no ambiente do navegador
 const isBrowser = typeof window !== 'undefined';
-
-// Cria um objeto crypto se não existir
 const cryptoObj = isBrowser ? (window.crypto || (window as any).msCrypto) : global.crypto;
-
-// Garante que o crypto está disponível globalmente
 if (isBrowser && !window.crypto) {
   (window as any).crypto = cryptoObj;
 }

@@ -18,10 +18,7 @@ RUN npm install -g next@13.5.6
 COPY . .
 
 # Crie o diretório .next e ajuste as permissões
-RUN mkdir -p .next
-RUN chown -R node:node /app
-RUN chmod -R 755 /app
-RUN chmod -R 777 .next
+
 
 # Mude para o usuário node
 USER node

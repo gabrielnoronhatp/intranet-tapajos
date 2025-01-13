@@ -1,164 +1,121 @@
 "use client";
-import { setOrderState } from "@/hooks/slices/orderSlice";
 import { SelectField } from "../select-field";
 import { FormSection } from "../form-section";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchFornecedores,
-  fetchFiliais,
-} from "@/hooks/slices/noPaperSlice";
 import { FilialSelect } from "@/components/FilialSelect";
 import { FornecedorSelect } from "@/components/FornecedorSelect";
-import { setFieldError, clearFieldError, clearAllErrors } from "@/hooks/slices/errorSlice";
+import { RootState } from "@/hooks/store";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { prepareOrderData, setOrderState } from "@/hooks/slices/orderSlice";
+import { Select } from "antd";
 
 export default function OriginData() {
+  const {ramo, tipoLancamento, formaPagamento, selectedFilial, selectedFornecedor } = useSelector((state: RootState) => state.order);
   const dispatch = useDispatch();
-  const handleSetState = (field: keyof any, value: any) => {
-    dispatch(setOrderState({ [field]: value }));
-    validateField(field as string, value);
-  };
-  const {
-    ramo,
-    tipoLancamento,
-    open,
-    selectedFornecedor,
-    selectedFilial,
-    filialOpen,
-    notaFiscal,
-    serie,
-    dataEmissao,
-  } = useSelector((state: any) => state.order);
 
-  const { fornecedores, filiais, searchQuery, loading, error } = useSelector(
-    (state: any) => state.noPaper
-  );
+   useEffect(() => {
+    console.log(ramo);
+    console.log(tipoLancamento);
+    console.log(selectedFornecedor);
+   }, [ramo, tipoLancamento, formaPagamento, selectedFilial, selectedFornecedor]);
+ 
+  
 
-  const { formErrors } = useSelector((state: any) => state.error);
+   const handleFieldChange = (field: string, value: string) => {
+     dispatch(setOrderState({ [field]: value }));
+   }; 
 
-  useEffect(() => {
-    dispatch(fetchFornecedores(searchQuery) as any);
-    dispatch(fetchFiliais() as any);
-  }, [dispatch, searchQuery]);
 
-  const validateField = (field: string, value: any) => {
-    if (!value || (typeof value === 'string' && !value.trim())) {
-      dispatch(setFieldError({ 
-        field, 
-        message: `O campo ${field} é obrigatório` 
-      }));
-    } else {
-      dispatch(clearFieldError(field));
-    }
-  };
-
-  return (
+   return (
     <FormSection title="Dados de Origem da Nota Fiscal">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <SelectField
-            label="Selecione o Ramo"
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Coluna 1 */}
+      <div className="space-y-4">
+        <div>
+          <Label className="text-sm font-semibold text-gray-700">Ramo</Label>
+          <Select
+            onChange={(value: any) => handleFieldChange('ramo', value)}
+            placeholder="Selecione o Ramo"
             value={ramo}
-            onChange={(value: string) => handleSetState("ramo", value)}
             options={[
               { value: "distribuicao", label: "DISTRIBUIÇÃO" },
               { value: "varejo", label: "VAREJO" },
               { value: "industria", label: "INDÚSTRIA" },
               { value: "servicos", label: "SERVIÇOS" },
             ]}
-             
+            className="w-full"
           />
-          {formErrors.ramo && <p className="text-red-500 text-xs">{formErrors.ramo}</p>}
-
-          {ramo && (
-            <SelectField
-              label="Tipo Lançamento"
-              value={tipoLancamento}
-              onChange={(value: string) =>
-                handleSetState("tipoLancamento", value)
-              }
-              options={
-                ramo === "distribuicao"
-                  ? [
-                      { value: "servico", label: "SERVIÇO" },
-                      { value: "usoconsumo", label: "USO E CONSUMO" },
-                      { value: "despesas", label: "DESPESAS OPERACIONAIS" },
-                    ]
-                  : ramo === "varejo"
-                  ? [
-                      { value: "vendas", label: "VENDAS" },
-                      { value: "usoconsumo", label: "USO E CONSUMO" },
-                      { value: "servico", label: "SERVIÇO" },
-                    ]
-                  : [
-                      { value: "geral", label: "GERAL" },
-                      { value: "servico", label: "SERVIÇO" },
-                    ]
-              }
-            />
-          )}
+          <p className="text-red-500 text-xs">Erro de exemplo</p>
         </div>
-
-        <div className="space-y-2">
-          <div>
-            <FilialSelect
-              loading={loading}
-              error={error}
-              filialOpen={filialOpen}
-              selectedFilial={selectedFilial}
-              filiais={filiais}
-              handleSetState={handleSetState}
-            />
-          </div>
-
-          <div>
-            <FornecedorSelect
-              open={open}
-              searchQuery={searchQuery}
-              selectedFornecedor={selectedFornecedor}
-              fornecedores={fornecedores}
-              handleSetState={handleSetState}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+  
         <div>
-          <Label className="text-xs font-semibold text-primary uppercase">
-            Número da Nota Fiscal
-          </Label>
-          <Input
-            placeholder="Nota"
-            value={notaFiscal}
-            onChange={(e) => handleSetState("notaFiscal", e.target.value)}
-          />
-          {formErrors.notaFiscal && <p className="text-red-500 text-xs">{formErrors.notaFiscal}</p>}
-        </div>
-        <div>
-          <Label className="text-xs font-semibold text-primary uppercase">
-            Série
-          </Label>
-          <Input
-            placeholder="Serie"
-            value={serie}
-            onChange={(e) => handleSetState("serie", e.target.value)}
-          />
-          {formErrors.serie && <p className="text-red-500 text-xs">{formErrors.serie}</p>}
-        </div>
-        <div>
-          <Label className="text-xs font-semibold text-primary uppercase">
-            Data de Emissão
-          </Label>
-          <Input
-            type="date"
-            value={dataEmissao}
-            onChange={(e) => handleSetState("dataEmissao", e.target.value)}
+          <Label className="text-sm font-semibold text-gray-700">Tipo de Lançamento</Label>
+          <Select
+            onChange={(value: any) => handleFieldChange('tipoLancamento', value)}
+            placeholder="Selecione o Tipo de Lançamento"
+            value={tipoLancamento}
+            options={
+              ramo === "distribuicao"
+                ? [
+                    { value: "servico", label: "SERVIÇO" },
+                    { value: "usoconsumo", label: "USO E CONSUMO" },
+                    { value: "despesas", label: "DESPESAS OPERACIONAIS" },
+                  ]
+                : ramo === "varejo"
+                ? [
+                    { value: "vendas", label: "VENDAS" },
+                    { value: "usoconsumo", label: "USO E CONSUMO" },
+                    { value: "servico", label: "SERVIÇO" },
+                  ]
+                : [
+                    { value: "geral", label: "GERAL" },
+                    { value: "servico", label: "SERVIÇO" },
+                  ]
+            }
+            className="w-full"
           />
         </div>
       </div>
-    </FormSection>
+  
+      {/* Coluna 2 */}
+      <div className="space-y-4">
+        <FilialSelect
+          loading={false}
+          error={null}
+          filialOpen={false}
+          selectedFilial={selectedFilial}
+          filiais={[]}
+          handleSetState={(value: string) => handleFieldChange('selectedFilial', value)}
+        />
+        <FornecedorSelect
+          open={false}
+          searchQuery=""
+          selectedFornecedor={selectedFornecedor}
+          fornecedores={[]}
+          handleSetState={(value: any) => handleFieldChange('selectedFornecedor', value)}
+        />
+      </div>
+    </div>
+  
+    {/* Campos de Entrada Adicionais */}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+      <div>
+        <Label className="text-sm font-semibold text-gray-700">Número da Nota Fiscal</Label>
+        <Input placeholder="Nota" value="" className="w-full p-2 border rounded" />
+        <p className="text-red-500 text-xs">Erro de exemplo</p>
+      </div>
+      <div>
+        <Label className="text-sm font-semibold text-gray-700">Série</Label>
+        <Input placeholder="Série" value="" className="w-full p-2 border rounded" />
+        <p className="text-red-500 text-xs">Erro de exemplo</p>
+      </div>
+      <div>
+        <Label className="text-sm font-semibold text-gray-700">Data de Emissão</Label>
+        <Input type="date" value="" className="w-full p-2 border rounded" />
+      </div>
+    </div>
+  </FormSection>
   );
 }

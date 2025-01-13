@@ -1,6 +1,9 @@
-import { Popover, PopoverTrigger, PopoverContent } from "@radix-ui/react-popover";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { fetchFiliais } from "@/hooks/slices/noPaperSlice";
+import { RootState } from "@/hooks/store";
+import { Select } from "antd";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 interface FilialSelectProps {
   loading: boolean;
@@ -12,51 +15,38 @@ interface FilialSelectProps {
 }
 
 export const FilialSelect = ({
-  loading,
-  error,
-  filialOpen,
-  selectedFilial,
-  filiais,
-  handleSetState,
 }: FilialSelectProps) => {
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error loading filiais: {error}</p>;
+  const [selectedFilial, setSelectedFilial] = useState<any>(null);
+  const { filiais } = useSelector((state: RootState) => state.noPaper);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchFiliais() as any);
+  
+  }, []);
 
   return (
     <div>
       <Label className="text-xs font-semibold text-primary uppercase">
         Selecione a Filial que Pagará
       </Label>
-      <Popover open={filialOpen} onOpenChange={(value) => handleSetState("filialOpen", value)}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            aria-expanded={filialOpen}
-            className="justify-between w-full"
-          >
-           <span className="truncate block max-w-[90%]">
-              {selectedFilial ? selectedFilial.loja : "Selecione uma filial..."}
-            </span>
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-[300px] p-0">
-          <div className="max-h-[200px] overflow-auto">
-            {filiais.map((filial: any) => (
-              <div
-                key={filial.loja}
-                className="px-4 py-2 hover:bg-primary/10 cursor-pointer"
-                onClick={() => {
-                  handleSetState("selectedFilial", filial);
-                  handleSetState("filialOpen", false);
-                }}
-              >
-                {filial.loja}
-              </div>
-            ))}
-          </div>
-        </PopoverContent>
-      </Popover>
+      <Select
+        className="w-full "
+        value={selectedFilial ? selectedFilial.loja : ""}
+        onChange={(e) => {
+          const selected = filiais.find(filial => filial.loja === e.target.value);
+          setSelectedFilial(selected);
+        }}
+      >
+        <option value="" disabled>
+          Selecione uma filial...
+        </option>
+        {filiais.map((filial) => (
+          <Select.Option key={filial.loja} value={filial.loja}>
+            {filial.loja}
+          </Select.Option>
+        ))}
+      </Select>
     </div>
   );
 }; 

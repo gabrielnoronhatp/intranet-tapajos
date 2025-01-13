@@ -10,7 +10,7 @@ export default function NoPaperList() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   return (
-    // <ProtectedRoute>
+
 <div className="min-h-screen bg-background">
      
      <Navbar onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
@@ -34,7 +34,7 @@ export default function NoPaperList() {
        </div>
      </main>
    </div>
-    // </ProtectedRoute>
+
     
   );
 }

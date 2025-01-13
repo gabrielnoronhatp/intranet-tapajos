@@ -10,9 +10,9 @@ const initialState: OrderState = {
   success: false,
   orderData: null,
   isSidebarOpen: true,
-  ramo: "distribuicao",
-  tipoLancamento: "servico",
-  formaPagamento: "avista",
+  ramo: "",
+  tipoLancamento: "",
+  formaPagamento: "",
   open: false,
   selectedFornecedor: null,
   quantidadeProdutos: 1,
@@ -20,7 +20,7 @@ const initialState: OrderState = {
   installments: 1,
   installmentDates: [],
   valorTotal: 0,
-  itens: [{ produto: '', valor: 0, centroCusto: [] }],
+  itens: [{ produto: null, valor: 0, centroCusto: [] }],
   isViewOpen: false,
   selectedFilial: null,
   filialOpen: false,
@@ -43,21 +43,10 @@ const initialState: OrderState = {
 export const submitOrder = createAsyncThunk(
   'order/submitOrder',
   async (orderData: OrderData, { rejectWithValue }) => {
+    
     try {
       const response = await api.post('cadastrar-ordem', orderData);
-
-      if (response.status === 200 || response.status === 201) {
-        toast.success('Pedido enviado com sucesso!');
-        setTimeout(() => {
-          window.location.href = '/noPaper/list';
-        }, 1000);
-        return response.data;
-      } else {
-        toast.error('Erro ao enviar o pedido.');
-        return rejectWithValue('Erro ao enviar o pedido.');
-      }
     } catch (error: any) {
-     
       return rejectWithValue(error.response.data);
     }
   }
@@ -74,20 +63,19 @@ const orderSlice = createSlice({
       state.orderData = null;
     },
     prepareOrderData: (state, action) => {
-      const { itens, centrosCusto, valorImposto, ...rest } = action.payload;
-
+     
+      const { itens, centrosCusto, valorImposto, ...rest } = action.payload;    
       const produtosOP = itens.map((item: Item) => {
+    
         const centroCustoFormatado = centrosCusto.map((cc: CentroCusto) => ({
           centrocusto: cc.centroCusto,
-          valor: cc.valor
+          valor: cc.valor,
         }));
+        
           
-        const totalCentroCusto = centroCustoFormatado.reduce((acc: number, cc: CentroCusto) => acc + cc.valor, 0);
-
-        const valorFinal = totalCentroCusto + valorImposto       
         return {
           produto: item.produto,
-          valor: valorFinal,
+          valor: item.valor,
           centroCusto: centroCustoFormatado,
         };
       });
@@ -126,14 +114,18 @@ const orderSlice = createSlice({
       };
     },
     setOrderState: (state, action: PayloadAction<Partial<OrderState>>) => {
-      const newState = { ...state, ...action.payload };
-      
-      if (action.payload.itens || action.payload.valorImposto) {
-        const somaItens = newState.itens.reduce((sum, item) => sum + (item.valor || 0), 0);
-        newState.valorTotal = somaItens;
+      const { itens, ...otherFields } = action.payload;
+
+      if (itens) {
+        state.itens = itens.map((item, index) => ({
+          ...state.itens[index],
+          ...item,
+        }));
       }
-      
-      return newState;
+
+      Object.assign(state, otherFields);
+
+      state.valorTotal = state.itens.reduce((sum, item) => sum + (item.valor || 0), 0);
     },
   },
   extraReducers: (builder) => {

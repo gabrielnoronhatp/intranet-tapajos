@@ -39,6 +39,11 @@ export const FornecedorSelect = ({
   }));
 
 
+  const handleSelectChange = (value: string) => {
+    setSelectedFornecedor(value);
+    console.log(value)
+    handleSetState("selectedFornecedor", value);
+  };
 
 
 
@@ -50,12 +55,9 @@ export const FornecedorSelect = ({
       <Select
         showSearch
         placeholder="Pesquisar fornecedor..."
-        optionFilterProp="children"
+        optionFilterProp="children" 
         value={selectedFornecedor ? selectedFornecedor : undefined}
-        onChange={(value) => {
-          const selected = fornecedores.find(fornecedor => fornecedor.fornecedor === value);
-          handleSetState("selectedFornecedor", selected);
-        }}
+        onChange={handleSelectChange}
         onSearch={(value) => setLocalSearchQuery(value)}
         filterOption={(input, option) =>
           (option?.label ?? '').toLowerCase().includes(input.toLowerCase())

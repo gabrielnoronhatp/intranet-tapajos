@@ -15,6 +15,7 @@ interface FilialSelectProps {
 }
 
 export const FilialSelect = ({
+  handleSetState
 }: FilialSelectProps) => {
   const [selectedFilial, setSelectedFilial] = useState<any>(null);
   const { filiais } = useSelector((state: RootState) => state.noPaper);
@@ -24,6 +25,15 @@ export const FilialSelect = ({
     dispatch(fetchFiliais() as any);
   
   }, []);
+ 
+  
+   const handleSelectChange = (value: string) => {
+    setSelectedFilial(value);
+    console.log(value)
+    handleSetState("selectedFilial", value);
+  };
+
+
 
   return (
     <div>
@@ -33,10 +43,7 @@ export const FilialSelect = ({
       <Select
         className="w-full "
         value={selectedFilial ? selectedFilial.loja : ""}
-        onChange={(e) => {
-          const selected = filiais.find(filial => filial.loja === e.target.value);
-          setSelectedFilial(selected);
-        }}
+        onChange={handleSelectChange}
       >
         <option value="" disabled>
           Selecione uma filial...

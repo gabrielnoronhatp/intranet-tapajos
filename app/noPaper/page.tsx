@@ -27,8 +27,8 @@ export default function NoPaper() {
             <form className="space-y-4">
               <OriginData />
               <FinancialData />
-              <TaxesData />
-              <CenterOfCoust />
+              {/* <TaxesData /> */}
+              {/* <CenterOfCoust /> */}
 
               <div className="mt-6">
                 <div className="avatar-uploader">
@@ -39,7 +39,7 @@ export default function NoPaper() {
               </div>
 
               <div className="flex justify-end">
-                <Button className="w-full bg-primary hover:bg-primary/90">
+                <Button className="w-full bg-primary hover:bg-primary/90     ">
                   Lançar Ordem de Pagamento
                 </Button>
               </div>

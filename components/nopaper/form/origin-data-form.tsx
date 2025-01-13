@@ -12,7 +12,7 @@ import { prepareOrderData, setOrderState } from "@/hooks/slices/orderSlice";
 import { Select } from "antd";
 
 export default function OriginData() {
-  const {ramo, tipoLancamento, formaPagamento, selectedFilial, selectedFornecedor } = useSelector((state: RootState) => state.order);
+  const {ramo, tipoLancamento, formaPagamento, selectedFilial, selectedFornecedor, notaFiscal, serie } = useSelector((state: RootState) => state.order);
   const dispatch = useDispatch();
 
    useEffect(() => {
@@ -103,17 +103,17 @@ export default function OriginData() {
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
       <div>
         <Label className="text-sm font-semibold text-gray-700">Número da Nota Fiscal</Label>
-        <Input placeholder="Nota" value="" className="w-full p-2 border rounded" />
+        <Input placeholder="Nota" value={notaFiscal} className="w-full p-2 border rounded" onChange={(e) => handleFieldChange('notaFiscal', e.target.value)} />
         <p className="text-red-500 text-xs">Erro de exemplo</p>
       </div>
       <div>
         <Label className="text-sm font-semibold text-gray-700">Série</Label>
-        <Input placeholder="Série" value="" className="w-full p-2 border rounded" />
+        <Input placeholder="Série" value={serie} className="w-full p-2 border rounded" onChange={(e) => handleFieldChange('serie', e.target.value)} />
         <p className="text-red-500 text-xs">Erro de exemplo</p>
       </div>
       <div>
         <Label className="text-sm font-semibold text-gray-700">Data de Emissão</Label>
-        <Input type="date" value="" className="w-full p-2 border rounded" />
+          <Input type="date" value="" className="w-full p-2 border rounded" onChange={(e) => handleFieldChange('dataEmissao', e.target.value)} />
       </div>
     </div>
   </FormSection>

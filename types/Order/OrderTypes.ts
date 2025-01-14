@@ -38,6 +38,8 @@ export interface OrderData {
 } 
 
 export interface OrderState {
+  dataEmissao:Date;
+  fornecedorOP: string | null;
   loading: boolean;
   error: string | null;
   success: boolean;

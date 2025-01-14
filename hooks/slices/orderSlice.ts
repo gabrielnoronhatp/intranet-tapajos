@@ -1,78 +1,87 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import api from '@/app/service/api';
-import { OrderData, Item, CentroCusto, OrderState } from '@/types/Order/OrderTypes';
-import toast from 'react-hot-toast';
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import api from "@/app/service/api";
+import {
+  OrderData,
+  Item,
+  CentroCusto,
+  OrderState,
+} from "@/types/Order/OrderTypes";
+import toast from "react-hot-toast";
+import { format } from "date-fns";
 
-
-const initialState: OrderState = {
-  loading: false,
-  error: null,
-  success: false,
-  orderData: null,
-  isSidebarOpen: true,
-  ramo: "",
-  tipoLancamento: "",
-  formaPagamento: "",
-  open: false,
-  selectedFornecedor: null,
-  quantidadeProdutos: 1,
-  centrosCusto: [],
-  installments: 1,
-  installmentDates: [],
-  valorTotal: 0,
-  itens: [{ produto: null, valor: 0, centroCusto: [] }],
-  isViewOpen: false,
-  selectedFilial: null,
-  filialOpen: false,
-  notaFiscal: "",
-  serie: "",
-  valorImposto: 0,
-  observacao: "",
-  user: "",
-  dtavista: "",
-  banco: "",
-  agencia: "",
-  conta: "",
-  dtdeposito: "",
-  tipopix: "",
-  chavepix: "",
-  datapix: "",
-  contaOP: "",
+const initialState = {
+  dtlanc: null,
+  ramoOP: null,
+  notaOP: "",
+  qtparcelasOP: null,
+  contagerencialOP: null,
+  fornecedorOP: "",
+  lojaOP: "",
+  serieOP: "",
+  metodoOP: null,
+  qtitensOP: 0,
+  valorimpostoOP: 0,
+  dtavistaOP: null,
+  bancoOP: null,
+  agenciaOP: null,
+  contaOP: null,
+  dtdepositoOP: "",
+  parcelasOP: null,
+  produtosOP: [
+    {
+      produto: "",
+      valor: 0,
+      centroCusto: [],
+    },
+  ],
+  observacaoOP: null,
+  tipopixOP: null,
+  chavepixOP: null,
+  datapixOP: null,
+  opcaoLancOP: null,
+  ccustoOP: [
+    {
+      centrocusto:  0,
+      valor: 0,
+    },
+  ],
+  userOP: null,
 };
 
 export const submitOrder = createAsyncThunk(
-  'order/submitOrder',
+  "order/submitOrder",
   async (orderData: OrderData, { rejectWithValue }) => {
-    
     try {
-      const response = await api.post('cadastrar-ordem', orderData);
+      const response = await api.post("cadastrar-ordem", orderData);
+      if (response.status === 200 || response.status === 201) {
+        toast.success("Pedido enviado com sucesso!");
+        setTimeout(() => {
+          window.location.href = '/noPaper/list';
+        }, 1000);
+        return response.data;
+      } else if(response.status === 500){
+        toast.error("Erro ao enviar o pedido" + response.data.message);
+        return rejectWithValue("Erro ao enviar o pedido.");
+      }
     } catch (error: any) {
+      toast.error('Error: ' + error.response.data.message);
       return rejectWithValue(error.response.data);
     }
   }
 );
 
 const orderSlice = createSlice({
-  name: 'order',
+  name: "order",
   initialState,
   reducers: {
-    resetOrderState: (state) => {
-      state.loading = false;
-      state.error = null;
-      state.success = false;
-      state.orderData = null;
-    },
     prepareOrderData: (state, action) => {
-     
-      const { itens, centrosCusto, valorImposto, ...rest } = action.payload;    
+      const { itens, centrosCusto, valorImposto, ...rest } = action.payload;
       const produtosOP = itens.map((item: Item) => {
-    
         const centroCustoFormatado = centrosCusto.map((cc: CentroCusto) => ({
           centrocusto: cc.centroCusto,
           valor: cc.valor,
         }));
-        
-          
+
         return {
           produto: item.produto,
           valor: item.valor,
@@ -80,14 +89,14 @@ const orderSlice = createSlice({
         };
       });
 
-      state.orderData = {
-        dtlanc: new Date().toISOString(),
+      state = {
+        dtlanc: format(rest.dtlanc, "yyyy-MM-dd"),
         ramoOP: rest.ramo || null,
         notaOP: rest.notaFiscal || null,
         qtparcelasOP: rest.installments || null,
         contagerencialOP: rest.contaOP || null,
-        fornecedorOP: rest.selectedFornecedor?.fornecedor || null,
-        lojaOP: rest.selectedFilial?.loja || null,
+        fornecedorOP: rest.fornecedorOP || null,
+        lojaOP: rest.lojaOP || null,
         serieOP: rest.serie || null,
         metodoOP: rest.formaPagamento || null,
         qtitensOP: rest.quantidadeProdutos || null,
@@ -97,9 +106,10 @@ const orderSlice = createSlice({
         agenciaOP: rest.agencia || null,
         contaOP: rest.conta || null,
         dtdepositoOP: rest.dtdeposito || null,
-        parcelasOP: rest.installmentDates?.length > 0 
-          ? rest.installmentDates.map((date: string) => ({ parcela: date })) 
-          : null,
+        parcelasOP:
+          rest.installmentDates?.length > 0
+            ? rest.installmentDates.map((date: string) => ({ parcela: date }))
+            : null,
         produtosOP: produtosOP,
         observacaoOP: rest.observacao || null,
         tipopixOP: rest.tipopix || null,
@@ -108,45 +118,25 @@ const orderSlice = createSlice({
         opcaoLancOP: rest.tipoLancamento || null,
         ccustoOP: centrosCusto.map((centro: CentroCusto) => ({
           centrocusto: centro.centroCusto,
-          valor: centro.valor
+          valor: centro.valor,
         })),
         userOP: rest.user || null,
       };
     },
-    setOrderState: (state, action: PayloadAction<Partial<OrderState>>) => {
-      const { itens, ...otherFields } = action.payload;
-
-      if (itens) {
-        state.itens = itens.map((item, index) => ({
-          ...state.itens[index],
-          ...item,
-        }));
-      }
+    setOrderState: (state, action) => {
+      const { ccustoOP, produtosOP, ...otherFields } = action.payload;
 
       Object.assign(state, otherFields);
 
-      state.valorTotal = state.itens.reduce((sum, item) => sum + (item.valor || 0), 0);
+      if (ccustoOP) {
+        state.ccustoOP = ccustoOP;
+      }
+      if (produtosOP) {
+        state.produtosOP = produtosOP;
+      }
     },
-  },
-  extraReducers: (builder) => {
-    builder
-      .addCase(submitOrder.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-        state.success = false;
-      })
-      .addCase(submitOrder.fulfilled, (state) => {
-        state.loading = false;
-        state.success = true;
-       
-      })
-      .addCase(submitOrder.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-       
-      });
   },
 });
 
-export const { resetOrderState, prepareOrderData, setOrderState } = orderSlice.actions;
-export default orderSlice.reducer; 
+export const { prepareOrderData, setOrderState } = orderSlice.actions;
+export default orderSlice.reducer;

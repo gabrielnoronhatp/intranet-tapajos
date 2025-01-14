@@ -4,30 +4,25 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchFornecedores } from "@/hooks/slices/noPaperSlice";
 import { Select } from "antd";
 import { RootState } from "@/hooks/store";
+import { setOrderState } from "@/hooks/slices/orderSlice";
 
-interface Fornecedor {
-  fornecedor: string;
-}
+
 
 interface FornecedorSelectProps {
-  open: boolean;
-  searchQuery: any;
-  selectedFornecedor: Fornecedor | null;
-  fornecedores: Fornecedor[];
   handleSetState: (key: string, value: any) => void;
 }
 
 export const FornecedorSelect = ({
-  open,
   handleSetState,
-  
 }: FornecedorSelectProps) => {
   const dispatch = useDispatch();
   
-  const [selectedFornecedor, setSelectedFornecedor] = useState("");
+
   const searchQuery = useSelector((state: any) => state.noPaper.searchQuery || "");
   const { fornecedores } = useSelector((state: RootState) => state.noPaper);
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
+  const {fornecedorOP} = useSelector((state: RootState) => state.order);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     dispatch(fetchFornecedores(localSearchQuery) as any);
@@ -40,9 +35,13 @@ export const FornecedorSelect = ({
 
 
   const handleSelectChange = (value: string) => {
-    setSelectedFornecedor(value);
-    console.log(value)
-    handleSetState("selectedFornecedor", value);
+    if (!value) {
+      setError("Fornecedor não pode ser vazio.");
+    } else {
+      setError("");
+      dispatch(setOrderState({ fornecedorOP: value }));
+      handleSetState("fornecedorOP", value);
+    }
   };
 
 
@@ -56,7 +55,8 @@ export const FornecedorSelect = ({
         showSearch
         placeholder="Pesquisar fornecedor..."
         optionFilterProp="children" 
-        value={selectedFornecedor ? selectedFornecedor : undefined}
+        
+        value={fornecedorOP}
         onChange={handleSelectChange}
         onSearch={(value) => setLocalSearchQuery(value)}
         filterOption={(input, option) =>
@@ -65,6 +65,7 @@ export const FornecedorSelect = ({
         options={options}
         style={{ width: '100%' }}
       />
+      {error && <p className="text-red-500 text-xs">{error}</p>}
     </div>
   );
 };

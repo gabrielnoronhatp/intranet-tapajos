@@ -12,110 +12,124 @@ import { prepareOrderData, setOrderState } from "@/hooks/slices/orderSlice";
 import { Select } from "antd";
 
 export default function OriginData() {
-  const {ramo, tipoLancamento, formaPagamento, selectedFilial, selectedFornecedor, notaFiscal, serie } = useSelector((state: RootState) => state.order);
+  const { ramoOP, opcaoLancOP, notaOP, serieOP, fornecedorOP, dtlanc, lojaOP } =
+    useSelector((state: RootState) => state.order);
   const dispatch = useDispatch();
 
-   useEffect(() => {
-    console.log(ramo);
-    console.log(tipoLancamento);
-    console.log(selectedFornecedor);
-   }, [ramo, tipoLancamento, formaPagamento, selectedFilial, selectedFornecedor]);
- 
-  
+  const handleFieldChange = (field: string, value: string) => {
+    
+    dispatch(setOrderState({ [field]: value }));
+  };
 
-   const handleFieldChange = (field: string, value: string) => {
-     dispatch(setOrderState({ [field]: value }));
-   }; 
+  useEffect(() => {
+    setOrderState({
+      ramoOP,
+      opcaoLancOP,
+      notaOP,
+      serieOP,
+      fornecedorOP,
+      dtlanc,
+    });
+  }, [ramoOP, opcaoLancOP, fornecedorOP, dtlanc]);
 
-
-   return (
+  return (
     <FormSection title="Dados de Origem da Nota Fiscal">
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {/* Coluna 1 */}
-      <div className="space-y-4">
-        <div>
-          <Label className="text-sm font-semibold text-gray-700">Ramo</Label>
-          <Select
-            onChange={(value: any) => handleFieldChange('ramo', value)}
-            placeholder="Selecione o Ramo"
-            value={ramo}
-            options={[
-              { value: "distribuicao", label: "DISTRIBUIÇÃO" },
-              { value: "varejo", label: "VAREJO" },
-              { value: "industria", label: "INDÚSTRIA" },
-              { value: "servicos", label: "SERVIÇOS" },
-            ]}
-            className="w-full"
-          />
-          <p className="text-red-500 text-xs">Erro de exemplo</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-4">
+          <div>
+            <Label className="text-sm font-semibold text-primary">RAMO</Label>
+            <Select
+              onChange={(value: any) => handleFieldChange("ramoOP", value)}
+              placeholder="Selecione o Ramo"
+              value={ramoOP}
+              options={[
+                { value: "distribuicao", label: "DISTRIBUIÇÃO" },
+                { value: "varejo", label: "VAREJO" },
+                { value: "industria", label: "INDÚSTRIA" },
+                { value: "servicos", label: "SERVIÇOS" },
+              ]}
+              className="w-full"
+            />
+          </div>
+
+          <div>
+            <Label className="text-sm font-semibold text-primary">
+              TIPO DE LANÇAMENTO
+            </Label>
+            <Select
+              onChange={(value: string) =>
+                handleFieldChange("opcaoLancOP", value)
+              }
+              placeholder="Selecione o Tipo de Lançamento"
+              value={opcaoLancOP}
+              options={
+                ramoOP === "distribuicao"
+                  ? [
+                      { value: "servico", label: "SERVIÇO" },
+                      { value: "usoconsumo", label: "USO E CONSUMO" },
+                      { value: "despesas", label: "DESPESAS OPERACIONAIS" },
+                    ]
+                  : ramoOP === "varejo"
+                  ? [
+                      { value: "vendas", label: "VENDAS" },
+                      { value: "usoconsumo", label: "USO E CONSUMO" },
+                      { value: "servico", label: "SERVIÇO" },
+                    ]
+                  : [
+                      { value: "geral", label: "GERAL" },
+                      { value: "servico", label: "SERVIÇO" },
+                    ]
+              }
+              className="w-full"
+            />
+          </div>
         </div>
-  
-        <div>
-          <Label className="text-sm font-semibold text-gray-700">Tipo de Lançamento</Label>
-          <Select
-            onChange={(value: any) => handleFieldChange('tipoLancamento', value)}
-            placeholder="Selecione o Tipo de Lançamento"
-            value={tipoLancamento}
-            options={
-              ramo === "distribuicao"
-                ? [
-                    { value: "servico", label: "SERVIÇO" },
-                    { value: "usoconsumo", label: "USO E CONSUMO" },
-                    { value: "despesas", label: "DESPESAS OPERACIONAIS" },
-                  ]
-                : ramo === "varejo"
-                ? [
-                    { value: "vendas", label: "VENDAS" },
-                    { value: "usoconsumo", label: "USO E CONSUMO" },
-                    { value: "servico", label: "SERVIÇO" },
-                  ]
-                : [
-                    { value: "geral", label: "GERAL" },
-                    { value: "servico", label: "SERVIÇO" },
-                  ]
+
+        <div className="space-y-4">
+          <FilialSelect
+            handleSetState={(value: string) => handleFieldChange(lojaOP, value)}
+          />
+          <FornecedorSelect
+            handleSetState={(value: any) =>
+              handleFieldChange(fornecedorOP, value)
             }
-            className="w-full"
           />
         </div>
       </div>
-  
-      {/* Coluna 2 */}
-      <div className="space-y-4">
-        <FilialSelect
-          loading={false}
-          error={null}
-          filialOpen={false}
-          selectedFilial={selectedFilial}
-          filiais={[]}
-          handleSetState={(value: string) => handleFieldChange('selectedFilial', value)}
-        />
-        <FornecedorSelect
-          open={false}
-          searchQuery=""
-          selectedFornecedor={selectedFornecedor}
-          fornecedores={[]}
-          handleSetState={(value: any) => handleFieldChange('selectedFornecedor', value)}
-        />
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+        <div>
+          <Label className="text-sm font-semibold text-primary">
+            NÚMERO DA NOTA FISCAL
+          </Label>
+          <Input
+            placeholder="Nota"
+            value={notaOP}
+            className="w-full p-2 border rounded"
+            onChange={(e) => handleFieldChange("notaOP", e.target.value)}
+          />
+        </div>
+        <div>
+          <Label className="text-sm font-semibold text-primary">SÉRIE</Label>
+          <Input
+            placeholder="Série"
+            value={serieOP}
+            className="w-full p-2 border rounded"
+            onChange={(e) => handleFieldChange("serieOP", e.target.value)}
+          />
+        </div>
+        <div>
+          <Label className="text-sm font-semibold text-primary">
+            DATA DE EMISSÃO
+          </Label>
+          <Input
+            type="date"
+            value={dtlanc ? new Date(dtlanc).toISOString().split("T")[0] : ""}
+            className="w-full p-2 border rounded"
+            onChange={(e) => handleFieldChange("dtlanc", e.target.value)}
+          />
+        </div>
       </div>
-    </div>
-  
-    {/* Campos de Entrada Adicionais */}
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-      <div>
-        <Label className="text-sm font-semibold text-gray-700">Número da Nota Fiscal</Label>
-        <Input placeholder="Nota" value={notaFiscal} className="w-full p-2 border rounded" onChange={(e) => handleFieldChange('notaFiscal', e.target.value)} />
-        <p className="text-red-500 text-xs">Erro de exemplo</p>
-      </div>
-      <div>
-        <Label className="text-sm font-semibold text-gray-700">Série</Label>
-        <Input placeholder="Série" value={serie} className="w-full p-2 border rounded" onChange={(e) => handleFieldChange('serie', e.target.value)} />
-        <p className="text-red-500 text-xs">Erro de exemplo</p>
-      </div>
-      <div>
-        <Label className="text-sm font-semibold text-gray-700">Data de Emissão</Label>
-          <Input type="date" value="" className="w-full p-2 border rounded" onChange={(e) => handleFieldChange('dataEmissao', e.target.value)} />
-      </div>
-    </div>
-  </FormSection>
+    </FormSection>
   );
 }

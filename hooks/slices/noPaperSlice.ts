@@ -117,7 +117,8 @@ const noPaperSlice = createSlice({
       .addCase(fetchCentrosCusto.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to fetch centros de custo';
-      });
+      })
+    
   },
 });
 

@@ -1,5 +1,5 @@
 import api from '@/app/service/api';
-import { NoPaperState } from '@/types/Supplier/SupplierType';
+import { NoPaperState } from '@/types/noPaper/Supplier/SupplierType';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 
@@ -53,15 +53,23 @@ export const fetchFiliais = createAsyncThunk('noPaper/fetchFiliais', async () =>
   return response.data;
 });
 
-export const fetchContasGerenciais = createAsyncThunk('noPaper/fetchContasGerenciais', async () => {
-  const response = await api.get('dadoscontager');
-  return response.data;
-});
+export const fetchContasGerenciais = createAsyncThunk(
+  'noPaper/fetchContasGerenciais',
+  async (query: string = '') => {
+    const sanitizedQuery = query.trim();
+    const response = await api.get(`dadoscontager?q=${sanitizedQuery}`);
+    return response.data;
+  }
+);
 
-export const fetchCentrosCusto = createAsyncThunk('noPaper/fetchCentrosCusto', async () => {
-  const response = await api.get('dadosccusto');
-  return response.data;
-});
+export const fetchCentrosCusto = createAsyncThunk(
+  'noPaper/fetchCentrosCusto',
+  async (query: string = '') => {
+    const sanitizedQuery = query.trim();
+    const response = await api.get(`dadosccusto?q=${sanitizedQuery}`);
+    return response.data;
+  }
+);
 
 
 const noPaperSlice = createSlice({

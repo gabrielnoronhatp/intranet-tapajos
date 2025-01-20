@@ -1,13 +1,14 @@
 "use client";
-import { setOrderState } from "@/hooks/slices/orderSlice";
+import { setOrderState } from "@/hooks/slices/noPaper/orderSlice";
 import { SelectField } from "../select-field";
 import { FormSection } from "../form-section";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchContasGerenciais } from "@/hooks/slices/noPaperSlice";
-import { setFieldError, clearFieldError } from "@/hooks/slices/errorSlice";
+import { fetchContasGerenciais } from "@/hooks/slices/noPaper/noPaperSlice";
+import { setFieldError, clearFieldError } from "@/hooks/slices/noPaper/errorSlice";
+import { Select } from "antd";
 
 export default function FinancialData() {
   const dispatch = useDispatch();
@@ -46,7 +47,7 @@ export default function FinancialData() {
   };
 
   useEffect(() => {
-    dispatch(fetchContasGerenciais() as any);
+    dispatch(fetchContasGerenciais('') as any);
   }, [dispatch]);
 
   const handleFormaPagamentoChange = (value: string) => {
@@ -218,15 +219,25 @@ export default function FinancialData() {
         <Label className="text-xs font-semibold text-primary uppercase">
           Conta Gerencial
         </Label>
-        <SelectField
+        <Select
+          className="w-full"
+           showSearch
           value={contagerencialOP}
           onChange={(value: string) => handleSetState("contagerencialOP", value)}
           options={contasGerenciais.map((conta: any) => ({
             value: conta.conta,
             label: conta.conta,
           }))}
-          label=""
-        />
+         
+
+         />
+          {contasGerenciais.map((conta: any) => (
+          <Select.Option key={conta.conta} value={conta.conta}>
+            {conta.conta}
+          </Select.Option>
+        ))}
+
+
       </div>
     </FormSection>
   );

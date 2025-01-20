@@ -5,12 +5,12 @@ import {
   Item,
   CentroCusto,
   OrderState,
-} from "@/types/Order/OrderTypes";
+} from "@/types/noPaper/Order/OrderTypes";
 import toast from "react-hot-toast";
 import { format } from "date-fns";
 
 const initialState = {
-  dtlanc: null,
+  dtlanc: "",
   ramoOP: null,
   notaOP: "",
   qtparcelasOP: null,

@@ -4,35 +4,21 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
-import { CentroCusto } from "@/types/Order/CentroCustoType";
 import {
   submitOrder,
-  prepareOrderData,
   setOrderState,
-} from "@/hooks/slices/orderSlice";
-import { Item } from "@/types/Order/OrderTypes";
+} from "@/hooks/slices/noPaper/orderSlice";
 import { message, GetProp, Upload, UploadProps } from "antd";
-import api from "@/app/service/api";
 import OriginData from "@/components/nopaper/form/origin-data-form";
 import FinancialData from "@/components/nopaper/form/financial-data-form";
 import TaxesData from "@/components/nopaper/form/taxes-data-form";
 import CenterOfCoust from "@/components/nopaper/form/center-of-coust-form";
-import { RootState } from "@/hooks/store";
-import { setFieldError, clearFieldError, clearAllErrors } from "@/hooks/slices/errorSlice";
 
 type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
 
 export default function NoPaper() {
   const dispatch = useDispatch();
-
-
-
   const orderData = useSelector((state:any) => state.order);
- 
-
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [loadingUpload, setLoadingUpload] = useState(false);
   const [imageUrl, setImageUrl] = useState<string>();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
@@ -47,43 +33,11 @@ export default function NoPaper() {
   };
 
   
-  useEffect(() => {
-  
-  }, [orderData]);
+  useEffect(() => {}, [orderData]);
 
- 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // dispatch(
-    //   prepareOrderData({
-    //     itens,
-    //     centrosCusto,
-    //     valorImposto,
-    //     ramo,
-    //     notaFiscal,
-    //     installments,
-    //     contaOP,
-    //     selectedFornecedor,
-    //     selectedFilial,
-    //     serie,
-    //     formaPagamento,
-    //     quantidadeProdutos,
-    //     dtavista,
-    //     banco,
-    //     agencia,
-    //     conta,
-    //     dtdeposito,
-    //     installmentDates,
-    //     observacao,
-    //     tipopix,
-    //     chavepix,
-    //     datapix,
-    //     tipoLancamento,
-    //     user,
-    //   })
-    // );
 
     if (orderData) {
       try {

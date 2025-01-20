@@ -1,10 +1,10 @@
 import { Label } from "@/components/ui/label";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchFornecedores } from "@/hooks/slices/noPaperSlice";
+import { fetchFornecedores } from "@/hooks/slices/noPaper/noPaperSlice";
 import { Select } from "antd";
 import { RootState } from "@/hooks/store";
-import { setOrderState } from "@/hooks/slices/orderSlice";
+import { setOrderState } from "@/hooks/slices/noPaper/orderSlice";
 
 
 

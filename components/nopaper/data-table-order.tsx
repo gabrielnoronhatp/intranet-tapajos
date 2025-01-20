@@ -8,32 +8,34 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import "@/components/data-table-order-styles.css";
-
 import { CheckCircle2, XCircle, Eye } from "lucide-react";
 import { useState, useEffect } from "react";
-import { Upload, UploadFile, message } from "antd";
-import { UploadProps } from "antd";
+import { Image, Upload, UploadFile, message } from "antd";
 import { PinModal } from "@/components/nopaper/pin-modal";
 import api from '@/app/service/api';
 import { UploadChangeParam } from "antd/es/upload";
+import './data-table-order-styles.css';
+import { Table as AntdTable } from 'antd';
 
-export function DataTableOrder() {
+interface DataTableOrderProps {
+  searchParams: Record<string, string>;
+}
+
+export function DataTableOrder({ searchParams }: DataTableOrderProps) {
   const [orders, setOrders] = useState<Array<any>>([]);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [selectedItem, setSelectedItem]: any = useState(null);
   const [fileUrls, setFileUrls] = useState<Array<string>>([]);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [fileToUpload, setFileToUpload] = useState<File | null>(null);
   const [fileList, setFileList] = useState<any[]>([]);
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
-  const [selectedSignature, setSelectedSignature] = useState<number | null>(null);
   const [orderDetails, setOrderDetails] = useState<any>(null);
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await api.get('consultar-ordem');
+        const query = new URLSearchParams(searchParams).toString();
+        const response = await api.get(`buscar-ordem?${query}`);
         setOrders(response.data);
       } catch (error) {
         console.error("Error fetching orders:", error);
@@ -41,7 +43,7 @@ export function DataTableOrder() {
     };
 
     fetchOrders();
-  }, []);
+  }, [searchParams]);
 
   const fetchOrderDetails = async (ordemId: number) => {
     try {
@@ -58,11 +60,9 @@ export function DataTableOrder() {
     setPreviewUrl(null);
     await fetchOrderDetails(item.id);
     if (!isViewOpen) {
-      
       try {
         const response = await api.get(`arquivos/${item.id}`);
         setFileUrls(response.data.urls);
-
       } catch (error) {
         console.error("Error fetching files or order details:", error);
         setFileUrls([]);
@@ -79,7 +79,7 @@ export function DataTableOrder() {
   const handleConfirmPin = () => {
     setIsPinModalOpen(false);
   };
- 
+
   const beforeUpload = (file: File) => {
     return true;
   };
@@ -87,85 +87,63 @@ export function DataTableOrder() {
   const handleUploadChange = (info: UploadChangeParam<UploadFile<any>>) => {
     console.log(info);
   };
-  
-  
+
+  const columns = [
+    { title: 'ID', dataIndex: 'id', key: 'id' },
+    { title: 'Fornecedor', dataIndex: 'fornecedor', key: 'fornecedor' },
+    { title: 'CNPJ', dataIndex: 'cnpj', key: 'cnpj' },
+    { title: 'Nota Fiscal', dataIndex: 'notafiscal', key: 'notafiscal' },
+    { title: 'Forma Pag.', dataIndex: 'formapag', key: 'formapag' },
+    { title: 'Conta Gerencial', dataIndex: 'contagerencial', key: 'contagerencial' },
+    { title: 'Itens', dataIndex: 'itens', key: 'itens', align: 'center' },
+    { title: 'Parcelas', dataIndex: 'parcelas', key: 'parcelas', align: 'center' },
+    { title: 'Valor', dataIndex: 'valor', key: 'valor', align: 'right' },
+    { 
+      title: 'Assinatura 1', 
+      dataIndex: 'assinatura1', 
+      key: 'assinatura1', 
+      align: 'center',
+      render: (text: any) => text ? <CheckCircle2 color="green" /> : <XCircle color="red" />
+    },
+    { 
+      title: 'Assinatura 2', 
+      dataIndex: 'assinatura2', 
+      key: 'assinatura2', 
+      align: 'center',
+      render: (text: any) => text ? <CheckCircle2 color="green" /> : <XCircle color="red" />
+    },
+    { 
+      title: 'Assinatura 3', 
+      dataIndex: 'assinatura3', 
+      key: 'assinatura3', 
+      align: 'center',
+      render: (text: any) => text ? <CheckCircle2 color="green" /> : <XCircle color="red" />
+    },
+    { 
+      title: 'Ações', 
+      key: 'acoes', 
+      align: 'center', 
+      render: (text: any, record: any) => (
+        <Eye color="green" onClick={() => toggleView(record)} style={{ cursor: 'pointer' }} />
+      )
+    },
+  ];
+
   return (
     <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>ID</TableHead>
-            <TableHead>Fornecedor</TableHead>
-            <TableHead>CNPJ</TableHead>
-            <TableHead>Nota Fiscal</TableHead>
-            <TableHead>Forma Pag.</TableHead>
-            <TableHead>Conta Gerencial</TableHead>
-            <TableHead className="text-center">Itens</TableHead>
-            <TableHead className="text-center">Parcelas</TableHead>
-            <TableHead className="text-right">Valor</TableHead>
-            <TableHead className="text-center">Assinatura 1</TableHead>
-            <TableHead className="text-center">Assinatura 2</TableHead>
-            <TableHead className="text-center">Assinatura 3</TableHead>
-            <TableHead className="text-center">Ações</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {orders.map((order) => (
-            <TableRow key={order.id}>
-              <TableCell className="font-medium text-sm">{order.id}</TableCell>
-              <TableCell className="text-sm fornecedor-column" title={order.fornecedor}>
-                {order.fornecedor}
-              </TableCell>
-              <TableCell className="text-sm cnpj-column" title={order.cnpj}>
-                {order.cnpj}
-              </TableCell>
-              <TableCell className="text-sm">{order.notafiscal}</TableCell>
-              <TableCell className="text-sm">{order.formapag}</TableCell>
-              <TableCell className="text-sm contagerencial-column" title={order.contagerencial}>
-                {order.contagerencial}
-              </TableCell>
-              <TableCell className="text-center text-sm">{order.itens}</TableCell>
-              <TableCell className="text-center text-sm">{order.parcelas}</TableCell>
-              <TableCell className="text-right text-sm valor-column" title={order.valor}>
-                {order.valor}
-              </TableCell>
-              <TableCell className="text-center text-sm assinatura-column" title={order.assinatura1 ? "Assinado" : "Não Assinado"}>
-                {order.assinatura1 ? (
-                  <CheckCircle2 className="h-4 w-4 text-primary mx-auto" />
-                ) : (
-                  <XCircle className="h-4 w-4 text-muted-foreground mx-auto" />
-                )}
-              </TableCell>
-              <TableCell className="text-center text-sm assinatura-column" title={order.assinatura2 ? "Assinado" : "Não Assinado"}>
-                {order.assinatura2 ? (
-                  <CheckCircle2 className="h-4 w-4 text-primary mx-auto" />
-                ) : (
-                  <XCircle className="h-4 w-4 text-muted-foreground mx-auto" />
-                )}
-              </TableCell>
-              <TableCell className="text-center text-sm assinatura-column" title={order.assinatura3 ? "Assinado" : "Não Assinado"}>
-                {order.assinatura3 ? (
-                  <CheckCircle2 className="h-4 w-4 text-primary mx-auto" />
-                ) : (
-                  <XCircle className="h-4 w-4 text-muted-foreground mx-auto" />
-                )}
-              </TableCell>
-              <TableCell className="text-center text-sm">
-                <button onClick={() => toggleView(order)} className="p-2">
-                  <Eye className="text-primary" />
-                </button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <AntdTable
+        columns={columns as any}
+        dataSource={orders}
+        rowKey="id"
+        pagination={false}
+      />
 
       {isViewOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-[800px] max-h-[90vh] overflow-y-auto">
-            <div className="grid grid-cols-2 gap-4">
+          <div className="bg-white p-5 rounded-lg shadow-lg w-[700px] max-h-[80vh] overflow-y-auto mt-20">
+            <div className="grid  gap-6">
               <div>
-                <h2 className="text-xl font-bold mb-4">Detalhes do Item</h2>
+                <h2 className="text-lg font-bold">Detalhes do Item</h2>
                 <p>ID: {selectedItem?.id}</p>
                 <p>Fornecedor: {selectedItem?.fornecedor}</p>
                 <p>CNPJ: {selectedItem?.cnpj}</p>
@@ -181,7 +159,7 @@ export function DataTableOrder() {
 
                 {orderDetails && (
                   <>
-                    <h3 className="text-lg font-bold mt-4">Itens Contratados:</h3>
+                    <h3 className="text-md font-bold mt-2">Itens Contratados:</h3>
                     <ul>
                       {orderDetails.itensContratados.map((item: any, index: number) => (
                         <li key={index}>
@@ -189,19 +167,11 @@ export function DataTableOrder() {
                         </li>
                       ))}
                     </ul>
-                    <h3 className="text-lg font-bold mt-4">Centros de Custo:</h3>
+                    <h3 className="text-md font-bold mt-2">Centros de Custo:</h3>
                     <ul>
                       {orderDetails.centrosCusto.map((centro: any, index: number) => (
                         <li key={index}>
                           {centro.centro_custo} - {centro.valor}
-                        </li>
-                      ))}
-                    </ul>
-                    <h3 className="text-lg font-bold mt-4">Formas de Pagamento:</h3>
-                    <ul>
-                      {orderDetails.formasPagamento.map((forma: any, index: number) => (
-                        <li key={index}>
-                          {forma.data_vencimento} - {forma.banco}
                         </li>
                       ))}
                     </ul>
@@ -210,7 +180,7 @@ export function DataTableOrder() {
 
                 {fileUrls.length > 0 && (
                   <>
-                    <h3 className="text-lg font-bold mt-4">Arquivos:</h3>
+                    <h3 className="text-md font-bold mt-2">Arquivos:</h3>
                     <ul className="space-y-2">
                       {fileUrls.map((url, index) => (
                         <li key={index}>
@@ -226,7 +196,7 @@ export function DataTableOrder() {
                     </ul>
                   </>
                 )}
-                <h3 className="text-lg font-bold mt-4">Upload de Arquivo:</h3>
+                <h3 className="text-md font-bold mt-2">Upload de Arquivo:</h3>
                  <Upload
                   name="files"
                   listType="picture-card"
@@ -268,7 +238,7 @@ export function DataTableOrder() {
                     {previewUrl.endsWith(".png") ||
                     previewUrl.endsWith(".jpg") ||
                     previewUrl.endsWith(".jpeg") ? (
-                      <img
+                      <Image
                         src={previewUrl}
                         alt="Preview"
                         className="w-full h-full object-contain bg-gray-100"
@@ -293,7 +263,7 @@ export function DataTableOrder() {
                 setPreviewUrl(null);
                 setOrderDetails(null);
               }}
-              className="mt-4 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+              className="mt-1 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
             >
               Fechar
             </button>

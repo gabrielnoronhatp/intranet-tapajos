@@ -5,7 +5,7 @@ import { Inter } from 'next/font/google';
 import { ToastProvider } from '@/components/ui/toast';
 import { Toaster } from 'react-hot-toast';
 import ProtectedRoute from '@/components/ProtectedRoute/ProtectedRoute';
-import { AuthProvider } from '@/components/AuthProvider';
+import { AuthProvider } from '@/components/auth-provider';
 
 
 const inter = Inter({ subsets: ['latin'] });

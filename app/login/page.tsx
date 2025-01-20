@@ -2,7 +2,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { login } from "@/hooks/slices/authSlice";
 import {
   PublicClientApplication,
@@ -36,82 +36,42 @@ const msalConfig = {
 export default function LoginPage() {
   const dispatch = useDispatch();
   const router = useRouter();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [msalClient, setMsalClient] = useState<PublicClientApplication | null>(
     null 
   );
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
   
-  
+
   useEffect(() => {
-    if (isAuthenticated) {
-      router.push("/noPaper/list");
-    }
-
-    const pca = new PublicClientApplication(msalConfig);
-    setMsalClient(pca);
-    pca
-      .initialize()
-      .then(() => {
-        const accounts = pca.getAllAccounts();
-        if (accounts.length > 0) {
-          handleSilentLogin(accounts[0]);
-        }
+    // Verifica se há um código de autorização na URL
+    const code = new URLSearchParams(window.location.search).get('code');
+    if (code) {
+      // Troca o código de autorização por um token de acesso
+      fetch('/api/callback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ code }),
       })
-      .catch((error) => console.error("Erro ao inicializar o MSAL:", error));
-  }, [isAuthenticated, router]);
-
-  const handleSilentLogin = async (account: any) => {
-    try {
-      const silentResult = await msalClient?.acquireTokenSilent({
-        scopes: ["User.Read", "GroupMember.Read.All"],
-        account: account
-      });
-
-      if (silentResult) {
-        await fetchProfileData(silentResult);
-      }
-    } catch (error) {
-      console.error("Erro no login silencioso:", error);
-    }
-  };
-
-  const handleAzureLogin = async () => {
-    if (msalClient) {
-      try {
-        const loginResponse = await msalClient.loginPopup({
-          scopes: ["User.Read", "GroupMember.Read.All"],
+        .then(response => response.json())
+        .then(data => {
+          if (data.access_token) {
+            // Armazena o token de acesso
+            localStorage.setItem('access_token', data.access_token);
+            router.push('/profile'); // Redireciona para a página de perfil
+          } else {
+            console.error('Erro ao obter token:', data);
+          }
         });
-
-        if (loginResponse?.account) {
-          await fetchProfileData(loginResponse);
-        }
-      } catch (error) {
-        console.error("Erro de login:", error);
-        toast.error("Erro ao realizar login!");
-      }
     }
-  };
-  
-  const fetchProfileData = async (accessToken: any) => {
-    const userData = accessToken.account;
-    try {
-      dispatch(
-        login({
-          name: userData.name,
-          email: userData.username,
-          profilePicture: userData.foto_perfil_url,
-          accessToken: accessToken.accessToken,
-        })
-      );
-      router.push("/noPaper/list");
-    } catch (error) {
-      console.error("Erro ao obter dados do perfil:", error);
-      toast.error("Erro ao obter informações do usuário.");
-    }
-  };
-  
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  }, [router]);
 
+  const handleLogin = () => {
+    // Redireciona para o endpoint de login da API
+    window.location.href = 'http://localhost:5000/login';
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -130,8 +90,8 @@ export default function LoginPage() {
         <Image src={tpGrupoTapajos} alt="Login Logo" width={400} height={400} />
         <button
           type="button"
-          onClick={handleAzureLogin}
           className="login-button"
+          onClick={handleLogin}
         >
           Login
         </button>

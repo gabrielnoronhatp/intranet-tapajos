@@ -1,8 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit';
-import noPaperReducer from './slices/noPaperSlice';
-import orderReducer from './slices/orderSlice';
+import noPaperReducer from './slices/noPaper/noPaperSlice';
+import orderReducer from './slices/noPaper/orderSlice';
 import authReducer from './slices/authSlice'
-import errorReducer from './slices/errorSlice'
+import errorReducer from './slices/noPaper/errorSlice'
 const store = configureStore({
   reducer: {
     noPaper: noPaperReducer,

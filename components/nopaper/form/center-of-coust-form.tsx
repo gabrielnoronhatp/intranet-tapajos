@@ -1,13 +1,14 @@
 "use client";
 import { useDispatch, useSelector } from "react-redux";
 import { useState, useEffect } from "react";
-import { setOrderState } from "@/hooks/slices/orderSlice";
-import { fetchCentrosCusto } from "@/hooks/slices/noPaperSlice";
+import { setOrderState } from "@/hooks/slices/noPaper/orderSlice";
+import { fetchCentrosCusto } from "@/hooks/slices/noPaper/noPaperSlice";
 import { SelectField } from "../select-field";
 import { FormSection } from "../form-section";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RootState } from "@/hooks/store";
+import { Select } from "antd";
 
 export default function CenterOfCoust() {
   const dispatch = useDispatch();
@@ -20,10 +21,13 @@ export default function CenterOfCoust() {
 
   const [numCenters, setNumCenters] = useState(ccustoOP.length);
 
-
-
-  useEffect(() => {
-  }, [dispatch, ccustoOP, produtosOP, centrosCustoOptions, numCenters]);
+  useEffect(() => {}, [
+    dispatch,
+    ccustoOP,
+    produtosOP,
+    centrosCustoOptions,
+    numCenters,
+  ]);
 
   const handleNumCentersChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const quantity = Math.max(1, parseInt(e.target.value, 10) || 1);
@@ -42,14 +46,12 @@ export default function CenterOfCoust() {
     field: "centrocusto" | "valor",
     value: string | number
   ) => {
-   
     const updatedCenters = ccustoOP.map((item, i) =>
       i === index ? { ...item, [field]: value } : item
     );
-   
+
     dispatch(setOrderState({ ccustoOP: updatedCenters }));
   };
-  
 
   const handleProductCenterChange = (
     productIndex: number,
@@ -86,27 +88,29 @@ export default function CenterOfCoust() {
         />
       </div>
 
-      {ccustoOP.map((center:any, index:any) => (
+      {ccustoOP.map((center: any, index: any) => (
         <div key={index} className="space-y-2">
           <Label className="text-xs font-semibold text-primary uppercase">
             Centro de Custo {index + 1}
           </Label>
-          <SelectField
+          <Select
+            showSearch
             onChange={(value: string) => {
               console.log("Centro de Custo selecionado:", value);
-              handleCenterChange(index, "centrocusto", value); 
+              handleCenterChange(index, "centrocusto", value);
             }}
-            label=""
-            value={center.centrocusto?.centrocusto} 
-            options={centrosCustoOptions.map((option: any) => ({
-              value: option.centrocusto, 
-              label: option.centrocusto,
-            }))}
+            value={center.centrocusto?.centrocusto}
             className="w-full"
-          />
+          >
+            {centrosCustoOptions.map((option: any) => (
+              <Select.Option key={option.id} value={option.id}>
+                {option.centrocusto}
+              </Select.Option>
+            ))}
+          </Select>
           <Input
             type="number"
-            value={center.centrocusto.valor}
+            value={center.centrocusto?.valor}
             onChange={(e) => {
               const newValue = parseFloat(e.target.value) || 0;
               handleCenterChange(index, "valor", newValue);
@@ -119,25 +123,32 @@ export default function CenterOfCoust() {
 
       {produtosOP.map((product: any, productIndex: any) => (
         <div key={productIndex} className="space-y-4">
-          
           {product.centroCusto.map((center: any, centerIndex: any) => (
             <div key={centerIndex} className="space-y-2">
               <Label className="text-xs font-semibold text-primary uppercase">
                 Centro de Custo {centerIndex + 1}
               </Label>
-              <SelectField
+              <Select
+                showSearch
                 onChange={(value: string) => {
-                  console.log("Centro de Custo selecionado:", value);  
-                  handleProductCenterChange(productIndex, centerIndex, "centrocusto", value); 
+                  console.log("Centro de Custo selecionado:", value);
+                  handleProductCenterChange(
+                    productIndex,
+                    centerIndex,
+                    "centrocusto",
+                    value
+                  );
                 }}
-                label=""
-                value={center.centrocusto || ""} 
-                options={centrosCustoOptions.map((option: any) => ({
-                  value: option.id,  
-                  label: option.centrocusto,  
-                }))}
+                value={center.centrocusto || ""}
                 className="w-full"
-              />
+              >
+                {centrosCustoOptions.map((option: any) => (
+                  <Select.Option key={option.id} value={option.id}>
+                    {option.centrocusto}
+                  </Select.Option>
+                ))}
+              </Select>
+
               <Input
                 type="number"
                 value={center.valor}

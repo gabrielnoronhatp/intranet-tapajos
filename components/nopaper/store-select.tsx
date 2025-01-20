@@ -1,6 +1,6 @@
 import { Label } from "@/components/ui/label";
-import { fetchFiliais } from "@/hooks/slices/noPaperSlice";
-import { setOrderState } from "@/hooks/slices/orderSlice";
+import { fetchFiliais } from "@/hooks/slices/noPaper/noPaperSlice";
+import { setOrderState } from "@/hooks/slices/noPaper/orderSlice";
 import { RootState } from "@/hooks/store";
 import { Select } from "antd";
 import { useEffect, useState } from "react";
@@ -16,10 +16,11 @@ export const FilialSelect = ({ handleSetState, validate }: FilialSelectProps) =>
   const { lojaOP } = useSelector((state: RootState) => state.order);
   const dispatch = useDispatch();
   const [error, setError] = useState("");
+  const [localSearchQuery, setLocalSearchQuery]= useState<any>("");
 
   useEffect(() => {
-    dispatch(fetchFiliais() as any);
-  }, [dispatch]);
+    dispatch(fetchFiliais(localSearchQuery) as any);
+  }, [dispatch, localSearchQuery]);
 
   const handleSelectChange = (value: string) => {
     setError("");
@@ -39,10 +40,15 @@ export const FilialSelect = ({ handleSetState, validate }: FilialSelectProps) =>
         Selecione a Filial que Pagará
       </Label>
       <Select
+        showSearch
         className="w-full"
         value={lojaOP}
         onChange={handleSelectChange}
+        onSearch={(value) => setLocalSearchQuery(value)}
         placeholder="Selecione uma filial..."
+        filterOption={(input:string, option: any) =>
+          (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
+        }
       >
         {filiais.map((filial) => (
           <Select.Option key={filial.loja} value={filial.loja}>

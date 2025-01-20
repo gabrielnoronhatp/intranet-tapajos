@@ -1,11 +1,11 @@
 "use client";
-import { setOrderState } from "@/hooks/slices/orderSlice";
+import { setOrderState } from "@/hooks/slices/noPaper/orderSlice";
 import { FormSection } from "../form-section";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCentrosCusto, fetchContasGerenciais } from "@/hooks/slices/noPaperSlice";
+import { fetchCentrosCusto, fetchContasGerenciais } from "@/hooks/slices/noPaper/noPaperSlice";
 import { RootState } from "@/hooks/store";
 import { Select, SelectItem } from "@/components/ui/select";
 

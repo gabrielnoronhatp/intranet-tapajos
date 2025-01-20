@@ -3,13 +3,14 @@ import { SelectField } from "../select-field";
 import { FormSection } from "../form-section";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { FilialSelect } from "@/components/FilialSelect";
-import { FornecedorSelect } from "@/components/FornecedorSelect";
+
 import { RootState } from "@/hooks/store";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
-import { prepareOrderData, setOrderState } from "@/hooks/slices/orderSlice";
+import { prepareOrderData, setOrderState } from "@/hooks/slices/noPaper/orderSlice";
 import { Select } from "antd";
+import { FilialSelect } from "@/components/nopaper/store-select";
+import { FornecedorSelect } from "@/components/nopaper/supplier-select";
 
 export default function OriginData() {
   const { ramoOP, opcaoLancOP, notaOP, serieOP, fornecedorOP, dtlanc, lojaOP } =
@@ -30,7 +31,7 @@ export default function OriginData() {
       fornecedorOP,
       dtlanc,
     });
-  }, [ramoOP, opcaoLancOP, fornecedorOP, dtlanc]);
+  }, [ramoOP, opcaoLancOP, fornecedorOP, dtlanc,notaOP,serieOP]);
 
   return (
     <FormSection title="Dados de Origem da Nota Fiscal">
@@ -87,6 +88,7 @@ export default function OriginData() {
 
         <div className="space-y-4">
           <FilialSelect
+            validate={true}
             handleSetState={(value: string) => handleFieldChange(lojaOP, value)}
           />
           <FornecedorSelect

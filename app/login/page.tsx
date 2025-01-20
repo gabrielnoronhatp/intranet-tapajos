@@ -4,9 +4,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useState, useEffect, useCallback } from "react";
 import { login } from "@/hooks/slices/authSlice";
-import {
-  PublicClientApplication,
-} from "@azure/msal-browser";
+
 import { toast } from "react-hot-toast";
 import "../../components/styles/login.css";
 import { tpGrupoTapajos } from "../assets/index";
@@ -15,31 +13,11 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { RootState } from "@/hooks/store";
 
 
-
-const msalConfig = {
-  auth: {
-    clientId: process.env.NEXT_PUBLIC_REACT_APP_CLIENT_ID!,
-    authority: process.env.NEXT_PUBLIC_REACT_APP_AUTHORITY!,
-    redirectUri: process.env.NEXT_PUBLIC_REACT_APP_REDIRECT_URI!,
-  },
-  cache: {
-    cacheLocation: "localStorage", 
-    storeAuthStateInCookie: true   
-  },
-  system: {
-    allowNativeBroker: false,
-    hashNavigationEnabled: true,
-   
-  }
-};
-
 export default function LoginPage() {
   const dispatch = useDispatch();
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [msalClient, setMsalClient] = useState<PublicClientApplication | null>(
-    null 
-  );
+  
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
   
 

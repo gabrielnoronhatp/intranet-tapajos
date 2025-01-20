@@ -26,7 +26,7 @@ export default function TaxesData() {
   const { searchQuery } = useSelector((state: RootState) => state.noPaper);
 
   useEffect(() => {
-    dispatch(fetchCentrosCusto() as any);
+    dispatch(fetchCentrosCusto("") as any);
   }, [dispatch, searchQuery]);
 
   const handleItensChange = (

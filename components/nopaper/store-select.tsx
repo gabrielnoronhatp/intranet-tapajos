@@ -19,7 +19,7 @@ export const FilialSelect = ({ handleSetState, validate }: FilialSelectProps) =>
   const [localSearchQuery, setLocalSearchQuery]= useState<any>("");
 
   useEffect(() => {
-    dispatch(fetchFiliais(localSearchQuery) as any);
+    dispatch(fetchFiliais() as any);
   }, [dispatch, localSearchQuery]);
 
   const handleSelectChange = (value: string) => {

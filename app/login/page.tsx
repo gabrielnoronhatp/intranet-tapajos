@@ -27,14 +27,8 @@ export default function LoginPage() {
 
   const handleModalOk = () => {
     setIsModalVisible(false);
-    // Simulate receiving a token after login
-    const fakeToken = accessToken;
-    console.log(fakeToken);
-    // const decodedToken = jwt.decode(fakeToken);
-    // dispatch(login({ name: decodedToken.name, email: decodedToken.email, accessToken: fakeToken, profilePicture: null }));
-    // setIsAuthenticated(true);
-    // setUserInfo(decodedToken);
-    // router.push('/');
+    // Redirecionar para o SSO
+    window.location.href = "https://sso.grupotapajos.com.br/login";
   };
 
   const handleModalCancel = () => {

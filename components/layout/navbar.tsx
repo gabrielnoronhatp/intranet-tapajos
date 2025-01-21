@@ -38,10 +38,7 @@ export function Navbar({ onToggleSidebar }: NavbarProps) {
     fetchUser();
   }, []);
 
-  const getInitials = (name: string) => {
-    const [firstName, lastName] = name.split(" ");
-    return `${firstName.charAt(0)}${lastName ? lastName.charAt(0) : ""}`;
-  };
+  
 
   return (
     <nav className="fixed top-0 left-0 right-0 h-16 bg-primary text-primary-foreground z-50 px-4">
@@ -77,7 +74,7 @@ export function Navbar({ onToggleSidebar }: NavbarProps) {
                   className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-300 text-white font-semibold"
                   title={user.name} // Tooltip que exibe o nome completo
                 >
-                  {getInitials(user.name)}
+                  {/* {getInitials(user.name)} */}
                 </span>
               </div>
 

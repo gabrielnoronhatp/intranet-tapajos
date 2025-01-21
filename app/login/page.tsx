@@ -1,41 +1,25 @@
 "use client";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import "../../components/styles/login.css";
 import { tpGrupoTapajos } from "../assets/index";
 import { Navbar } from "@/components/layout/navbar";
 import { Sidebar } from "@/components/layout/sidebar";
 import jwt from 'jsonwebtoken';
-import { Modal, Button } from "antd";
+import { Modal } from "antd";
+import { login } from "@/hooks/slices/authSlice"; // Import the login action
+import { RootState } from "@/hooks/store";
 
 export default function LoginPage() {
   const dispatch = useDispatch();
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userInfo, setUserInfo]:any = useState(null);
+  const [userInfo, setUserInfo]: any = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-
-  // useEffect(() => {
-  //   const jwtToken = window.location.pathname.split('/')[1]; // Extrai o JWT da URL
-  //   if (jwtToken) {
-  //     try {
-  //       const decodedToken = jwt.decode(jwtToken);
-  //       console.log("Decoded JWT:", decodedToken);
-
-  //       // Atualize o estado de autenticação
-  //       setIsAuthenticated(true);
-  //       setUserInfo(decodedToken);
-
-  //       // Redirecionar para a página principal
-  //       router.push('/');
-  //     } catch (error) {
-  //       console.error("Erro ao decodificar JWT:", error);
-  //     }
-  //   }
-  // }, [router]);
+  const accessToken = useSelector((state: RootState) => state.auth.accessToken);
 
   const handleLogin = () => {
     setIsModalVisible(true);
@@ -43,7 +27,14 @@ export default function LoginPage() {
 
   const handleModalOk = () => {
     setIsModalVisible(false);
-    window.location.href = "https://sso.grupotapajos.com.br/login";
+    // Simulate receiving a token after login
+    const fakeToken = accessToken;
+    console.log(fakeToken);
+    // const decodedToken = jwt.decode(fakeToken);
+    // dispatch(login({ name: decodedToken.name, email: decodedToken.email, accessToken: fakeToken, profilePicture: null }));
+    // setIsAuthenticated(true);
+    // setUserInfo(decodedToken);
+    // router.push('/');
   };
 
   const handleModalCancel = () => {

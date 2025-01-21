@@ -7,6 +7,7 @@ export default function TokenPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token"); // Captura o token da URL
+  const redirectUrl = searchParams.get("redirectUrl") || '/'; // Captura a URL de redirecionamento
 
   useEffect(() => {
     if (token) {
@@ -17,15 +18,15 @@ export default function TokenPage() {
         // Atualize o estado de autenticação ou armazene o usuário
         // Exemplo: setUser(decodedToken);
 
-        // Redirecionar para a página principal ou dashboard
-        router.push('/');
+        // Redirecionar para a URL de origem ou dashboard
+        router.push(redirectUrl);
       } catch (error) {
         console.error("Erro ao decodificar JWT:", error);
         // Redirecionar ou mostrar uma mensagem de erro
         router.push('/login');
       }
     }
-  }, [token, router]);
+  }, [token, redirectUrl, router]);
 
   return (
     <div>

@@ -54,8 +54,25 @@ const authSlice = createSlice({
         localStorage.removeItem('auth');
       }
     },
+    setAuthenticated(state, action: PayloadAction<boolean>) {
+      state.isAuthenticated = action.payload;
+      if (!action.payload) {
+        state.user = null;
+        state.accessToken = null;
+        state.profilePicture = null;
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('auth');
+        }
+      }
+    },
+    setUser(state, action: PayloadAction<{ name: string; email: string }>) {
+      state.user = action.payload;
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('auth', JSON.stringify(state));
+      }
+    },
   },
 });
 
-export const { login, logout } = authSlice.actions;
+export const { login, logout, setAuthenticated, setUser } = authSlice.actions;
 export default authSlice.reducer;

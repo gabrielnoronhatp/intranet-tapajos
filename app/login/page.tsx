@@ -3,9 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useState, useEffect, useCallback } from "react";
-import { login } from "@/hooks/slices/authSlice";
-
-import { toast } from "react-hot-toast";
 import "../../components/styles/login.css";
 import { tpGrupoTapajos } from "../assets/index";
 import { Navbar } from "@/components/layout/navbar";

@@ -14,7 +14,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
   const router = useRouter();
 
   useEffect(() => {
-    if (accessToken) {
+    if (typeof window !== 'undefined' && accessToken) {
       try {
         const decodedToken: any = jwt.decode(accessToken);
         console.log("Decoded JWT:", decodedToken);

@@ -56,7 +56,7 @@ export const FilialSelect = ({ handleSetState, validate }: FilialSelectProps) =>
           </Select.Option>
         ))}
       </Select>
-      {error && <p className="text-red-500 text-xs">{error}</p>}
+    
     </div>
   );
 };

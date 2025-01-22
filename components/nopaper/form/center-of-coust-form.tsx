@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RootState } from "@/hooks/store";
 import { Select } from "antd";
+import { NumericFormat as NumberFormatComponent } from 'react-number-format';
 
 export default function CenterOfCoust() {
   const dispatch = useDispatch();
@@ -21,13 +22,10 @@ export default function CenterOfCoust() {
 
   const [numCenters, setNumCenters] = useState(ccustoOP.length);
 
-  useEffect(() => {}, [
-    dispatch,
-    ccustoOP,
-    produtosOP,
-    centrosCustoOptions,
-    numCenters,
-  ]);
+  useEffect(() => {
+    console.log("Initial ccustoOP state:", ccustoOP);
+    console.log("Centros Custo Options:", centrosCustoOptions);
+  }, [ccustoOP, centrosCustoOptions]);
 
   const handleNumCentersChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const quantity = Math.max(1, parseInt(e.target.value, 10) || 1);
@@ -46,6 +44,7 @@ export default function CenterOfCoust() {
     field: "centrocusto" | "valor",
     value: string | number
   ) => {
+    console.log(`Changing ${field} for index ${index} to ${value}`);
     const updatedCenters = ccustoOP.map((item, i) =>
       i === index ? { ...item, [field]: value } : item
     );
@@ -59,6 +58,7 @@ export default function CenterOfCoust() {
     field: "centrocusto" | "valor",
     value: string | number
   ) => {
+    console.log("handleProductCenterChange", productIndex, centerIndex, field, value);
     const updatedProducts = produtosOP.map((product, i) => {
       if (i === productIndex) {
         const updatedCenters = product.centroCusto.map((center: any, ci: any) =>
@@ -99,24 +99,26 @@ export default function CenterOfCoust() {
               console.log("Centro de Custo selecionado:", value);
               handleCenterChange(index, "centrocusto", value);
             }}
-            value={center.centrocusto?.centrocusto}
+            value={center.centrocusto}
             className="w-full"
           >
             {centrosCustoOptions.map((option: any) => (
-              <Select.Option key={option.id} value={option.id}>
+              <Select.Option key={option.id || option.centrocusto} value={option.id}>
                 {option.centrocusto}
               </Select.Option>
             ))}
           </Select>
-          <Input
-            type="number"
-            value={center.centrocusto?.valor}
-            onChange={(e) => {
-              const newValue = parseFloat(e.target.value) || 0;
-              handleCenterChange(index, "valor", newValue);
-            }}
+          <NumberFormatComponent
+            value={center.valor}
+            onValueChange={(values:any) => handleCenterChange(index, "valor", values.floatValue)}
             placeholder="Valor"
-            className="form-control"
+            className="form-control w-full p-2 border rounded"
+            thousandSeparator="."
+            decimalSeparator=","
+            prefix="R$ "
+            decimalScale={2}
+            fixedDecimalScale={true}
+            allowNegative={false}
           />
         </div>
       ))}
@@ -130,8 +132,9 @@ export default function CenterOfCoust() {
               </Label>
               <Select
                 showSearch
+                optionFilterProp="children"
                 onChange={(value: string) => {
-                  console.log("Centro de Custo selecionado:", value);
+                  console.log("Centro de Custo selecionado:", center);
                   handleProductCenterChange(
                     productIndex,
                     centerIndex,
@@ -143,25 +146,31 @@ export default function CenterOfCoust() {
                 className="w-full"
               >
                 {centrosCustoOptions.map((option: any) => (
-                  <Select.Option key={option.id} value={option.id}>
+                  console.log("option", option),
+                  <Select.Option key={option.centrocusto} value={option.centrocusto}>
                     {option.centrocusto}
                   </Select.Option>
                 ))}
               </Select>
 
-              <Input
-                type="number"
+              <NumberFormatComponent
                 value={center.valor}
-                onChange={(e) =>
+                onValueChange={(values:any) =>
                   handleProductCenterChange(
                     productIndex,
                     centerIndex,
                     "valor",
-                    parseFloat(e.target.value) || 0
+                    values.floatValue
                   )
                 }
                 placeholder="Valor"
-                className="form-control"
+                className="form-control w-full p-2 border rounded"
+                thousandSeparator="."
+                decimalSeparator=","
+                prefix="R$ "
+                decimalScale={2}
+                fixedDecimalScale={true}
+                allowNegative={false}
               />
             </div>
           ))}

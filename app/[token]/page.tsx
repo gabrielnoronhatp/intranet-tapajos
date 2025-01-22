@@ -39,5 +39,5 @@ export default function TokenPage() {
     }
   }, [token, router]);
 
- 
+  return <div>Carregando...</div>;
 }

@@ -82,6 +82,7 @@ export default function OriginData() {
                     ]
               }
               className="w-full"
+              disabled={!ramoOP}
             />
           </div>
         </div>

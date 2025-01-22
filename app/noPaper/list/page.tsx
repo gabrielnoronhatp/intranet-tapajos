@@ -22,6 +22,7 @@ export default function NoPaperList() {
   };
 
   return (
+    <div>
     <ProtectedRoute>  
     <div className="min-h-screen bg-background">
       <Navbar onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
@@ -66,6 +67,6 @@ export default function NoPaperList() {
       </main>
     </div>
     </ProtectedRoute>
-    
+    </div>
   );
 }

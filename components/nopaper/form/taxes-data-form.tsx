@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchCentrosCusto, fetchContasGerenciais } from "@/hooks/slices/noPaper/noPaperSlice";
 import { RootState } from "@/hooks/store";
 import { Select, SelectItem } from "@/components/ui/select";
+import { NumericFormat as NumberFormatComponent } from 'react-number-format';
 
 export default function TaxesData() {
   const dispatch = useDispatch();
@@ -97,16 +98,21 @@ export default function TaxesData() {
               className="form-control"
               required
             />
-            <Input
-              type="number"
+
+
+         
+            <NumberFormatComponent
               value={item.valor}
-              onChange={(e) =>
-                handleItensChange(index, "valor", parseFloat(e.target.value))
-              }
+              onValueChange={(values:any) => handleItensChange(index, "valor", values.floatValue)}
               placeholder="Valor do Produto"
-              min={0.01}
-              step={0.01}
-              className="form-control"
+              className="form-control w-full p-2 border rounded" // Apply the same classes as other inputs
+
+              thousandSeparator="."
+              decimalSeparator=","
+              prefix="R$ "
+              decimalScale={2}
+              fixedDecimalScale={true}
+              allowNegative={false}
             />
           </div>
         ))}

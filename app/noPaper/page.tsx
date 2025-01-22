@@ -39,6 +39,13 @@ export default function NoPaper() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+ 
+    if (!orderData.lojaOP) {
+      console.error("Filial não pode ser vazia.");
+      message.error("Por favor, selecione uma filial.");
+      return;
+    }
+
     if (orderData) {
       try {
         const response = await dispatch(submitOrder(orderData) as any);

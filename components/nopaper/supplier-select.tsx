@@ -58,7 +58,8 @@ export const FornecedorSelect = ({
         
         value={fornecedorOP}
         onChange={handleSelectChange}
-        onSearch={(value) => setLocalSearchQuery(value)}
+        onSearch={(value) => setLocalSearchQuery(value.toUpperCase())} 
+
         filterOption={(input, option) =>
           (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
         }

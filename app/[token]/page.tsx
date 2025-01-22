@@ -14,18 +14,17 @@ export default function TokenPage() {
     (typeof window !== "undefined" &&
       window.location.pathname.split("/").pop());
 
-      
+
   useEffect(() => {
     if (token) {
       try {
         const decodedToken: any = jwt.decode(token as string);
-        console.log("Decoded JWT:", decodedToken);
         dispatch(
           login({
             name: decodedToken.name,
             email: decodedToken.email,
             accessToken: token,
-            profilePicture: null,
+            profilePicture: decodedToken.foto_perfil_url,
           })
         );
         
@@ -40,9 +39,5 @@ export default function TokenPage() {
     }
   }, [token, router]);
 
-  return (
-    <div>
-      <h1>Processando autenticação...</h1>
-    </div>
-  );
+ 
 }

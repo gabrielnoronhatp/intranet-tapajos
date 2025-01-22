@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface AuthState {
   isAuthenticated: boolean;
-  user: null | { name: string; email: string };
+  user: null | { name: string; email: string, profilePicture: any , accessToken: string};
   accessToken: string | null;
   profilePicture: any;
 }
@@ -34,7 +34,7 @@ const authSlice = createSlice({
       action: PayloadAction<{ name: string; email: string; accessToken: string; profilePicture: any }>
     ) {
       state.isAuthenticated = true;
-      state.user = { name: action.payload.name, email: action.payload.email };
+      state.user = { name: action.payload.name, email: action.payload.email, profilePicture: action.payload.profilePicture, accessToken: action.payload.accessToken };
       state.accessToken = action.payload.accessToken;
       state.profilePicture = action.payload.profilePicture;
       
@@ -65,7 +65,7 @@ const authSlice = createSlice({
         }
       }
     },
-    setUser(state, action: PayloadAction<{ name: string; email: string }>) {
+    setUser(state, action: PayloadAction<{ name: string; email: string, profilePicture: any, accessToken: string   }>) {
       state.user = action.payload;
       if (typeof window !== 'undefined') {
         localStorage.setItem('auth', JSON.stringify(state));

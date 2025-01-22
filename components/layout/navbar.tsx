@@ -1,12 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Menu, LogOut } from "lucide-react"; // Adicionando o ícone de logout
+import { Menu, LogOut } from "lucide-react"; 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { tpLogo } from "@/app/assets";
-import { useState, useEffect } from "react"; // Importando hooks para gerenciar estado
+import { useState, useEffect } from "react"; 
 import { useSelector } from "react-redux";
 import { RootState } from "@/hooks/store";
 
@@ -17,21 +17,36 @@ interface NavbarProps {
 export function Navbar({ onToggleSidebar }: NavbarProps) {
   const pathname = usePathname();
 
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); // Verifica se o usuário está logado
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); 
   const user = useSelector((state: RootState) => state.auth.user);
 
-  // Função para simular um logout (remova o token ou dados do usuário)
+  const getInitials = (name: string) => {
+    const nameParts = name.split(' ');
+    const initials = nameParts.slice(0, 2).map((n) => n[0]).join('');
+    return initials.toUpperCase();
+  };
+
   const handleLogout = () => {
-    // Aqui você pode limpar o token ou os dados de sessão do usuário
-    setIsLoggedIn(false);
-    // Redirecionar ou chamar o endpoint de logout
-    console.log("Usuário deslogado");
+    fetch("https://sso.grupotapajos.com.br/logout", {
+      method: "POST",
+      credentials: "include", 
+    })
+      .then((response) => {
+        if (response.ok) {
+          setIsLoggedIn(false);
+          console.log("Usuário deslogado");
+        } else {
+          console.error("Erro ao deslogar");
+        }
+      })
+      .catch((error) => {
+        console.error("Erro na requisição de logout:", error);
+      });
   };
 
   useEffect(() => {
-    // Simulação de obtenção de dados de usuário
+   
     const fetchUser = () => {
-      // Simulando a obtenção do nome do usuário
       setIsLoggedIn(true);
     };
 
@@ -60,25 +75,28 @@ export function Navbar({ onToggleSidebar }: NavbarProps) {
             className="object-contain"
           />
         </div>
-
-        <div className="flex items-center gap-6">
-          {/* Exibindo os itens de navegação aqui */}
-        </div>
-
         <div className="flex items-center gap-6">
           {isLoggedIn && user ? (
             <>
-              {/* Ícone circular com iniciais do nome */}
               <div className="relative">
-                <span
-                  className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-300 text-white font-semibold"
-                  title={user.name} // Tooltip que exibe o nome completo
-                >
-                  {/* {getInitials(user.name)} */}
-                </span>
+                {user.profilePicture ? (
+                  <Image
+                    src={user.profilePicture}
+                    alt="Profile Picture"
+                    width={32}
+                    height={32}
+                    className="rounded-full"
+                  />
+                ) : (
+                  <span
+                    className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-300 text-white font-semibold"
+                    title={user.name}
+                  >
+                    {getInitials(user.name)}
+                  </span>
+                )}
               </div>
 
-              {/* Botão de logout */}
               <Button
                 variant="ghost"
                 size="icon"

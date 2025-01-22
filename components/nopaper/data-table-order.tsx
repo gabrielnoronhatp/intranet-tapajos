@@ -11,7 +11,7 @@ import {
 import { CheckCircle2, XCircle, Eye } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Image, Upload, UploadFile, message } from "antd";
-import { PinModal } from "@/components/nopaper/pin-modal";
+import { CpfModal } from "@/components/nopaper/pin-modal";
 import api from '@/app/service/api';
 import { UploadChangeParam } from "antd/es/upload";
 import './data-table-order-styles.css';
@@ -70,6 +70,7 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
     } else {
       setFileUrls([]);
     }
+
   };
 
   const handleClosePinModal = () => {
@@ -103,21 +104,33 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
       dataIndex: 'assinatura1', 
       key: 'assinatura1', 
       align: 'center',
-      render: (text: any) => text ? <CheckCircle2 color="green" /> : <XCircle color="red" />
+      render: (text: any, record: any) => (
+        <span onClick={() => setIsPinModalOpen(true)} style={{ cursor: 'pointer' }}>
+          {text ? <CheckCircle2 color="green" /> : <XCircle color="red" />}
+        </span>
+      )
     },
     { 
       title: 'Assinatura 2', 
       dataIndex: 'assinatura2', 
       key: 'assinatura2', 
       align: 'center',
-      render: (text: any) => text ? <CheckCircle2 color="green" /> : <XCircle color="red" />
+      render: (text: any, record: any) => (
+        <span onClick={() => setIsPinModalOpen(true)} style={{ cursor: 'pointer' }}>
+          {text ? <CheckCircle2 color="green" /> : <XCircle color="red" />}
+        </span>
+      )
     },
     { 
       title: 'Assinatura 3', 
       dataIndex: 'assinatura3', 
       key: 'assinatura3', 
       align: 'center',
-      render: (text: any) => text ? <CheckCircle2 color="green" /> : <XCircle color="red" />
+      render: (text: any, record: any) => (
+        <span onClick={() => setIsPinModalOpen(true)} style={{ cursor: 'pointer' }}>
+          {text ? <CheckCircle2 color="green" /> : <XCircle color="red" />}
+        </span>
+      )
     },
     { 
       title: 'Ações', 
@@ -271,7 +284,7 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
         </div>
       )}
 
-      <PinModal
+      <CpfModal
         isOpen={isPinModalOpen}
         onClose={handleClosePinModal}
         onConfirm={handleConfirmPin}

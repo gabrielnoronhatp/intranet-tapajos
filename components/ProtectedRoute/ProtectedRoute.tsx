@@ -16,7 +16,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
   useEffect(() => {
     if (accessToken) {
       try {
-        const decodedToken:any = jwt.decode(accessToken);
+        const decodedToken: any = jwt.decode(accessToken);
         console.log("Decoded JWT:", decodedToken);
 
         dispatch(setAuthenticated(true));
@@ -28,6 +28,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
         router.push('/login');
       }
     } else {
+      dispatch(setAuthenticated(false));
       router.push('/login');
     }
   }, [accessToken, dispatch, router]);

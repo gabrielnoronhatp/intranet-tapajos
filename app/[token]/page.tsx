@@ -27,9 +27,7 @@ export default function TokenPage() {
           })
         );
         
-        if (window.history.length > 1) {
-          window.history.back();
-        }
+       router.push("/")
 
       } catch (error) {
         console.error("Erro ao decodificar JWT:", error)

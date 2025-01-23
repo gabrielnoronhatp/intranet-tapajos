@@ -20,11 +20,11 @@ export function Navbar({ onToggleSidebar }: NavbarProps) {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); 
   const user = useSelector((state: RootState) => state.auth.user);
 
-  // const getInitials = (name: string) => {
-  //   const nameParts = name.split(' ');
-  //   const initials = nameParts.slice(0, 2).map((n) => n[0]).join('');
-  //   return initials.toUpperCase();
-  // };
+  const getInitials = (name: string) => {
+    const nameParts = name.split(' ');
+    const initials = nameParts.slice(0, 2).map((n) => n[0]).join('');
+    return initials.toUpperCase();
+  };
 
   const handleLogout = () => {
     fetch("https://sso.grupotapajos.com.br/logout", {
@@ -92,7 +92,7 @@ export function Navbar({ onToggleSidebar }: NavbarProps) {
                     className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-300 text-white font-semibold"
                     title={user.name}
                   >
-                    {/* {getInitials(user.name)} */}
+                    {getInitials(user.name)}
                   </span>
                 )}
               </div>

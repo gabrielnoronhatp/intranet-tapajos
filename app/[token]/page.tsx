@@ -9,13 +9,12 @@ import { RootState } from "@/hooks/store";
 export default function TokenPage() {
   const dispatch = useDispatch();
   const router: any = useRouter();
-  const token =
-    router.query?.token ||
-    (typeof window !== "undefined" &&
-      window.location.pathname.split("/").pop());
+  const token =  router.query?.token 
 
 
   useEffect(() => {
+    console.log("token", token)
+  
     if (token) {
       try {
         const decodedToken: any = jwt.decode(token as string);

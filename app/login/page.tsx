@@ -21,10 +21,11 @@ export default function LoginPage() {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    console.log("accessToken", accessToken)
     if (accessToken) {
       try {
-        const decodedToken: any = jwt.decode(accessToken);
-        setUserInfo(decodedToken);
+  
+        setUserInfo(accessToken);
         dispatch(setAuthenticated(true));
       } catch (error) {
         console.error("Erro ao decodificar JWT:", error);

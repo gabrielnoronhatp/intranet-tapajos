@@ -27,13 +27,10 @@ export default function TokenPage() {
           })
         );
         
-        if (window.history.length > 1) {
-          window.history.back();
-        }
+       
 
       } catch (error) {
-        console.error("Erro ao decodificar JWT:", error);
-        router.push("/login");
+        console.error("Erro ao decodificar JWT:", error)
       }
     }
   }, [token, router]);

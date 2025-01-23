@@ -23,14 +23,14 @@ export function CpfModal({ isOpen, onClose, onConfirm }: CpfModalProps) {
   const acessToken = useSelector((state: RootState) => state.auth.accessToken);
 
   const handleConfirm = async () => {
+    console.log("acessToken", acessToken)
     try {
-      const response = await fetch('/gerar_assinatura', {
+      const response = await fetch('https://sso.grupotapajos.com.br/gerar_assinatura', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${cpf}`
-        },
-        body: acessToken
+          'Authorization': `Bearer ${acessToken}`
+        }
       });
 
       if (!response.ok) {

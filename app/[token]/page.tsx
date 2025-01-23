@@ -9,8 +9,7 @@ import { RootState } from "@/hooks/store";
 export default function TokenPage() {
   const dispatch = useDispatch();
   const router: any = useRouter();
-  const token =
-    router.query?.token ||
+  const token = router.query?.token ||
     (typeof window !== "undefined" &&
       window.location.pathname.split("/").pop());
 

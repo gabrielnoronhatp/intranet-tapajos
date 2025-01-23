@@ -24,9 +24,9 @@ export default function LoginPage() {
     console.log("accessToken", accessToken)
     if (accessToken) {
       try {
-  
         setUserInfo(accessToken);
         dispatch(setAuthenticated(true));
+        window.location.reload();
       } catch (error) {
         console.error("Erro ao decodificar JWT:", error);
         dispatch(setAuthenticated(false));

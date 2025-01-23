@@ -2,13 +2,15 @@
 
 import { Navbar } from "@/components/layout/navbar";
 import { Sidebar } from "@/components/layout/sidebar";
-import ProtectedRoute from "@/components/ProtectedRoute/ProtectedRoute";
+import { AuthGuard } from "@/components/ProtectedRoute/AuthGuard";
 import { useState } from "react";
 
 export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   return (
+    <AuthGuard>
+
   <div className="min-h-screen bg-background">
       <Navbar onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
       <Sidebar isOpen={isSidebarOpen} />
@@ -32,5 +34,6 @@ export default function Home() {
         </div>
       </main>
     </div>    
+    </AuthGuard>
   );
 }

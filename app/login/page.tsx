@@ -40,14 +40,9 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
-      <Sidebar isOpen={isSidebarOpen} />
+    
 
-      <main
-        className={`pt-16 transition-all duration-300 ${
-          isSidebarOpen ? "ml-64" : "ml-16"
-        }`}
-      >
+     
         <div className="login-container">
           {isAuthenticated ? (
             <div>
@@ -73,7 +68,7 @@ export default function LoginPage() {
             </form>
           )}
         </div>
-      </main>
+   
 
     </div>
   );

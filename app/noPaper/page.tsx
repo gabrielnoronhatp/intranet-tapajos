@@ -13,6 +13,7 @@ import OriginData from "@/components/nopaper/form/origin-data-form";
 import FinancialData from "@/components/nopaper/form/financial-data-form";
 import TaxesData from "@/components/nopaper/form/taxes-data-form";
 import CenterOfCoust from "@/components/nopaper/form/center-of-coust-form";
+import { AuthGuard } from "@/components/ProtectedRoute/AuthGuard";
 
 type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
 
@@ -69,6 +70,7 @@ export default function NoPaper() {
   
 
   return (
+    <AuthGuard>
     <div className="min-h-screen bg-background">
       <Navbar
         onToggleSidebar={() => handleSetState("isSidebarOpen", !isSidebarOpen)}
@@ -137,5 +139,6 @@ export default function NoPaper() {
         )}
       </main>
     </div>
+    </AuthGuard>
   );
 }

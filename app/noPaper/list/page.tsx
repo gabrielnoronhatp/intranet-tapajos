@@ -3,7 +3,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { Sidebar } from "@/components/layout/sidebar";
 import { DataTableOrder } from "@/components/nopaper/data-table-order";
 import { FloatingActionButton } from "@/components/nopaper/floating-action-button";
-import ProtectedRoute from "@/components/ProtectedRoute/ProtectedRoute";
+import  { AuthGuard } from "@/components/ProtectedRoute/AuthGuard";
 import { useState } from "react";
 
 export default function NoPaperList() {
@@ -22,8 +22,9 @@ export default function NoPaperList() {
   };
 
   return (
+    <AuthGuard>
     <div>
-    <ProtectedRoute>  
+
     <div className="min-h-screen bg-background">
       <Navbar onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
       <Sidebar isOpen={isSidebarOpen} />
@@ -66,7 +67,8 @@ export default function NoPaperList() {
         </div>
       </main>
     </div>
-    </ProtectedRoute>
+ 
     </div>
+    </AuthGuard>
   );
 }

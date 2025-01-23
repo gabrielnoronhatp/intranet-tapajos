@@ -1,19 +1,15 @@
 import ReduxProvider from '@/redux-provider';
 import './globals.css';
-import type { Metadata} from 'next';
+import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ToastProvider } from '@/components/ui/toast';
 import { Toaster } from 'react-hot-toast';
-import ProtectedRoute from '@/components/ProtectedRoute/ProtectedRoute';
-
-
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Intranet Tapajós',
   description: 'Portal interno da empresa',
-  
 };
 
 export default function RootLayout({
@@ -21,23 +17,19 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-
-
   return (
     <html lang="pt-BR">
-        <head>
-            <link rel="icon" href="/favicon.ico" />
+      <head>
+        <link rel="icon" href="/favicon.ico" />
       </head>
       <body className={inter.className}>
-
-    
-      <ReduxProvider>
+        <ReduxProvider>
           <Toaster />
-           {children}
-        </ReduxProvider>
+        
+            {children}
       
-
-        </body>
+        </ReduxProvider>
+      </body>
     </html>
   );
 }

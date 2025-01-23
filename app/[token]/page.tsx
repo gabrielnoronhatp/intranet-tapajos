@@ -9,12 +9,13 @@ import { RootState } from "@/hooks/store";
 export default function TokenPage() {
   const dispatch = useDispatch();
   const router: any = useRouter();
-  const token =  router.query?.token 
+  const token =
+    router.query?.token ||
+    (typeof window !== "undefined" &&
+      window.location.pathname.split("/").pop());
 
 
   useEffect(() => {
-    console.log("token", token)
-  
     if (token) {
       try {
         const decodedToken: any = jwt.decode(token as string);
@@ -38,5 +39,5 @@ export default function TokenPage() {
     }
   }, [token, router]);
 
-  return <div>Carregando...</div>;
+ 
 }

@@ -21,7 +21,7 @@ interface CpfModalProps {
 export function CpfModal({ isOpen, onClose, onConfirm }: CpfModalProps) {
   const [cpf, setCpf] = useState<string>("");
   const acessToken = useSelector((state: RootState) => state.auth.accessToken);
-
+ //cadastra o cpf no sso
   const handleConfirm = async () => {
     if (!cpf) {
       alert("Por favor, insira um CPF válido.");

@@ -4,11 +4,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import "../../components/styles/login.css";
 import { tpGrupoTapajos } from "../assets/index";
-import { Navbar } from "@/components/layout/navbar";
-import { Sidebar } from "@/components/layout/sidebar";
-import { Modal } from "antd";
 import { RootState } from "@/hooks/store";
-import jwt from "jsonwebtoken";
 import { setAuthenticated } from "@/hooks/slices/authSlice";
 
 export default function LoginPage() {

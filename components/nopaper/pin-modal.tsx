@@ -23,14 +23,20 @@ export function CpfModal({ isOpen, onClose, onConfirm }: CpfModalProps) {
   const acessToken = useSelector((state: RootState) => state.auth.accessToken);
 
   const handleConfirm = async () => {
+    if (!cpf) {
+      alert("Por favor, insira um CPF válido.");
+      return;
+    }
+
     console.log("acessToken", acessToken)
     try {
-      const response = await fetch('https://sso.grupotapajos.com.br/gerar_assinatura', {
+      const response = await fetch('https://sso.grupotapajos.com.br/cadastrar_cpf', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${acessToken}`
-        }
+        },
+        body: JSON.stringify({ cpf })
       });
 
       if (!response.ok) {

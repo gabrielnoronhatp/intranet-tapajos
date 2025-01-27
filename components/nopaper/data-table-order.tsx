@@ -11,11 +11,12 @@ import {
 import { CheckCircle2, XCircle, Eye } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Image, Upload, UploadFile, message } from "antd";
-import { CpfModal } from "@/components/nopaper/pin-modal";
+import { CpfModal } from "@/components/nopaper/cpf-modal";
 import api from '@/app/service/api';
 import { UploadChangeParam } from "antd/es/upload";
 import './data-table-order-styles.css';
 import { Table as AntdTable } from 'antd';
+import { PinModal } from "./pin-modal";
 
 interface DataTableOrderProps {
   searchParams: Record<string, string>;
@@ -200,7 +201,6 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
                           <a
                             href={url}
                             className="text-blue-600 hover:text-blue-800"
-                            // onClick={(e) => handlePreview(e, url)}
                           >
                             Arquivo {index + 1}
                           </a>
@@ -284,7 +284,7 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
         </div>
       )}
 
-      <CpfModal
+      <PinModal
         isOpen={isPinModalOpen}
         onClose={handleClosePinModal}
         onConfirm={handleConfirmPin}

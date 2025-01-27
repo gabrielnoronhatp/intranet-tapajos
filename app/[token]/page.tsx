@@ -26,12 +26,7 @@ export default function TokenPage() {
     if (token) {
       try {
         const decodedToken: any = jwt.decode(token as string);
-
-        if (!decodedToken.cpf) {
-          setIsModalOpen(true); // Abre o modal se o CPF não estiver presente
-          return;
-        }
-
+      
         dispatch(
           login({
             name: decodedToken.name,
@@ -40,6 +35,13 @@ export default function TokenPage() {
             profilePicture: decodedToken.foto_perfil_url,
           })
         );
+
+        if (!decodedToken.cpf) {
+          setIsModalOpen(true); // Abre o modal se o CPF não estiver presente
+          return;
+        }
+
+       
         
         router.push("/")
 

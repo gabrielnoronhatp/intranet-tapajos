@@ -16,21 +16,25 @@ interface PinModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (pin: string) => void;
+  orderId: number;
 }
 
-export function PinModal({ isOpen, onClose, onConfirm }: PinModalProps) {
+export function PinModal({ isOpen, onClose, onConfirm}: PinModalProps) {
   const [pin, setPin] = useState<string[]>(Array(6).fill(""));
   const acessToken = useSelector((state: RootState) => state.auth.accessToken);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const orderId = useSelector((state: RootState) => state.noPaper.orderId);
+  const user = useSelector((state: RootState) => state.auth.user);
 
   useEffect(() => {
     if (isOpen) {
       generateSignature();
+      console.log("orderId", orderId);
     }
   }, [isOpen]);
 
   const generateSignature = async () => {
-    console.log("acessToken", acessToken);
+ 
     try {
       const response = await fetch(
         "https://sso.grupotapajos.com.br/gerar_assinatura",
@@ -49,6 +53,7 @@ export function PinModal({ isOpen, onClose, onConfirm }: PinModalProps) {
 
       const data = await response.json();
       console.log("Assinatura gerada:", data);
+      return data.pin;
     } catch (error) {
       console.error("Erro ao gerar assinatura:", error);
     }
@@ -64,7 +69,7 @@ export function PinModal({ isOpen, onClose, onConfirm }: PinModalProps) {
       inputRefs.current[index + 1]?.focus();
     }
   };
-
+  
   const handleConfirm = async () => {
     const pinString = pin.join("");
     if (pinString.length !== 6) {
@@ -73,20 +78,22 @@ export function PinModal({ isOpen, onClose, onConfirm }: PinModalProps) {
     }
 
     try {
-      const response = await fetch(
-        "https://sso.grupotapajos.com.br/gerar_assinatura",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${acessToken}`,
-          },
-          body: JSON.stringify({ pin: pinString }),
-        }
-      );
+      const response = await fetch("http://localhost:3002/api/orders/signature", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${acessToken}`,
+        },
+        body: JSON.stringify({
+          orderId: orderId,
+          signerName: 1,
+          token: pinString,
+          signatureNumber: 1,
+        }),
+      });
 
       if (!response.ok) {
-        throw new Error("Erro ao gerar assinatura");
+        throw new Error("Erro ao registrar assinatura");
       }
 
       const data = await response.json();

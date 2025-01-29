@@ -6,4 +6,5 @@ export interface NoPaperState {
     centrosCustoOptions: any[];
     loading: boolean;
     error: string | null;
+    orderId: number | null;
   }

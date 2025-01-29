@@ -17,12 +17,15 @@ import { UploadChangeParam } from "antd/es/upload";
 import './data-table-order-styles.css';
 import { Table as AntdTable } from 'antd';
 import { PinModal } from "./pin-modal";
+import { setOrderId } from "@/hooks/slices/noPaper/noPaperSlice";
+import { useDispatch } from "react-redux";
 
 interface DataTableOrderProps {
   searchParams: Record<string, string>;
 }
 
 export function DataTableOrder({ searchParams }: DataTableOrderProps) {
+  const dispatch = useDispatch();
   const [orders, setOrders] = useState<Array<any>>([]);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [selectedItem, setSelectedItem]: any = useState(null);
@@ -38,6 +41,7 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
         const query = new URLSearchParams(searchParams).toString();
         const response = await api.get(`buscar-ordem?${query}`);
         setOrders(response.data);
+      
       } catch (error) {
         console.error("Error fetching orders:", error);
       }
@@ -58,6 +62,7 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
   const toggleView = async (item: any) => {
     setSelectedItem(item);
     setIsViewOpen(!isViewOpen);
+    
     setPreviewUrl(null);
     await fetchOrderDetails(item.id);
     if (!isViewOpen) {
@@ -80,6 +85,7 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
 
   const handleConfirmPin = () => {
     setIsPinModalOpen(false);
+    
   };
 
   const beforeUpload = (file: File) => {
@@ -106,7 +112,10 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
       key: 'assinatura1', 
       align: 'center',
       render: (text: any, record: any) => (
-        <span onClick={() => setIsPinModalOpen(true)} style={{ cursor: 'pointer' }}>
+        <span onClick={() => {
+          dispatch(setOrderId(record.id));
+          setIsPinModalOpen(true);
+        }} style={{ cursor: 'pointer' }}>
           {text ? <CheckCircle2 color="green" /> : <XCircle color="red" />}
         </span>
       )
@@ -117,7 +126,10 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
       key: 'assinatura2', 
       align: 'center',
       render: (text: any, record: any) => (
-        <span onClick={() => setIsPinModalOpen(true)} style={{ cursor: 'pointer' }}>
+        <span onClick={() => {
+          dispatch(setOrderId(record.id));
+          setIsPinModalOpen(true);
+        }} style={{ cursor: 'pointer' }}>
           {text ? <CheckCircle2 color="green" /> : <XCircle color="red" />}
         </span>
       )
@@ -128,7 +140,10 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
       key: 'assinatura3', 
       align: 'center',
       render: (text: any, record: any) => (
-        <span onClick={() => setIsPinModalOpen(true)} style={{ cursor: 'pointer' }}>
+        <span onClick={() => {
+          dispatch(setOrderId(record.id));
+          setIsPinModalOpen(true);
+        }} style={{ cursor: 'pointer' }}>
           {text ? <CheckCircle2 color="green" /> : <XCircle color="red" />}
         </span>
       )
@@ -288,6 +303,7 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
         isOpen={isPinModalOpen}
         onClose={handleClosePinModal}
         onConfirm={handleConfirmPin}
+        orderId={selectedItem?.id}
       />
     </div>
   );

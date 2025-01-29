@@ -1,11 +1,12 @@
 import api from '@/app/service/api';
 import { NoPaperState } from '@/types/noPaper/Supplier/SupplierType';
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, createAction } from '@reduxjs/toolkit';
 
 
 
 const initialState: NoPaperState = {
   fornecedores: [],
+  orderId: null,
   filiais: [],
   searchQuery: '',
   contasGerenciais: [],
@@ -71,6 +72,7 @@ export const fetchCentrosCusto = createAsyncThunk(
   }
 );
 
+export const setOrderId = createAction<number>('noPaper/setOrderId'); 
 
 const noPaperSlice = createSlice({
   name: 'noPaper',
@@ -125,6 +127,9 @@ const noPaperSlice = createSlice({
       .addCase(fetchCentrosCusto.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to fetch centros de custo';
+      })
+      .addCase(setOrderId, (state, action) => {
+        state.orderId = action.payload;
       })
     
   },

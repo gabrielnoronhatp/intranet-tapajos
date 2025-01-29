@@ -7,6 +7,7 @@ import { createSlice, createAsyncThunk, createAction } from '@reduxjs/toolkit';
 const initialState: NoPaperState = {
   fornecedores: [],
   orderId: null,
+  signatureNumber: null,
   filiais: [],
   searchQuery: '',
   contasGerenciais: [],
@@ -73,6 +74,7 @@ export const fetchCentrosCusto = createAsyncThunk(
 );
 
 export const setOrderId = createAction<number>('noPaper/setOrderId'); 
+export const setSignatureNumber = createAction<number>('noPaper/setSignatureNumber'); 
 
 const noPaperSlice = createSlice({
   name: 'noPaper',
@@ -131,7 +133,10 @@ const noPaperSlice = createSlice({
       .addCase(setOrderId, (state, action) => {
         state.orderId = action.payload;
       })
-    
+      .addCase(setSignatureNumber, (state, action) => {
+        state.signatureNumber = action.payload;
+      })  
+
   },
 });
 

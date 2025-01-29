@@ -7,4 +7,5 @@ export interface NoPaperState {
     loading: boolean;
     error: string | null;
     orderId: number | null;
+    signatureNumber: number | null;
   }

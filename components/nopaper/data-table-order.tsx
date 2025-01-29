@@ -17,7 +17,7 @@ import { UploadChangeParam } from "antd/es/upload";
 import './data-table-order-styles.css';
 import { Table as AntdTable } from 'antd';
 import { PinModal } from "./pin-modal";
-import { setOrderId } from "@/hooks/slices/noPaper/noPaperSlice";
+import { setOrderId, setSignatureNumber } from "@/hooks/slices/noPaper/noPaperSlice";
 import { useDispatch } from "react-redux";
 
 interface DataTableOrderProps {
@@ -114,6 +114,7 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
       render: (text: any, record: any) => (
         <span onClick={() => {
           dispatch(setOrderId(record.id));
+          dispatch(setSignatureNumber(1));
           setIsPinModalOpen(true);
         }} style={{ cursor: 'pointer' }}>
           {text ? <CheckCircle2 color="green" /> : <XCircle color="red" />}
@@ -128,6 +129,7 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
       render: (text: any, record: any) => (
         <span onClick={() => {
           dispatch(setOrderId(record.id));
+          dispatch(setSignatureNumber(2));
           setIsPinModalOpen(true);
         }} style={{ cursor: 'pointer' }}>
           {text ? <CheckCircle2 color="green" /> : <XCircle color="red" />}
@@ -142,6 +144,9 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
       render: (text: any, record: any) => (
         <span onClick={() => {
           dispatch(setOrderId(record.id));
+          //signatureNumber 
+          dispatch(setSignatureNumber(3));
+
           setIsPinModalOpen(true);
         }} style={{ cursor: 'pointer' }}>
           {text ? <CheckCircle2 color="green" /> : <XCircle color="red" />}

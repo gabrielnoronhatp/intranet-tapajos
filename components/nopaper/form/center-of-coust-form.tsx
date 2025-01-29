@@ -23,8 +23,7 @@ export default function CenterOfCoust() {
   const [numCenters, setNumCenters] = useState(ccustoOP.length);
 
   useEffect(() => {
-    console.log("Initial ccustoOP state:", ccustoOP);
-    console.log("Centros Custo Options:", centrosCustoOptions);
+    
   }, [ccustoOP, centrosCustoOptions]);
 
   const handleNumCentersChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,7 +43,7 @@ export default function CenterOfCoust() {
     field: "centrocusto" | "valor",
     value: string | number
   ) => {
-    console.log(`Changing ${field} for index ${index} to ${value}`);
+   
     const updatedCenters = ccustoOP.map((item, i) =>
       i === index ? { ...item, [field]: value } : item
     );
@@ -58,7 +57,7 @@ export default function CenterOfCoust() {
     field: "centrocusto" | "valor",
     value: string | number
   ) => {
-    console.log("handleProductCenterChange", productIndex, centerIndex, field, value);
+   
     const updatedProducts = produtosOP.map((product, i) => {
       if (i === productIndex) {
         const updatedCenters = product.centroCusto.map((center: any, ci: any) =>
@@ -96,7 +95,7 @@ export default function CenterOfCoust() {
           <Select
             showSearch
             onChange={(value: string) => {
-              console.log("Centro de Custo selecionado:", value);
+             
               handleCenterChange(index, "centrocusto", value);
             }}
             value={center.centrocusto}
@@ -134,7 +133,7 @@ export default function CenterOfCoust() {
                 showSearch
                 optionFilterProp="children"
                 onChange={(value: string) => {
-                  console.log("Centro de Custo selecionado:", center);
+                 
                   handleProductCenterChange(
                     productIndex,
                     centerIndex,
@@ -146,7 +145,7 @@ export default function CenterOfCoust() {
                 className="w-full"
               >
                 {centrosCustoOptions.map((option: any) => (
-                  console.log("option", option),
+                
                   <Select.Option key={option.centrocusto} value={option.centrocusto}>
                     {option.centrocusto}
                   </Select.Option>

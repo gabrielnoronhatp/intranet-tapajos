@@ -25,11 +25,13 @@ export function PinModal({ isOpen, onClose, onConfirm}: PinModalProps) {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const orderId = useSelector((state: RootState) => state.noPaper.orderId);
   const user = useSelector((state: RootState) => state.auth.user);
+  const signatureNumber = useSelector((state: RootState) => state.noPaper.signatureNumber);
+
 
   useEffect(() => {
     if (isOpen) {
       generateSignature();
-      console.log("orderId", orderId);
+    
     }
   }, [isOpen]);
 
@@ -52,7 +54,6 @@ export function PinModal({ isOpen, onClose, onConfirm}: PinModalProps) {
       }
 
       const data = await response.json();
-      console.log("Assinatura gerada:", data);
       return data.pin;
     } catch (error) {
       console.error("Erro ao gerar assinatura:", error);
@@ -76,7 +77,7 @@ export function PinModal({ isOpen, onClose, onConfirm}: PinModalProps) {
       alert("Por favor, insira um PIN válido de 6 dígitos.");
       return;
     }
-
+ 
     try {
       const response = await fetch("http://localhost:3002/api/orders/signature", {
         method: "POST",
@@ -86,9 +87,9 @@ export function PinModal({ isOpen, onClose, onConfirm}: PinModalProps) {
         },
         body: JSON.stringify({
           orderId: orderId,
-          signerName: 1,
+          signerName: user?.name,
           token: pinString,
-          signatureNumber: 1,
+          signatureNumber: signatureNumber,
         }),
       });
 

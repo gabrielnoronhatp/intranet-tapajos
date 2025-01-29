@@ -16,20 +16,18 @@ export default function TokenPage() {
       window.location.pathname.split("/").pop());
 
   const handleCpfConfirm = (cpf: string) => {
-    // Lógica para lidar com o CPF confirmado
-    console.log("CPF confirmado:", cpf);
     setIsModalOpen(false);
   };
 
   useEffect(() => {
-    console.log("token", token)
+  
     if (token) {
       try {
         const decodedToken: any = jwt.decode(token as string);
-      
+        
         dispatch(
           login({
-            name: decodedToken.name,
+            name: decodedToken.username,
             email: decodedToken.email,
             accessToken: token,
             profilePicture: decodedToken.foto_perfil_url,

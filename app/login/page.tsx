@@ -17,7 +17,7 @@ export default function LoginPage() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    console.log("accessToken", accessToken)
+   
     if (accessToken) {
       try {
         setUserInfo(accessToken);

@@ -24,10 +24,9 @@ export default function TokenPage() {
     if (token) {
       try {
         const decodedToken: any = jwt.decode(token as string);
-        
         dispatch(
           login({
-            name: decodedToken.username,
+            name: decodedToken.nome,
             email: decodedToken.email,
             accessToken: token,
             profilePicture: decodedToken.foto_perfil_url,

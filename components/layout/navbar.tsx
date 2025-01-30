@@ -7,8 +7,9 @@ import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { tpLogo } from "@/app/assets";
 import { useState, useEffect } from "react"; 
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/hooks/store";
+import { logout } from "@/hooks/slices/authSlice";
 
 interface NavbarProps {
   onToggleSidebar: () => void;
@@ -16,7 +17,7 @@ interface NavbarProps {
 
 export function Navbar({ onToggleSidebar }: NavbarProps) {
   const pathname = usePathname();
-
+  const dispatch = useDispatch();
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); 
   const user = useSelector((state: RootState) => state.auth.user);
 
@@ -27,13 +28,14 @@ export function Navbar({ onToggleSidebar }: NavbarProps) {
   };
 
   const handleLogout = () => {
+    dispatch(logout());
     fetch("https://sso.grupotapajos.com.br/logout", {
       method: "POST",
       credentials: "include", 
     })
       .then((response) => {
         if (response.ok) {
-          setIsLoggedIn(false);
+          setIsLoggedIn(false);    
           console.log("Usuário deslogado");
         } else {
           console.error("Erro ao deslogar");
@@ -80,13 +82,12 @@ export function Navbar({ onToggleSidebar }: NavbarProps) {
             <>
               <div className="relative">
                 {user.profilePicture ? (
-                  <Image
-                    src={user.profilePicture}
-                    alt="Profile Picture"
-                    width={32}
-                    height={32}
-                    className="rounded-full"
-                  />
+                  <span
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-300 text-white font-semibold"
+                  title={user.name}
+                >
+                  {getInitials(user.name)}
+                </span>
                 ) : (
                   <span
                     className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-300 text-white font-semibold"

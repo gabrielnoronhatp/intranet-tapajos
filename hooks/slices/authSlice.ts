@@ -48,11 +48,14 @@ const authSlice = createSlice({
       state.user = null;
       state.accessToken = null;
       state.profilePicture = null;
-      
+      console.log("logout");
+       localStorage.removeItem("auth");
 
       if (typeof window !== 'undefined') {
         localStorage.removeItem('auth');
       }
+
+
     },
     setAuthenticated(state, action: PayloadAction<boolean>) {
       state.isAuthenticated = action.payload;

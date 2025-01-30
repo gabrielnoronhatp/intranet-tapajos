@@ -6,7 +6,7 @@ import { AuthGuard } from "@/components/ProtectedRoute/AuthGuard";
 import { useState } from "react";
 
 export default function Home() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
     <AuthGuard>

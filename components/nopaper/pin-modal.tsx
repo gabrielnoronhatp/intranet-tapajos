@@ -79,8 +79,8 @@ export function PinModal({ isOpen, onClose, onConfirm}: PinModalProps) {
     }
     
  
-    try {
-      const response = await fetch("http://localhost:3002/api/orders/signature", {
+    try {''
+      const response = await fetch("http://10.2.10.17:3001/api/orders/signature", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

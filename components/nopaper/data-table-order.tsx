@@ -267,20 +267,18 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
                     try {
                       const formData = new FormData();
                       formData.append("files", file as File);
+                     //api 
+                     const response = await api.post(
+                      `upload/${selectedItem.id}`,
+                      formData
+                     )
+        
 
-                      const response = await fetch(
-                        `http://localhost:3002/api/upload/${selectedItem.id}`,
-                        {
-                          method: "POST",
-                          body: formData,
-                        }
-                      );
-
-                      if (!response.ok) {
+                      if (response.status !== 200) {
                         throw new Error("Upload failed");
                       }
 
-                      const result = await response.json();
+                        const result = await response;
                       onSuccess?.(result);
                     } catch (error) {
                       onError?.(error as any);

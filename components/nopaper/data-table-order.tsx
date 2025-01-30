@@ -12,12 +12,15 @@ import { CheckCircle2, XCircle, Eye } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Image, Upload, UploadFile, message } from "antd";
 import { CpfModal } from "@/components/nopaper/cpf-modal";
-import api from '@/app/service/api';
+import api from "@/app/service/api";
 import { UploadChangeParam } from "antd/es/upload";
-import './data-table-order-styles.css';
-import { Table as AntdTable } from 'antd';
+import "./data-table-order-styles.css";
+import { Table as AntdTable } from "antd";
 import { PinModal } from "./pin-modal";
-import { setOrderId, setSignatureNumber } from "@/hooks/slices/noPaper/noPaperSlice";
+import {
+  setOrderId,
+  setSignatureNumber,
+} from "@/hooks/slices/noPaper/noPaperSlice";
 import { useDispatch } from "react-redux";
 
 interface DataTableOrderProps {
@@ -36,20 +39,18 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
   const [orderDetails, setOrderDetails] = useState<any>(null);
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const query = new URLSearchParams(searchParams).toString();
-        const response = await api.get(`buscar-ordem?${query}`);
-        setOrders(response.data);
-      
-      } catch (error) {
-        console.error("Error fetching orders:", error);
-      }
-    };
-
     fetchOrders();
   }, [searchParams]);
 
+  const fetchOrders = async () => {
+    try {
+      const query = new URLSearchParams(searchParams).toString();
+      const response = await api.get(`buscar-ordem?${query}`);
+      setOrders(response.data);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    }
+  };
   const fetchOrderDetails = async (ordemId: number) => {
     try {
       const response = await api.get(`ordem-detalhes/${ordemId}`);
@@ -62,7 +63,7 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
   const toggleView = async (item: any) => {
     setSelectedItem(item);
     setIsViewOpen(!isViewOpen);
-    
+
     setPreviewUrl(null);
     await fetchOrderDetails(item.id);
     if (!isViewOpen) {
@@ -76,7 +77,6 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
     } else {
       setFileUrls([]);
     }
-
   };
 
   const handleClosePinModal = () => {
@@ -85,7 +85,7 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
 
   const handleConfirmPin = () => {
     setIsPinModalOpen(false);
-    
+    fetchOrders();
   };
 
   const beforeUpload = (file: File) => {
@@ -97,69 +97,89 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
   };
 
   const columns = [
-    { title: 'ID', dataIndex: 'id', key: 'id' },
-    { title: 'Fornecedor', dataIndex: 'fornecedor', key: 'fornecedor' },
-    { title: 'CNPJ', dataIndex: 'cnpj', key: 'cnpj' },
-    { title: 'Nota Fiscal', dataIndex: 'notafiscal', key: 'notafiscal' },
-    { title: 'Forma Pag.', dataIndex: 'formapag', key: 'formapag' },
-    { title: 'Conta Gerencial', dataIndex: 'contagerencial', key: 'contagerencial' },
-    { title: 'Itens', dataIndex: 'itens', key: 'itens', align: 'center' },
-    { title: 'Parcelas', dataIndex: 'parcelas', key: 'parcelas', align: 'center' },
-    { title: 'Valor', dataIndex: 'valor', key: 'valor', align: 'right' },
-    { 
-      title: 'Assinatura 1', 
-      dataIndex: 'assinatura1', 
-      key: 'assinatura1', 
-      align: 'center',
+    { title: "ID", dataIndex: "id", key: "id" },
+    { title: "Fornecedor", dataIndex: "fornecedor", key: "fornecedor" },
+    { title: "CNPJ", dataIndex: "cnpj", key: "cnpj" },
+    { title: "Nota Fiscal", dataIndex: "notafiscal", key: "notafiscal" },
+    { title: "Forma Pag.", dataIndex: "formapag", key: "formapag" },
+    {
+      title: "Conta Gerencial",
+      dataIndex: "contagerencial",
+      key: "contagerencial",
+    },
+    { title: "Itens", dataIndex: "itens", key: "itens", align: "center" },
+    {
+      title: "Parcelas",
+      dataIndex: "parcelas",
+      key: "parcelas",
+      align: "center",
+    },
+    { title: "Valor", dataIndex: "valor", key: "valor", align: "right" },
+    {
+      title: "Assinatura 1",
+      dataIndex: "assinatura1",
+      key: "assinatura1",
+      align: "center",
       render: (text: any, record: any) => (
-        <span onClick={() => {
-          dispatch(setOrderId(record.id));
-          dispatch(setSignatureNumber(1));
-          setIsPinModalOpen(true);
-        }} style={{ cursor: 'pointer' }}>
+        <span
+          onClick={() => {
+            dispatch(setOrderId(record.id));
+            dispatch(setSignatureNumber(1));
+            setIsPinModalOpen(true);
+          }}
+          style={{ cursor: "pointer" }}
+        >
           {text ? <CheckCircle2 color="green" /> : <XCircle color="red" />}
         </span>
-      )
+      ),
     },
-    { 
-      title: 'Assinatura 2', 
-      dataIndex: 'assinatura2', 
-      key: 'assinatura2', 
-      align: 'center',
+    {
+      title: "Assinatura 2",
+      dataIndex: "assinatura2",
+      key: "assinatura2",
+      align: "center",
       render: (text: any, record: any) => (
-        <span onClick={() => {
-          dispatch(setOrderId(record.id));
-          dispatch(setSignatureNumber(2));
-          setIsPinModalOpen(true);
-        }} style={{ cursor: 'pointer' }}>
+        <span
+          onClick={() => {
+            dispatch(setOrderId(record.id));
+            dispatch(setSignatureNumber(2));
+            setIsPinModalOpen(true);
+          }}
+          style={{ cursor: "pointer" }}
+        >
           {text ? <CheckCircle2 color="green" /> : <XCircle color="red" />}
         </span>
-      )
+      ),
     },
-    { 
-      title: 'Assinatura 3', 
-      dataIndex: 'assinatura3', 
-      key: 'assinatura3', 
-      align: 'center',
+    {
+      title: "Assinatura 3",
+      dataIndex: "assinatura3",
+      key: "assinatura3",
+      align: "center",
       render: (text: any, record: any) => (
-        <span onClick={() => {
-          dispatch(setOrderId(record.id));
-          //signatureNumber 
-          dispatch(setSignatureNumber(3));
-
-          setIsPinModalOpen(true);
-        }} style={{ cursor: 'pointer' }}>
+        <span
+          onClick={() => {
+            dispatch(setOrderId(record.id));
+            dispatch(setSignatureNumber(3));
+            setIsPinModalOpen(true);
+          }}
+          style={{ cursor: "pointer" }}
+        >
           {text ? <CheckCircle2 color="green" /> : <XCircle color="red" />}
         </span>
-      )
+      ),
     },
-    { 
-      title: 'Ações', 
-      key: 'acoes', 
-      align: 'center', 
+    {
+      title: "Ações",
+      key: "acoes",
+      align: "center",
       render: (text: any, record: any) => (
-        <Eye color="green" onClick={() => toggleView(record)} style={{ cursor: 'pointer' }} />
-      )
+        <Eye
+          color="green"
+          onClick={() => toggleView(record)}
+          style={{ cursor: "pointer" }}
+        />
+      ),
     },
   ];
 
@@ -193,21 +213,29 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
 
                 {orderDetails && (
                   <>
-                    <h3 className="text-md font-bold mt-2">Itens Contratados:</h3>
+                    <h3 className="text-md font-bold mt-2">
+                      Itens Contratados:
+                    </h3>
                     <ul>
-                      {orderDetails.itensContratados.map((item: any, index: number) => (
-                        <li key={index}>
-                          {item.nome_produto} - {item.valor_produto}
-                        </li>
-                      ))}
+                      {orderDetails.itensContratados.map(
+                        (item: any, index: number) => (
+                          <li key={index}>
+                            {item.nome_produto} - {item.valor_produto}
+                          </li>
+                        )
+                      )}
                     </ul>
-                    <h3 className="text-md font-bold mt-2">Centros de Custo:</h3>
+                    <h3 className="text-md font-bold mt-2">
+                      Centros de Custo:
+                    </h3>
                     <ul>
-                      {orderDetails.centrosCusto.map((centro: any, index: number) => (
-                        <li key={index}>
-                          {centro.centro_custo} - {centro.valor}
-                        </li>
-                      ))}
+                      {orderDetails.centrosCusto.map(
+                        (centro: any, index: number) => (
+                          <li key={index}>
+                            {centro.centro_custo} - {centro.valor}
+                          </li>
+                        )
+                      )}
                     </ul>
                   </>
                 )}
@@ -230,7 +258,7 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
                   </>
                 )}
                 <h3 className="text-md font-bold mt-2">Upload de Arquivo:</h3>
-                 <Upload
+                <Upload
                   name="files"
                   listType="picture-card"
                   className="avatar-uploader"
@@ -238,17 +266,20 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
                   customRequest={async ({ file, onSuccess, onError }) => {
                     try {
                       const formData = new FormData();
-                      formData.append('files', file as File);
-                      
-                      const response = await fetch(`http://localhost:3002/api/upload/${selectedItem.id}`, {
-                        method: 'POST',
-                        body: formData
-                      });
+                      formData.append("files", file as File);
+
+                      const response = await fetch(
+                        `http://localhost:3002/api/upload/${selectedItem.id}`,
+                        {
+                          method: "POST",
+                          body: formData,
+                        }
+                      );
 
                       if (!response.ok) {
-                        throw new Error('Upload failed');
+                        throw new Error("Upload failed");
                       }
-                      
+
                       const result = await response.json();
                       onSuccess?.(result);
                     } catch (error) {
@@ -262,7 +293,7 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
                   <div>
                     <div style={{ marginTop: 8 }}>Upload</div>
                   </div>
-                </Upload> 
+                </Upload>
               </div>
 
               <div className="h-full">
@@ -290,7 +321,7 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
               </div>
             </div>
 
-            <button 
+            <button
               onClick={() => {
                 setIsViewOpen(false);
                 setPreviewUrl(null);

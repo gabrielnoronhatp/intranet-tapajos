@@ -35,7 +35,7 @@ export default function TokenPage() {
         );
 
         if (!decodedToken.cpf) {
-          setIsModalOpen(true); // Abre o modal se o CPF não estiver presente
+          setIsModalOpen(true); 
           return;
         }
 
@@ -56,7 +56,6 @@ export default function TokenPage() {
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleCpfConfirm}
       />
-      {/* Outros componentes ou conteúdo da página */}
     </>
   );
 }

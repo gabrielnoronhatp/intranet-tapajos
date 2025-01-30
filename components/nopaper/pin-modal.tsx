@@ -77,6 +77,7 @@ export function PinModal({ isOpen, onClose, onConfirm}: PinModalProps) {
       alert("Por favor, insira um PIN válido de 6 dígitos.");
       return;
     }
+    
  
     try {
       const response = await fetch("http://localhost:3002/api/orders/signature", {

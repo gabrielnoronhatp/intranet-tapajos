@@ -82,7 +82,7 @@ export function ContractList() {
             rowKey="id"
             pagination={false}
             />      
-          <FloatingActionButton href="/contracts/new" />
+          <FloatingActionButton href="/contracts" />
         </div>
       </main>
     </div>

@@ -6,7 +6,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { Sidebar } from "@/components/layout/sidebar";
 import { FloatingActionButton } from "@/components/nopaper/floating-action-button";
 import { AuthGuard } from "@/components/ProtectedRoute/AuthGuard";
-export function ContractList() {
+export default function ContractList() {
   const [contracts, setContracts] = useState<Array<any>>([]);
   const [searchParams, setSearchParams] = useState<Record<string, string>>({});
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -94,4 +94,4 @@ export function ContractList() {
   );
 }
 
-export default ContractList;
+

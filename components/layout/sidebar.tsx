@@ -6,6 +6,7 @@ import {
   Building2,
   Settings,
   HelpCircle,
+  FilePen,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -26,19 +27,9 @@ export function Sidebar({ isOpen }: SidebarProps) {
       label: <Link href="/noPaper/list">NoPaper</Link>,
     },
     {
-      key: "/departments",
-      icon: <Building2 className="h-5 w-5" />,
-      label: <Link href="/departments">Departamentos</Link>,
-    },
-    {
-      key: "/settings",
-      icon: <Settings className="h-5 w-5" />,
-      label: <Link href="/settings">Configurações</Link>,
-    },
-    {
-      key: "/help",
-      icon: <HelpCircle className="h-5 w-5" />,
-      label: <Link href="/help">Ajuda</Link>,
+      key: "/contracts/list",
+      icon: <FilePen className="h-5 w-5" />,
+      label: <Link href="/contracts/list">Contratos</Link>,
     },
   ];
 

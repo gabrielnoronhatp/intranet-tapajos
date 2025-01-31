@@ -63,7 +63,7 @@ export default function NoPaperList() {
             <DataTableOrder searchParams={searchParams} />
           </div>
 
-          <FloatingActionButton />
+          <FloatingActionButton href="/noPaper" />
         </div>
       </main>
     </div>

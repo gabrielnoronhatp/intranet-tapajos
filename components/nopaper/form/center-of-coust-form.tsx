@@ -23,8 +23,8 @@ export default function CenterOfCoust() {
   const [numCenters, setNumCenters] = useState(ccustoOP.length);
 
   useEffect(() => {
-    
-  }, [ccustoOP, centrosCustoOptions]);
+    setNumCenters(ccustoOP.length);
+  }, [ccustoOP]);
 
   const handleNumCentersChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const quantity = Math.max(1, parseInt(e.target.value, 10) || 1);
@@ -36,6 +36,19 @@ export default function CenterOfCoust() {
     );
 
     dispatch(setOrderState({ ccustoOP: newCenters }));
+    updateCenterValues(newCenters, valorimpostoOP); 
+  };
+
+  const updateCenterValues = (centers: any[], totalValue: number) => {
+    const total = produtosOP.reduce((sum, product) => sum + product.valor, 0) - totalValue;
+    const valuePerCenter = total / centers.length;
+
+    const updatedCenters = centers.map(center => ({
+      ...center,
+      valor: valuePerCenter,
+    }));
+
+    dispatch(setOrderState({ ccustoOP: updatedCenters }));
   };
 
   const handleCenterChange = (
@@ -43,12 +56,12 @@ export default function CenterOfCoust() {
     field: "centrocusto" | "valor",
     value: string | number
   ) => {
-   
     const updatedCenters = ccustoOP.map((item, i) =>
       i === index ? { ...item, [field]: value } : item
     );
 
     dispatch(setOrderState({ ccustoOP: updatedCenters }));
+    updateCenterValues(updatedCenters, valorimpostoOP);
   };
 
   const handleProductCenterChange = (
@@ -57,7 +70,6 @@ export default function CenterOfCoust() {
     field: "centrocusto" | "valor",
     value: string | number
   ) => {
-   
     const updatedProducts = produtosOP.map((product, i) => {
       if (i === productIndex) {
         const updatedCenters = product.centroCusto.map((center: any, ci: any) =>
@@ -95,7 +107,6 @@ export default function CenterOfCoust() {
           <Select
             showSearch
             onChange={(value: string) => {
-             
               handleCenterChange(index, "centrocusto", value);
             }}
             value={center.centrocusto}
@@ -109,7 +120,7 @@ export default function CenterOfCoust() {
           </Select>
           <NumberFormatComponent
             value={center.valor}
-            onValueChange={(values:any) => handleCenterChange(index, "valor", values.floatValue)}
+            onValueChange={(values: any) => handleCenterChange(index, "valor", values.floatValue)}
             placeholder="Valor"
             className="form-control w-full p-2 border rounded"
             thousandSeparator="."
@@ -133,7 +144,6 @@ export default function CenterOfCoust() {
                 showSearch
                 optionFilterProp="children"
                 onChange={(value: string) => {
-                 
                   handleProductCenterChange(
                     productIndex,
                     centerIndex,
@@ -145,7 +155,6 @@ export default function CenterOfCoust() {
                 className="w-full"
               >
                 {centrosCustoOptions.map((option: any) => (
-                
                   <Select.Option key={option.centrocusto} value={option.centrocusto}>
                     {option.centrocusto}
                   </Select.Option>
@@ -154,7 +163,7 @@ export default function CenterOfCoust() {
 
               <NumberFormatComponent
                 value={center.valor}
-                onValueChange={(values:any) =>
+                onValueChange={(values: any) =>
                   handleProductCenterChange(
                     productIndex,
                     centerIndex,

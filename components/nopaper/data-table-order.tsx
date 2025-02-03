@@ -1,17 +1,7 @@
 "use client";
-
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { CheckCircle2, XCircle, Eye } from "lucide-react";
 import { useState, useEffect } from "react";
-import { Image, Upload, UploadFile, message } from "antd";
-import { CpfModal } from "@/components/nopaper/cpf-modal";
+import { Image, Upload, UploadFile, message, Input } from "antd";
 import api from "@/app/service/api";
 import { UploadChangeParam } from "antd/es/upload";
 import "./data-table-order-styles.css";
@@ -25,9 +15,10 @@ import { useDispatch } from "react-redux";
 
 interface DataTableOrderProps {
   searchParams: Record<string, string>;
+  ordersSearch: any;
 }
 
-export function DataTableOrder({ searchParams }: DataTableOrderProps) {
+export function DataTableOrder({ searchParams, ordersSearch }: DataTableOrderProps) {
   const dispatch = useDispatch();
   const [orders, setOrders] = useState<Array<any>>([]);
   const [isViewOpen, setIsViewOpen] = useState(false);
@@ -38,19 +29,20 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
   const [isPinModalOpen, setIsPinModalOpen] = useState(false);
   const [orderDetails, setOrderDetails] = useState<any>(null);
 
-  useEffect(() => {
-    fetchOrders();
-  }, [searchParams]);
-
-  const fetchOrders = async () => {
+  const fetchOrders = async (params: Record<string, string> = searchParams) => {
     try {
-      const query = new URLSearchParams(searchParams).toString();
+      const query = new URLSearchParams(params).toString();
       const response = await api.get(`buscar-ordem?${query}`);
       setOrders(response.data);
     } catch (error) {
       console.error("Error fetching orders:", error);
     }
   };
+
+  useEffect(() => {
+    fetchOrders();
+  }, [searchParams]);
+
   const fetchOrderDetails = async (ordemId: number) => {
     try {
       const response = await api.get(`ordem-detalhes/${ordemId}`);
@@ -185,6 +177,8 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
 
   return (
     <div className="rounded-md border">
+    
+
       <AntdTable
         columns={columns as any}
         dataSource={orders}
@@ -267,18 +261,16 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
                     try {
                       const formData = new FormData();
                       formData.append("files", file as File);
-                     //api 
-                     const response = await api.post(
-                      `upload/${selectedItem.id}`,
-                      formData
-                     )
-        
+                      const response = await api.post(
+                        `upload/${selectedItem.id}`,
+                        formData
+                      );
 
                       if (response.status !== 200) {
                         throw new Error("Upload failed");
                       }
 
-                        const result = await response;
+                      const result = await response;
                       onSuccess?.(result);
                     } catch (error) {
                       onError?.(error as any);

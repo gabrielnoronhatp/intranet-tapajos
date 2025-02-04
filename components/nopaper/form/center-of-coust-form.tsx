@@ -2,14 +2,13 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useState, useEffect } from "react";
 import { setOrderState } from "@/hooks/slices/noPaper/orderSlice";
-import { fetchCentrosCusto } from "@/hooks/slices/noPaper/noPaperSlice";
-import { SelectField } from "../select-field";
 import { FormSection } from "../form-section";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RootState } from "@/hooks/store";
 import { Select } from "antd";
-import { NumericFormat as NumberFormatComponent } from 'react-number-format';
+import { NumericFormat as NumberFormatComponent } from "react-number-format";
+import { extractNumericValue, formatCurrency } from "@/lib/utils";
 
 export default function CenterOfCoust() {
   const dispatch = useDispatch();
@@ -36,14 +35,15 @@ export default function CenterOfCoust() {
     );
 
     dispatch(setOrderState({ ccustoOP: newCenters }));
-    updateCenterValues(newCenters, valorimpostoOP); 
+    updateCenterValues(newCenters, valorimpostoOP);
   };
 
   const updateCenterValues = (centers: any[], totalValue: number) => {
-    const total = produtosOP.reduce((sum, product) => sum + product.valor, 0) - totalValue;
+    const total =
+      produtosOP.reduce((sum, product) => sum + product.valor, 0) - totalValue;
     const valuePerCenter = total / centers.length;
 
-    const updatedCenters = centers.map(center => ({
+    const updatedCenters = centers.map((center) => ({
       ...center,
       valor: valuePerCenter,
     }));
@@ -113,14 +113,19 @@ export default function CenterOfCoust() {
             className="w-full"
           >
             {centrosCustoOptions.map((option: any) => (
-              <Select.Option key={option.id || option.centrocusto} value={option.id}>
+              <Select.Option
+                key={option.id || option.centrocusto}
+                value={option.id}
+              >
                 {option.centrocusto}
               </Select.Option>
             ))}
           </Select>
           <NumberFormatComponent
             value={center.valor}
-            onValueChange={(values: any) => handleCenterChange(index, "valor", values.floatValue)}
+            onValueChange={(values: any) =>
+              handleCenterChange(index, "valor", values.floatValue)
+            }
             placeholder="Valor"
             className="form-control w-full p-2 border rounded"
             thousandSeparator="."
@@ -155,30 +160,31 @@ export default function CenterOfCoust() {
                 className="w-full"
               >
                 {centrosCustoOptions.map((option: any) => (
-                  <Select.Option key={option.centrocusto} value={option.centrocusto}>
+                  <Select.Option
+                    key={option.centrocusto}
+                    value={option.centrocusto}
+                  >
                     {option.centrocusto}
                   </Select.Option>
                 ))}
               </Select>
 
-              <NumberFormatComponent
-                value={center.valor}
-                onValueChange={(values: any) =>
+              <Input
+                type="text"
+                value={formatCurrency(center.valor)}
+                onChange={(e: any) => {
+                  const rawValue = e.target.value;
+                  const numericValue = extractNumericValue(rawValue);
+                  const formatted = formatCurrency(rawValue);
                   handleProductCenterChange(
                     productIndex,
                     centerIndex,
                     "valor",
-                    values.floatValue
-                  )
-                }
-                placeholder="Valor"
+                    numericValue
+                  );  
+                }}
+                placeholder="R$ 0,00"
                 className="form-control w-full p-2 border rounded"
-                thousandSeparator="."
-                decimalSeparator=","
-                prefix="R$ "
-                decimalScale={2}
-                fixedDecimalScale={true}
-                allowNegative={false}
               />
             </div>
           ))}

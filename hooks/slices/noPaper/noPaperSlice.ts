@@ -50,8 +50,8 @@ export const uploadFiles = createAsyncThunk(
 
 
 
-export const fetchFiliais = createAsyncThunk('noPaper/fetchFiliais', async () => {
-  const response = await api.get('dadoslojas');
+export const fetchFiliais = createAsyncThunk('noPaper/fetchFiliais', async ( { query, ramo }: { query: string; ramo: string } ) => {
+  const response = await api.get(`lojasgrupo?q=${query}&ramo=${ramo}`);
   return response.data;
 });
 

@@ -7,8 +7,8 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCentrosCusto, fetchContasGerenciais } from "@/hooks/slices/noPaper/noPaperSlice";
 import { RootState } from "@/hooks/store";
-import { Select, SelectItem } from "@/components/ui/select";
-import { NumericFormat as NumberFormatComponent } from 'react-number-format';
+import CurrencyInput from "react-currency-input-field";
+import { extractNumericValue, formatCurrency } from "@/lib/utils";
 
 export default function TaxesData() {
   const dispatch = useDispatch();
@@ -69,6 +69,9 @@ export default function TaxesData() {
     dispatch(setOrderState({ ccustoOP: newCCusto }));
   };
 
+  
+
+  
   return (
     <FormSection title="Dados de Itens e Impostos">
       <div className="space-y-2">
@@ -99,20 +102,17 @@ export default function TaxesData() {
               required
             />
 
-
-         
-            <NumberFormatComponent
-              value={item.valor}
-              onValueChange={(values:any) => handleItensChange(index, "valor", values.floatValue)}
-              placeholder="Valor do Produto"
-              className="form-control w-full p-2 border rounded" // Apply the same classes as other inputs
-
-              thousandSeparator="."
-              decimalSeparator=","
-              prefix="R$ "
-              decimalScale={2}
-              fixedDecimalScale={true}
-              allowNegative={false}
+            <Input
+              type="text"
+              value={formatCurrency(String(item.valor))}
+              onChange={(e) => {
+                const rawValue = e.target.value;
+                const numericValue = extractNumericValue(rawValue);
+                const formatted = formatCurrency(rawValue);
+                handleItensChange(index, "valor", numericValue);
+              }}
+              placeholder="R$ 0,00"
+              className="form-control w-full p-2 border rounded"
             />
           </div>
         ))}
@@ -129,8 +129,6 @@ export default function TaxesData() {
           min={0}
           className="form-control"
         />
-
-        
       </div>
     </FormSection>
   );

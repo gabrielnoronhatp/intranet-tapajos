@@ -13,14 +13,14 @@ interface FilialSelectProps {
 
 export const FilialSelect = ({ handleSetState, validate }: FilialSelectProps) => {
   const { filiais } = useSelector((state: RootState) => state.noPaper);
-  const { lojaOP } = useSelector((state: RootState) => state.order);
+  const { lojaOP, ramoOP } = useSelector((state: RootState) => state.order);
   const dispatch = useDispatch();
   const [error, setError] = useState("");
   const [localSearchQuery, setLocalSearchQuery]= useState<any>("");
 
   useEffect(() => {
-    dispatch(fetchFiliais() as any);
-  }, [dispatch, localSearchQuery]);
+    dispatch(fetchFiliais({ query: localSearchQuery, ramo: ramoOP || '' }) as any);
+  }, [dispatch, localSearchQuery, ramoOP]);
 
   const handleSelectChange = (value: string) => {
     setError("");

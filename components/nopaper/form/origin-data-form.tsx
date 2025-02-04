@@ -46,8 +46,7 @@ export default function OriginData() {
               options={[
                 { value: "distribuicao", label: "DISTRIBUIÇÃO" },
                 { value: "varejo", label: "VAREJO" },
-                { value: "industria", label: "INDÚSTRIA" },
-                { value: "servicos", label: "SERVIÇOS" },
+               
               ]}
               className="w-full"
             />

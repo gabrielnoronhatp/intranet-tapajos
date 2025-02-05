@@ -16,7 +16,7 @@ export const FilialSelect = ({ handleSetState, validate }: FilialSelectProps) =>
   const { lojaOP, ramoOP } = useSelector((state: RootState) => state.order);
   const dispatch = useDispatch();
   const [error, setError] = useState("");
-  const [localSearchQuery, setLocalSearchQuery]= useState<any>("");
+  const [localSearchQuery, setLocalSearchQuery] = useState<any>("");
 
   useEffect(() => {
     dispatch(fetchFiliais({ query: localSearchQuery, ramo: ramoOP || '' }) as any);
@@ -40,14 +40,15 @@ export const FilialSelect = ({ handleSetState, validate }: FilialSelectProps) =>
         Selecione a Filial que Pagará
       </Label>
       <Select
+        disabled={!ramoOP}
         showSearch
         className="w-full"
         value={lojaOP}
         onChange={handleSelectChange}
         onSearch={(value) => setLocalSearchQuery(value)}
         placeholder="Selecione uma filial..."
-        filterOption={(input:string, option: any) =>
-          (option?.children ?? '').toLowerCase().includes(input.toLowerCase())
+        filterOption={(input: string, option: any) =>
+          (option?.children ?? "").toLowerCase().includes(input.toLowerCase())
         }
       >
         {filiais.map((filial) => (

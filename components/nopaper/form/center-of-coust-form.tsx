@@ -121,19 +121,14 @@ export default function CenterOfCoust() {
               </Select.Option>
             ))}
           </Select>
+          
           <NumberFormatComponent
             value={center.valor}
-            onValueChange={(values: any) =>
+            onChange={(values: any) =>
               handleCenterChange(index, "valor", values.floatValue)
             }
             placeholder="Valor"
             className="form-control w-full p-2 border rounded"
-            thousandSeparator="."
-            decimalSeparator=","
-            prefix="R$ "
-            decimalScale={2}
-            fixedDecimalScale={true}
-            allowNegative={false}
           />
         </div>
       ))}
@@ -171,20 +166,19 @@ export default function CenterOfCoust() {
 
               <Input
                 type="text"
-                value={formatCurrency(center.valor)}
+                value={center.valor}
                 onChange={(e: any) => {
-                  const rawValue = e.target.value;
-                  const numericValue = extractNumericValue(rawValue);
-                  const formatted = formatCurrency(rawValue);
+                  const value= e.target.value;
                   handleProductCenterChange(
                     productIndex,
                     centerIndex,
                     "valor",
-                    numericValue
-                  );  
+                    value
+                  );
                 }}
-                placeholder="R$ 0,00"
+           
                 className="form-control w-full p-2 border rounded"
+
               />
             </div>
           ))}

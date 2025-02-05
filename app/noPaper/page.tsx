@@ -14,6 +14,7 @@ import FinancialData from "@/components/nopaper/form/financial-data-form";
 import TaxesData from "@/components/nopaper/form/taxes-data-form";
 import CenterOfCoust from "@/components/nopaper/form/center-of-coust-form";
 import { AuthGuard } from "@/components/ProtectedRoute/AuthGuard";
+import { PlusOutlined } from "@ant-design/icons";
 
 type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
 
@@ -66,6 +67,21 @@ export default function NoPaper() {
     }
   };
 
+  const beforeUpload = (file: File) => {
+    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+    if (!isJpgOrPng) {
+      message.error('Você só pode enviar arquivos JPG/PNG!');
+    }
+    return isJpgOrPng;
+  };
+
+  const uploadButton = (
+    <div>
+      <PlusOutlined />
+      <div style={{ marginTop: 8 }}>Upload</div>
+    </div>
+  );
+
 
   
 
@@ -97,7 +113,7 @@ export default function NoPaper() {
 
               <CenterOfCoust />
 
-              {/* <div className="mt-6">
+              <div className="mt-6">
                 <Upload
                   name="avatar"
                   listType="picture-card"
@@ -115,7 +131,7 @@ export default function NoPaper() {
                     uploadButton
                   )}
                 </Upload>
-              </div> */}
+              </div>
 
               <div className="flex justify-end">
                 <Button

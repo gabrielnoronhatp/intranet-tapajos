@@ -5,7 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCentrosCusto, fetchContasGerenciais } from "@/hooks/slices/noPaper/noPaperSlice";
+import {
+  fetchCentrosCusto,
+  fetchContasGerenciais,
+} from "@/hooks/slices/noPaper/noPaperSlice";
 import { RootState } from "@/hooks/store";
 import CurrencyInput from "react-currency-input-field";
 import { extractNumericValue, formatCurrency } from "@/lib/utils";
@@ -17,12 +20,9 @@ export default function TaxesData() {
     dispatch(setOrderState({ [field]: value }));
   };
 
-  const { 
-    qtitensOP, 
-    valorimpostoOP, 
-    produtosOP, 
-    ccustoOP 
-  } = useSelector((state: RootState) => state.order);
+  const { qtitensOP, valorimpostoOP, produtosOP, ccustoOP } = useSelector(
+    (state: RootState) => state.order
+  );
 
   const { searchQuery } = useSelector((state: RootState) => state.noPaper);
 
@@ -47,8 +47,10 @@ export default function TaxesData() {
     const quantidade = parseInt(e.target.value, 10);
     handleSetState("qtitensOP", quantidade);
 
-    const newItens = Array.from({ length: quantidade }, (_, index) =>
-      produtosOP[index] || { produto: "", valor: 0, centroCusto: [] }
+    const newItens = Array.from(
+      { length: quantidade },
+      (_, index) =>
+        produtosOP[index] || { produto: "", valor: 0, centroCusto: [] }
     );
     dispatch(setOrderState({ produtosOP: newItens }));
   };
@@ -64,14 +66,6 @@ export default function TaxesData() {
     dispatch(setOrderState({ ccustoOP: updatedCCusto }));
   };
 
-  const handleAdicionarCCusto = () => {
-    const newCCusto = [...ccustoOP, { centrocusto: "", valor: 0 }];
-    dispatch(setOrderState({ ccustoOP: newCCusto }));
-  };
-
-  
-
-  
   return (
     <FormSection title="Dados de Itens e Impostos">
       <div className="space-y-2">
@@ -104,12 +98,10 @@ export default function TaxesData() {
 
             <Input
               type="text"
-              value={formatCurrency(String(item.valor))}
+              value={item.valor}
               onChange={(e) => {
-                const rawValue = e.target.value;
-                const numericValue = extractNumericValue(rawValue);
-                const formatted = formatCurrency(rawValue);
-                handleItensChange(index, "valor", numericValue);
+                const value = e.target.value;
+                handleItensChange(index, "valor", value);
               }}
               placeholder="R$ 0,00"
               className="form-control w-full p-2 border rounded"

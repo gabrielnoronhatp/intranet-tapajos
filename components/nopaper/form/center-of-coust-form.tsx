@@ -124,19 +124,16 @@ export default function CenterOfCoust() {
                 </Select.Option>
               ))}
             </Select>
-            <NumericFormat
+            <Input
+              type="number"
               value={ccustoOP[index]?.valor || 0}
-              onValueChange={(values) => {
-                handleCenterChange(index, "valor", values.floatValue);
+              onChange={(e) => {
+                handleCenterChange(index, "valor", e.target.value);
               }}
-              thousandSeparator="."
-              decimalSeparator=","
-              prefix="R$ "
-              decimalScale={2}
-              fixedDecimalScale
-              className="form-control w-full p-2 border rounded"
+                className="form-control w-full p-2 border rounded"
             />
           </div>
+
         ))}
       </div>
     </FormSection>

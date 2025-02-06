@@ -91,13 +91,14 @@ export default function TaxesData() {
               onChange={(e) =>
                 handleItensChange(index, "produto", e.target.value)
               }
+
               placeholder="Descrição do Produto"
               className="form-control"
               required
             />
 
             <Input
-              type="text"
+              type="number"
               value={item.valor}
               onChange={(e) => {
                 const value = e.target.value;

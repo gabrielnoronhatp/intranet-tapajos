@@ -20,7 +20,6 @@ export default function CenterOfCoust() {
 
   const [numCenters, setNumCenters] = useState(ccustoOP.length || 1);
 
- 
   const calculateTotalValue = () => {
     const totalProdutos = produtosOP.reduce(
       (sum, product) => sum + (Number(product.valor) || 0),
@@ -28,7 +27,6 @@ export default function CenterOfCoust() {
     );
     return totalProdutos - (Number(valorimpostoOP) || 0);
   };
-
 
   const updateCenterValues = () => {
     const totalValue = calculateTotalValue();
@@ -42,7 +40,6 @@ export default function CenterOfCoust() {
     dispatch(setOrderState({ ccustoOP: updatedCenters }));
   };
 
-  
   useEffect(() => {
     updateCenterValues();
   }, [numCenters, produtosOP, valorimpostoOP]);
@@ -130,11 +127,27 @@ export default function CenterOfCoust() {
               onChange={(e) => {
                 handleCenterChange(index, "valor", e.target.value);
               }}
-                className="form-control w-full p-2 border rounded"
+              className="form-control w-full p-2 border rounded"
             />
           </div>
-
         ))}
+      </div>
+
+      <div>
+        <Label className="text-xs font-semibold text-primary uppercase">
+          Valor Total
+        </Label>
+        <NumericFormat
+          customInput={Input}
+          value={calculateTotalValue()}
+          disabled
+          className="form-control w-full p-2 border rounded bg-gray-100"
+          thousandSeparator="."
+          decimalSeparator=","
+          prefix="R$ "
+          decimalScale={2}
+          fixedDecimalScale
+        />
       </div>
     </FormSection>
   );

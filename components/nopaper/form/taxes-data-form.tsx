@@ -12,6 +12,7 @@ import {
 import { RootState } from "@/hooks/store";
 import CurrencyInput from "react-currency-input-field";
 import { extractNumericValue, formatCurrency } from "@/lib/utils";
+import { NumericFormat } from "react-number-format";
 
 export default function TaxesData() {
   const dispatch = useDispatch();
@@ -91,21 +92,21 @@ export default function TaxesData() {
               onChange={(e) =>
                 handleItensChange(index, "produto", e.target.value)
               }
-
               placeholder="Descrição do Produto"
               className="form-control"
               required
             />
 
-            <Input
-              type="number"
+            <NumericFormat
+              customInput={Input}
               value={item.valor}
-              onChange={(e) => {
-                const value = e.target.value;
-                handleItensChange(index, "valor", value);
+              onValueChange={(values) => {
+                const { floatValue } = values;
+                handleItensChange(index, "valor", floatValue || 0);
               }}
-              placeholder="R$ 0,00"
-              className="form-control w-full p-2 border rounded"
+              decimalSeparator=","
+              allowNegative={false}
+              className="form-control"
             />
           </div>
         ))}
@@ -113,13 +114,15 @@ export default function TaxesData() {
         <Label className="text-xs font-semibold text-primary uppercase">
           Valor do Imposto
         </Label>
-        <Input
-          type="number"
+        <NumericFormat
+          customInput={Input}
           value={valorimpostoOP}
-          onChange={(e) =>
-            handleSetState("valorimpostoOP", parseFloat(e.target.value))
-          }
-          min={0}
+          onValueChange={(values) => {
+            const { floatValue } = values;
+            handleSetState("valorimpostoOP", floatValue || 0);
+          }}
+          decimalSeparator=","
+          allowNegative={false}
           className="form-control"
         />
       </div>

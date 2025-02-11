@@ -29,7 +29,7 @@ export default function LoginPage() {
     }
   }, [accessToken, dispatch]);
 
-  const handleLogin = () => {
+  const handleLogin = () => { 
     window.location.href = "https://sso.grupotapajos.com.br/login";
   };
 

@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import jwt from "jsonwebtoken";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "@/hooks/slices/authSlice";
-import { RootState } from "@/hooks/store";
 import { CpfModal } from "@/components/nopaper/cpf-modal";
 
 export default function TokenPage() {

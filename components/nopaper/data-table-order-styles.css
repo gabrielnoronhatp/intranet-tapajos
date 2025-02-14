@@ -1,87 +1,87 @@
 .table-container {
-  width: 100%;
-  overflow-x: hidden;
-  display: block;
+    width: 100%;
+    overflow-x: hidden;
+    display: block;
 }
 
 .table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
 }
 
-.table th, .table td {
-  padding: 8px;
-  text-align: left;
-  font-size: 10px;
-  word-wrap: break-word;
-  border: 1px solid #ddd;
+.table th,
+.table td {
+    padding: 8px;
+    text-align: left;
+    font-size: 10px;
+    word-wrap: break-word;
+    border: 1px solid #ddd;
 }
-
 
 th.ant-table-cell {
- color: green !important;
+    color: green !important;
 }
 
 .table th {
-  background-color: #f4f4f4;
+    background-color: #f4f4f4;
 }
 
 .table td {
-  position: relative;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+    position: relative;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .table td:hover {
-  overflow: visible;
-  white-space: normal;
+    overflow: visible;
+    white-space: normal;
 }
 
 @media screen and (max-width: 768px) {
-  .table-container {
-    overflow-x: hidden;
-  }
+    .table-container {
+        overflow-x: hidden;
+    }
 
-  .table,
-  .table tr,
-  .table th,
-  .table td {
-    display: block;
-    width: 100%;
-    box-sizing: border-box;
-  }
+    .table,
+    .table tr,
+    .table th,
+    .table td {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+    }
 
-  .table thead {
-    display: none;
-  }
+    .table thead {
+        display: none;
+    }
 
-  .table tr {
-    margin-bottom: 1rem;
-    border-bottom: 1px solid #ddd;
-  }
+    .table tr {
+        margin-bottom: 1rem;
+        border-bottom: 1px solid #ddd;
+    }
 
-  .table td {
-    padding: 10px;
-    position: relative;
-    text-align: left;
-    word-wrap: break-word;
-  }
+    .table td {
+        padding: 10px;
+        position: relative;
+        text-align: left;
+        word-wrap: break-word;
+    }
 
-  .table td::before {
-    content: attr(data-label);
-    position: absolute;
-    left: 0;
-    top: 0;
-    font-weight: bold;
-    text-transform: uppercase;
-    font-size: 10px;
-    padding: 5px 0;
-    color: #333;
-  }
+    .table td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0;
+        top: 0;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 10px;
+        padding: 5px 0;
+        color: #333;
+    }
 
-  .table td:last-child {
-    border-bottom: 0;
-  }
+    .table td:last-child {
+        border-bottom: 0;
+    }
 }

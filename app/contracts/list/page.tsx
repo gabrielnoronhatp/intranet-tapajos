@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState, useEffect } from "react";
 import { Table as AntdTable, Input, Button } from "antd";
 import api from "@/app/service/api";
@@ -6,8 +7,9 @@ import { Navbar } from "@/components/layout/navbar";
 import { Sidebar } from "@/components/layout/sidebar";
 import { FloatingActionButton } from "@/components/nopaper/floating-action-button";
 import { AuthGuard } from "@/components/ProtectedRoute/AuthGuard";
+import { IContract } from "@/types/Contracts/Contracts";
 export default function ContractList() {
-  const [contracts, setContracts] = useState<Array<any>>([]);
+  const [contracts, setContracts] = useState([]);
   const [searchParams, setSearchParams] = useState<Record<string, string>>({});
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
@@ -46,16 +48,13 @@ export default function ContractList() {
     {
       title: "Ações",
       key: "acoes",
-      render: (text: any, record: any) => (
+      render: (record: IContract) => (
         <Button onClick={() => handleViewContract(record)}>Ver Detalhes</Button>
       ),
     },
   ];
 
-  const handleViewContract = (contract: any) => {
-  
-  
-   };
+  const handleViewContract = (contract: IContract) => {};
   
 
   return (
@@ -77,7 +76,7 @@ export default function ContractList() {
           </div>
           
           <AntdTable
-            columns={columns as any}
+            columns={columns}
             dataSource={contracts}
             rowKey="id"
             pagination={false}

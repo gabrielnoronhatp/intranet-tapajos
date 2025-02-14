@@ -8,4 +8,4 @@ export interface NoPaperState {
     error: string | null;
     orderId: number | null;
     signatureNumber: number | null;
-  }
+}

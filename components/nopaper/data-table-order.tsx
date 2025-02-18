@@ -3,7 +3,7 @@ import React from 'react';
 import { CheckCircle2, XCircle, Eye } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Image, Upload, UploadFile, message, Input } from 'antd';
-import api from '@/app/service/api';
+import { api } from '@/app/service/api';
 import { UploadChangeParam } from 'antd/es/upload';
 import './data-table-order-styles.css';
 import { Table as AntdTable } from 'antd';

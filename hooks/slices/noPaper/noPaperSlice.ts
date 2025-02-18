@@ -1,4 +1,4 @@
-import api from '@/app/service/api';
+import { api } from '@/app/service/api';
 import { NoPaperState } from '@/types/noPaper/Supplier/SupplierType';
 import { createSlice, createAsyncThunk, createAction } from '@reduxjs/toolkit';
 

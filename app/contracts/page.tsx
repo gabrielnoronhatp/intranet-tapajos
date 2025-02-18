@@ -2,33 +2,49 @@
 
 import React from 'react';
 import { useState } from 'react';
-import { Button, Input, Select, Upload } from 'antd';
+import { Button, Input, Select, Upload, Radio } from 'antd';
 import { FilialSelect } from '@/components/nopaper/store-select';
 import { FornecedorSelect } from '@/components/nopaper/supplier-select';
-import FinancialData from '@/components/nopaper/form/financial-data-form';
-// import { FormSection } from "@/components/nopaper/form/form-section";
-import { useDispatch } from 'react-redux';
-import { setOrderState } from '@/hooks/slices/noPaper/orderSlice';
+import FinancialData from '@/components/contracts/duplicated-components/financial-data-form';
+
+import { useDispatch, useSelector } from 'react-redux';
 import { FormSection } from '@/components/nopaper/form-section';
 import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
 import { Navbar } from '@/components/layout/navbar';
 import { Sidebar } from '@/components/layout/sidebar';
+import {
+    setCurrentContract,
+    createContract,
+} from '@/hooks/slices/contracts/contractSlice';
+import { RootState } from '@/hooks/store';
+import { ServiceTypeSelect } from '@/components/contracts/service-type-select';
 
 export default function ContractForm() {
     const dispatch = useDispatch();
-    const [formData, setFormData] = useState({});
+    const { currentContract } = useSelector(
+        (state: RootState) => state.contracts
+    );
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
-
-    ///TODO: Tirar Any 
-    const handleSetState = (field: string, value: string | number | Array<any>) => {
-        setFormData({ ...formData, [field]: value });
-        dispatch(setOrderState({ [field]: value }));
+    const [tipoMulta, setTipoMulta] = useState<'valor' | 'percentual'>('valor');
+    const [error, setError] = useState<string | null>(null);
+    const handleSetState = (
+        field: string,
+        value: string | number | Array<any>
+    ) => {
+        dispatch(setCurrentContract({ [field]: value }));
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-    
+        dispatch(createContract(currentContract) as any);
+    };
+
+    const handleSelectSupplierChange = (value: string) => {
+        dispatch(setCurrentContract({ idfornecedor: value }));
+    };
+
+    const handleSelectFilialChange = (value: string) => {
+        dispatch(setCurrentContract({ idfilial: value }));
     };
 
     return (
@@ -48,29 +64,30 @@ export default function ContractForm() {
                             </h1>
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <FormSection title="Informações do Serviço">
-                                    <Select
-                                        placeholder="Selecione o Tipo de Serviço"
-                                        onChange={(value) =>
-                                            handleSetState('tipoServico', value)
+                                    <ServiceTypeSelect
+                                        handleSetState={handleSetState}
+                                        fieldValue={currentContract.idtipo}
+                                        handleSelectChange={(value) =>
+                                            handleSetState('idtipo', value)
                                         }
-                                        options={[
-                                            {
-                                                value: 'servico1',
-                                                label: 'Serviço 1',
-                                            },
-                                            {
-                                                value: 'servico2',
-                                                label: 'Serviço 2',
-                                            },
-                                        ]}
-                                        className="w-full"
                                     />
+                                    <FornecedorSelect
+                                        handleSelectChange={
+                                            handleSelectSupplierChange
+                                        }
+                                        fieldValue={
+                                            currentContract.idfornecedor
+                                        }
+                                        handleSetState={handleSetState}
+                                    />
+
                                     <FilialSelect
                                         handleSetState={handleSetState}
                                         validate={false}
-                                    />
-                                    <FornecedorSelect
-                                        handleSetState={handleSetState}
+                                        fieldValue={currentContract.idfilial}
+                                        handleSelectChange={
+                                            handleSelectFilialChange
+                                        }
                                     />
                                 </FormSection>
 
@@ -78,17 +95,18 @@ export default function ContractForm() {
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
                                             <label
-                                                htmlFor="contatoNome"
+                                                htmlFor="nome"
                                                 className="block text-sm font-medium text-[#11833B] uppercase"
                                             >
                                                 Nome
                                             </label>
                                             <Input
-                                                id="contatoNome"
+                                                id="nome"
                                                 placeholder="Nome"
+                                                value={currentContract.nome}
                                                 onChange={(e) =>
                                                     handleSetState(
-                                                        'contatoNome',
+                                                        'nome',
                                                         e.target.value
                                                     )
                                                 }
@@ -97,17 +115,20 @@ export default function ContractForm() {
                                         </div>
                                         <div>
                                             <label
-                                                htmlFor="contatoTelefone"
+                                                htmlFor="telefone1"
                                                 className="block text-sm font-medium text-[#11833B] uppercase"
                                             >
                                                 Telefone
                                             </label>
                                             <Input
-                                                id="contatoTelefone"
+                                                id="telefone1"
                                                 placeholder="Telefone"
+                                                value={
+                                                    currentContract.telefone1
+                                                }
                                                 onChange={(e) =>
                                                     handleSetState(
-                                                        'contatoTelefone',
+                                                        'telefone1',
                                                         e.target.value
                                                     )
                                                 }
@@ -122,11 +143,12 @@ export default function ContractForm() {
                                                 Email
                                             </label>
                                             <Input
-                                                id="contatoEmail"
+                                                id="email1"
                                                 placeholder="Email"
+                                                value={currentContract.email1}
                                                 onChange={(e) =>
                                                     handleSetState(
-                                                        'contatoEmail',
+                                                        'email1',
                                                         e.target.value
                                                     )
                                                 }
@@ -135,17 +157,20 @@ export default function ContractForm() {
                                         </div>
                                         <div>
                                             <label
-                                                htmlFor="contatoEndereco"
+                                                htmlFor="endereco1"
                                                 className="block text-sm font-medium text-[#11833B] uppercase"
                                             >
                                                 Endereço
                                             </label>
                                             <Input
-                                                id="contatoEndereco"
+                                                id="endereco1"
                                                 placeholder="Endereço"
+                                                value={
+                                                    currentContract.endereco1
+                                                }
                                                 onChange={(e) =>
                                                     handleSetState(
-                                                        'contatoEndereco',
+                                                        'endereco1',
                                                         e.target.value
                                                     )
                                                 }
@@ -158,23 +183,42 @@ export default function ContractForm() {
                                 <FormSection title="Período e Índice">
                                     <div>
                                         <label
-                                            htmlFor="periodo"
+                                            htmlFor="dia_vencimento"
                                             className="block text-sm font-medium text-[#11833B] uppercase"
                                         >
                                             Período
                                         </label>
                                         <Input
-                                            id="periodo"
-                                            type="date"
+                                            id="dia_vencimento"
+                                            type="number"
                                             placeholder="Período"
-                                            onChange={(e) =>
-                                                handleSetState(
-                                                    'periodo',
-                                                    e.target.value
-                                                )
-                                            }
+                                            onChange={(e) => {
+                                                const value = parseInt(
+                                                    e.target.value,
+                                                    10
+                                                );
+                                                if (value >= 1 && value <= 31) {
+                                                    handleSetState(
+                                                        'dia_vencimento',
+                                                        value
+                                                    );
+                                                    setError(null); // Limpa a mensagem de erro
+                                                } else {
+                                                    setError(
+                                                        'O dia deve ser um número entre 1 e 31.'
+                                                    ); // Define a mensagem de erro
+                                                }
+                                            }}
                                             className="mb-4"
+                                            min={1}
+                                            max={31}
                                         />
+                                        {error && (
+                                            <p className="text-red-500 text-sm mt-1">
+                                                {error}
+                                            </p>
+                                        )}{' '}
+                                        {/* Exibe a mensagem de erro */}
                                     </div>
                                     <div>
                                         <label
@@ -205,19 +249,68 @@ export default function ContractForm() {
 
                                 <FormSection title="Outras Informações">
                                     <div className="grid grid-cols-2 gap-4">
+                                        <div className="col-span-2">
+                                            <label className="block text-sm font-medium text-[#11833B] uppercase mb-2">
+                                                Tipo de Multa
+                                            </label>
+                                            <Radio.Group
+                                                onChange={(e) =>
+                                                    setTipoMulta(e.target.value)
+                                                }
+                                                value={tipoMulta}
+                                                className="flex gap-4 mb-4"
+                                            >
+                                                <Radio value="valor">
+                                                    Valor Fixo
+                                                </Radio>
+                                                <Radio value="percentual">
+                                                    Percentual
+                                                </Radio>
+                                            </Radio.Group>
+                                        </div>
                                         <div>
                                             <label
-                                                htmlFor="multa"
+                                                htmlFor={
+                                                    tipoMulta === 'percentual'
+                                                        ? 'percentual_multa'
+                                                        : 'valor_multa'
+                                                }
                                                 className="block text-sm font-medium text-[#11833B] uppercase"
                                             >
-                                                Multa
+                                                {tipoMulta === 'percentual'
+                                                    ? 'Percentual da Multa (%)'
+                                                    : 'Valor da Multa (R$)'}
                                             </label>
                                             <Input
-                                                id="multa"
-                                                placeholder="Multa"
+                                                id={
+                                                    tipoMulta === 'percentual'
+                                                        ? 'percentual_multa'
+                                                        : 'valor_multa'
+                                                }
+                                                placeholder={
+                                                    tipoMulta === 'percentual'
+                                                        ? 'Ex: 2.5'
+                                                        : 'Ex: 1000.00'
+                                                }
+                                                type="number"
+                                                step={
+                                                    tipoMulta === 'percentual'
+                                                        ? '0.01'
+                                                        : '0.01'
+                                                }
+                                                value={
+                                                    tipoMulta === 'percentual'
+                                                        ? (currentContract.percentual_multa ??
+                                                          0)
+                                                        : (currentContract.valor_multa ??
+                                                          0)
+                                                }
                                                 onChange={(e) =>
                                                     handleSetState(
-                                                        'multa',
+                                                        tipoMulta ===
+                                                            'percentual'
+                                                            ? 'percentual_multa'
+                                                            : 'valor_multa',
                                                         e.target.value
                                                     )
                                                 }
@@ -226,18 +319,18 @@ export default function ContractForm() {
                                         </div>
                                         <div>
                                             <label
-                                                htmlFor="vencimento"
+                                                htmlFor="data_venc_contrato"
                                                 className="block text-sm font-medium text-[#11833B] uppercase"
                                             >
                                                 Vencimento
                                             </label>
                                             <Input
-                                                id="vencimento"
+                                                id="data_venc_contrato"
                                                 type="date"
                                                 placeholder="Vencimento"
                                                 onChange={(e) =>
                                                     handleSetState(
-                                                        'vencimento',
+                                                        'data_venc_contrato',
                                                         e.target.value
                                                     )
                                                 }
@@ -252,11 +345,12 @@ export default function ContractForm() {
                                                 Valor
                                             </label>
                                             <Input
-                                                id="valor"
+                                                id="valor_contrato"
+                                                type="number"
                                                 placeholder="Valor"
                                                 onChange={(e) =>
                                                     handleSetState(
-                                                        'valor',
+                                                        'valor_contrato',
                                                         e.target.value
                                                     )
                                                 }
@@ -265,17 +359,17 @@ export default function ContractForm() {
                                         </div>
                                         <div>
                                             <label
-                                                htmlFor="observacoes"
+                                                htmlFor="obs1"
                                                 className="block text-sm font-medium text-[#11833B] uppercase"
                                             >
                                                 Observações
                                             </label>
                                             <Input.TextArea
-                                                id="observacoes"
+                                                id="obs1"
                                                 placeholder="Observações"
                                                 onChange={(e) =>
                                                     handleSetState(
-                                                        'observacoes',
+                                                        'obs1',
                                                         e.target.value
                                                     )
                                                 }
@@ -318,7 +412,7 @@ export default function ContractForm() {
                                     <Button
                                         type="primary"
                                         htmlType="submit"
-                                        className="w-full"
+                                        className="w-full bg-primary hover:bg-primary/90"
                                     >
                                         Cadastrar Contrato
                                     </Button>

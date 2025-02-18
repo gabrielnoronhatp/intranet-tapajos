@@ -7,39 +7,46 @@ import { RootState } from '@/hooks/store';
 import { Select } from 'antd';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { setCurrentContract } from '@/hooks/slices/contracts/contractSlice';
 
 interface FilialSelectProps {
     handleSetState: (key: string, value: any) => void;
     validate: boolean;
+    fieldValue: string;
+    handleSelectChange: (value: string) => void;
 }
 
 export const FilialSelect = ({
     handleSetState,
     validate,
+    fieldValue,
+    handleSelectChange,
 }: FilialSelectProps) => {
     const { filiais } = useSelector((state: RootState) => state.noPaper);
-    const { lojaOP, ramoOP } = useSelector((state: RootState) => state.order);
+    const { currentContract } = useSelector((state: RootState) => state.contracts);
     const dispatch = useDispatch();
     const [error, setError] = useState('');
-    const [localSearchQuery, setLocalSearchQuery] = useState<any>('');
+    const [localSearchQuery, setLocalSearchQuery] = useState<string>('');
 
     useEffect(() => {
         dispatch(
-            fetchFiliais({ query: localSearchQuery, ramo: ramoOP || '' }) as any
+            fetchFiliais({ query: localSearchQuery, ramo: '' }) as any
         );
-    }, [dispatch, localSearchQuery, ramoOP]);
-
-    const handleSelectChange = (value: string) => {
-        setError('');
-        dispatch(setOrderState({ lojaOP: value }));
-        handleSetState('lojaOP', value);
-    };
+    }, [dispatch, localSearchQuery]);
 
     useEffect(() => {
-        if (validate && !lojaOP) {
+        if (validate && !currentContract.idfilial) {
             setError('Filial não pode ser vazia.');
         }
-    }, [validate, lojaOP]);
+    }, [validate, currentContract.idfilial]);
+
+    const handleChange = (value: string) => {
+        handleSelectChange(value);
+        dispatch(setCurrentContract({
+            ...currentContract,
+            idfilial: value
+        }));
+    };
 
     return (
         <div>
@@ -47,11 +54,10 @@ export const FilialSelect = ({
                 Selecione a Filial que Pagará
             </Label>
             <Select
-                disabled={!ramoOP}
                 showSearch
                 className="w-full"
-                value={lojaOP}
-                onChange={handleSelectChange}
+                value={fieldValue || currentContract.idfilial}
+                onChange={handleChange}
                 onSearch={(value) => setLocalSearchQuery(value)}
                 placeholder="Selecione uma filial..."
                 filterOption={(input: string, option: any) =>
@@ -66,6 +72,7 @@ export const FilialSelect = ({
                     </Select.Option>
                 ))}
             </Select>
+            {error && <p className="text-red-500 text-xs">{error}</p>}
         </div>
     );
 };

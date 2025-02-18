@@ -7,12 +7,15 @@ import { fetchFornecedores } from '@/hooks/slices/noPaper/noPaperSlice';
 import { Select } from 'antd';
 import { RootState } from '@/hooks/store';
 import { setOrderState } from '@/hooks/slices/noPaper/orderSlice';
+import { setCurrentContract } from '@/hooks/slices/contracts/contractSlice';
 
 interface FornecedorSelectProps {
     handleSetState: (key: string, value: any) => void;
+    fieldValue: string;
+    handleSelectChange: (value: string) => void;
 }
 
-export const FornecedorSelect = ({ handleSetState }: FornecedorSelectProps) => {
+export const FornecedorSelect = ({ handleSetState, fieldValue, handleSelectChange }: FornecedorSelectProps) => {
     const dispatch = useDispatch();
 
     const searchQuery = useSelector(
@@ -20,7 +23,7 @@ export const FornecedorSelect = ({ handleSetState }: FornecedorSelectProps) => {
     );
     const { fornecedores } = useSelector((state: RootState) => state.noPaper);
     const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
-    const { fornecedorOP } = useSelector((state: RootState) => state.order);
+
     const [error, setError] = useState('');
 
     useEffect(() => {
@@ -32,15 +35,7 @@ export const FornecedorSelect = ({ handleSetState }: FornecedorSelectProps) => {
         label: fornecedor.fornecedor,
     }));
 
-    const handleSelectChange = (value: string) => {
-        if (!value) {
-            setError('Fornecedor não pode ser vazio.');
-        } else {
-            setError('');
-            dispatch(setOrderState({ fornecedorOP: value }));
-            handleSetState('fornecedorOP', value);
-        }
-    };
+  
 
     return (
         <div>
@@ -51,7 +46,7 @@ export const FornecedorSelect = ({ handleSetState }: FornecedorSelectProps) => {
                 showSearch
                 placeholder="Pesquisar fornecedor..."
                 optionFilterProp="children"
-                value={fornecedorOP}
+                value={fieldValue}
                 onChange={handleSelectChange}
                 onSearch={(value) => setLocalSearchQuery(value.toUpperCase())}
                 filterOption={(input, option) =>

@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import api from '@/app/service/api';
+import { api } from '@/app/service/api';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 import { OrderData } from '@/types/noPaper/Order/OrderTypes';

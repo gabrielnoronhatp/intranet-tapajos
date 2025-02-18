@@ -9,7 +9,7 @@ import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
 import { useState, useEffect } from 'react';
 import { DatePicker } from 'antd';
 import dayjs from 'dayjs';
-import api from '@/app/service/api';
+import { api } from '@/app/service/api';
 
 const { RangePicker } = DatePicker;
 

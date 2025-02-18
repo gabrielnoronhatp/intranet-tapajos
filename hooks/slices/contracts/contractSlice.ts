@@ -1,28 +1,32 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { IContract } from '@/types/Contracts/Contracts';
-import api from '@/app/service/api';
+import { api, apiDev } from '@/app/service/api';
 import toast from 'react-hot-toast';
 
 interface ContractState {
     contracts: IContract[];
     loading: boolean;
     error: string | null;
-    currentContract: IContract | null;
+    currentContract: IContract ;
+    serviceTypes: { [key: number]: string };
 }
 
 const initialState: ContractState = {
     contracts: [],
     loading: false,
     error: null,
-    currentContract: null,
+    currentContract: {} as IContract,
+    serviceTypes: {},
 };
 
 export const fetchContracts = createAsyncThunk(
     'contracts/fetchContracts',
     async (searchParams?: Record<string, string>) => {
         try {
-            const query = searchParams ? new URLSearchParams(searchParams).toString() : '';
-            const response = await api.get(`buscar-contratos?${query}`);
+            const query = searchParams
+                ? new URLSearchParams(searchParams).toString()
+                : '';
+            const response = await apiDev.get(`contracts${query}/`);
             return response.data;
         } catch (error: any) {
             toast.error('Erro ao buscar contratos: ' + error.message);
@@ -35,11 +39,31 @@ export const createContract = createAsyncThunk(
     'contracts/createContract',
     async (contractData: Partial<IContract>) => {
         try {
-            const response = await api.post('cadastrar-contrato', contractData);
+            const response = await apiDev.post('contracts/', contractData);
             toast.success('Contrato cadastrado com sucesso!');
             return response.data;
         } catch (error: any) {
             toast.error('Erro ao cadastrar contrato: ' + error.message);
+            throw error;
+        }
+    }
+);
+
+export const fetchServiceTypes = createAsyncThunk(
+    'contracts/fetchServiceTypes',
+    async () => {
+        try {
+            const response = await apiDev.get('service-types/');
+            const serviceTypes = response.data.reduce(
+                (acc: { [key: number]: string }, type: any) => {
+                    acc[type.id] = type.descricao;
+                    return acc;
+                },
+                {}
+            );
+            return serviceTypes;
+        } catch (error: any) {
+            toast.error('Erro ao buscar tipos de serviço: ' + error.message);
             throw error;
         }
     }
@@ -50,10 +74,13 @@ const contractSlice = createSlice({
     initialState,
     reducers: {
         setCurrentContract: (state, action) => {
-            state.currentContract = action.payload;
+            state.currentContract = {
+                ...state.currentContract,
+                ...action.payload
+            };
         },
         clearCurrentContract: (state) => {
-            state.currentContract = null;
+            state.currentContract = {} as IContract;
         },
     },
     extraReducers: (builder) => {
@@ -68,7 +95,8 @@ const contractSlice = createSlice({
             })
             .addCase(fetchContracts.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.error.message || 'Erro ao buscar contratos';
+                state.error =
+                    action.error.message || 'Erro ao buscar contratos';
             })
             .addCase(createContract.pending, (state) => {
                 state.loading = true;
@@ -81,9 +109,22 @@ const contractSlice = createSlice({
             .addCase(createContract.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.error.message || 'Erro ao criar contrato';
+            })
+            .addCase(fetchServiceTypes.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(fetchServiceTypes.fulfilled, (state, action) => {
+                state.loading = false;
+                state.serviceTypes = action.payload;
+            })
+            .addCase(fetchServiceTypes.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message || 'Erro ao buscar tipos de serviço';
             });
     },
 });
 
-export const { setCurrentContract, clearCurrentContract } = contractSlice.actions;
-export default contractSlice.reducer; 
+export const { setCurrentContract, clearCurrentContract } =
+    contractSlice.actions;
+export default contractSlice.reducer;

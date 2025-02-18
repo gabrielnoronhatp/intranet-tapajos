@@ -29,6 +29,10 @@ export default function OriginData() {
         dispatch(setOrderState({ [field]: value }));
     };
 
+    const handleSelectSupplierChange = (value: string) => {
+        dispatch(setOrderState({ fornecedorOP: value }));
+    };
+
     useEffect(() => {
         setOrderState({
             ramoOP,
@@ -151,6 +155,8 @@ export default function OriginData() {
                         handleSetState={(value: any) =>
                             handleFieldChange(fornecedorOP, value)
                         }
+                        fieldValue={fornecedorOP}
+                        handleSelectChange={handleSelectSupplierChange}
                     />
                 </div>
             </div>

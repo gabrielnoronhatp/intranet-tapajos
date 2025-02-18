@@ -13,7 +13,7 @@ import TaxesData from "@/components/nopaper/form/taxes-data-form";
 import CenterOfCoust from "@/components/nopaper/form/center-of-coust-form";
 import { AuthGuard } from "@/components/ProtectedRoute/AuthGuard";
 import { PlusOutlined } from "@ant-design/icons";
-import api from "@/app/service/api";
+import { api } from "@/app/service/api";
 
 
 
@@ -25,7 +25,7 @@ export default function NoPaper() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
 
-  const handleSetState = (field: keyof any, value: any) => {
+  const handleSetState = (field: keyof typeof orderData, value: any) => {
     if ((field === "lojaOP" || field === "fornecedorOP") && !value) {
       console.error(`${field} não pode ser vazio.`);
       return;

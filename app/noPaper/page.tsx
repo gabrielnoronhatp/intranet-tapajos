@@ -13,10 +13,16 @@ import CenterOfCoust from "@/components/nopaper/form/center-of-coust-form";
 import { AuthGuard } from "@/components/ProtectedRoute/AuthGuard";
 import { PlusOutlined } from "@ant-design/icons";
 import api from "@/app/service/api";
+import { AppDispatch } from "@/hooks/store";
 
+interface UploadResponse {
+  message: string;
+  opId: string;
+  urls: string[];
+}
 
 export default function NoPaper() {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const orderData = useSelector((state: any) => state.order);
   const [imageUrl, setImageUrl] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -37,13 +43,13 @@ export default function NoPaper() {
     e.preventDefault();
 
     if (!orderData.lojaOP) {
-      console.error("Filial não pode ser vazia.");
       message.error("Por favor, selecione uma filial.");
       return;
     }
 
     try {
-      const response = await dispatch(submitOrder(orderData) as any);
+      // 1. Primeiro, criar a OP
+      const response = await dispatch(submitOrder(orderData));
       const opId = response.payload?.id;
 
       if (!opId) {
@@ -51,48 +57,67 @@ export default function NoPaper() {
         return;
       }
 
+      // 2. Se houver arquivo selecionado, fazer o upload
       if (selectedFile) {
-        const formData = new FormData();
-        formData.append("files", selectedFile);
-
-        const uploadResponse = await api.post(`upload/${opId}`, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
-
-        const data: { message: string; opId: string; urls: string[] } =
-          uploadResponse.data;
-        message.success(data.message || "Arquivo enviado com sucesso!");
+        const uploadResponse = await handleUpload(selectedFile, opId);
+        if (uploadResponse.length > 0) {
+          message.success("Ordem de pagamento e arquivo enviados com sucesso!");
+        }
       } else {
-        message.info("Formulário enviado sem anexo.");
+        message.success("Ordem de pagamento criada com sucesso!");
       }
     } catch (error) {
-      console.error("Erro ao enviar a ordem ou o arquivo:", error);
       message.error("Erro ao processar o formulário.");
+      console.error("Erro:", error);
     }
   };
 
-  const allowedTypes = [
-    "image/jpeg",
-    "image/png",
-    "application/pdf",
-    "application/vnd.ms-excel",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  ];
+  const handleUpload = async (file: File, opId: string) => {
+    try {
+      const formData = new FormData();
+      formData.append("files", file);
+
+      const response = await api.post<UploadResponse>(
+        `upload/${opId}`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
+      if (response.data.urls?.length > 0) {
+        message.success("Arquivo enviado com sucesso!");
+        return response.data.urls;
+      }
+      return [];
+    } catch (error) {
+      message.error("Erro ao fazer upload do arquivo.");
+      console.error("Erro no upload:", error);
+      return [];
+    }
+  };
 
   const beforeUpload = (file: File) => {
-    const allowed = allowedTypes.includes(file.type);
-    if (!allowed) {
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "application/pdf",
+      "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ];
+
+    const isAllowedType = allowedTypes.includes(file.type);
+    if (!isAllowedType) {
       message.error("Você só pode enviar arquivos Excel, PDF, JPG ou PNG!");
     }
-    return allowed;
-  };
 
-  const uploadButton = (
-    <div>
-      <PlusOutlined />
-      <div style={{ marginTop: 8 }}>Upload</div>
-    </div>
-  );
+    const isLt2M = file.size / 1024 / 1024 < 2;
+    if (!isLt2M) {
+      message.error("O arquivo deve ser menor que 2MB!");
+    }
+
+    return isAllowedType && isLt2M;
+  };
 
   return (
     <AuthGuard>
@@ -126,11 +151,18 @@ export default function NoPaper() {
 
                 <div className="mt-6">
                   <Upload
-                    name="avatar"
+                    name="files"
                     listType="picture-card"
                     className="avatar-uploader"
                     showUploadList={false}
-                    beforeUpload={beforeUpload}
+                    beforeUpload={(file) => {
+                      const isLt2M = file.size / 1024 / 1024 < 2;
+                      if (!isLt2M) {
+                        message.error("O arquivo deve ser menor que 2MB!");
+                        return false;
+                      }
+                      return true;
+                    }}
                     accept=".xls,.xlsx,.pdf,.jpg,.jpeg,.png"
                     onChange={(info) => {
                       const file = info.file.originFileObj;
@@ -147,7 +179,10 @@ export default function NoPaper() {
                         style={{ width: "100%" }}
                       />
                     ) : (
-                      uploadButton
+                      <div>
+                        <PlusOutlined />
+                        <div style={{ marginTop: 8 }}>Upload</div>
+                      </div>
                     )}
                   </Upload>
                 </div>

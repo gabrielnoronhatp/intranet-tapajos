@@ -31,6 +31,15 @@ export default function TaxesData() {
     dispatch(fetchCentrosCusto("") as any);
   }, [dispatch, searchQuery]);
 
+  useEffect(() => {
+    if (!qtitensOP) {
+      handleSetState("qtitensOP", 1);
+      dispatch(setOrderState({ 
+        produtosOP: [{ produto: "", valor: 0, centroCusto: [] }] 
+      }));
+    }
+  }, []);
+
   const handleItensChange = (
     index: number,
     field: "produto" | "valor" | "centroCusto",
@@ -45,7 +54,7 @@ export default function TaxesData() {
   const handleQuantidadeProdutosChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const quantidade = parseInt(e.target.value, 10);
+    const quantidade = Math.max(1, parseInt(e.target.value, 10) || 1);
     handleSetState("qtitensOP", quantidade);
 
     const newItens = Array.from(
@@ -75,9 +84,10 @@ export default function TaxesData() {
         </Label>
         <Input
           type="number"
-          value={qtitensOP}
+          value={qtitensOP || 1}
           onChange={handleQuantidadeProdutosChange}
           min={1}
+          defaultValue={1}
           className="form-control"
         />
 

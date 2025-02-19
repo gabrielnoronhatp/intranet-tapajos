@@ -18,6 +18,12 @@ interface DataTableOrderProps {
   ordersSearch: any;
 }
 
+interface UploadResponse {
+  message: string;
+  opId: string;
+  urls: string[];
+}
+
 export function DataTableOrder({ searchParams, ordersSearch }: DataTableOrderProps) {
   const dispatch = useDispatch();
   const [orders, setOrders] = useState<Array<any>>([]);
@@ -80,12 +86,29 @@ export function DataTableOrder({ searchParams, ordersSearch }: DataTableOrderPro
     fetchOrders();
   };
 
-  const beforeUpload = (file: File) => {
-    return true;
-  };
+  const handleUpload = async (file: File, orderId: string) => {
+    try {
+      const formData = new FormData();
+      formData.append("files", file);
 
-  const handleUploadChange = (info: UploadChangeParam<UploadFile<any>>) => {
-    console.log(info);
+      const response = await api.post<UploadResponse>(
+        `upload/${orderId}`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
+      if (response.data.urls?.length > 0) {
+        message.success("Arquivo enviado com sucesso!");
+        // Atualiza a lista de arquivos
+        const filesResponse = await api.get(`arquivos/${orderId}`);
+        setFileUrls(filesResponse.data.urls);
+      }
+    } catch (error) {
+      message.error("Erro ao fazer upload do arquivo.");
+      console.error("Erro no upload:", error);
+    }
   };
 
   const columns = [
@@ -259,26 +282,20 @@ export function DataTableOrder({ searchParams, ordersSearch }: DataTableOrderPro
                   showUploadList={true}
                   customRequest={async ({ file, onSuccess, onError }) => {
                     try {
-                      const formData = new FormData();
-                      formData.append("files", file as File);
-                      const response = await api.post(
-                        `upload/${selectedItem.id}`,
-                        formData
-                      );
-
-                      if (response.status !== 200) {
-                        throw new Error("Upload failed");
-                      }
-
-                      const result = await response;
-                      onSuccess?.(result);
+                      await handleUpload(file as File, selectedItem.id);
+                      onSuccess?.("ok");
                     } catch (error) {
                       onError?.(error as any);
                     }
                   }}
-                  beforeUpload={beforeUpload}
-                  onChange={handleUploadChange}
-                  fileList={fileList}
+                  beforeUpload={(file) => {
+                    const isLt2M = file.size / 1024 / 1024 < 2;
+                    if (!isLt2M) {
+                      message.error("O arquivo deve ser menor que 2MB!");
+                      return false;
+                    }
+                    return true;
+                  }}
                 >
                   <div>
                     <div style={{ marginTop: 8 }}>Upload</div>

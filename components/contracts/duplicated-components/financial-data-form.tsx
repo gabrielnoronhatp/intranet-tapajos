@@ -15,10 +15,11 @@ import { RootState } from '@/hooks/store';
 import { SelectField } from '@/components/nopaper/select-field';
 import { FormSection } from '@/components/nopaper/form-section';
 import { setCurrentContract } from '@/hooks/slices/contracts/contractSlice';
+import { OrderState } from '@/types/noPaper/Order/OrderTypes';
 
 export default function FinancialData() {
     const dispatch = useDispatch();
-    const handleSetState = (field: keyof any, value: any) => {
+    const handleSetState = (field: string, value: string) => {
         if (field === 'idfilial') {
             dispatch(setCurrentContract({ [field]: String(value) }));
         } else {
@@ -26,12 +27,10 @@ export default function FinancialData() {
         }
         validateField(field as string, value);
     };
-    const [installmentDates, setInstallmentDates] = useState<any[]>([]);
-    const [dtavista, setDtavista] = useState<any>(null);
-    const [qtparcelas, setQtparcelas] = useState<any>(null);
-    const {
-        metodoOP,
-    } = useSelector((state: any) => state.order);
+    const [installmentDates, setInstallmentDates] = useState<string[]>([]);
+    const [dtavista, setDtavista] = useState<string>('');
+    const [qtparcelas, setQtparcelas] = useState<number>(0);
+   
     const {
         forma_pag,
         banco,
@@ -41,14 +40,9 @@ export default function FinancialData() {
         chavepix,
         datapix,
         conta,
-    } = useSelector((state: any) => state.contracts.currentContract);
+    } = useSelector((state: RootState) => state.contracts.currentContract);
 
-    const { contasGerenciais } = useSelector(
-        (state: RootState) => state.noPaper
-    );
-    const { formErrors } = useSelector((state: any) => state.error);
-
-    const validateField = (field: string, value: any) => {
+    const validateField = (field: string, value: string) => {
         if (!value || (typeof value === 'string' && !value.trim())) {
             dispatch(
                 setFieldError({
@@ -90,16 +84,11 @@ export default function FinancialData() {
                     onChange={handleFormaPagamentoChange}
                     options={[
                         { value: 'avista', label: 'À VISTA' },
-                        { value: 'deposito', label: 'DEPÓSITO' },
-                      
+                        { value: 'deposito', label: 'DEPÓSITO' },        
                         { value: 'pix', label: 'PIX' },
                     ]}
                 />
-                {formErrors.formaPagamento && (
-                    <p className="text-red-500 text-xs">
-                        {formErrors.formaPagamento}
-                    </p>
-                )}
+              
 
                 {forma_pag === 'avista' && (
                     <div className="space-y-2">

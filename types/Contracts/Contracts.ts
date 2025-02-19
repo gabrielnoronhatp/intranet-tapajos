@@ -12,7 +12,7 @@ export interface IContract {
     email2?: string;
     data_venc_contrato?: string; 
     indice?: string;
-    forma_pag?: string;
+    forma_pag?: any; // TODO: find a way to handle this any
     agencia?: string;
     conta?: string;
     tipo_chave_pix?: string;
@@ -24,6 +24,14 @@ export interface IContract {
     datalanc?: string; // Date will be handled as string in frontend
     userlanc?: string;
     cancelado?: boolean;
+    dtdeposito?: string;
+    tipopix?: any;   // TODO: find a way to handle this any
+    chavepix?: string;
+    datapix?: string;
+    opcao_lanc?: string;
+    ccusto?: string;
+    banco?: string;
+    
 }
 
 export type ContractFormState = Partial<IContract>;

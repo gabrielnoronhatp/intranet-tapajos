@@ -37,11 +37,7 @@ export function PinModal({ isOpen, onClose, onConfirm }: PinModalProps) {
     );
     const [showSuccess, setShowSuccess] = useState(false);
 
-    useEffect(() => {
-        if (isOpen) {
-            generateSignature();
-        }
-    }, [isOpen]);
+  
 
     const defaultOptions = {
         loop: false,
@@ -135,6 +131,12 @@ export function PinModal({ isOpen, onClose, onConfirm }: PinModalProps) {
             console.error('Erro:', error);
         }
     };
+
+    useEffect(() => {
+        if (isOpen) {
+            generateSignature();
+        }
+    }, [isOpen]);
 
     return (
         <Dialog open={isOpen} onOpenChange={() => {}}>

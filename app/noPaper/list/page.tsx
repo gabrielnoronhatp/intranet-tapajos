@@ -8,14 +8,14 @@ import { FloatingActionButton } from '@/components/nopaper/floating-action-butto
 import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
 import { useState, useEffect } from 'react';
 import { DatePicker } from 'antd';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import { api } from '@/app/service/api';
-
+import { OrderState } from '@/types/noPaper/Order/OrderTypes';
 const { RangePicker } = DatePicker;
 
 export default function NoPaperList() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-    const [searchParams, setSearchParams] = useState<any>({
+    const [searchParams, setSearchParams] = useState<Record<string, string>>({
         id: '',
         numero_nota: '',
         conta_gerencial: '',
@@ -23,24 +23,25 @@ export default function NoPaperList() {
         startDate: '',
         endDate: '',
     });
-    const [orders, setOrders] = useState<any[]>([]);
+    const [orders, setOrders] = useState<OrderState[]>([]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setSearchParams((prev: any) => ({ ...prev, [name]: value }));
+        setSearchParams((prev: Record<string, string>) => ({ ...prev, [name]: value }));
     };
 
-    const handleDateRangeChange = (dates: any) => {
+    const handleDateRangeChange = (
+        dates: [Dayjs, Dayjs] | null,
+        dateStrings: [string, string]
+    ) => {
         if (dates && dates[0] && dates[1]) {
-            const startDate = dates[0].format('YYYY-MM-DD');
-            const endDate = dates[1].format('YYYY-MM-DD');
-            setSearchParams((prev: any) => ({
+            setSearchParams((prev: Record<string, string>) => ({
                 ...prev,
-                startDate,
-                endDate,
+                startDate: dateStrings[0],
+                endDate: dateStrings[1],
             }));
         } else {
-            setSearchParams((prev: any) => ({
+            setSearchParams((prev: Record<string, string>) => ({
                 ...prev,
                 startDate: '',
                 endDate: '',
@@ -129,8 +130,9 @@ export default function NoPaperList() {
                                         >
                                             Período
                                         </label>
+                                        {/* TODO: delete  any */}
                                         <RangePicker
-                                            onChange={handleDateRangeChange}
+                                            onChange={handleDateRangeChange as any}
                                             placeholder={[
                                                 'Data de Início',
                                                 'Data de Fim',

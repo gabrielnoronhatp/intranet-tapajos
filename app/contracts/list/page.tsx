@@ -13,7 +13,7 @@ import { RootState } from '@/hooks/store';
 import { useDispatch, useSelector } from 'react-redux';
 
 export default function ContractList() {
-    const [searchParams, setSearchParams] = useState<any>(null);
+    const [searchParams, setSearchParams] = useState<Record<string, string>>({});
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
     const dispatch = useDispatch();
@@ -22,12 +22,13 @@ export default function ContractList() {
     const loading = useSelector((state: RootState) => state.contracts.loading);
 
     useEffect(() => {
-        dispatch(fetchContracts(searchParams) as any);
-        dispatch(fetchServiceTypes() as any);
+          //  TODO DELETE ANY
+           dispatch(fetchContracts(searchParams) as any);
+           dispatch(fetchServiceTypes() as any);
     }, [dispatch, searchParams]);
 
 
-    
+
 
     const columns = [
         {

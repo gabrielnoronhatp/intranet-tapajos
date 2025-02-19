@@ -7,7 +7,7 @@ import { RootState } from '@/hooks/store';
 import { fetchServiceTypes, setCurrentContract } from '@/hooks/slices/contracts/contractSlice';
 
 interface ServiceTypeSelectProps {
-    handleSetState: (key: string, value: any) => void;
+    handleSetState: (key: string, value: string) => void;
     fieldValue: string;
     handleSelectChange: (value: string) => void;
 }
@@ -23,6 +23,7 @@ export const ServiceTypeSelect = ({
     );
 
     useEffect(() => {
+        // TODO: FOUND A WAY TO DELETE THIS ANY
         dispatch(fetchServiceTypes() as any);
     }, [dispatch]);
 

@@ -13,10 +13,10 @@ import {
     setSignatureNumber,
 } from '@/hooks/slices/noPaper/noPaperSlice';
 import { useDispatch } from 'react-redux';
-
+import { OrderState } from '@/types/noPaper/Order/OrderTypes';
 interface DataTableOrderProps {
     searchParams: Record<string, string>;
-    ordersSearch: any;
+    ordersSearch: Record<string, string>;
 }
 
 export function DataTableOrder({
@@ -24,7 +24,7 @@ export function DataTableOrder({
     ordersSearch,
 }: DataTableOrderProps) {
     const dispatch = useDispatch();
-    const [orders, setOrders] = useState<Array<any>>([]);
+    const [orders, setOrders] = useState<Array<OrderState>>([]);
     const [isViewOpen, setIsViewOpen] = useState(false);
     const [selectedItem, setSelectedItem]: any = useState(null);
     const [fileUrls, setFileUrls] = useState<
@@ -122,7 +122,7 @@ export function DataTableOrder({
             dataIndex: 'assinatura1',
             key: 'assinatura1',
             align: 'center',
-            render: (text: any, record: any) => (
+            render: (text: string, record: any) => (
                 <span
                     onClick={() => {
                         dispatch(setOrderId(record.id));
@@ -144,7 +144,7 @@ export function DataTableOrder({
             dataIndex: 'assinatura2',
             key: 'assinatura2',
             align: 'center',
-            render: (text: any, record: any) => (
+            render: (text: string, record: any) => (
                 <span
                     onClick={() => {
                         dispatch(setOrderId(record.id));
@@ -166,7 +166,7 @@ export function DataTableOrder({
             dataIndex: 'assinatura3',
             key: 'assinatura3',
             align: 'center',
-            render: (text: any, record: any) => (
+            render: (text: string, record: any) => (
                 <span
                     onClick={() => {
                         dispatch(setOrderId(record.id));
@@ -187,7 +187,7 @@ export function DataTableOrder({
             title: 'Ações',
             key: 'acoes',
             align: 'center',
-            render: (text: any, record: any) => (
+            render: (record: any) => (
                 <Eye
                     color="green"
                     onClick={() => toggleView(record)}

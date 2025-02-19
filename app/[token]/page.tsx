@@ -51,7 +51,7 @@ export default function TokenPage() {
                 console.error('Erro ao decodificar JWT:', error);
             }
         }
-    }, [token, router]);
+    }, [token, router, dispatch]);
 
     return (
         <>

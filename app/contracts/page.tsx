@@ -33,7 +33,9 @@ export default function ContractForm() {
     ) => {
         dispatch(setCurrentContract({ [field]: value }));
     };
+     
 
+    // TODO DELETE ANY
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         dispatch(createContract(currentContract) as any);

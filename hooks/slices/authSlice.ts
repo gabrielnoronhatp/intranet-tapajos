@@ -2,9 +2,10 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface AuthState {
   isAuthenticated: boolean;
-  user: null | { name: any; email: string, profilePicture: any , accessToken: string};
+  user: null | { name: any; email: string, profilePicture: any , accessToken: string ,username: string};
   accessToken: string | null;
   profilePicture: any;
+  username: string | null;
 }
 
 
@@ -19,7 +20,8 @@ const loadInitialState = (): AuthState => {
     isAuthenticated: false,
     user: null,
     accessToken: null,
-    profilePicture: null
+    profilePicture: null,
+    username: null
   };
 };
 
@@ -31,10 +33,10 @@ const authSlice = createSlice({
   reducers: {
     login(
       state,
-      action: PayloadAction<{ name: string; email: string; accessToken: string; profilePicture: any }>
+      action: PayloadAction<{ name: string; email: string; accessToken: string; profilePicture: any, username: string }>
     ) {
       state.isAuthenticated = true;
-      state.user = { name: action.payload.name, email: action.payload.email, profilePicture: action.payload.profilePicture, accessToken: action.payload.accessToken };
+      state.user = { name: action.payload.name, email: action.payload.email, profilePicture: action.payload.profilePicture, accessToken: action.payload.accessToken, username: action.payload.username };
       state.accessToken = action.payload.accessToken;
       state.profilePicture = action.payload.profilePicture;
       
@@ -67,8 +69,8 @@ const authSlice = createSlice({
           localStorage.removeItem('auth');
         }
       }
-    },
-    setUser(state, action: PayloadAction<{ name: string; email: string, profilePicture: any, accessToken: string   }>) {
+        },
+        setUser(state, action: PayloadAction<{ name: string; email: string, profilePicture: any, accessToken: string, username: string }>) {
       state.user = action.payload;
       if (typeof window !== 'undefined') {
         localStorage.setItem('auth', JSON.stringify(state));

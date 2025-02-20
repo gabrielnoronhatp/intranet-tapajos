@@ -24,6 +24,7 @@ interface UploadResponse {
 export default function NoPaper() {
   const dispatch = useDispatch<AppDispatch>();
   const orderData = useSelector((state: any) => state.order);
+  const user = useSelector((state: any) => state.auth.user);
   const [imageUrl, setImageUrl] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -48,8 +49,14 @@ export default function NoPaper() {
     }
 
     try {
+      
+      const orderWithUser = {
+        ...orderData,
+        userOP: user?.username
+      };
+
       // 1. Primeiro, criar a OP
-      const response = await dispatch(submitOrder(orderData));
+      const response = await dispatch(submitOrder(orderWithUser));
       const opId = response.payload?.id;
 
       if (!opId) {

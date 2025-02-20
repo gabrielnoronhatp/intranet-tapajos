@@ -16,7 +16,7 @@ export default function TokenPage() {
 
   const handleCpfConfirm = (cpf: string) => {
     setIsModalOpen(false);
-  };
+  }; 
 
   useEffect(() => {
   
@@ -29,6 +29,7 @@ export default function TokenPage() {
             email: decodedToken.email,
             accessToken: token,
             profilePicture: decodedToken.foto_perfil_url,
+            username: decodedToken.username,
           })
         );
 
@@ -36,11 +37,7 @@ export default function TokenPage() {
           setIsModalOpen(true); 
           return;
         }
-
-       
-        
         router.push("/")
-
       } catch (error) {
         console.error("Erro ao decodificar JWT:", error)
       }

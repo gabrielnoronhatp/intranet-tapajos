@@ -105,7 +105,7 @@ export function PinModal({ isOpen, onClose, onConfirm }: PinModalProps) {
             },
             body: JSON.stringify({
               orderId: orderId,
-              signerName: user?.name,
+              signerName: user?.username,
               token: pinString,
               signatureNumber: signatureNumber,
             }),

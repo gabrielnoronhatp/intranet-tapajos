@@ -7,7 +7,10 @@ import { Label } from "@/components/ui/label";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchContasGerenciais } from "@/hooks/slices/noPaper/noPaperSlice";
-import { setFieldError, clearFieldError } from "@/hooks/slices/noPaper/errorSlice";
+import {
+  setFieldError,
+  clearFieldError,
+} from "@/hooks/slices/noPaper/errorSlice";
 import { Select } from "antd";
 
 export default function FinancialData() {
@@ -36,18 +39,20 @@ export default function FinancialData() {
   const { formErrors } = useSelector((state: any) => state.error);
 
   const validateField = (field: string, value: any) => {
-    if (!value || (typeof value === 'string' && !value.trim())) {
-      dispatch(setFieldError({ 
-        field, 
-        message: `O campo ${field} é obrigatório` 
-      }));
+    if (!value || (typeof value === "string" && !value.trim())) {
+      dispatch(
+        setFieldError({
+          field,
+          message: `O campo ${field} é obrigatório`,
+        })
+      );
     } else {
       dispatch(clearFieldError(field));
     }
   };
 
   useEffect(() => {
-    dispatch(fetchContasGerenciais('') as any);
+    dispatch(fetchContasGerenciais("") as any);
   }, [dispatch]);
 
   const handleFormaPagamentoChange = (value: string) => {
@@ -74,6 +79,25 @@ export default function FinancialData() {
     handleSetState("installmentDates", newDates);
   };
 
+  const handleSetStatePix = (field: string, value: string) => {
+    if (field === "chavepixOP") {
+      const numericValue = value.replace(/\D/g, "");
+      if (numericValue.length === 11) {
+        value = numericValue.replace(
+          /(\d{3})(\d{3})(\d{3})(\d{2})/,
+          "$1.$2.$3-$4"
+        );
+      } else if (numericValue.length === 14) {
+        value = numericValue.replace(
+          /(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,
+          "$1.$2.$3/$4-$5"
+        );
+      } 
+    }
+
+    handleSetState(field, value);
+  };
+
   return (
     <FormSection title="Dados Financeiros">
       <div className="space-y-2">
@@ -88,7 +112,9 @@ export default function FinancialData() {
             { value: "pix", label: "PIX" },
           ]}
         />
-        {formErrors.formaPagamento && <p className="text-red-500 text-xs">{formErrors.formaPagamento}</p>}
+        {formErrors.formaPagamento && (
+          <p className="text-red-500 text-xs">{formErrors.formaPagamento}</p>
+        )}
 
         {metodoOP === "avista" && (
           <div className="space-y-2">
@@ -125,7 +151,9 @@ export default function FinancialData() {
                 <Input
                   type="date"
                   value={installmentDates[index]}
-                  onChange={(e) => handleInstallmentDateChange(index, e.target.value)}
+                  onChange={(e) =>
+                    handleInstallmentDateChange(index, e.target.value)
+                  }
                   className="form-control"
                 />
               </div>
@@ -141,6 +169,7 @@ export default function FinancialData() {
             <Input
               type="text"
               value={bancoOP}
+              maxLength={3}
               onChange={(e) => handleSetState("bancoOP", e.target.value)}
               placeholder="Banco"
               className="form-control"
@@ -151,6 +180,7 @@ export default function FinancialData() {
             <Input
               type="text"
               value={agenciaOP}
+              maxLength={5}
               onChange={(e) => handleSetState("agenciaOP", e.target.value)}
               placeholder="Agência"
               className="form-control"
@@ -161,6 +191,7 @@ export default function FinancialData() {
             <Input
               type="text"
               value={contaOP}
+              maxLength={8}
               onChange={(e) => handleSetState("contaOP", e.target.value)}
               placeholder="Conta"
               className="form-control"
@@ -199,7 +230,7 @@ export default function FinancialData() {
             <Input
               type="text"
               value={chavepixOP}
-              onChange={(e) => handleSetState("chavepixOP", e.target.value)}
+              onChange={(e) => handleSetStatePix("chavepixOP", e.target.value)}
               placeholder="Insira a Chave PIX"
               className="form-control"
             />
@@ -221,28 +252,24 @@ export default function FinancialData() {
         </Label>
         <Select
           className="w-full"
-           showSearch
+          showSearch
           value={contagerencialOP}
-          onChange={(value: string) => handleSetState("contagerencialOP", value)}
+          onChange={(value: string) =>
+            handleSetState("contagerencialOP", value)
+          }
           options={contasGerenciais.map((conta: any) => ({
             value: conta.conta,
             label: conta.conta,
           }))}
-         
-
-         />
-          {contasGerenciais.map((conta: any) => (
+        />
+        {contasGerenciais.map((conta: any) => (
           <Select.Option key={conta.conta} value={conta.conta}>
             {conta.conta}
           </Select.Option>
         ))}
-
-
       </div>
     </FormSection>
   );
 }
 
-
-
-//    
+//

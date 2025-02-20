@@ -15,7 +15,7 @@ export default function NoPaperList() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [searchParams, setSearchParams] = useState<any>({
     id: "",
-    numero_nota: "",
+    número_nota: "",
     conta_gerencial: "",
     fornecedor: "",
     startDate: "",

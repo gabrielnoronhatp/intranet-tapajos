@@ -8,6 +8,7 @@ import {
 } from "@/types/noPaper/Order/OrderTypes";
 import toast from "react-hot-toast";
 import { format } from "date-fns";
+import { RootState } from '@/hooks/store';
 
 const initialState = {
   dtlanc: "",
@@ -50,9 +51,17 @@ const initialState = {
 
 export const submitOrder = createAsyncThunk(
   "order/submitOrder",
-  async (orderData: OrderData, { rejectWithValue }) => {
+  async (orderData: OrderData, { getState, rejectWithValue }) => {
     try {
-      const response = await api.post("cadastrar-ordem", orderData);
+      const state = getState() as RootState;
+      const username = state.auth.user?.username;
+
+      const orderWithUser = {
+        ...orderData,
+        userOP: username
+      };
+
+      const response = await api.post("cadastrar-ordem", orderWithUser);
       if (response.status === 200 || response.status === 201) {
         toast.success("Pedido enviado com sucesso!");
         setTimeout(() => {

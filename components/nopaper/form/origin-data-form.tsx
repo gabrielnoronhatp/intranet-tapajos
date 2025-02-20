@@ -125,6 +125,7 @@
             <Input
               placeholder={documentType === "nota" ? "Nota" : "Identificador"}
               value={notaOP}
+              maxLength={50}
               className="w-full p-2 border rounded"
               onChange={(e) => handleFieldChange("notaOP", e.target.value)}
             />
@@ -135,6 +136,7 @@
               <Input
                 placeholder="Série"
                 value={serieOP}
+                maxLength={10}
                 className="w-full p-2 border rounded"
                 onChange={(e) => handleFieldChange("serieOP", e.target.value)}
               />

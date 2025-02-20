@@ -8,7 +8,7 @@ import {
 } from "@/types/noPaper/Order/OrderTypes";
 import toast from "react-hot-toast";
 import { format } from "date-fns";
-import { RootState } from '@/hooks/store';
+import { RootState } from "@/hooks/store";
 
 const initialState = {
   dtlanc: "",
@@ -42,7 +42,7 @@ const initialState = {
   opcaoLancOP: null,
   ccustoOP: [
     {
-      centrocusto:  0,
+      centrocusto: 0,
       valor: 0,
     },
   ],
@@ -58,7 +58,7 @@ export const submitOrder = createAsyncThunk(
 
       const orderWithUser = {
         ...orderData,
-        userOP: username
+        userOP: username,
       };
 
       const response = await api.post("cadastrar-ordem", orderWithUser);
@@ -68,12 +68,12 @@ export const submitOrder = createAsyncThunk(
           window.location.href = '/noPaper/list';
         }, 1000);
         return response.data;
-      } else if(response.status === 500){
+      } else if (response.status === 500) {
         toast.error("Erro ao enviar o pedido" + response.data.message);
         return rejectWithValue("Erro ao enviar o pedido.");
       }
     } catch (error: any) {
-      toast.error('Error: ' + error.response.data.message);
+      toast.error("Error: " + error.response.data.message);
       return rejectWithValue(error.response.data);
     }
   }
@@ -98,11 +98,15 @@ const orderSlice = createSlice({
         };
       });
 
+      const isSingleInstallment = ["avista", "deposito", "pix"].includes(
+        rest.formaPagamento
+      );
+
       state = {
         dtlanc: format(rest.dtlanc, "yyyy-MM-dd"),
         ramoOP: rest.ramo || null,
         notaOP: rest.notaFiscal || null,
-        qtparcelasOP: rest.installments || null,
+        qtparcelasOP: isSingleInstallment ? 1 : rest.installments || null,
         contagerencialOP: rest.contaOP || null,
         fornecedorOP: rest.fornecedorOP || null,
         lojaOP: rest.lojaOP || null,

@@ -33,6 +33,10 @@ export default function OriginData() {
         dispatch(setOrderState({ fornecedorOP: value }));
     };
 
+    const handleSelectFilialChange = (value: string) => {
+        dispatch(setOrderState({ lojaOP: value }));
+    };
+
     useEffect(() => {
         setOrderState({
             ramoOP,
@@ -146,10 +150,12 @@ export default function OriginData() {
 
                 <div className="space-y-4">
                     <FilialSelect
+                        fieldValue={lojaOP}
                         validate={true}
                         handleSetState={(value: string) =>
                             handleFieldChange(lojaOP, value)
                         }
+                        handleSelectChange={handleSelectFilialChange}
                     />
                     <FornecedorSelect
                         handleSetState={(value: any) =>

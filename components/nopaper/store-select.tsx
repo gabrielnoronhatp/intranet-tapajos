@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { Label } from '@/components/ui/label';
-import { fetchFiliais } from '@/hooks/slices/noPaper/noPaperSlice';
+import { fetchFiliais, fetchLojas } from '@/hooks/slices/noPaper/noPaperSlice';
 import { setOrderState } from '@/hooks/slices/noPaper/orderSlice';
 import { RootState } from '@/hooks/store';
 import { Select } from 'antd';
@@ -32,6 +32,7 @@ export const FilialSelect = ({
         dispatch(
             fetchFiliais({ query: localSearchQuery, ramo: '' }) as any
         );
+        
     }, [dispatch, localSearchQuery]);
 
     useEffect(() => {

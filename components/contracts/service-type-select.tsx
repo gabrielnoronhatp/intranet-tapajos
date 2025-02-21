@@ -1,10 +1,11 @@
 'use client';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Label } from '@/components/ui/label';
-import { Select } from 'antd';
+import { Select, message } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/hooks/store';
 import { fetchServiceTypes, setCurrentContract } from '@/hooks/slices/contracts/contractSlice';
+import { createServiceType } from '@/hooks/slices/noPaper/noPaperSlice';
 
 interface ServiceTypeSelectProps {
     handleSetState: (key: string, value: string) => void;
@@ -21,6 +22,7 @@ export const ServiceTypeSelect = ({
     const { serviceTypes, loading, currentContract } = useSelector(
         (state: RootState) => state.contracts
     );
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         // TODO: FOUND A WAY TO DELETE THIS ANY
@@ -37,6 +39,19 @@ export const ServiceTypeSelect = ({
         );
     };
 
+    const handleCreateType = async (input: string) => {
+        setIsLoading(true);
+        try {
+            const result = await dispatch(createServiceType(input) as any   ).unwrap();
+            handleSelectChange(result.id);
+            message.success('Tipo de serviço criado com sucesso!');
+        } catch (error) {
+            message.error('Erro ao criar tipo de serviço');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const options = Object.entries(serviceTypes).map(([id, descricao]) => ({
         value: id,
         label: descricao,
@@ -48,6 +63,7 @@ export const ServiceTypeSelect = ({
                 Tipo de Serviço
             </Label>
             <Select
+                id="tipo"
                 showSearch
                 placeholder="Selecione o tipo de serviço"
                 optionFilterProp="children"

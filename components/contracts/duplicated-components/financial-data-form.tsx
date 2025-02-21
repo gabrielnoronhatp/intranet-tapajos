@@ -83,9 +83,9 @@ export default function FinancialData() {
                     value={forma_pag}
                     onChange={handleFormaPagamentoChange}
                     options={[
-                        { value: 'avista', label: 'À VISTA' },
-                        { value: 'deposito', label: 'DEPÓSITO' },        
-                        { value: 'pix', label: 'PIX' },
+                        { value: 'boleto    ', label: 'Boleto' },
+                        { value: 'deposito', label: 'Depósito' },        
+                        { value: 'pix', label: 'Pix' },
                     ]}
                 />
               
@@ -104,41 +104,7 @@ export default function FinancialData() {
                     </div>
                 )}
 
-                {forma_pag=== 'boleto' && (
-                    <div className="space-y-2">
-                        <Label className="text-xs font-semibold text-primary uppercase">
-                            Número de Parcelas
-                        </Label>
-                        <Input
-                            type="number"
-                            value={qtparcelas}
-                            onChange={handleInstallmentsChange}
-                            min={1}
-                            max={12}
-                            className="form-control"
-                        />
-                        {Array.from({ length: qtparcelas }).map(
-                            (_, index) => (
-                                <div key={index} className="space-y-1">
-                                    <Label className="text-xs font-semibold text-primary uppercase">
-                                        Data de Vencimento {index + 1}
-                                    </Label>
-                                    <Input
-                                        type="date"
-                                        value={installmentDates[index]}
-                                        onChange={(e) =>
-                                            handleInstallmentDateChange(
-                                                index,
-                                                e.target.value
-                                            )
-                                        }
-                                        className="form-control"
-                                    />
-                                </div>
-                            )
-                        )}
-                    </div>
-                )}
+              
 
                 {forma_pag === 'deposito' && (
                     <div className="space-y-2">
@@ -178,17 +144,7 @@ export default function FinancialData() {
                             placeholder="Conta"
                             className="form-control"
                         />
-                        <Label className="text-xs font-semibold text-primary uppercase">
-                            Data de Depósito
-                        </Label>
-                        <Input
-                            type="date"
-                            value={dtdeposito}
-                            onChange={(e) =>
-                                handleSetState('dtdeposito', e.target.value)
-                            }
-                            className="form-control"
-                        />
+                      
                     </div>
                 )}
 
@@ -222,17 +178,7 @@ export default function FinancialData() {
                             placeholder="Insira a Chave PIX"
                             className="form-control"
                         />
-                        <Label className="text-xs font-semibold text-primary uppercase">
-                            Data de Pagamento PIX
-                        </Label>
-                        <Input
-                            type="date"
-                            value={datapix}
-                            onChange={(e) =>
-                                handleSetState('datapix', e.target.value)
-                            }
-                            className="form-control"
-                        />
+                    
                     </div>
                 )}
             </div>

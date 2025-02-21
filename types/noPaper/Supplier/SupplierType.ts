@@ -20,6 +20,7 @@ export interface ICentroCusto {
     centrocusto: string;
 }
 export interface NoPaperState {
+    lojas: IFilial[];
     fornecedores: IFornecedor[];
     filiais: IFilial[];
     searchQuery: string;

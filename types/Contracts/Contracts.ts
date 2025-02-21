@@ -1,6 +1,6 @@
 export interface IContract {
     id?: number;
-    idtipo: string;
+    idtipo: any;
     idfilial: string;
     idfornecedor: string;
     nome: string;
@@ -19,6 +19,7 @@ export interface IContract {
     chave_pix?: string;
     valor_multa?: number | null;
     percentual_multa?: number | null;
+    valor_contrato?: number | null;
     obs1?: string;
     obs2?: string;
     datalanc?: string; // Date will be handled as string in frontend

@@ -85,16 +85,16 @@ export function Navbar({ onToggleSidebar }: NavbarProps) {
                                 {user.profilePicture ? (
                                     <span
                                         className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-300 text-white font-semibold"
-                                        title={user.name}
+                                        title={user.nome}
                                     >
-                                        {getInitials(user.name)}
+                                        {getInitials(user.nome)}
                                     </span>
                                 ) : (
                                     <span
                                         className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-300 text-white font-semibold"
-                                        title={user.name}
+                                        title={user.nome}
                                     >
-                                        {getInitials(user.name)}
+                                        {getInitials(user.nome)}
                                     </span>
                                 )}
                             </div>

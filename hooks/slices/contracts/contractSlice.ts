@@ -41,7 +41,11 @@ export const createContract = createAsyncThunk(
         try {
             const response = await apiDev.post('contracts/', contractData);
             toast.success('Contrato cadastrado com sucesso!');
+            setTimeout(() => {
+                window.location.href = '/contracts/list';
+            }, 1000);
             return response.data;
+            
         } catch (error: any) {
             toast.error('Erro ao cadastrar contrato: ' + error.message);
             throw error;

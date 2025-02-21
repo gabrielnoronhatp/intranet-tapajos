@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { Button, Input, Select, Upload, Radio } from 'antd';
 import { FilialSelect } from '@/components/nopaper/store-select';
@@ -18,6 +18,7 @@ import {
 } from '@/hooks/slices/contracts/contractSlice';
 import { RootState } from '@/hooks/store';
 import { ServiceTypeSelect } from '@/components/contracts/service-type-select';
+import { fetchLojas } from '@/hooks/slices/noPaper/noPaperSlice';
 
 export default function ContractForm() {
     const dispatch = useDispatch();
@@ -27,6 +28,8 @@ export default function ContractForm() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [tipoMulta, setTipoMulta] = useState<'valor' | 'percentual'>('valor');
     const [error, setError] = useState<string | null>(null);
+    const { lojas } = useSelector((state: RootState) => state.noPaper);
+
     const handleSetState = (
         field: string,
         value: string | number | Array<any>
@@ -48,7 +51,13 @@ export default function ContractForm() {
     const handleSelectFilialChange = (value: string) => {
         dispatch(setCurrentContract({ idfilial: value }));
     };
-
+   
+   
+    useEffect(() => {
+        dispatch(fetchLojas() as any);
+       
+    }, []);
+     
     return (
         <AuthGuard>
             <div className="min-h-screen bg-background p-4">
@@ -70,7 +79,7 @@ export default function ContractForm() {
                                         handleSetState={handleSetState}
                                         fieldValue={currentContract.idtipo}
                                         handleSelectChange={(value) =>
-                                            handleSetState('idtipo', value)
+                                            handleSetState('idtipo', value.toString())
                                         }
                                     />
                                     <FornecedorSelect
@@ -82,14 +91,20 @@ export default function ContractForm() {
                                         }
                                         handleSetState={handleSetState}
                                     />
-
-                                    <FilialSelect
-                                        handleSetState={handleSetState}
-                                        validate={false}
-                                        fieldValue={currentContract.idfilial}
-                                        handleSelectChange={
-                                            handleSelectFilialChange
-                                        }
+                                   <div className='text-sm font-medium text-[#11833B] uppercase'> 
+                                   SELECIONE A FILIAL
+                                     </div>
+                                  
+                                    <Select
+                                        id="filial"
+                                        placeholder="Selecione a Filial"
+                                        value={currentContract.idfilial}
+                                        onChange={handleSelectFilialChange}
+                                        options={lojas.map(filial => ({
+                                            value: filial.loja,
+                                            label: `${filial.loja}`
+                                        }))}
+                                        className="w-full mb-4"
                                     />
                                 </FormSection>
 
@@ -188,12 +203,12 @@ export default function ContractForm() {
                                             htmlFor="dia_vencimento"
                                             className="block text-sm font-medium text-[#11833B] uppercase"
                                         >
-                                            Período
+                                            Dia do Vencimento
                                         </label>
                                         <Input
                                             id="dia_vencimento"
                                             type="number"
-                                            placeholder="Período"
+                                            placeholder="Dia do Vencimento"
                                             onChange={(e) => {
                                                 const value = parseInt(
                                                     e.target.value,
@@ -202,7 +217,7 @@ export default function ContractForm() {
                                                 if (value >= 1 && value <= 31) {
                                                     handleSetState(
                                                         'dia_vencimento',
-                                                        value
+                                                        value.toString()
                                                     );
                                                     setError(null); // Limpa a mensagem de erro
                                                 } else {
@@ -324,7 +339,7 @@ export default function ContractForm() {
                                                 htmlFor="data_venc_contrato"
                                                 className="block text-sm font-medium text-[#11833B] uppercase"
                                             >
-                                                Vencimento
+                                                Data fim do contrato
                                             </label>
                                             <Input
                                                 id="data_venc_contrato"
@@ -391,12 +406,12 @@ export default function ContractForm() {
                                                 listType="picture-card"
                                                 className="avatar-uploader mb-4"
                                                 showUploadList={true}
-                                                onChange={(info) =>
-                                                    handleSetState(
-                                                        'upload',
-                                                        info.fileList
-                                                    )
-                                                }
+                                                // onChange={(info) =>
+                                                //     handleSetState(
+                                                //         'upload',
+                                                //         info.fileList
+                                                //     )
+                                                // }
                                             >
                                                 <div>
                                                     <div

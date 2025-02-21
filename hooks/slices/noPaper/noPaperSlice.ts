@@ -1,4 +1,4 @@
-import { api } from '@/app/service/api';
+import { api, apiDev } from '@/app/service/api';
 import { NoPaperState } from '@/types/noPaper/Supplier/SupplierType';
 import { createSlice, createAsyncThunk, createAction } from '@reduxjs/toolkit';
 
@@ -12,6 +12,7 @@ const initialState: NoPaperState = {
     centrosCustoOptions: [],
     loading: false,
     error: null,
+    lojas: [],
 };
 
 export const fetchFornecedores = createAsyncThunk(
@@ -42,6 +43,15 @@ export const uploadFiles = createAsyncThunk(
     }
 );
 
+
+export const fetchLojas = createAsyncThunk(
+    'noPaper/fetchLojas',
+    async () => {
+        const response = await api.get(`dadoslojas`);
+         return response.data;
+    }
+);
+
 export const fetchFiliais = createAsyncThunk(
     'noPaper/fetchFiliais',
     async ({ query, ramo }: { query: string; ramo: string }) => {
@@ -53,7 +63,6 @@ export const fetchFiliais = createAsyncThunk(
 export const fetchContasGerenciais = createAsyncThunk(
     'noPaper/fetchContasGerenciais',
     async (query: string = '') => {
-        const sanitizedQuery = query.trim();
         const response = await api.get(`dadoscontager`);
         return response.data;
     }
@@ -64,6 +73,14 @@ export const fetchCentrosCusto = createAsyncThunk(
     async (query: string = '') => {
         const sanitizedQuery = query.trim();
         const response = await api.get(`dadosccusto?q=${sanitizedQuery}`);
+        return response.data;
+    }
+);
+
+export const createServiceType = createAsyncThunk(
+    'noPaper/createServiceType',
+    async (descricao: string) => {
+        const response = await apiDev.post('service-types/', { descricao });
         return response.data;
     }
 );
@@ -135,7 +152,14 @@ const noPaperSlice = createSlice({
             })
             .addCase(setSignatureNumber, (state, action) => {
                 state.signatureNumber = action.payload;
+            })
+            .addCase(fetchLojas.fulfilled, (state, action) => {
+                state.lojas = action.payload;
+            })
+            .addCase(createServiceType.fulfilled, (state, action) => {
+                state.loading = false;
             });
+            
     },
 });
 

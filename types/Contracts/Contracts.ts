@@ -30,6 +30,7 @@ export interface IContract {
     chavepix?: string;
     datapix?: string;
     opcao_lanc?: string;
+    files?: IFile[];
     ccusto?: string;
     banco?: string;
     
@@ -45,4 +46,12 @@ export enum TipoServico {
 export enum IndiceType {
     PCE = 'PCE',
     IGPM = 'IGP-M',
+}
+
+export interface IFile {
+    filename: string;
+    file_url: string;
+    size: number;
+    last_modified: string;
+    contract_id: number;
 }

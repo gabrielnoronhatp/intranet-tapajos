@@ -1,21 +1,17 @@
 'use client';
 import React, { useState } from 'react';
-import { setOrderState } from '@/hooks/slices/noPaper/orderSlice';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchContasGerenciais } from '@/hooks/slices/noPaper/noPaperSlice';
 import {
     setFieldError,
     clearFieldError,
 } from '@/hooks/slices/noPaper/errorSlice';
-import { Select } from 'antd';
 import { RootState } from '@/hooks/store';
 import { SelectField } from '@/components/nopaper/select-field';
 import { FormSection } from '@/components/nopaper/form-section';
 import { setCurrentContract } from '@/hooks/slices/contracts/contractSlice';
-import { OrderState } from '@/types/noPaper/Order/OrderTypes';
+
 
 export default function FinancialData() {
     const dispatch = useDispatch();
@@ -156,7 +152,7 @@ export default function FinancialData() {
                         <SelectField
                             value={tipopix}
                             onChange={(value: string) =>
-                                handleSetState('tipopix', value)
+                                handleSetState('tipo_chave_pix', value)
                             }
                             options={[
                                 { value: 'cpf/cnpj', label: 'CPF/CNPJ' },
@@ -173,7 +169,7 @@ export default function FinancialData() {
                             type="text"
                             value={chavepix}
                             onChange={(e) =>
-                                handleSetState('chavepix', e.target.value)
+                                handleSetState('chave_pix', e.target.value)
                             }
                             placeholder="Insira a Chave PIX"
                             className="form-control"

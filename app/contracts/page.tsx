@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Input, Select, Upload, Radio } from 'antd';
 import { FilialSelect } from '@/components/nopaper/store-select';
 import { FornecedorSelect } from '@/components/nopaper/supplier-select';
@@ -15,10 +14,12 @@ import { Sidebar } from '@/components/layout/sidebar';
 import {
     setCurrentContract,
     createContract,
+    uploadContractFile,
 } from '@/hooks/slices/contracts/contractSlice';
 import { RootState } from '@/hooks/store';
 import { ServiceTypeSelect } from '@/components/contracts/service-type-select';
 import { fetchLojas } from '@/hooks/slices/noPaper/noPaperSlice';
+import { toast } from 'react-hot-toast';
 
 export default function ContractForm() {
     const dispatch = useDispatch();
@@ -29,6 +30,7 @@ export default function ContractForm() {
     const [tipoMulta, setTipoMulta] = useState<'valor' | 'percentual'>('valor');
     const [error, setError] = useState<string | null>(null);
     const { lojas } = useSelector((state: RootState) => state.noPaper);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
     const handleSetState = (
         field: string,
@@ -38,10 +40,18 @@ export default function ContractForm() {
     };
      
 
-    // TODO DELETE ANY
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        dispatch(createContract(currentContract) as any);
+        try {
+            const resultAction = await dispatch(createContract(currentContract) as any);
+            const newContractId = resultAction.payload.id;
+
+            if (newContractId && selectedFile) {
+                await dispatch(uploadContractFile({ contractId: newContractId, file: selectedFile }) as any);
+            }
+        } catch (error) {
+            toast.error('Erro ao cadastrar contrato ou enviar arquivo.');
+        }
     };
 
     const handleSelectSupplierChange = (value: string) => {
@@ -58,6 +68,11 @@ export default function ContractForm() {
        
     }, []);
      
+
+    const handleFileChange = (file: File) => {
+        setSelectedFile(file);
+    };
+
     return (
         <AuthGuard>
             <div className="min-h-screen bg-background p-4">
@@ -139,6 +154,7 @@ export default function ContractForm() {
                                             </label>
                                             <Input
                                                 id="telefone1"
+                                                type="number"
                                                 placeholder="Telefone"
                                                 value={
                                                     currentContract.telefone1
@@ -406,12 +422,10 @@ export default function ContractForm() {
                                                 listType="picture-card"
                                                 className="avatar-uploader mb-4"
                                                 showUploadList={true}
-                                                // onChange={(info) =>
-                                                //     handleSetState(
-                                                //         'upload',
-                                                //         info.fileList
-                                                //     )
-                                                // }
+                                                beforeUpload={(file) => {
+                                                    handleFileChange(file);
+                                                    return false;
+                                                }}
                                             >
                                                 <div>
                                                     <div

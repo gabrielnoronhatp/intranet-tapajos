@@ -73,6 +73,41 @@ export const fetchServiceTypes = createAsyncThunk(
     }
 );
 
+export const uploadContractFile = createAsyncThunk(
+    'contracts/uploadContractFile',
+    async ({ contractId, file }: { contractId: number; file: File }) => {
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const response = await apiDev.post(`contracts/${contractId}/files`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            toast.success('Arquivo enviado com sucesso!');
+            return response.data;
+        } catch (error: any) {
+            toast.error('Erro ao enviar arquivo: ' + error.message);
+            throw error;
+        }
+    }
+);
+
+export const fetchContractFiles = createAsyncThunk(
+    'contracts/fetchContractFiles',
+    async (contractId: number) => {
+        try {
+            const response = await apiDev.get(`contracts/${contractId}/files`);
+            return { contractId, files: response.data };
+        } catch (error: any) {
+            toast.error('Erro ao buscar arquivos do contrato: ' + error.message);
+            throw error;
+        }
+    }
+);
+
 const contractSlice = createSlice({
     name: 'contracts',
     initialState,
@@ -125,6 +160,13 @@ const contractSlice = createSlice({
             .addCase(fetchServiceTypes.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.error.message || 'Erro ao buscar tipos de serviço';
+            })
+            .addCase(fetchContractFiles.fulfilled, (state, action) => {
+                const { contractId, files } = action.payload;
+                const contract = state.contracts.find(c => c.id === contractId);
+                if (contract) {
+                    contract.files = files;
+                }
             });
     },
 });

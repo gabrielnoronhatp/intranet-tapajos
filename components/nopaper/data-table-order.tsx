@@ -70,8 +70,21 @@ export function DataTableOrder({
         if (!isViewOpen) {
             try {
                 const response = await api.get(`arquivos/${item.id}`);
-                if (response.data.files && Array.isArray(response.data.files)) {
-                    setFileUrls(response.data.files);
+                console.log(response.data);
+
+                if (
+                    response.data &&
+                    response.data.urls &&
+                    Array.isArray(response.data.urls)
+                ) {
+                    // Mapeia as URLs para o formato esperado
+                    const formattedUrls = response.data.urls.map(
+                        (url: string) => ({
+                            url: url,
+                            name: url.split('/').pop() || 'file', // Extrai o nome do arquivo da URL
+                        })
+                    );
+                    setFileUrls(formattedUrls);
                 } else {
                     setFileUrls([]);
                 }
@@ -191,7 +204,10 @@ export function DataTableOrder({
             key: 'acoes',
             align: 'center',
             render: (record: any) => {
-                const hasSignature = record.assinatura1 || record.assinatura2 || record.assinatura3;
+                const hasSignature =
+                    record.assinatura1 ||
+                    record.assinatura2 ||
+                    record.assinatura3;
                 return (
                     <>
                         <Eye
@@ -200,9 +216,16 @@ export function DataTableOrder({
                             style={{ cursor: 'pointer', marginRight: 8 }}
                         />
                         <Edit
-                            color={hasSignature ? "gray" : "green"}
-                            onClick={() => !hasSignature && navigateToEditPage(record.id)}
-                            style={{ cursor: hasSignature ? 'not-allowed' : 'pointer', marginRight: 8 }}
+                            color={hasSignature ? 'gray' : 'green'}
+                            onClick={() =>
+                                !hasSignature && navigateToEditPage(record.id)
+                            }
+                            style={{
+                                cursor: hasSignature
+                                    ? 'not-allowed'
+                                    : 'pointer',
+                                marginRight: 8,
+                            }}
                         />
                     </>
                 );
@@ -299,7 +322,13 @@ export function DataTableOrder({
                                         </h3>
                                         <div className="grid grid-cols-1 gap-2">
                                             {fileUrls.map(
-                                                (file: any, index: number) => (
+                                                (
+                                                    file: {
+                                                        url: string;
+                                                        name: string;
+                                                    },
+                                                    index: number
+                                                ) => (
                                                     <div
                                                         key={index}
                                                         className="flex items-center justify-between p-2 bg-gray-50 rounded hover:bg-gray-100"
@@ -308,16 +337,9 @@ export function DataTableOrder({
                                                             <span className="truncate">
                                                                 {file.name}
                                                             </span>
-                                                            <span className="text-xs text-gray-500">
-                                                                {file.size &&
-                                                                    `${(file.size / 1024 / 1024).toFixed(2)} MB`}
-                                                                {file.lastModified &&
-                                                                    ` • ${new Date(file.lastModified).toLocaleDateString()}`}
-                                                            </span>
                                                         </div>
                                                         <a
                                                             href={file.url}
-                                                            download={file.name}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
                                                             className="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600"

@@ -26,7 +26,7 @@ export const fetchContracts = createAsyncThunk(
             const query = searchParams
                 ? new URLSearchParams(searchParams).toString()
                 : '';
-            const response = await apiDev.get(`contracts${query}/`);
+            const response = await apiDev.get(`contracts?${query}`);
             return response.data;
         } catch (error: any) {
             toast.error('Erro ao buscar contratos: ' + error.message);
@@ -102,7 +102,7 @@ export const fetchContractFiles = createAsyncThunk(
             const response = await apiDev.get(`contracts/${contractId}/files`);
             return { contractId, files: response.data };
         } catch (error: any) {
-            toast.error('Erro ao buscar arquivos do contrato: ' + error.message);
+            // toast.error('Erro ao buscar arquivos do contrato: ' + error.message);
             throw error;
         }
     }
@@ -125,11 +125,38 @@ export const updateContract = createAsyncThunk(
     'contracts/updateContract',
     async ({ contractId, contractData }: { contractId: number; contractData: Partial<IContract> }) => {
         try {
-            const response = await apiDev.put(`contracts/${contractId}`, contractData);
+            // Criar uma cópia do objeto para evitar erros ao deletar propriedades
+            const updatedContractData = { ...contractData };
+
+            // Remover o campo 'id' se ele estiver presente
+            delete updatedContractData.id;
+
+            // Remover campos desnecessários dependendo da forma de pagamento
+            if (updatedContractData.forma_pag === 'pix') {
+                delete updatedContractData.banco;
+                delete updatedContractData.agencia;
+                delete updatedContractData.conta;
+            }
+
+            const response = await apiDev.put(`contracts/${contractId}`, updatedContractData);
             toast.success('Contrato atualizado com sucesso!');
             return response.data;
         } catch (error: any) {
             toast.error('Erro ao atualizar contrato: ' + error.message);
+            throw error;
+        }
+    }
+);
+
+export const cancelContract = createAsyncThunk(
+    'contracts/cancelContract',
+    async (contractId: number) => {
+        try {
+            const response = await apiDev.put(`contracts/${contractId}`, { cancelado: true });
+            toast.success('Contrato cancelado com sucesso!');
+            return response.data;
+        } catch (error: any) {
+            toast.error('Erro ao cancelar contrato: ' + error.message);
             throw error;
         }
     }
@@ -142,7 +169,8 @@ const contractSlice = createSlice({
         setCurrentContract: (state, action) => {
             state.currentContract = {
                 ...state.currentContract,
-                ...action.payload
+                ...action.payload,
+                userlanc: action.payload.userlanc || state.currentContract.userlanc,
             };
         },
         clearCurrentContract: (state) => {
@@ -200,6 +228,13 @@ const contractSlice = createSlice({
             })
             .addCase(updateContract.fulfilled, (state, action) => {
                 state.currentContract = action.payload;
+            })
+            .addCase(cancelContract.fulfilled, (state, action) => {
+                const updatedContract = action.payload;
+                const index = state.contracts.findIndex(c => c.id === updatedContract.id);
+                if (index !== -1) {
+                    state.contracts[index] = updatedContract;
+                }
             });
     },
 });

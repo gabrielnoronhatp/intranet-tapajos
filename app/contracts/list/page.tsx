@@ -1,39 +1,88 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Table as AntdTable, Input, Button } from 'antd';
-import { api, apiDev } from '@/app/service/api';
+import { Table as AntdTable, Input, DatePicker, Button, Modal } from 'antd';
+import { apiDev } from '@/app/service/api';
 import { Navbar } from '@/components/layout/navbar';
 import { Sidebar } from '@/components/layout/sidebar';
 import { FloatingActionButton } from '@/components/nopaper/floating-action-button';
 import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
 import { IContract } from '@/types/Contracts/Contracts';
-import { fetchContracts, fetchServiceTypes } from '@/hooks/slices/contracts/contractSlice';
+import {
+    fetchContracts,
+    fetchServiceTypes,
+    cancelContract,
+} from '@/hooks/slices/contracts/contractSlice';
 import { RootState } from '@/hooks/store';
 import { useDispatch, useSelector } from 'react-redux';
-import { Eye, Edit } from 'lucide-react';
+import { Eye, Edit, FileWarning  } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { debounce } from 'lodash';
 
 export default function ContractList() {
-    const [searchParams, setSearchParams] = useState<Record<string, string>>({});
+    const [searchParams, setSearchParams] = useState<Record<string, string>>(
+        {}
+    );
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isViewOpen, setIsViewOpen] = useState(false);
-    const [selectedContract, setSelectedContract] = useState<IContract | null>(null);
+    const [selectedContract, setSelectedContract] = useState<IContract | null>(
+        null
+    );
+    const [fileUrls, setFileUrls] = useState<
+        Array<{ url: string; name: string }>
+    >([]);
 
     const dispatch = useDispatch();
-    const contracts = useSelector((state: RootState) => state.contracts.contracts);
-    const serviceTypes = useSelector((state: RootState) => state.contracts.serviceTypes);
+    const contracts = useSelector(
+        (state: RootState) => state.contracts.contracts
+    );
+    const serviceTypes = useSelector(
+        (state: RootState) => state.contracts.serviceTypes
+    );
     const loading = useSelector((state: RootState) => state.contracts.loading);
     const router = useRouter();
 
     useEffect(() => {
-          //  TODO DELETE ANY
-           dispatch(fetchContracts(searchParams) as any);
-           dispatch(fetchServiceTypes() as any);
+        const params: any = new URLSearchParams(searchParams).toString();
+        dispatch(fetchContracts(params) as any);
+        dispatch(fetchServiceTypes() as any);
     }, [dispatch, searchParams]);
 
+    const handleFilterChange = debounce((key: string, value: string) => {
+        setSearchParams((prev) => {
+            const newParams = { ...prev, [key]: value };
+            if (!value) {
+                delete newParams[key];
+            }
+            return newParams;
+        });
+    }, 300);
 
+    const sortedContracts = [...contracts].sort(
+        (a: IContract, b: IContract) => {
+            const dateA = new Date(a.datalanc || '').getTime();
+            const dateB = new Date(b.datalanc || '').getTime();
+            return dateB - dateA;
+        }
+    );
 
+    const handleCancelContract = async (contractId: any) => {
+        try {
+            await dispatch(cancelContract(contractId) as any);
+        } catch (error) {
+            console.error('Erro ao cancelar contrato:', error);
+        }
+    };
+
+    const confirmCancelContract = (contractId:any) => {
+        Modal.confirm({
+            title: 'Confirmar Cancelamento',
+            content: 'Você tem certeza que deseja cancelar este contrato?',
+            okText: 'Sim',
+            cancelText: 'Não',
+            onOk: () => handleCancelContract(contractId),
+        });
+    };
 
     const columns = [
         {
@@ -61,27 +110,58 @@ export default function ContractList() {
             key: 'acoes',
             render: (record: IContract) => (
                 <>
-                    <Eye
+                    {!record.cancelado && (
+                        <>
+                            <Eye
+                                color="green"
+                                onClick={() => handleViewContract(record)}
+                                style={{ cursor: 'pointer', marginRight: 8 }}
+                            />
+                            <Edit
+                                color="green"
+                                onClick={() =>
+                                    router.push(`/contracts/edit/${record.id}`)
+                                }
+                                style={{ cursor: 'pointer' }}
+                            />
+                        </>
+                    )}
+                    <FileWarning
                         color="green"
-                        onClick={() => handleViewContract(record)}
-                        style={{ cursor: 'pointer', marginRight: 8 }}
-                    />
-                    <Edit
-                        color="green"
-                        onClick={() => router.push(`/contracts/edit/${record.id}`)}
-                        style={{ cursor: 'pointer' }}
+                        onClick={() => confirmCancelContract(record.id)}
                     />
                 </>
             ),
         },
     ];
-    
 
-    const handleViewContract = (contract: IContract) => {
+    const handleViewContract = async (contract: IContract) => {
         setSelectedContract(contract);
         setIsViewOpen(true);
-    };
 
+        try {
+            const response = await apiDev.get(`contracts/${contract.id}/files`);
+            console.log(response.data);
+
+            if (
+                response.data &&
+                response.data.files &&
+                Array.isArray(response.data.files)
+            ) {
+                // Mapeia os arquivos para o formato esperado
+                const formattedUrls = response.data.files.map((file: any) => ({
+                    url: file.file_url,
+                    name: file.filename || 'file',
+                }));
+                setFileUrls(formattedUrls);
+            } else {
+                setFileUrls([]);
+            }
+        } catch (error) {
+            console.error('Error fetching documents:', error);
+            setFileUrls([]);
+        }
+    };
     return (
         <AuthGuard>
             <div className="min-h-screen bg-background">
@@ -104,12 +184,47 @@ export default function ContractList() {
                             </div>
                         </div>
 
+                        <div className="mb-4">
+                            <Input
+                                placeholder="Tipo de Serviço"
+                                onChange={(e) =>
+                                    handleFilterChange('descricao_tipo', e.target.value)
+                                }
+                                style={{ width: 200, marginRight: 8 }}
+                            />
+                            <Input
+                                placeholder="Nome"
+                                onChange={(e) =>
+                                    handleFilterChange('nome', e.target.value)
+                                }
+                                style={{ width: 200, marginRight: 8 }}
+                            />
+                           
+                            <DatePicker
+                                placeholder="Vencimento"
+                                onChange={(date, dateString: any) =>
+                                    handleFilterChange(
+                                        'data_venc_contrato',
+                                        dateString
+                                    )
+                                }
+                                style={{ marginRight: 8 }}
+                            />
+                            <DatePicker
+                                placeholder="Data de Lançamento"
+                                onChange={(date, dateString: any) =>
+                                    handleFilterChange('datalanc', dateString)
+                                }
+                            />
+                        </div>
+
                         <AntdTable
                             columns={columns}
-                            dataSource={contracts}
+                            dataSource={sortedContracts}
                             rowKey="id"
                             pagination={false}
                             loading={loading}
+                            rowClassName={(record) => (record.cancelado ? 'contract-cancelled' : '')}
                         />
                         <FloatingActionButton href="/contracts" />
 
@@ -118,20 +233,94 @@ export default function ContractList() {
                                 <div className="bg-white p-5 rounded-lg shadow-lg w-[700px] max-h-[80vh] overflow-y-auto mt-20">
                                     <div className="grid gap-6">
                                         <div>
-                                            <h2 className="text-lg font-bold">Detalhes do Contrato</h2>
-                                            <p>Tipo de Serviço: {serviceTypes[selectedContract.idtipo] || 'Tipo não encontrado'}</p>
+                                            <h2 className="text-lg font-bold">
+                                                Detalhes do Contrato
+                                            </h2>
+                                            <p>
+                                                Tipo de Serviço:{' '}
+                                                {serviceTypes[
+                                                    selectedContract.idtipo
+                                                ] || 'Tipo não encontrado'}
+                                            </p>
                                             <p>Nome: {selectedContract.nome}</p>
-                                            <p>Período: {selectedContract.datalanc}</p>
-                                            <p>Índice: {selectedContract.indice}</p>
-                                            <p>Multa: {selectedContract.valor_multa}</p>
-                                            <p>Vencimento: {selectedContract.data_venc_contrato}</p>
-                                            <p>Valor: {selectedContract.valor_contrato}</p>
-                                            <p>Observações: {selectedContract.obs1}</p>
+                                            <p>
+                                                Período:{' '}
+                                                {selectedContract.datalanc}
+                                            </p>
+                                            <p>
+                                                Índice:{' '}
+                                                {selectedContract.indice}
+                                            </p>
+                                            <p>
+                                                Multa:{' '}
+                                                {selectedContract.valor_multa}
+                                            </p>
+                                            <p>
+                                                Vencimento:{' '}
+                                                {
+                                                    selectedContract.data_venc_contrato
+                                                }
+                                            </p>
+                                            <p>
+                                                Valor:{' '}
+                                                {
+                                                    selectedContract.valor_contrato
+                                                }
+                                            </p>
+                                            <p>
+                                                Observações:{' '}
+                                                {selectedContract.obs1}
+                                            </p>
                                         </div>
+
+                                        {fileUrls.length > 0 && (
+                                            <div className="mt-4">
+                                                <h3 className="text-md font-bold mb-2">
+                                                    Documentos Anexados:
+                                                </h3>
+                                                <div className="grid grid-cols-1 gap-2">
+                                                    {fileUrls.map(
+                                                        (
+                                                            file: {
+                                                                url: string;
+                                                                name: string;
+                                                            },
+                                                            index: number
+                                                        ) => (
+                                                            <div
+                                                                key={index}
+                                                                className="flex items-center justify-between p-2 bg-gray-50 rounded hover:bg-gray-100"
+                                                            >
+                                                                <div className="flex flex-col flex-1">
+                                                                    <span className="truncate">
+                                                                        {
+                                                                            file.name
+                                                                        }
+                                                                    </span>
+                                                                </div>
+                                                                <a
+                                                                    href={
+                                                                        file.url
+                                                                    }
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600"
+                                                                >
+                                                                    Download
+                                                                </a>
+                                                            </div>
+                                                        )
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <button
-                                        onClick={() => setIsViewOpen(false)}
+                                        onClick={() => {
+                                            setIsViewOpen(false);
+                                            setFileUrls([]); // Limpa a lista de documentos ao fechar o modal
+                                        }}
                                         className="mt-4 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
                                     >
                                         Fechar

@@ -15,6 +15,8 @@ import { setCurrentContract } from '@/hooks/slices/contracts/contractSlice';
 
 export default function FinancialData() {
     const dispatch = useDispatch();
+    const user = useSelector((state: any) => state.auth.user);
+
     const handleSetState = (field: string, value: string) => {
         if (field === 'idfilial') {
             dispatch(setCurrentContract({ [field]: String(value) }));
@@ -23,6 +25,7 @@ export default function FinancialData() {
         }
         validateField(field as string, value);
     };
+
     const [installmentDates, setInstallmentDates] = useState<string[]>([]);
     const [dtavista, setDtavista] = useState<string>('');
     const [qtparcelas, setQtparcelas] = useState<number>(0);
@@ -69,6 +72,18 @@ export default function FinancialData() {
         const newDates = [...installmentDates];
         newDates[index] = date;
        
+    };
+
+    const handleSubmit = () => {
+        const currentContract = useSelector((state: RootState) => state.contracts.currentContract);
+        const updatedContract = {
+            ...currentContract,
+            telefone2: currentContract.telefone2 || currentContract.telefone1,
+            email2: currentContract.email2 || currentContract.email1,
+            endereco2: currentContract.endereco2 || currentContract.endereco1,
+            userlanc: user.username,
+        };
+        dispatch(setCurrentContract(updatedContract));
     };
 
     return (

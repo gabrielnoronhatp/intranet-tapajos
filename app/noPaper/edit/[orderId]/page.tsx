@@ -66,8 +66,16 @@ export default function EditOrderPage() {
             return;
         }
 
+        const adjustedOrderData = { ...orderData };
+
+        if (adjustedOrderData.forma_pag === 'pix') {
+            delete adjustedOrderData.banco;
+            delete adjustedOrderData.agencia;
+            delete adjustedOrderData.conta;
+        }
+
         try {
-            const response = await api.put(`atualizar-ordem/${orderId}`, orderData);
+            const response = await api.put(`atualizar-ordem/${orderId}`, adjustedOrderData);
 
             if (selectedFile) {
                 const formData = new FormData();

@@ -15,6 +15,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/hooks/store';
 import Lottie from 'react-lottie';
 import SuccessIcon from '@/app/assets/success.json';
+import toast from 'react-hot-toast';
 
 interface PinModalProps {
     isOpen: boolean;
@@ -96,7 +97,7 @@ export function PinModal({ isOpen, onClose, onConfirm }: PinModalProps) {
         try {
             if (tokenWithoutDash === pinString) {
                 const response = await fetch(
-                    'http://10.2.10.17:3001/api/orders/signature',
+                    'http://localhost:3002/api/orders/signature',
                     {
                         method: 'POST',
                         headers: {
@@ -105,7 +106,7 @@ export function PinModal({ isOpen, onClose, onConfirm }: PinModalProps) {
                         },
                         body: JSON.stringify({
                             orderId: orderId,
-                            signerName: user?.nome,
+                            signerName: user?.username,
                             token: pinString,
                             signatureNumber: signatureNumber,
                         }),
@@ -113,6 +114,7 @@ export function PinModal({ isOpen, onClose, onConfirm }: PinModalProps) {
                 );
 
                 if (!response.ok) {
+                    toast.error('Erro ao registrar assinatura sem permissão');
                     throw new Error('Erro ao registrar assinatura');
                 }
 

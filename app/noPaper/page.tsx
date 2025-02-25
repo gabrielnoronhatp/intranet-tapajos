@@ -1,19 +1,21 @@
 "use client";
+import React from 'react';
 import { Navbar } from "@/components/layout/navbar";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { submitOrder, setOrderState } from "@/hooks/slices/noPaper/orderSlice";
-import { message, GetProp, Upload, UploadProps } from "antd";
+import { message,Upload } from "antd";
 import OriginData from "@/components/nopaper/form/origin-data-form";
 import FinancialData from "@/components/nopaper/form/financial-data-form";
 import TaxesData from "@/components/nopaper/form/taxes-data-form";
 import CenterOfCoust from "@/components/nopaper/form/center-of-coust-form";
 import { AuthGuard } from "@/components/ProtectedRoute/AuthGuard";
 import { PlusOutlined } from "@ant-design/icons";
-import api from "@/app/service/api";
-import { AppDispatch } from "@/hooks/store";
+import{ api }   from "@/app/service/api";
+import { AppDispatch } from '@/hooks/store';
+
 
 interface UploadResponse {
   message: string;
@@ -30,7 +32,7 @@ export default function NoPaper() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
 
-  const handleSetState = (field: keyof any, value: any) => {
+  const handleSetState = (field: keyof typeof orderData, value: any) => {
     if ((field === "lojaOP" || field === "fornecedorOP") && !value) {
       console.error(`${field} não pode ser vazio.`);
       return;
@@ -148,13 +150,13 @@ export default function NoPaper() {
 
             <div className="max-w-3xl mx-auto">
               <form onSubmit={handleSubmit} className="space-y-4">
-                <OriginData />
+                <OriginData data={orderData} onChange={handleSetState} />
 
-                <FinancialData />
+                <FinancialData data={orderData} onChange={handleSetState} />
 
-                <TaxesData />
+                <TaxesData data={orderData} onChange={handleSetState} />
 
-                <CenterOfCoust />
+                <CenterOfCoust data={orderData} onChange={handleSetState} />
 
                 <div className="mt-6">
                   <Upload

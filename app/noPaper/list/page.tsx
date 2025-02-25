@@ -23,7 +23,7 @@ export default function NoPaperList() {
         startDate: '',
         endDate: '',
     });
-    const [orders, setOrders] = useState<OrderState[]>([]);
+    const [orders, setOrders] = useState<any>([]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;

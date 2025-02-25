@@ -10,11 +10,14 @@ import { RootState } from '@/hooks/store';
 import { Select } from 'antd';
 import { NumericFormat } from 'react-number-format';
 
-export default function CenterOfCoust() {
+interface CenterOfCoustProps {
+    data: any;
+    onChange: (field: keyof any, value: any) => void;
+}
+
+export default function CenterOfCoust({ data, onChange }: CenterOfCoustProps) {
     const dispatch = useDispatch();
-    const { ccustoOP, produtosOP, valorimpostoOP } = useSelector(
-        (state: RootState) => state.order
-    );
+    const { ccustoOP, produtosOP, valorimpostoOP } = data;
     const { centrosCustoOptions } = useSelector(
         (state: RootState) => state.noPaper
     );
@@ -23,7 +26,7 @@ export default function CenterOfCoust() {
 
     const calculateTotalValue = () => {
         const totalProdutos = produtosOP.reduce(
-            (sum, product) => sum + (Number(product.valor) || 0),
+            (sum: number, product: any) => sum + (Number(product.valor) || 0),
             0
         );
         return totalProdutos - (Number(valorimpostoOP) || 0);
@@ -41,11 +44,12 @@ export default function CenterOfCoust() {
             })
         );
 
-        dispatch(setOrderState({ ccustoOP: updatedCenters }));
+        onChange('ccustoOP', updatedCenters);
     };
 
     useEffect(() => {
         updateCenterValues();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [numCenters, produtosOP, valorimpostoOP]);
 
     const handleNumCentersChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,7 +72,7 @@ export default function CenterOfCoust() {
             if (otherCenters > 0) {
                 const valueForOthers = remaining / otherCenters;
 
-                updatedCenters = updatedCenters.map((center, i) => {
+                updatedCenters = updatedCenters.map((center: any, i: number) => {
                     if (i === index) {
                         return {
                             ...center,
@@ -82,12 +86,12 @@ export default function CenterOfCoust() {
                 });
             }
         } else {
-            updatedCenters = updatedCenters.map((center, i) =>
+            updatedCenters = updatedCenters.map((center: any, i: number) =>
                 i === index ? { ...center, [field]: value } : center
             );
         }
 
-        dispatch(setOrderState({ ccustoOP: updatedCenters }));
+        onChange('ccustoOP', updatedCenters);
     };
 
     return (
@@ -118,16 +122,17 @@ export default function CenterOfCoust() {
                             onChange={(value) =>
                                 handleCenterChange(index, 'centrocusto', value)
                             }
-                        >
-                            {centrosCustoOptions.map((option: any) => (
-                                <Select.Option
-                                    key={option.id}
-                                    value={option.centrocusto}
-                                >
-                                    {option.centrocusto}
-                                </Select.Option>
-                            ))}
-                        </Select>
+                            options={centrosCustoOptions.map((option: any) => ({
+                                value: option.centrocusto,
+                                label: option.centrocusto,
+                            }))}
+                        />
+                        {ccustoOP[index]?.centrocusto === '' && (
+                            <p className="text-red-500 text-xs">
+                                Centro de Custo é obrigatório.
+                            </p>
+                        )}
+
                         <Input
                             type="number"
                             value={ccustoOP[index]?.valor || 0}
@@ -139,7 +144,13 @@ export default function CenterOfCoust() {
                                 );
                             }}
                             className="form-control w-full p-2 border rounded"
+                            prefix="R$ "
                         />
+                        {ccustoOP[index]?.valor < 0 && (
+                            <p className="text-red-500 text-xs">
+                                Valor não pode ser negativo.
+                            </p>
+                        )}
                     </div>
                 ))}
             </div>

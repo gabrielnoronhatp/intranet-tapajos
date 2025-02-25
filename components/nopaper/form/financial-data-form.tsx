@@ -15,16 +15,16 @@ import {
 import { Select } from 'antd';
 import { RootState } from '@/hooks/store';
 
-export default function FinancialData() {
+interface FinancialDataProps {
+    data: any;
+    onChange: (field: keyof any, value: any) => void;
+}
+
+export default function FinancialData({ data, onChange }: FinancialDataProps) {
     const dispatch = useDispatch();
-    const handleSetState = (field: keyof any, value: any) => {
-        dispatch(setOrderState({ [field]: value }));
-        validateField(field as string, value);
-    };
     const {
         metodoOP,
-        installments,
-        installmentDates,
+        installmentDates = [],
         dtavista,
         bancoOP,
         contagerencialOP,
@@ -35,7 +35,7 @@ export default function FinancialData() {
         datapixOP,
         qtparcelasOP,
         contaOP,
-    } = useSelector((state: any) => state.order);
+    } = data;
 
     const { contasGerenciais } = useSelector(
         (state: RootState) => state.noPaper
@@ -60,13 +60,14 @@ export default function FinancialData() {
     }, [dispatch]);
 
     const handleFormaPagamentoChange = (value: string) => {
-        handleSetState('metodoOP', value);
+        onChange('metodoOP', value);
+        validateField('metodoOP', value);
         if (value === 'avista') {
-            handleSetState('qtparcelasOP', 1);
-            handleSetState('installmentDates', []);
+            onChange('qtparcelasOP', 1);
+            onChange('installmentDates', []);
         } else if (value !== 'boleto') {
-            handleSetState('qtparcelasOP', 1);
-            handleSetState('installmentDates', []);
+            onChange('qtparcelasOP', 1);
+            onChange('installmentDates', []);
         }
     };
 
@@ -74,15 +75,15 @@ export default function FinancialData() {
         e: React.ChangeEvent<HTMLInputElement>
     ) => {
         const numInstallments = parseInt(e.target.value, 10);
-        handleSetState('qtparcelasOP', numInstallments);
-        handleSetState('parcelasOP', numInstallments);
-        handleSetState('installmentDates', Array(numInstallments).fill(''));
+        onChange('qtparcelasOP', numInstallments);
+        onChange('parcelasOP', numInstallments);
+        onChange('installmentDates', Array(numInstallments).fill(''));
     };
 
     const handleInstallmentDateChange = (index: number, date: string) => {
         const newDates = [...installmentDates];
         newDates[index] = date;
-        handleSetState('installmentDates', newDates);
+        onChange('installmentDates', newDates);
     };
 
     return (
@@ -99,9 +100,9 @@ export default function FinancialData() {
                         { value: 'pix', label: 'PIX' },
                     ]}
                 />
-                {formErrors.formaPagamento && (
+                {formErrors.metodoOP && (
                     <p className="text-red-500 text-xs">
-                        {formErrors.formaPagamento}
+                        {formErrors.metodoOP}
                     </p>
                 )}
 
@@ -114,10 +115,15 @@ export default function FinancialData() {
                             type="date"
                             value={dtavista}
                             onChange={(e) =>
-                                handleSetState('dtavista', e.target.value)
+                                onChange('dtavista', e.target.value)
                             }
                             className="form-control"
                         />
+                        {formErrors.dtvista && (
+                            <p className="text-red-500 text-xs">
+                                {formErrors.dtvista}
+                            </p>
+                        )}
                     </div>
                 )}
 
@@ -142,7 +148,7 @@ export default function FinancialData() {
                                     </Label>
                                     <Input
                                         type="date"
-                                        value={installmentDates[index]}
+                                        value={installmentDates[index] || ''}
                                         onChange={(e) =>
                                             handleInstallmentDateChange(
                                                 index,
@@ -151,6 +157,16 @@ export default function FinancialData() {
                                         }
                                         className="form-control"
                                     />
+                                    {formErrors.installmentDates &&
+                                        formErrors.installmentDates[index] && (
+                                            <p className="text-red-500 text-xs">
+                                                {
+                                                    formErrors.installmentDates[
+                                                        index
+                                                    ]
+                                                }
+                                            </p>
+                                        )}
                                 </div>
                             )
                         )}
@@ -166,11 +182,17 @@ export default function FinancialData() {
                             type="text"
                             value={bancoOP}
                             onChange={(e) =>
-                                handleSetState('bancoOP', e.target.value)
+                                onChange('bancoOP', e.target.value)
                             }
                             placeholder="Banco"
                             className="form-control"
                         />
+                        {formErrors.bancoOP && (
+                            <p className="text-red-500 text-xs">
+                                {formErrors.bancoOP}
+                            </p>
+                        )}
+
                         <Label className="text-xs font-semibold text-primary uppercase">
                             Agência
                         </Label>
@@ -178,11 +200,17 @@ export default function FinancialData() {
                             type="text"
                             value={agenciaOP}
                             onChange={(e) =>
-                                handleSetState('agenciaOP', e.target.value)
+                                onChange('agenciaOP', e.target.value)
                             }
                             placeholder="Agência"
                             className="form-control"
                         />
+                        {formErrors.agenciaOP && (
+                            <p className="text-red-500 text-xs">
+                                {formErrors.agenciaOP}
+                            </p>
+                        )}
+
                         <Label className="text-xs font-semibold text-primary uppercase">
                             Conta
                         </Label>
@@ -190,11 +218,17 @@ export default function FinancialData() {
                             type="text"
                             value={contaOP}
                             onChange={(e) =>
-                                handleSetState('contaOP', e.target.value)
+                                onChange('contaOP', e.target.value)
                             }
                             placeholder="Conta"
                             className="form-control"
                         />
+                        {formErrors.contaOP && (
+                            <p className="text-red-500 text-xs">
+                                {formErrors.contaOP}
+                            </p>
+                        )}
+
                         <Label className="text-xs font-semibold text-primary uppercase">
                             Data de Depósito
                         </Label>
@@ -202,10 +236,15 @@ export default function FinancialData() {
                             type="date"
                             value={dtdepositoOP}
                             onChange={(e) =>
-                                handleSetState('dtdepositoOP', e.target.value)
+                                onChange('dtdepositoOP', e.target.value)
                             }
                             className="form-control"
                         />
+                        {formErrors.dtdepositoOP && (
+                            <p className="text-red-500 text-xs">
+                                {formErrors.dtdepositoOP}
+                            </p>
+                        )}
                     </div>
                 )}
 
@@ -217,7 +256,7 @@ export default function FinancialData() {
                         <SelectField
                             value={tipopixOP}
                             onChange={(value: string) =>
-                                handleSetState('tipopixOP', value)
+                                onChange('tipopixOP', value)
                             }
                             options={[
                                 { value: 'cpf/cnpj', label: 'CPF/CNPJ' },
@@ -227,6 +266,12 @@ export default function FinancialData() {
                             ]}
                             label=""
                         />
+                        {formErrors.tipopixOP && (
+                            <p className="text-red-500 text-xs">
+                                {formErrors.tipopixOP}
+                            </p>
+                        )}
+
                         <Label className="text-xs font-semibold text-primary uppercase">
                             Chave PIX
                         </Label>
@@ -234,11 +279,17 @@ export default function FinancialData() {
                             type="text"
                             value={chavepixOP}
                             onChange={(e) =>
-                                handleSetState('chavepixOP', e.target.value)
+                                onChange('chavepixOP', e.target.value)
                             }
                             placeholder="Insira a Chave PIX"
                             className="form-control"
                         />
+                        {formErrors.chavepixOP && (
+                            <p className="text-red-500 text-xs">
+                                {formErrors.chavepixOP}
+                            </p>
+                        )}
+
                         <Label className="text-xs font-semibold text-primary uppercase">
                             Data de Pagamento PIX
                         </Label>
@@ -246,10 +297,15 @@ export default function FinancialData() {
                             type="date"
                             value={datapixOP}
                             onChange={(e) =>
-                                handleSetState('datapixOP', e.target.value)
+                                onChange('datapixOP', e.target.value)
                             }
                             className="form-control"
                         />
+                        {formErrors.datapixOP && (
+                            <p className="text-red-500 text-xs">
+                                {formErrors.datapixOP}
+                            </p>
+                        )}
                     </div>
                 )}
             </div>
@@ -262,18 +318,18 @@ export default function FinancialData() {
                     showSearch
                     value={contagerencialOP}
                     onChange={(value: string) =>
-                        handleSetState('contagerencialOP', value)
+                        onChange('contagerencialOP', value)
                     }
                     options={contasGerenciais.map((conta: any) => ({
                         value: conta.conta,
                         label: conta.conta,
                     }))}
                 />
-                {contasGerenciais.map((conta: any) => (
-                    <Select.Option key={conta.conta} value={conta.conta}>
-                        {conta.conta}
-                    </Select.Option>
-                ))}
+                {formErrors.contagerencialOP && (
+                    <p className="text-red-500 text-xs">
+                        {formErrors.contagerencialOP}
+                    </p>
+                )}
             </div>
         </FormSection>
     );

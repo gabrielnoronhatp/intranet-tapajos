@@ -108,6 +108,33 @@ export const fetchContractFiles = createAsyncThunk(
     }
 );
 
+export const fetchContractDetails = createAsyncThunk(
+    'contracts/fetchContractDetails',
+    async (contractId: number) => {
+        try {
+            const response = await apiDev.get(`contracts/${contractId}`);
+            return response.data;
+        } catch (error: any) {
+            toast.error('Erro ao buscar detalhes do contrato: ' + error.message);
+            throw error;
+        }
+    }
+);
+
+export const updateContract = createAsyncThunk(
+    'contracts/updateContract',
+    async ({ contractId, contractData }: { contractId: number; contractData: Partial<IContract> }) => {
+        try {
+            const response = await apiDev.put(`contracts/${contractId}`, contractData);
+            toast.success('Contrato atualizado com sucesso!');
+            return response.data;
+        } catch (error: any) {
+            toast.error('Erro ao atualizar contrato: ' + error.message);
+            throw error;
+        }
+    }
+);
+
 const contractSlice = createSlice({
     name: 'contracts',
     initialState,
@@ -167,6 +194,12 @@ const contractSlice = createSlice({
                 if (contract) {
                     contract.files = files;
                 }
+            })
+            .addCase(fetchContractDetails.fulfilled, (state, action) => {
+                state.currentContract = action.payload;
+            })
+            .addCase(updateContract.fulfilled, (state, action) => {
+                state.currentContract = action.payload;
             });
     },
 });

@@ -120,13 +120,13 @@ export default function NoPaper() {
 
             <div className="max-w-3xl mx-auto">
               <form onSubmit={handleSubmit} className="space-y-4">
-                <OriginData />
+                <OriginData data={orderData} onChange={handleSetState} />
 
-                <FinancialData />
+                <FinancialData data={orderData} onChange={handleSetState} />
 
-                <TaxesData />
+                <TaxesData data={orderData} onChange={handleSetState} />
 
-                <CenterOfCoust />
+                <CenterOfCoust data={orderData} onChange={handleSetState} />
 
                 <div className="mt-6">
                   <Upload

@@ -10,19 +10,17 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchCentrosCusto } from '@/hooks/slices/noPaper/noPaperSlice';
 import { RootState } from '@/hooks/store';
 import CurrencyInput from 'react-currency-input-field';
-import { extractNumericValue, formatCurrency } from '@/lib/utils';
 import { NumericFormat } from 'react-number-format';
 
-export default function TaxesData() {
+interface TaxesDataProps {
+    data: any;
+    onChange: (field: keyof any, value: any) => void;
+}
+
+export default function TaxesData({ data, onChange }: TaxesDataProps) {
     const dispatch = useDispatch();
 
-    const handleSetState = (field: keyof any, value: any) => {
-        dispatch(setOrderState({ [field]: value }));
-    };
-
-    const { qtitensOP, valorimpostoOP, produtosOP, ccustoOP } = useSelector(
-        (state: RootState) => state.order
-    );
+    const { qtitensOP, valorimpostoOP, produtosOP, ccustoOP } = data;
 
     const { searchQuery } = useSelector((state: RootState) => state.noPaper);
 
@@ -35,24 +33,24 @@ export default function TaxesData() {
         field: 'produto' | 'valor' | 'centroCusto',
         value: string | number
     ) => {
-        const updatedItens = produtosOP.map((item, i) =>
+        const updatedItens = produtosOP.map((item: any, i: number) =>
             i === index ? { ...item, [field]: value } : item
         );
-        dispatch(setOrderState({ produtosOP: updatedItens }));
+        onChange('produtosOP', updatedItens);
     };
 
     const handleQuantidadeProdutosChange = (
         e: React.ChangeEvent<HTMLInputElement>
     ) => {
         const quantidade = parseInt(e.target.value, 10);
-        handleSetState('qtitensOP', quantidade);
+        onChange('qtitensOP', quantidade);
 
         const newItens = Array.from(
             { length: quantidade },
             (_, index) =>
                 produtosOP[index] || { produto: '', valor: 0, centroCusto: [] }
         );
-        dispatch(setOrderState({ produtosOP: newItens }));
+        onChange('produtosOP', newItens);
     };
 
     const handleCCustoChange = (
@@ -60,10 +58,44 @@ export default function TaxesData() {
         field: 'centrocusto' | 'valor',
         value: string | number
     ) => {
-        const updatedCCusto = ccustoOP.map((item, i) =>
-            i === index ? { ...item, [field]: value } : item
+        let updatedCCusto = [...ccustoOP];
+
+        if (field === 'valor') {
+            const totalValue = calculateTotalValue();
+            const remaining = totalValue - Number(value);
+            const otherCenters = ccustoOP.length - 1;
+
+            if (otherCenters > 0) {
+                const valueForOthers = remaining / otherCenters;
+
+                updatedCCusto = updatedCCusto.map((center: any, i: number) => {
+                    if (i === index) {
+                        return {
+                            ...center,
+                            valor: Number(value),
+                        };
+                    }
+                    return {
+                        ...center,
+                        valor: valueForOthers,
+                    };
+                });
+            }
+        } else {
+            updatedCCusto = updatedCCusto.map((center: any, i: number) =>
+                i === index ? { ...center, [field]: value } : center
+            );
+        }
+
+        onChange('ccustoOP', updatedCCusto);
+    };
+
+    const calculateTotalValue = () => {
+        const totalProdutos = produtosOP.reduce(
+            (sum: number, product: any) => sum + (Number(product.valor) || 0),
+            0
         );
-        dispatch(setOrderState({ ccustoOP: updatedCCusto }));
+        return totalProdutos - (Number(valorimpostoOP) || 0);
     };
 
     return (
@@ -79,8 +111,13 @@ export default function TaxesData() {
                     min={1}
                     className="form-control"
                 />
+                {qtitensOP < 1 && (
+                    <p className="text-red-500 text-xs">
+                        A quantidade de itens deve ser pelo menos 1.
+                    </p>
+                )}
 
-                {produtosOP.map((item, index) => (
+                {produtosOP.map((item: any, index: number) => (
                     <div key={index} className="space-y-1">
                         <Label className="text-xs font-semibold text-primary uppercase">
                             Item {index + 1}: Descrição e Valor
@@ -99,6 +136,11 @@ export default function TaxesData() {
                             className="form-control"
                             required
                         />
+                        {item.produto.trim() === '' && (
+                            <p className="text-red-500 text-xs">
+                                Descrição do produto é obrigatória.
+                            </p>
+                        )}
 
                         <NumericFormat
                             customInput={Input}
@@ -114,7 +156,13 @@ export default function TaxesData() {
                             decimalSeparator=","
                             allowNegative={false}
                             className="form-control"
+                            prefix="R$ "
                         />
+                        {item.valor < 0 && (
+                            <p className="text-red-500 text-xs">
+                                Valor não pode ser negativo.
+                            </p>
+                        )}
                     </div>
                 ))}
 
@@ -126,12 +174,18 @@ export default function TaxesData() {
                     value={valorimpostoOP}
                     onValueChange={(values) => {
                         const { floatValue } = values;
-                        handleSetState('valorimpostoOP', floatValue || 0);
+                        onChange('valorimpostoOP', floatValue || 0);
                     }}
                     decimalSeparator=","
                     allowNegative={false}
                     className="form-control"
+                    prefix="R$ "
                 />
+                {valorimpostoOP < 0 && (
+                    <p className="text-red-500 text-xs">
+                        Valor do imposto não pode ser negativo.
+                    </p>
+                )}
             </div>
         </FormSection>
     );

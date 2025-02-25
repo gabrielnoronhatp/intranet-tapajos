@@ -2,17 +2,20 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Select } from 'antd';
+import { Select, Input } from 'antd';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { FilialSelect } from '@/components/nopaper/store-select';
 import { FornecedorSelect } from '@/components/nopaper/supplier-select';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { FormSection } from '../form-section';
-import { RootState } from '@/hooks/store';
 import { setOrderState } from '@/hooks/slices/noPaper/orderSlice';
 
-export default function OriginData() {
+interface OriginDataProps {
+    data: any;
+    onChange: (field: keyof any, value: any) => void;
+}
+
+const OriginData: React.FC<OriginDataProps> = ({ data, onChange }) => {
     const {
         ramoOP,
         opcaoLancOP,
@@ -21,7 +24,8 @@ export default function OriginData() {
         fornecedorOP,
         dtlanc,
         lojaOP,
-    } = useSelector((state: RootState) => state.order);
+        userOP,
+    } = data;
     const dispatch = useDispatch();
     const [documentType, setDocumentType] = useState('nota');
 
@@ -38,15 +42,16 @@ export default function OriginData() {
     };
 
     useEffect(() => {
-        setOrderState({
+        dispatch(setOrderState({
             ramoOP,
             opcaoLancOP,
             notaOP,
             serieOP,
             fornecedorOP,
             dtlanc,
-        });
-    }, [ramoOP, opcaoLancOP, fornecedorOP, dtlanc, notaOP, serieOP]);
+            userOP,
+        }));
+    }, [ramoOP, opcaoLancOP, fornecedorOP, dtlanc, notaOP, serieOP, userOP]);
 
     return (
         <FormSection title="Dados de Origem da Nota Fiscal">
@@ -221,6 +226,10 @@ export default function OriginData() {
                     />
                 </div>
             </div>
+
+           
         </FormSection>
     );
-}
+};
+
+export default OriginData;

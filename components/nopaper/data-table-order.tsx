@@ -1,8 +1,8 @@
 'use client';
 import React from 'react';
-import { CheckCircle2, XCircle, Eye } from 'lucide-react';
+import { CheckCircle2, XCircle, Eye, Edit } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { Image, Upload, UploadFile, message, Input } from 'antd';
+import { Image, Upload, UploadFile, message, Input, Button } from 'antd';
 import { api } from '@/app/service/api';
 import { UploadChangeParam } from 'antd/es/upload';
 import './data-table-order-styles.css';
@@ -14,6 +14,8 @@ import {
 } from '@/hooks/slices/noPaper/noPaperSlice';
 import { useDispatch } from 'react-redux';
 import { OrderState } from '@/types/noPaper/Order/OrderTypes';
+import { useRouter } from 'next/navigation';
+
 interface DataTableOrderProps {
     searchParams: Record<string, string>;
     ordersSearch: Record<string, string>;
@@ -24,6 +26,7 @@ export function DataTableOrder({
     ordersSearch,
 }: DataTableOrderProps) {
     const dispatch = useDispatch();
+    const router = useRouter();
     const [orders, setOrders] = useState<Array<OrderState>>([]);
     const [isViewOpen, setIsViewOpen] = useState(false);
     const [selectedItem, setSelectedItem]: any = useState(null);
@@ -187,15 +190,29 @@ export function DataTableOrder({
             title: 'Ações',
             key: 'acoes',
             align: 'center',
-            render: (record: any) => (
-                <Eye
-                    color="green"
-                    onClick={() => toggleView(record)}
-                    style={{ cursor: 'pointer' }}
-                />
-            ),
+            render: (record: any) => {
+                const hasSignature = record.assinatura1 || record.assinatura2 || record.assinatura3;
+                return (
+                    <>
+                        <Eye
+                            color="green"
+                            onClick={() => toggleView(record)}
+                            style={{ cursor: 'pointer', marginRight: 8 }}
+                        />
+                        <Edit
+                            color={hasSignature ? "gray" : "green"}
+                            onClick={() => !hasSignature && navigateToEditPage(record.id)}
+                            style={{ cursor: hasSignature ? 'not-allowed' : 'pointer', marginRight: 8 }}
+                        />
+                    </>
+                );
+            },
         },
     ];
+
+    const navigateToEditPage = (orderId: number) => {
+        window.location.href = `/noPaper/edit/${orderId}`;
+    };
 
     return (
         <div className="rounded-md border">
@@ -247,11 +264,11 @@ export function DataTableOrder({
                                             Itens Contratados:
                                         </h3>
                                         <ul>
-                                            {orderDetails.itensContratados.map(
+                                            {orderDetails?.produtosOP?.map(
                                                 (item: any, index: number) => (
                                                     <li key={index}>
-                                                        {item.nome_produto} -{' '}
-                                                        {item.valor_produto}
+                                                        {item.produto} -{' '}
+                                                        {item.valor}
                                                     </li>
                                                 )
                                             )}
@@ -260,13 +277,13 @@ export function DataTableOrder({
                                             Centros de Custo:
                                         </h3>
                                         <ul>
-                                            {orderDetails.centrosCusto.map(
+                                            {orderDetails?.ccustoOP?.map(
                                                 (
                                                     centro: any,
                                                     index: number
                                                 ) => (
                                                     <li key={index}>
-                                                        {centro.centro_custo} -{' '}
+                                                        {centro.centrocusto} -{' '}
                                                         {centro.valor}
                                                     </li>
                                                 )

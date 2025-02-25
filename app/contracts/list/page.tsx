@@ -11,7 +11,8 @@ import { IContract } from '@/types/Contracts/Contracts';
 import { fetchContracts, fetchServiceTypes } from '@/hooks/slices/contracts/contractSlice';
 import { RootState } from '@/hooks/store';
 import { useDispatch, useSelector } from 'react-redux';
-import { Eye } from 'lucide-react';
+import { Eye, Edit } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function ContractList() {
     const [searchParams, setSearchParams] = useState<Record<string, string>>({});
@@ -23,6 +24,7 @@ export default function ContractList() {
     const contracts = useSelector((state: RootState) => state.contracts.contracts);
     const serviceTypes = useSelector((state: RootState) => state.contracts.serviceTypes);
     const loading = useSelector((state: RootState) => state.contracts.loading);
+    const router = useRouter();
 
     useEffect(() => {
           //  TODO DELETE ANY
@@ -58,11 +60,18 @@ export default function ContractList() {
             title: 'Ações',
             key: 'acoes',
             render: (record: IContract) => (
-                <Eye
-                color="green"
-                onClick={() => handleViewContract(record)}
-                style={{ cursor: 'pointer' }}
-            />
+                <>
+                    <Eye
+                        color="green"
+                        onClick={() => handleViewContract(record)}
+                        style={{ cursor: 'pointer', marginRight: 8 }}
+                    />
+                    <Edit
+                        color="green"
+                        onClick={() => router.push(`/contracts/edit/${record.id}`)}
+                        style={{ cursor: 'pointer' }}
+                    />
+                </>
             ),
         },
     ];

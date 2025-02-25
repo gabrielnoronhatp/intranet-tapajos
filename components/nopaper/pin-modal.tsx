@@ -114,7 +114,7 @@ export function PinModal({ isOpen, onClose, onConfirm }: PinModalProps) {
                 );
 
                 if (!response.ok) {
-                    toast.error('Erro ao registrar assinatura ou permissão insuficiente');
+                    toast.error('Erro ao registrar assinatura ou permissão insuficiente para assinar.');
                     throw new Error('Erro ao registrar assinatura');
                 }
 

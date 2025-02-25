@@ -6,7 +6,7 @@ const localUrl = 'http://localhost:3002/api/';
 const devUrl = 'http://192.168.108.21:3002/api/';
 
 const api = axios.create({
-    baseURL: localUrl,
+    baseURL: baseUrl,
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',

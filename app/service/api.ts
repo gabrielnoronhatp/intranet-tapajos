@@ -16,11 +16,12 @@ const api = axios.create({
 
 const apiDev = axios.create({
     baseURL: devUrl,
-    headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-    },
-    withCredentials: false,
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+        },
+        withCredentials: false,
 });
 
 

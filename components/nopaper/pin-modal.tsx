@@ -67,7 +67,7 @@ export function PinModal({ isOpen, onClose, onConfirm }: PinModalProps) {
             }
 
             const data = await response.json();
-            console.log(data.token);
+            
             setToken(data.token);
         } catch (error) {
             console.error('Erro ao gerar assinatura:', error);

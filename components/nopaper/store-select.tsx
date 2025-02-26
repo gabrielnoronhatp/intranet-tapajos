@@ -14,6 +14,7 @@ interface FilialSelectProps {
     validate: boolean;
     fieldValue: string;
     handleSelectChange: (value: string) => void;
+    ramo: string;
 }
 
 export const FilialSelect = ({
@@ -21,6 +22,7 @@ export const FilialSelect = ({
     validate,
     fieldValue,
     handleSelectChange,
+    ramo,
 }: FilialSelectProps) => {
     const { filiais } = useSelector((state: RootState) => state.noPaper);
     const { currentContract } = useSelector((state: RootState) => state.contracts);
@@ -30,16 +32,9 @@ export const FilialSelect = ({
 
     useEffect(() => {
         dispatch(
-            fetchFiliais({ query: localSearchQuery, ramo: '' }) as any
+            fetchFiliais({ query: localSearchQuery, ramo }) as any
         );
-        
-    }, [dispatch, localSearchQuery]);
-
-    useEffect(() => {
-        if (validate && !currentContract.idfilial) {
-            setError('Filial não pode ser vazia.');
-        }
-    }, [validate, currentContract.idfilial]);
+    }, [dispatch, localSearchQuery, ramo]);
 
     const handleChange = (value: string) => {
         handleSelectChange(value);

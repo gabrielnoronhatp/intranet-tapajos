@@ -157,6 +157,7 @@ const OriginData: React.FC<OriginDataProps> = ({ data, onChange }) => {
                     <FilialSelect
                         fieldValue={lojaOP}
                         validate={true}
+                        ramo={ramoOP}
                         handleSetState={(value: string) =>
                             handleFieldChange(lojaOP, value)
                         }

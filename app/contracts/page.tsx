@@ -20,6 +20,7 @@ import { RootState } from '@/hooks/store';
 import { ServiceTypeSelect } from '@/components/contracts/service-type-select';
 import { fetchLojas } from '@/hooks/slices/noPaper/noPaperSlice';
 import { toast } from 'react-hot-toast';
+import { NumericFormat } from 'react-number-format';
 
 export default function ContractForm() {
     const dispatch = useDispatch();
@@ -71,6 +72,13 @@ export default function ContractForm() {
 
     const handleFileChange = (file: File) => {
         setSelectedFile(file);
+    };
+
+    const formatCurrency = (value: number) => {
+        return new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL',
+        }).format(value);
     };
 
     return (
@@ -314,7 +322,13 @@ export default function ContractForm() {
                                                     ? 'Percentual da Multa (%)'
                                                     : 'Valor da Multa (R$)'}
                                             </label>
-                                            <Input
+                                            <NumericFormat
+                                                customInput={Input}
+                                                thousandSeparator="."
+                                                decimalSeparator=","
+                                                prefix="R$ "
+                                                decimalScale={2}
+                                                fixedDecimalScale
                                                 id={
                                                     tipoMulta === 'percentual'
                                                         ? 'percentual_multa'
@@ -325,26 +339,18 @@ export default function ContractForm() {
                                                         ? 'Ex: 2.5'
                                                         : 'Ex: 1000.00'
                                                 }
-                                                type="number"
-                                                step={
-                                                    tipoMulta === 'percentual'
-                                                        ? '0.01'
-                                                        : '0.01'
-                                                }
+                                                step="0.01"
                                                 value={
                                                     tipoMulta === 'percentual'
-                                                        ? (currentContract.percentual_multa ??
-                                                          0)
-                                                        : (currentContract.valor_multa ??
-                                                          0)
+                                                        ? (currentContract.percentual_multa ?? 0)
+                                                        : currentContract.valor_multa ?? 0
                                                 }
-                                                onChange={(e) =>
+                                                onValueChange={(values) =>
                                                     handleSetState(
-                                                        tipoMulta ===
-                                                            'percentual'
+                                                        tipoMulta === 'percentual'
                                                             ? 'percentual_multa'
                                                             : 'valor_multa',
-                                                        e.target.value
+                                                        values.floatValue ?? 0
                                                     )
                                                 }
                                                 className="mb-4"
@@ -377,15 +383,18 @@ export default function ContractForm() {
                                             >
                                                 Valor
                                             </label>
-                                            <Input
+                                            <NumericFormat
                                                 id="valor_contrato"
-                                                type="number"
+                                                customInput={Input}
+                                                thousandSeparator="."
+                                                decimalSeparator=","
+                                                prefix="R$ "
+                                                decimalScale={2}
+                                                fixedDecimalScale
                                                 placeholder="Valor"
-                                                onChange={(e) =>
-                                                    handleSetState(
-                                                        'valor_contrato',
-                                                        e.target.value
-                                                    )
+                                                value={currentContract.valor_contrato}
+                                                onValueChange={(values) =>
+                                                    handleSetState('valor_contrato', values.floatValue ?? 0)
                                                 }
                                                 className="mb-4"
                                             />

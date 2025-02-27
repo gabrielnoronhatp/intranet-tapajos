@@ -42,7 +42,6 @@ export default function EditContractPage() {
         e.preventDefault();
         try {
             await dispatch(updateContract({ contractId: Number(contractId), contractData: currentContract }) as any);
-            // router.push("/contracts/list");
         } catch (error) {
             message.error("Erro ao atualizar contrato");
         }

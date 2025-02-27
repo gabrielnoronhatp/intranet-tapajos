@@ -125,13 +125,10 @@ export const updateContract = createAsyncThunk(
     'contracts/updateContract',
     async ({ contractId, contractData }: { contractId: number; contractData: Partial<IContract> }) => {
         try {
-            // Criar uma cópia do objeto para evitar erros ao deletar propriedades
             const updatedContractData = { ...contractData };
 
-            // Remover o campo 'id' se ele estiver presente
             delete updatedContractData.id;
 
-            // Remover campos desnecessários dependendo da forma de pagamento
             if (updatedContractData.forma_pag === 'pix') {
                 delete updatedContractData.banco;
                 delete updatedContractData.agencia;
@@ -140,6 +137,9 @@ export const updateContract = createAsyncThunk(
 
             const response = await apiDev.put(`contracts/${contractId}`, updatedContractData);
             toast.success('Contrato atualizado com sucesso!');
+            setTimeout(() => {
+                window.location.href = '/contracts/list';
+            }, 1000);
             return response.data;
         } catch (error: any) {
             toast.error('Erro ao atualizar contrato: ' + error.message);

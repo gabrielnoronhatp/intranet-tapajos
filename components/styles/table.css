@@ -1,0 +1,7 @@
+.contract-cancelled {
+    text-decoration: line-through;
+}
+
+.contract-near-due {
+    background-color: rgba(255, 0, 0, 0.1); /* Light red background */
+}

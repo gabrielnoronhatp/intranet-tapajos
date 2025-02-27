@@ -12,6 +12,7 @@ export default function CampaignRegistration() {
     const [operadores, setOperadores] = useState<Array<{ nome: string, meta: string, premiacao: string, tipo: string }>>([]);
     const [marcaProdutos, setMarcaProdutos] = useState<Array<{ nome: string }>>([]);
     const [tipoOperador, setTipoOperador] = useState('teleoperador');
+    const [tipoMarcaProduto, setTipoMarcaProduto] = useState('marca');
 
     const handleAddOperador = (nome: string, meta: string, premiacao: string) => {
         if (nome && meta && premiacao) {
@@ -62,7 +63,7 @@ export default function CampaignRegistration() {
                             <h2 className="text-lg font-bold text-green-600">Adicionar Teleoperador/Vendedor</h2>
                             <div className="flex gap-2 mb-2">
                                 <Radio.Group
-                                    value={tipoOperador}
+                                        value={tipoOperador}
                                     onChange={(e) => setTipoOperador(e.target.value)}
                                     className="flex space-x-4"
                                 >
@@ -94,9 +95,26 @@ export default function CampaignRegistration() {
                                 }
                             ]} rowKey="nome" pagination={false} />
                         </div>
-
+                       
                         <div className="bg-white p-4 rounded shadow">
                             <h2 className="text-lg font-bold text-green-600">Adicionar Marca/Produto</h2>
+
+                            <div className="flex gap-2 mb-2">
+                                <Radio.Group
+                                    value={tipoMarcaProduto}
+                                    onChange={(e) => setTipoMarcaProduto(e.target.value)}
+                                    className="flex space-x-4"
+                                >
+                                    <Radio value="marca" id="marca" />
+                                    <label htmlFor="marca" className="text-sm">
+                                        Marca
+                                    </label>
+                                    <Radio value="produto" id="produto" />
+                                    <label htmlFor="produto" className="text-sm">
+                                        Produto
+                                    </label>
+                                </Radio.Group>
+                            </div>
                             <div className="flex gap-2 mb-2">
                                 <Input placeholder="Nome" className="flex-1" />
                                 <Button className="bg-green-500 hover:bg-green-600" onClick={() => handleAddMarcaProduto("Nome")}>Adicionar</Button>

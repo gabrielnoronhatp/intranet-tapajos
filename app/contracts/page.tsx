@@ -59,27 +59,24 @@ export default function ContractForm() {
         dispatch(setCurrentContract({ idfornecedor: value }));
     };
 
+    const [localSearchQuery, setLocalSearchQuery] = useState<string>('');
+
     const handleSelectFilialChange = (value: string) => {
         dispatch(setCurrentContract({ idfilial: value }));
     };
    
    
     useEffect(() => {
-        dispatch(fetchLojas() as any);
+        dispatch(fetchLojas(localSearchQuery) as any);
        
-    }, []);
+    }, [localSearchQuery, dispatch]);
      
 
     const handleFileChange = (file: File) => {
         setSelectedFile(file);
     };
 
-    const formatCurrency = (value: number) => {
-        return new Intl.NumberFormat('pt-BR', {
-            style: 'currency',
-            currency: 'BRL',
-        }).format(value);
-    };
+
 
     return (
         <AuthGuard>
@@ -123,9 +120,14 @@ export default function ContractForm() {
                                         placeholder="Selecione a Filial"
                                         value={currentContract.idfilial}
                                         onChange={handleSelectFilialChange}
+                                        onSearch={(value) => setLocalSearchQuery(value)}
+                                        showSearch
+                                        filterOption={(input: string, option: any) =>
+                                            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                                        }
                                         options={lojas.map(filial => ({
                                             value: filial.loja,
-                                            label: `${filial.loja}`
+                                            label: filial.loja
                                         }))}
                                         className="w-full mb-4"
                                     />
@@ -351,6 +353,26 @@ export default function ContractForm() {
                                                             ? 'percentual_multa'
                                                             : 'valor_multa',
                                                         values.floatValue ?? 0
+                                                    )
+                                                }
+                                                className="mb-4"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label
+                                                htmlFor="data_inicio_contrato"
+                                                className="block text-sm font-medium text-[#11833B] uppercase"
+                                            >
+                                                Data de início do contrato
+                                            </label>
+                                            <Input
+                                                id="data_inicio_contrato"
+                                                type="date"
+                                                placeholder="Data de início do contrato"
+                                                onChange={(e) =>
+                                                    handleSetState(
+                                                        'data_inicio_contrato',
+                                                        e.target.value
                                                     )
                                                 }
                                                 className="mb-4"

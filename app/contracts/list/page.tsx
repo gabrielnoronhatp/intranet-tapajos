@@ -122,6 +122,7 @@ export default function ContractList() {
             dataIndex: 'data_venc_contrato',
             key: 'data_venc_contrato',
         },
+        { title: 'Início', dataIndex: 'data_inicio_contrato', key: 'data_inicio_contrato' },
         { title: 'Valor', dataIndex: 'valor_contrato', key: 'valor_contrato' },
         { title: 'Observações', dataIndex: 'obs1', key: 'obs1' },
         {

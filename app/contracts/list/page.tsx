@@ -18,6 +18,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Eye, Edit, FileWarning  } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { debounce } from 'lodash';
+import '@/components/styles/table.css';
 
 export default function ContractList() {
     const [searchParams, setSearchParams] = useState<Record<string, string>>(
@@ -74,14 +75,32 @@ export default function ContractList() {
         }
     };
 
-    const confirmCancelContract = (contractId:any) => {
+    const confirmCancelContract = (contractId: any) => {
         Modal.confirm({
             title: 'Confirmar Cancelamento',
             content: 'Você tem certeza que deseja cancelar este contrato?',
             okText: 'Sim',
             cancelText: 'Não',
             onOk: () => handleCancelContract(contractId),
+            okButtonProps: {
+                style: {
+                    backgroundColor: 'green',
+                    borderColor: 'green',
+                    boxShadow: 'none',
+                },
+            },
         });
+    };
+
+    const rowClassName:any = (record: any) => {
+        if (record.cancelado) return 'contract-cancelled';
+
+        const today = new Date();
+        const dueDate = new Date(record.data_venc_contrato);
+        const timeDiff = dueDate.getTime() - today.getTime();
+        const daysToDue = timeDiff / (1000 * 3600 * 24);
+
+        return daysToDue <= 7 ? 'contract-near-due' : '';
     };
 
     const columns = [
@@ -103,7 +122,7 @@ export default function ContractList() {
             dataIndex: 'data_venc_contrato',
             key: 'data_venc_contrato',
         },
-        { title: 'Valor', dataIndex: 'valor', key: 'valor' },
+        { title: 'Valor', dataIndex: 'valor_contrato', key: 'valor_contrato' },
         { title: 'Observações', dataIndex: 'obs1', key: 'obs1' },
         {
             title: 'Ações',
@@ -148,7 +167,7 @@ export default function ContractList() {
                 response.data.files &&
                 Array.isArray(response.data.files)
             ) {
-                // Mapeia os arquivos para o formato esperado
+             
                 const formattedUrls = response.data.files.map((file: any) => ({
                     url: file.file_url,
                     name: file.filename || 'file',
@@ -224,7 +243,7 @@ export default function ContractList() {
                             rowKey="id"
                             pagination={false}
                             loading={loading}
-                            rowClassName={(record) => (record.cancelado ? 'contract-cancelled' : '')}
+                            rowClassName={rowClassName}
                         />
                         <FloatingActionButton href="/contracts" />
 
@@ -319,7 +338,7 @@ export default function ContractList() {
                                     <button
                                         onClick={() => {
                                             setIsViewOpen(false);
-                                            setFileUrls([]); // Limpa a lista de documentos ao fechar o modal
+                                            setFileUrls([]); 
                                         }}
                                         className="mt-4 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
                                     >

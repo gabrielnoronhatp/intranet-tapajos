@@ -28,7 +28,11 @@ export const FilialSelect = ({
     const { currentContract } = useSelector((state: RootState) => state.contracts);
     const dispatch = useDispatch();
     const [error, setError] = useState('');
-    const [localSearchQuery, setLocalSearchQuery] = useState<string>('');
+    const searchQuery = useSelector(
+        (state: any) => state.noPaper.searchQuery || ''
+    )
+    const [localSearchQuery, setLocalSearchQuery] = useState<string>(searchQuery);
+     
 
     useEffect(() => {
         dispatch(

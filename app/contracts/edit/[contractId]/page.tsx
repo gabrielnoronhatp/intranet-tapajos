@@ -31,7 +31,7 @@ export default function EditContractPage() {
         if (contractId) {
             dispatch(fetchContractDetails(Number(contractId)) as any);
         }
-        dispatch(fetchLojas() as any);
+        dispatch(fetchLojas('   ') as any);
     }, [contractId, dispatch]);
 
     const handleSetState = (field: keyof typeof currentContract, value: any) => {

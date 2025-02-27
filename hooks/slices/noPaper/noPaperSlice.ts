@@ -46,8 +46,9 @@ export const uploadFiles = createAsyncThunk(
 
 export const fetchLojas = createAsyncThunk(
     'noPaper/fetchLojas',
-    async () => {
-        const response = await api.get(`dadoslojas`);
+    async (query: string) => {
+        
+        const response = await api.get(`dadoslojas?q=${query}`);
          return response.data;
     }
 );

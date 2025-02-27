@@ -71,8 +71,8 @@ export const ServiceTypeSelect = ({
             <Space style={{ padding: '0 8px 4px' }}>
                 <Input
                     placeholder="Digite o novo tipo"
-                    value={newTypeName}
-                    onChange={(e) => setNewTypeName(e.target.value)}
+                    value={newTypeName.toUpperCase()}
+                    onChange={(e) => setNewTypeName(e.target.value.toUpperCase())}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                             e.preventDefault();
@@ -94,7 +94,7 @@ export const ServiceTypeSelect = ({
 
     const options = Object.entries(serviceTypes).map(([id, descricao]) => ({
         value: id,
-        label: descricao,
+        label: descricao.toUpperCase(),
     }));
 
     return (

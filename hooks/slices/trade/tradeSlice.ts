@@ -5,7 +5,7 @@ import axios from 'axios';
 
 export const fetchCampaigns = createAsyncThunk(
     'trade/fetchCampaigns',
-    async (id?: string) => {
+    async () => {
         const response = await apiCampaing.get(`/campanhas`);
         return response.data;
     }

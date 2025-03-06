@@ -27,8 +27,7 @@ const apiCampaing = axios.create({
     baseURL: 'http://10.2.10.202:8000/',
     headers: {
         'Content-Type': 'application/json',
-         Accept: 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+
     },
  
 });

@@ -1,13 +1,36 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Navbar } from '@/components/layout/navbar';
 import { Sidebar } from '@/components/layout/sidebar';
 import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
 import { useState } from 'react';
+import { useSelector } from 'react-redux';
+import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { setToken } from '@/hooks/slices/authSlice';
 
 export default function Home() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    
+    const tokenCall = async () => { 
+        const response = await axios.post( 'http://10.2.10.202:8000/token ', {
+            username: 'trade',
+            password: '#$%23345',
+        });
+        console.log(response.data.access_token);
+        localStorage.setItem('tokenTrade', response.data.access_token);
+        return response.data.access_token;
+    };
+
+
+    useEffect(() => {
+        
+        const intervalId = setInterval(() => {
+            tokenCall();
+        }, 1800000);
+        return () => clearInterval(intervalId);
+    }, []);
 
     return (
         <AuthGuard>

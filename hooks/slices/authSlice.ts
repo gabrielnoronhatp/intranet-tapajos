@@ -11,6 +11,7 @@ interface AuthState {
     };
     accessToken: string | null;
     profilePicture: any;
+    tokenTrade: string | null;
 }
 
 const loadInitialState = (): AuthState => {
@@ -25,6 +26,7 @@ const loadInitialState = (): AuthState => {
         user: null,
         accessToken: null,
         profilePicture: null,
+        tokenTrade: null,
     };
 };
 
@@ -97,8 +99,11 @@ const authSlice = createSlice({
                 localStorage.setItem('auth', JSON.stringify(state));
             }
         },
+        setToken(state, action: PayloadAction<string>) {
+            state.tokenTrade = action.payload;
+        },
     },
 });
 
-export const { login, logout, setAuthenticated, setUser } = authSlice.actions;
+export const { login, logout, setAuthenticated, setUser, setToken } = authSlice.actions;
 export default authSlice.reducer;

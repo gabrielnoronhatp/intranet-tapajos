@@ -20,6 +20,7 @@ export interface IProduct {
 
 export interface IOperator {
     codusur: string;
+    matricula?: string;
     nome: string;
 }
 

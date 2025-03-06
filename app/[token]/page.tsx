@@ -9,19 +9,15 @@ import { login } from '@/hooks/slices/authSlice';
 import { CpfModal } from '@/components/nopaper/cpf-modal';
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
-
-
-
-
 export default function TokenPage() {
     const dispatch = useDispatch();
     const router: AppRouterInstance = useRouter();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const searchParams = useSearchParams();
     const token =
-    searchParams.get('token') ||
-    (typeof window !== 'undefined' &&
-        window.location.pathname.split('/').pop());
+        searchParams.get('token') ||
+        (typeof window !== 'undefined' &&
+            window.location.pathname.split('/').pop());
 
     const handleCpfConfirm = (cpf: string) => {
         setIsModalOpen(false);

@@ -72,18 +72,20 @@ export default function CenterOfCoust({ data, onChange }: CenterOfCoustProps) {
             if (otherCenters > 0) {
                 const valueForOthers = remaining / otherCenters;
 
-                updatedCenters = updatedCenters.map((center: any, i: number) => {
-                    if (i === index) {
+                updatedCenters = updatedCenters.map(
+                    (center: any, i: number) => {
+                        if (i === index) {
+                            return {
+                                ...center,
+                                valor: Number(value),
+                            };
+                        }
                         return {
                             ...center,
-                            valor: Number(value),
+                            valor: valueForOthers,
                         };
                     }
-                    return {
-                        ...center,
-                        valor: valueForOthers,
-                    };
-                });
+                );
             }
         } else {
             updatedCenters = updatedCenters.map((center: any, i: number) =>

@@ -1,19 +1,19 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Navbar } from "@/components/layout/navbar";
-import { Sidebar } from "@/components/layout/sidebar";
-import { Button } from "@/components/ui/button";
-import { setOrderState } from "@/hooks/slices/noPaper/orderSlice";
-import { message, Upload } from "antd";
-import OriginData from "@/components/nopaper/form/origin-data-form";
-import FinancialData from "@/components/nopaper/form/financial-data-form";
-import TaxesData from "@/components/nopaper/form/taxes-data-form";
-import CenterOfCoust from "@/components/nopaper/form/center-of-coust-form";
-import { AuthGuard } from "@/components/ProtectedRoute/AuthGuard";
-import { PlusOutlined } from "@ant-design/icons";
-import { api } from "@/app/service/api";
-import { useParams, useRouter } from "next/navigation";
+'use client';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Navbar } from '@/components/layout/navbar';
+import { Sidebar } from '@/components/layout/sidebar';
+import { Button } from '@/components/ui/button';
+import { setOrderState } from '@/hooks/slices/noPaper/orderSlice';
+import { message, Upload } from 'antd';
+import OriginData from '@/components/nopaper/form/origin-data-form';
+import FinancialData from '@/components/nopaper/form/financial-data-form';
+import TaxesData from '@/components/nopaper/form/taxes-data-form';
+import CenterOfCoust from '@/components/nopaper/form/center-of-coust-form';
+import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
+import { PlusOutlined } from '@ant-design/icons';
+import { api } from '@/app/service/api';
+import { useParams, useRouter } from 'next/navigation';
 
 export default function EditOrderPage() {
     const dispatch = useDispatch();
@@ -25,7 +25,9 @@ export default function EditOrderPage() {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const [existingFiles, setExistingFiles] = useState<Array<{ url: string; name: string }>>([]);
+    const [existingFiles, setExistingFiles] = useState<
+        Array<{ url: string; name: string }>
+    >([]);
 
     useEffect(() => {
         const fetchOrderData = async () => {
@@ -33,9 +35,15 @@ export default function EditOrderPage() {
                 const response = await api.get(`ordem-detalhes/${orderId}`);
                 if (response.status === 200) {
                     const data = response.data;
-                    if (data.assinatura1 || data.assinatura2 || data.assinatura3) {
-                        message.error("Esta ordem não pode ser editada porque já possui assinaturas.");
-                        router.push("/noPaper/list");
+                    if (
+                        data.assinatura1 ||
+                        data.assinatura2 ||
+                        data.assinatura3
+                    ) {
+                        message.error(
+                            'Esta ordem não pode ser editada porque já possui assinaturas.'
+                        );
+                        router.push('/noPaper/list');
                         return;
                     }
                     dispatch(setOrderState(data));
@@ -43,8 +51,8 @@ export default function EditOrderPage() {
                 }
                 setIsLoading(false);
             } catch (error) {
-                console.error("Erro ao buscar dados da ordem:", error);
-                message.error("Erro ao carregar ordem para edição");
+                console.error('Erro ao buscar dados da ordem:', error);
+                message.error('Erro ao carregar ordem para edição');
                 setIsLoading(false);
             }
         };
@@ -62,7 +70,7 @@ export default function EditOrderPage() {
         e.preventDefault();
 
         if (!orderData.lojaOP) {
-            message.error("Por favor, selecione uma filial.");
+            message.error('Por favor, selecione uma filial.');
             return;
         }
 
@@ -75,37 +83,40 @@ export default function EditOrderPage() {
         }
 
         try {
-            const response = await api.put(`atualizar-ordem/${orderId}`, adjustedOrderData);
+            const response = await api.put(
+                `atualizar-ordem/${orderId}`,
+                adjustedOrderData
+            );
 
             if (selectedFile) {
                 const formData = new FormData();
-                formData.append("files", selectedFile);
+                formData.append('files', selectedFile);
                 await api.post(`upload/${orderId}`, formData, {
-                    headers: { "Content-Type": "multipart/form-data" },
+                    headers: { 'Content-Type': 'multipart/form-data' },
                 });
             }
 
             if (response.status === 200) {
-                message.success("Ordem atualizada com sucesso!");
-                router.push("/noPaper/list");
+                message.success('Ordem atualizada com sucesso!');
+                router.push('/noPaper/list');
             }
         } catch (error) {
-            console.error("Erro ao atualizar ordem:", error);
-            message.error("Erro ao atualizar ordem de pagamento");
+            console.error('Erro ao atualizar ordem:', error);
+            message.error('Erro ao atualizar ordem de pagamento');
         }
     };
 
     const beforeUpload = (file: File) => {
         const allowedTypes = [
-            "image/jpeg",
-            "image/png",
-            "application/pdf",
-            "application/vnd.ms-excel",
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            'image/jpeg',
+            'image/png',
+            'application/pdf',
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ];
 
         if (!allowedTypes.includes(file.type)) {
-            message.error("Formato de arquivo não suportado!");
+            message.error('Formato de arquivo não suportado!');
             return false;
         }
         return true;
@@ -118,10 +129,14 @@ export default function EditOrderPage() {
     return (
         <AuthGuard>
             <div className="min-h-screen bg-background">
-                <Navbar onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
+                <Navbar
+                    onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+                />
                 <Sidebar isOpen={isSidebarOpen} />
 
-                <main className={`pt-16 transition-all duration-300 ${isSidebarOpen ? "ml-64" : "ml-20"}`}>
+                <main
+                    className={`pt-16 transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-20'}`}
+                >
                     <div className="p-4">
                         <h1 className="text-xl font-bold text-primary mb-4">
                             Editar Ordem de Pagamento
@@ -129,10 +144,22 @@ export default function EditOrderPage() {
 
                         <div className="max-w-3xl mx-auto">
                             <form onSubmit={handleSubmit} className="space-y-4">
-                                <OriginData data={orderData} onChange={handleSetState} />
-                                <FinancialData data={orderData} onChange={handleSetState} />
-                                <TaxesData data={orderData} onChange={handleSetState} />
-                                <CenterOfCoust data={orderData} onChange={handleSetState} />
+                                <OriginData
+                                    data={orderData}
+                                    onChange={handleSetState}
+                                />
+                                <FinancialData
+                                    data={orderData}
+                                    onChange={handleSetState}
+                                />
+                                <TaxesData
+                                    data={orderData}
+                                    onChange={handleSetState}
+                                />
+                                <CenterOfCoust
+                                    data={orderData}
+                                    onChange={handleSetState}
+                                />
 
                                 <div className="mt-6">
                                     <Upload
@@ -141,28 +168,45 @@ export default function EditOrderPage() {
                                         beforeUpload={beforeUpload}
                                         accept=".xls,.xlsx,.pdf,.jpg,.jpeg,.png"
                                         onChange={(info) => {
-                                            const file = info.file.originFileObj;
+                                            const file =
+                                                info.file.originFileObj;
                                             file && setSelectedFile(file);
                                         }}
                                     >
                                         <PlusOutlined />
-                                        <div style={{ marginTop: 8 }}>Upload</div>
+                                        <div style={{ marginTop: 8 }}>
+                                            Upload
+                                        </div>
                                     </Upload>
 
                                     {existingFiles.length > 0 && (
                                         <div className="mt-4">
-                                            <h3 className="text-md font-bold mb-2">Arquivos Existentes:</h3>
+                                            <h3 className="text-md font-bold mb-2">
+                                                Arquivos Existentes:
+                                            </h3>
                                             <div className="grid grid-cols-1 gap-2">
-                                                {existingFiles.map((file, index) => (
-                                                    <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded hover:bg-gray-100">
-                                                        <div className="flex flex-col flex-1">
-                                                            <a href={file.url} target="_blank" rel="noopener noreferrer" className="truncate text-blue-600 underline">
-                                                                {file.name}
-                                                            </a>
+                                                {existingFiles.map(
+                                                    (file, index) => (
+                                                        <div
+                                                            key={index}
+                                                            className="flex items-center justify-between p-2 bg-gray-50 rounded hover:bg-gray-100"
+                                                        >
+                                                            <div className="flex flex-col flex-1">
+                                                                <a
+                                                                    href={
+                                                                        file.url
+                                                                    }
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="truncate text-blue-600 underline"
+                                                                >
+                                                                    {file.name}
+                                                                </a>
+                                                            </div>
+                                                            {/* Opcional: Adicionar opção para remover arquivos existentes */}
                                                         </div>
-                                                        {/* Opcional: Adicionar opção para remover arquivos existentes */}
-                                                    </div>
-                                                ))}
+                                                    )
+                                                )}
                                             </div>
                                         </div>
                                     )}
@@ -183,4 +227,4 @@ export default function EditOrderPage() {
             </div>
         </AuthGuard>
     );
-} 
+}

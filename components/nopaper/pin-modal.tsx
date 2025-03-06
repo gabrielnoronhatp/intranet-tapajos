@@ -38,8 +38,6 @@ export function PinModal({ isOpen, onClose, onConfirm }: PinModalProps) {
     );
     const [showSuccess, setShowSuccess] = useState(false);
 
-  
-
     const defaultOptions = {
         loop: false,
         autoplay: true,
@@ -67,7 +65,7 @@ export function PinModal({ isOpen, onClose, onConfirm }: PinModalProps) {
             }
 
             const data = await response.json();
-            
+
             setToken(data.token);
         } catch (error) {
             console.error('Erro ao gerar assinatura:', error);
@@ -114,7 +112,9 @@ export function PinModal({ isOpen, onClose, onConfirm }: PinModalProps) {
                 );
 
                 if (!response.ok) {
-                    toast.error('Erro ao registrar assinatura ou permissão insuficiente para assinar.');
+                    toast.error(
+                        'Erro ao registrar assinatura ou permissão insuficiente para assinar.'
+                    );
                     throw new Error('Erro ao registrar assinatura');
                 }
 

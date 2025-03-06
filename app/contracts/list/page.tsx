@@ -15,7 +15,7 @@ import {
 } from '@/hooks/slices/contracts/contractSlice';
 import { RootState } from '@/hooks/store';
 import { useDispatch, useSelector } from 'react-redux';
-import { Eye, Edit, FileWarning  } from 'lucide-react';
+import { Eye, Edit, FileWarning } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { debounce } from 'lodash';
 import '@/components/styles/table.css';
@@ -92,7 +92,7 @@ export default function ContractList() {
         });
     };
 
-    const rowClassName:any = (record: any) => {
+    const rowClassName: any = (record: any) => {
         if (record.cancelado) return 'contract-cancelled';
 
         const today = new Date();
@@ -122,7 +122,11 @@ export default function ContractList() {
             dataIndex: 'data_venc_contrato',
             key: 'data_venc_contrato',
         },
-        { title: 'Início', dataIndex: 'data_inicio_contrato', key: 'data_inicio_contrato' },
+        {
+            title: 'Início',
+            dataIndex: 'data_inicio_contrato',
+            key: 'data_inicio_contrato',
+        },
         { title: 'Valor', dataIndex: 'valor_contrato', key: 'valor_contrato' },
         { title: 'Observações', dataIndex: 'obs1', key: 'obs1' },
         {
@@ -168,7 +172,6 @@ export default function ContractList() {
                 response.data.files &&
                 Array.isArray(response.data.files)
             ) {
-             
                 const formattedUrls = response.data.files.map((file: any) => ({
                     url: file.file_url,
                     name: file.filename || 'file',
@@ -208,7 +211,10 @@ export default function ContractList() {
                             <Input
                                 placeholder="Tipo de Serviço"
                                 onChange={(e) =>
-                                    handleFilterChange('descricao_tipo', e.target.value)
+                                    handleFilterChange(
+                                        'descricao_tipo',
+                                        e.target.value
+                                    )
                                 }
                                 style={{ width: 200, marginRight: 8 }}
                             />
@@ -219,7 +225,7 @@ export default function ContractList() {
                                 }
                                 style={{ width: 200, marginRight: 8 }}
                             />
-                           
+
                             <DatePicker
                                 placeholder="Vencimento"
                                 onChange={(date, dateString: any) =>
@@ -339,7 +345,7 @@ export default function ContractList() {
                                     <button
                                         onClick={() => {
                                             setIsViewOpen(false);
-                                            setFileUrls([]); 
+                                            setFileUrls([]);
                                         }}
                                         className="mt-4 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
                                     >

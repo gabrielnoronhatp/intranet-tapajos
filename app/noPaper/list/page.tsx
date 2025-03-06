@@ -27,7 +27,10 @@ export default function NoPaperList() {
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setSearchParams((prev: Record<string, string>) => ({ ...prev, [name]: value }));
+        setSearchParams((prev: Record<string, string>) => ({
+            ...prev,
+            [name]: value,
+        }));
     };
 
     const handleDateRangeChange = (
@@ -132,7 +135,9 @@ export default function NoPaperList() {
                                         </label>
                                         {/* TODO: delete  any */}
                                         <RangePicker
-                                            onChange={handleDateRangeChange as any}
+                                            onChange={
+                                                handleDateRangeChange as any
+                                            }
                                             placeholder={[
                                                 'Data de Início',
                                                 'Data de Fim',

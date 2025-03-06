@@ -42,15 +42,17 @@ const OriginData: React.FC<OriginDataProps> = ({ data, onChange }) => {
     };
 
     useEffect(() => {
-        dispatch(setOrderState({
-            ramoOP,
-            opcaoLancOP,
-            notaOP,
-            serieOP,
-            fornecedorOP,
-            dtlanc,
-            userOP,
-        }));
+        dispatch(
+            setOrderState({
+                ramoOP,
+                opcaoLancOP,
+                notaOP,
+                serieOP,
+                fornecedorOP,
+                dtlanc,
+                userOP,
+            })
+        );
     }, [ramoOP, opcaoLancOP, fornecedorOP, dtlanc, notaOP, serieOP, userOP]);
 
     return (
@@ -227,8 +229,6 @@ const OriginData: React.FC<OriginDataProps> = ({ data, onChange }) => {
                     />
                 </div>
             </div>
-
-           
         </FormSection>
     );
 };

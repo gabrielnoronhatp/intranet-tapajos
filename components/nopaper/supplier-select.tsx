@@ -15,7 +15,11 @@ interface FornecedorSelectProps {
     handleSelectChange: (value: string) => void;
 }
 
-export const FornecedorSelect = ({ handleSetState, fieldValue, handleSelectChange }: FornecedorSelectProps) => {
+export const FornecedorSelect = ({
+    handleSetState,
+    fieldValue,
+    handleSelectChange,
+}: FornecedorSelectProps) => {
     const dispatch = useDispatch();
 
     const searchQuery = useSelector(
@@ -34,8 +38,6 @@ export const FornecedorSelect = ({ handleSetState, fieldValue, handleSelectChang
         value: fornecedor.fornecedor,
         label: fornecedor.fornecedor,
     }));
-
-  
 
     return (
         <div>

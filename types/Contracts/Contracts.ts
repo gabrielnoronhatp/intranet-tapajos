@@ -10,7 +10,7 @@ export interface IContract {
     endereco2?: string;
     email1?: string;
     email2?: string;
-    data_venc_contrato?: string; 
+    data_venc_contrato?: string;
     indice?: string;
     forma_pag?: any; // TODO: find a way to handle this any
     agencia?: string;
@@ -26,14 +26,13 @@ export interface IContract {
     userlanc?: string;
     cancelado?: boolean;
     dtdeposito?: string;
-    tipopix?: any;   // TODO: find a way to handle this any
+    tipopix?: any; // TODO: find a way to handle this any
     chavepix?: string;
     datapix?: string;
     opcao_lanc?: string;
     files?: IFile[];
     ccusto?: string;
     banco?: string;
-    
 }
 
 export type ContractFormState = Partial<IContract>;
@@ -41,7 +40,6 @@ export enum TipoServico {
     SERVICO1 = 'servico1',
     SERVICO2 = 'servico2',
 }
-
 
 export enum IndiceType {
     PCE = 'PCE',

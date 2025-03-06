@@ -43,13 +43,11 @@ export const uploadFiles = createAsyncThunk(
     }
 );
 
-
 export const fetchLojas = createAsyncThunk(
     'noPaper/fetchLojas',
     async (query: string) => {
-        
         const response = await api.get(`dadoslojas?q=${query}`);
-         return response.data;
+        return response.data;
     }
 );
 
@@ -160,7 +158,6 @@ const noPaperSlice = createSlice({
             .addCase(createServiceType.fulfilled, (state, action) => {
                 state.loading = false;
             });
-            
     },
 });
 

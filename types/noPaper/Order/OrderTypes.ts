@@ -1,8 +1,5 @@
-import { Item } from "./CentroCustoItem";
-import { CentroCusto } from "./CentroCustoType";
-
-
-
+import { Item } from './CentroCustoItem';
+import { CentroCusto } from './CentroCustoType';
 
 export interface OrderData {
     dtlanc: string;

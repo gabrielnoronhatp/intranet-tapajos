@@ -32,7 +32,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
             label: <Link href="/contracts/list">Contratos</Link>,
         },
         {
-            key:  '/trade/list',
+            key: '/trade/list',
             icon: <FileChartColumnIncreasing className="h-5 w-5" />,
             label: <Link href="/trade/list">Trade</Link>,
         },

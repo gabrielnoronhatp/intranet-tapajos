@@ -25,27 +25,29 @@ export const FilialSelect = ({
     ramo,
 }: FilialSelectProps) => {
     const { filiais } = useSelector((state: RootState) => state.noPaper);
-    const { currentContract } = useSelector((state: RootState) => state.contracts);
+    const { currentContract } = useSelector(
+        (state: RootState) => state.contracts
+    );
     const dispatch = useDispatch();
     const [error, setError] = useState('');
     const searchQuery = useSelector(
         (state: any) => state.noPaper.searchQuery || ''
-    )
-    const [localSearchQuery, setLocalSearchQuery] = useState<string>(searchQuery);
-     
+    );
+    const [localSearchQuery, setLocalSearchQuery] =
+        useState<string>(searchQuery);
 
     useEffect(() => {
-        dispatch(
-            fetchFiliais({ query: localSearchQuery, ramo }) as any
-        );
+        dispatch(fetchFiliais({ query: localSearchQuery, ramo }) as any);
     }, [dispatch, localSearchQuery, ramo]);
 
     const handleChange = (value: string) => {
         handleSelectChange(value);
-        dispatch(setCurrentContract({
-            ...currentContract,
-            idfilial: value
-        }));
+        dispatch(
+            setCurrentContract({
+                ...currentContract,
+                idfilial: value,
+            })
+        );
     };
 
     return (

@@ -16,13 +16,14 @@ const { RangePicker } = DatePicker;
 
 export default function NoPaperList() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-    
-    const data = [
-        { nome: 'John Doe', meta: '100', premiacaoAcao: '50' },
-        { nome: 'Jane Smith', meta: '200', premiacaoAcao: '100' },
-        // ... mais dados
-    ];
 
+  
+    useEffect(() => {
+        const authData = JSON.parse(localStorage.getItem('auth') || '{}');
+        const { accessToken } = authData;
+        localStorage.setItem('accessToken', accessToken);
+    }, []);
+  
     return (
         <AuthGuard>
             <div>
@@ -48,11 +49,9 @@ export default function NoPaperList() {
                                     </p>
                                 </div>
                             </div>
-                           
+
                             <div className="rounded-lg border bg-card">
-                                <TableTrade
-                                    data={data}
-                                />
+                                <TableTrade  />
                             </div>
 
                             <FloatingActionButton href="/trade" />

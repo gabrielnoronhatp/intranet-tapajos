@@ -8,11 +8,12 @@ import '../../components/styles/login.css';
 import { tpGrupoTapajos } from '../assets/index';
 import { RootState } from '@/hooks/store';
 import { setAuthenticated } from '@/hooks/slices/authSlice';
+import { setUserLanc } from '@/hooks/slices/trade/tradeSlice';
 
 export default function LoginPage() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-   
+
     const [isModalVisible, setIsModalVisible] = useState(false);
     const accessToken = useSelector(
         (state: RootState) => state.auth.accessToken
@@ -23,7 +24,6 @@ export default function LoginPage() {
     useEffect(() => {
         if (accessToken) {
             try {
-               
                 dispatch(setAuthenticated(true));
             } catch (error) {
                 console.error('Erro ao decodificar JWT:', error);
@@ -34,6 +34,7 @@ export default function LoginPage() {
 
     const handleLogin = () => {
         window.location.href = 'https://sso.grupotapajos.com.br/login';
+        dispatch(setUserLanc(userInfo?.username));
     };
 
     return (

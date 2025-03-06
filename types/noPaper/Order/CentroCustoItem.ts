@@ -1,4 +1,4 @@
-import { CentroCusto } from "./CentroCustoType";
+import { CentroCusto } from './CentroCustoType';
 
 export interface Item {
     produto: any;

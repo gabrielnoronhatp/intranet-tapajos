@@ -12,7 +12,6 @@ import { SelectField } from '@/components/nopaper/select-field';
 import { FormSection } from '@/components/nopaper/form-section';
 import { setCurrentContract } from '@/hooks/slices/contracts/contractSlice';
 
-
 export default function FinancialData() {
     const dispatch = useDispatch();
     const user = useSelector((state: any) => state.auth.user);
@@ -29,7 +28,7 @@ export default function FinancialData() {
     const [installmentDates, setInstallmentDates] = useState<string[]>([]);
     const [dtavista, setDtavista] = useState<string>('');
     const [qtparcelas, setQtparcelas] = useState<number>(0);
-   
+
     const {
         forma_pag,
         banco,
@@ -54,28 +53,25 @@ export default function FinancialData() {
         }
     };
 
- 
-
     const handleFormaPagamentoChange = (value: string) => {
         handleSetState('forma_pag', value);
-        
     };
 
     const handleInstallmentsChange = (
         e: React.ChangeEvent<HTMLInputElement>
     ) => {
         const numInstallments = parseInt(e.target.value, 10);
-       
     };
 
     const handleInstallmentDateChange = (index: number, date: string) => {
         const newDates = [...installmentDates];
         newDates[index] = date;
-       
     };
 
     const handleSubmit = () => {
-        const currentContract = useSelector((state: RootState) => state.contracts.currentContract);
+        const currentContract = useSelector(
+            (state: RootState) => state.contracts.currentContract
+        );
         const updatedContract = {
             ...currentContract,
             telefone2: currentContract.telefone2 || currentContract.telefone1,
@@ -95,11 +91,10 @@ export default function FinancialData() {
                     onChange={handleFormaPagamentoChange}
                     options={[
                         { value: 'boleto    ', label: 'Boleto' },
-                        { value: 'deposito', label: 'Depósito' },        
+                        { value: 'deposito', label: 'Depósito' },
                         { value: 'pix', label: 'Pix' },
                     ]}
                 />
-              
 
                 {forma_pag === 'avista' && (
                     <div className="space-y-2">
@@ -109,13 +104,10 @@ export default function FinancialData() {
                         <Input
                             type="date"
                             value={dtavista}
-                            
                             className="form-control"
                         />
                     </div>
                 )}
-
-              
 
                 {forma_pag === 'deposito' && (
                     <div className="space-y-2">
@@ -155,7 +147,6 @@ export default function FinancialData() {
                             placeholder="Conta"
                             className="form-control"
                         />
-                      
                     </div>
                 )}
 
@@ -189,11 +180,9 @@ export default function FinancialData() {
                             placeholder="Insira a Chave PIX"
                             className="form-control"
                         />
-                    
                     </div>
                 )}
             </div>
-           
         </FormSection>
     );
 }

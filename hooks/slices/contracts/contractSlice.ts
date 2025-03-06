@@ -7,7 +7,7 @@ interface ContractState {
     contracts: IContract[];
     loading: boolean;
     error: string | null;
-    currentContract: IContract ;
+    currentContract: IContract;
     serviceTypes: { [key: number]: string };
 }
 
@@ -45,7 +45,6 @@ export const createContract = createAsyncThunk(
                 window.location.href = '/contracts/list';
             }, 1000);
             return response.data;
-            
         } catch (error: any) {
             toast.error('Erro ao cadastrar contrato: ' + error.message);
             throw error;
@@ -80,11 +79,15 @@ export const uploadContractFile = createAsyncThunk(
             const formData = new FormData();
             formData.append('file', file);
 
-            const response = await apiDev.post(`contracts/${contractId}/files`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
+            const response = await apiDev.post(
+                `contracts/${contractId}/files`,
+                formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                }
+            );
 
             toast.success('Arquivo enviado com sucesso!');
             return response.data;
@@ -115,7 +118,9 @@ export const fetchContractDetails = createAsyncThunk(
             const response = await apiDev.get(`contracts/${contractId}`);
             return response.data;
         } catch (error: any) {
-            toast.error('Erro ao buscar detalhes do contrato: ' + error.message);
+            toast.error(
+                'Erro ao buscar detalhes do contrato: ' + error.message
+            );
             throw error;
         }
     }
@@ -123,7 +128,13 @@ export const fetchContractDetails = createAsyncThunk(
 
 export const updateContract = createAsyncThunk(
     'contracts/updateContract',
-    async ({ contractId, contractData }: { contractId: number; contractData: Partial<IContract> }) => {
+    async ({
+        contractId,
+        contractData,
+    }: {
+        contractId: number;
+        contractData: Partial<IContract>;
+    }) => {
         try {
             const updatedContractData = { ...contractData };
 
@@ -135,7 +146,10 @@ export const updateContract = createAsyncThunk(
                 delete updatedContractData.conta;
             }
 
-            const response = await apiDev.put(`contracts/${contractId}`, updatedContractData);
+            const response = await apiDev.put(
+                `contracts/${contractId}`,
+                updatedContractData
+            );
             toast.success('Contrato atualizado com sucesso!');
             setTimeout(() => {
                 window.location.href = '/contracts/list';
@@ -152,7 +166,9 @@ export const cancelContract = createAsyncThunk(
     'contracts/cancelContract',
     async (contractId: number) => {
         try {
-            const response = await apiDev.put(`contracts/${contractId}`, { cancelado: true });
+            const response = await apiDev.put(`contracts/${contractId}`, {
+                cancelado: true,
+            });
             toast.success('Contrato cancelado com sucesso!');
             return response.data;
         } catch (error: any) {
@@ -170,7 +186,8 @@ const contractSlice = createSlice({
             state.currentContract = {
                 ...state.currentContract,
                 ...action.payload,
-                userlanc: action.payload.userlanc || state.currentContract.userlanc,
+                userlanc:
+                    action.payload.userlanc || state.currentContract.userlanc,
             };
         },
         clearCurrentContract: (state) => {
@@ -214,11 +231,14 @@ const contractSlice = createSlice({
             })
             .addCase(fetchServiceTypes.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.error.message || 'Erro ao buscar tipos de serviço';
+                state.error =
+                    action.error.message || 'Erro ao buscar tipos de serviço';
             })
             .addCase(fetchContractFiles.fulfilled, (state, action) => {
                 const { contractId, files } = action.payload;
-                const contract = state.contracts.find(c => c.id === contractId);
+                const contract = state.contracts.find(
+                    (c) => c.id === contractId
+                );
                 if (contract) {
                     contract.files = files;
                 }
@@ -231,7 +251,9 @@ const contractSlice = createSlice({
             })
             .addCase(cancelContract.fulfilled, (state, action) => {
                 const updatedContract = action.payload;
-                const index = state.contracts.findIndex(c => c.id === updatedContract.id);
+                const index = state.contracts.findIndex(
+                    (c) => c.id === updatedContract.id
+                );
                 if (index !== -1) {
                     state.contracts[index] = updatedContract;
                 }

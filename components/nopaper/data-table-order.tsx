@@ -12,7 +12,7 @@ import {
     setOrderId,
     setSignatureNumber,
 } from '@/hooks/slices/noPaper/noPaperSlice';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { OrderState } from '@/types/noPaper/Order/OrderTypes';
 import { useRouter } from 'next/navigation';
 
@@ -114,6 +114,34 @@ export function DataTableOrder({
         console.log(info);
     };
 
+    const checkUserPermission = async (signerName: string, signatureNumber: number) => {
+        try {
+            const response = await api.post('/orders/permission', {
+                signerName,
+                signatureNumber,
+            });
+       
+            return response.data
+        } catch (error) {
+            console.error('Error checking user permission:', error);
+            return false;
+        }
+    };
+
+    const handleSignatureClick = async (record: any, signatureNumber: number) => {
+        const auth = localStorage.getItem('auth');
+        const userName = JSON.parse(auth || '{}');
+        const user = userName.user;
+        const hasPermission = await checkUserPermission(user.username, signatureNumber)  ;
+        if (hasPermission) {
+            dispatch(setOrderId(record.id));
+            dispatch(setSignatureNumber(signatureNumber));
+            setIsPinModalOpen(true);
+        } else {
+            message.error('Você não tem permissão para assinar esta ordem.');
+        }
+    };
+
     const columns = [
         { title: 'ID', dataIndex: 'id', key: 'id' },
         { title: 'Fornecedor', dataIndex: 'fornecedor', key: 'fornecedor' },
@@ -140,11 +168,7 @@ export function DataTableOrder({
             align: 'center',
             render: (text: string, record: any) => (
                 <span
-                    onClick={() => {
-                        dispatch(setOrderId(record.id));
-                        dispatch(setSignatureNumber(1));
-                        setIsPinModalOpen(true);
-                    }}
+                    onClick={() => handleSignatureClick(record, 1)}
                     style={{ cursor: 'pointer' }}
                 >
                     {text ? (
@@ -162,11 +186,7 @@ export function DataTableOrder({
             align: 'center',
             render: (text: string, record: any) => (
                 <span
-                    onClick={() => {
-                        dispatch(setOrderId(record.id));
-                        dispatch(setSignatureNumber(2));
-                        setIsPinModalOpen(true);
-                    }}
+                    onClick={() => handleSignatureClick(record, 2)}
                     style={{ cursor: 'pointer' }}
                 >
                     {text ? (
@@ -184,11 +204,7 @@ export function DataTableOrder({
             align: 'center',
             render: (text: string, record: any) => (
                 <span
-                    onClick={() => {
-                        dispatch(setOrderId(record.id));
-                        dispatch(setSignatureNumber(3));
-                        setIsPinModalOpen(true);
-                    }}
+                    onClick={() => handleSignatureClick(record, 3)}
                     style={{ cursor: 'pointer' }}
                 >
                     {text ? (

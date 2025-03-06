@@ -39,16 +39,22 @@ export default function ContractForm() {
     ) => {
         dispatch(setCurrentContract({ [field]: value }));
     };
-     
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const resultAction = await dispatch(createContract(currentContract) as any);
+            const resultAction = await dispatch(
+                createContract(currentContract) as any
+            );
             const newContractId = resultAction.payload.id;
 
             if (newContractId && selectedFile) {
-                await dispatch(uploadContractFile({ contractId: newContractId, file: selectedFile }) as any);
+                await dispatch(
+                    uploadContractFile({
+                        contractId: newContractId,
+                        file: selectedFile,
+                    }) as any
+                );
             }
         } catch (error) {
             toast.error('Erro ao cadastrar contrato ou enviar arquivo.');
@@ -64,19 +70,14 @@ export default function ContractForm() {
     const handleSelectFilialChange = (value: string) => {
         dispatch(setCurrentContract({ idfilial: value }));
     };
-   
-   
+
     useEffect(() => {
         dispatch(fetchLojas(localSearchQuery) as any);
-       
     }, [localSearchQuery, dispatch]);
-     
 
     const handleFileChange = (file: File) => {
         setSelectedFile(file);
     };
-
-
 
     return (
         <AuthGuard>
@@ -99,7 +100,10 @@ export default function ContractForm() {
                                         handleSetState={handleSetState}
                                         fieldValue={currentContract.idtipo}
                                         handleSelectChange={(value) =>
-                                            handleSetState('idtipo', value.toString())
+                                            handleSetState(
+                                                'idtipo',
+                                                value.toString()
+                                            )
                                         }
                                     />
                                     <FornecedorSelect
@@ -111,23 +115,30 @@ export default function ContractForm() {
                                         }
                                         handleSetState={handleSetState}
                                     />
-                                   <div className='text-sm font-medium text-[#11833B] uppercase'> 
-                                   SELECIONE A FILIAL
-                                     </div>
-                                  
+                                    <div className="text-sm font-medium text-[#11833B] uppercase">
+                                        SELECIONE A FILIAL
+                                    </div>
+
                                     <Select
                                         id="filial"
                                         placeholder="Selecione a Filial"
                                         value={currentContract.idfilial}
                                         onChange={handleSelectFilialChange}
-                                        onSearch={(value) => setLocalSearchQuery(value)}
-                                        showSearch
-                                        filterOption={(input: string, option: any) =>
-                                            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                                        onSearch={(value) =>
+                                            setLocalSearchQuery(value)
                                         }
-                                        options={lojas.map(filial => ({
+                                        showSearch
+                                        filterOption={(
+                                            input: string,
+                                            option: any
+                                        ) =>
+                                            (option?.label ?? '')
+                                                .toLowerCase()
+                                                .includes(input.toLowerCase())
+                                        }
+                                        options={lojas.map((filial) => ({
                                             value: filial.loja,
-                                            label: filial.loja
+                                            label: filial.loja,
                                         }))}
                                         className="w-full mb-4"
                                     />
@@ -344,12 +355,15 @@ export default function ContractForm() {
                                                 step="0.01"
                                                 value={
                                                     tipoMulta === 'percentual'
-                                                        ? (currentContract.percentual_multa ?? 0)
-                                                        : currentContract.valor_multa ?? 0
+                                                        ? (currentContract.percentual_multa ??
+                                                          0)
+                                                        : (currentContract.valor_multa ??
+                                                          0)
                                                 }
                                                 onValueChange={(values) =>
                                                     handleSetState(
-                                                        tipoMulta === 'percentual'
+                                                        tipoMulta ===
+                                                            'percentual'
                                                             ? 'percentual_multa'
                                                             : 'valor_multa',
                                                         values.floatValue ?? 0
@@ -414,9 +428,14 @@ export default function ContractForm() {
                                                 decimalScale={2}
                                                 fixedDecimalScale
                                                 placeholder="Valor"
-                                                value={currentContract.valor_contrato}
+                                                value={
+                                                    currentContract.valor_contrato
+                                                }
                                                 onValueChange={(values) =>
-                                                    handleSetState('valor_contrato', values.floatValue ?? 0)
+                                                    handleSetState(
+                                                        'valor_contrato',
+                                                        values.floatValue ?? 0
+                                                    )
                                                 }
                                                 className="mb-4"
                                             />

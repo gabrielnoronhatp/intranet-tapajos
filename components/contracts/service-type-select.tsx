@@ -4,7 +4,10 @@ import { Label } from '@/components/ui/label';
 import { Select, message } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/hooks/store';
-import { fetchServiceTypes, setCurrentContract } from '@/hooks/slices/contracts/contractSlice';
+import {
+    fetchServiceTypes,
+    setCurrentContract,
+} from '@/hooks/slices/contracts/contractSlice';
 import { createServiceType } from '@/hooks/slices/noPaper/noPaperSlice';
 import { PlusOutlined } from '@ant-design/icons';
 import { Button, Divider, Input, Space } from 'antd';
@@ -37,22 +40,24 @@ export const ServiceTypeSelect = ({
         dispatch(
             setCurrentContract({
                 ...currentContract,
-                idtipo: value
+                idtipo: value,
             })
         );
     };
 
     const handleCreateType = async () => {
         if (!newTypeName.trim()) return;
-        
+
         setIsLoading(true);
         try {
-            const result = await dispatch(createServiceType(newTypeName) as any).unwrap();
+            const result = await dispatch(
+                createServiceType(newTypeName) as any
+            ).unwrap();
             handleSelectChange(result.id.toString());
             dispatch(
                 setCurrentContract({
                     ...currentContract,
-                    idtipo: result.id.toString()
+                    idtipo: result.id.toString(),
                 })
             );
             setNewTypeName('');
@@ -72,7 +77,9 @@ export const ServiceTypeSelect = ({
                 <Input
                     placeholder="Digite o novo tipo"
                     value={newTypeName.toUpperCase()}
-                    onChange={(e) => setNewTypeName(e.target.value.toUpperCase())}
+                    onChange={(e) =>
+                        setNewTypeName(e.target.value.toUpperCase())
+                    }
                     onKeyDown={(e) => {
                         if (e.key === 'Enter') {
                             e.preventDefault();
@@ -112,11 +119,13 @@ export const ServiceTypeSelect = ({
                 loading={loading || isLoading}
                 options={options}
                 filterOption={(input, option) =>
-                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                    (option?.label ?? '')
+                        .toLowerCase()
+                        .includes(input.toLowerCase())
                 }
                 style={{ width: '100%' }}
                 dropdownRender={addTypeDropdown}
             />
         </div>
     );
-}; 
+};

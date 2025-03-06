@@ -1,4 +1,3 @@
-
 export interface IFornecedor {
     id: number;
     nome: string;

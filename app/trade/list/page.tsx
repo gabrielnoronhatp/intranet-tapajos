@@ -18,11 +18,7 @@ export default function NoPaperList() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   
-    useEffect(() => {
-        const authData = JSON.parse(localStorage.getItem('auth') || '{}');
-        const { accessToken } = authData;
-        localStorage.setItem('accessToken', accessToken);
-    }, []);
+    
   
     return (
         <AuthGuard>

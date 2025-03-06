@@ -25,9 +25,7 @@ export default function CampaignRegistration() {
         (state: RootState) => state.trade
     );
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [operadores, setOperadores] = useState<
-        Array<{ nome: string; meta: string; premiacao: string; tipo: string; idparticipante: number }>
-    >([]);
+    const [operadores, setOperadores] = useState<any>([]);
     const [marcaProdutos, setMarcaProdutos] = useState<
         Array<{ nome: string; codprod: string; descricao: string }>
     >([]);
@@ -93,11 +91,11 @@ export default function CampaignRegistration() {
     };
 
     const handleRemoveOperador = (index: number) => {
-        setOperadores(operadores.filter((_, i) => i !== index));
+        setOperadores(operadores.filter((_:any, i:any) => i !== index));
     };
 
     const handleRemoveMarcaProduto = (index: number) => {
-        setMarcaProdutos(marcaProdutos.filter((_, i) => i !== index));
+        setMarcaProdutos(marcaProdutos.filter((_:any, i:any) => i !== index));
     };
 
     const handleSearchOperador = (searchTerm: string) => {
@@ -112,7 +110,7 @@ export default function CampaignRegistration() {
 
     const handleSearchProduto = useCallback(
         debounce((searchTerm: string) => {
-            dispatch(fetchProducts({ productName: searchTerm, type: tipoMarcaProduto }));
+            dispatch(fetchProducts({ productName: searchTerm, type: tipoMarcaProduto }) as any);
         }, 300),
         [dispatch, tipoMarcaProduto]
     );

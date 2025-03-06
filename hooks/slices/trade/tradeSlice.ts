@@ -56,7 +56,7 @@ export const deleteCampaign = createAsyncThunk(
 
 export const fetchProducts = createAsyncThunk(
     'trade/fetchProducts',
-    async ({ productName, type }: { productName?: string; type: string }) => {
+    async ({ productName, type }: { productName?: any; type: any }) => {
         try {
             const url = productName
                 ? `/api/products?name=${encodeURIComponent(productName)}&type=${type}`

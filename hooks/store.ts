@@ -5,6 +5,7 @@ import authReducer from './slices/authSlice';
 import errorReducer from './slices/noPaper/errorSlice';
 import contractReducer from './slices/contracts/contractSlice';
 import tradeReducer from './slices/trade/tradeSlice';
+import tokenReducer from './slices/token/tokenSlice';
 const store = configureStore({
     reducer: {
         noPaper: noPaperReducer,
@@ -13,6 +14,7 @@ const store = configureStore({
         error: errorReducer,
         contracts: contractReducer,
         trade: tradeReducer,
+        token: tokenReducer,
     },
 });
 

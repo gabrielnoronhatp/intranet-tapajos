@@ -1,8 +1,10 @@
+import store from '@/hooks/store';
 import axios from 'axios';
 import React from 'react';
 
 const baseUrl = 'http://10.2.10.17:3001/api/';
-const devUrl = 'http://10.2.10.17:3002/api/';const localUrl = 'http://localhost:3002/api/';
+const devUrl = 'http://10.2.10.17:3002/api/';
+const localUrl = 'http://localhost:3002/api/';
 
 const api = axios.create({
     baseURL: baseUrl,
@@ -22,16 +24,7 @@ const apiDev = axios.create({
     withCredentials: false,
 });
 
-const token = localStorage.getItem('tokenTrade');
 
-const apiCampaing = axios.create({
-    
-    baseURL: 'http://10.2.10.202:8000/',
-    headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-    },
- 
-});
 
-export { api, apiDev, apiCampaing };
+
+export { api, apiDev };

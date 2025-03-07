@@ -4,7 +4,6 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ToastProvider } from '@/components/ui/toast';
 import { Toaster } from 'react-hot-toast';
-
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
@@ -16,7 +15,10 @@ export default function RootLayout({
     children,
 }: {
     children: React.ReactNode;
-}) {
+}) 
+
+{
+ 
     return (
         <html lang="pt-BR">
             <head>
@@ -25,7 +27,6 @@ export default function RootLayout({
             <body className={inter.className}>
                 <ReduxProvider>
                     <Toaster />
-
                     {children}
                 </ReduxProvider>
             </body>

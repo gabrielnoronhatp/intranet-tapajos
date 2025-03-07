@@ -18,25 +18,9 @@ const { RangePicker } = DatePicker;
 export default function NoPaperList() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-    const tokenCall = async () => { 
-        const response = await axios.post( 'http://10.2.10.202:8000/token ', {
-            username: 'trade',
-            password: '#$%23345',
-        });
-        console.log(response.data.access_token);
-        localStorage.setItem('tokenTrade', response.data.access_token);
-        return response.data.access_token;
-    };
-
-
-    useEffect(() => {
         
-        const intervalId = setInterval(() => {
-            tokenCall();
-        }, 1800000);
-        return () => clearInterval(intervalId);
-    }, []);
-    
+
+
   
     return (
         <AuthGuard>

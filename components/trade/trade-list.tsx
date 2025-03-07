@@ -7,6 +7,7 @@ import { ICampaign } from '@/types/Trade/ITrade';
 import { deactivateCampaign, fetchCampaignById, fetchCampaigns } from '@/hooks/slices/trade/tradeSlice';
 import { Eye, Edit, FileWarning } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import useTokenRefresh from '@/hooks/useTokenRefresh';
 
 interface TableTradeProps {
     data: Array<{
@@ -24,12 +25,18 @@ export function TableTrade() {
     const { campaigns, currentCampaign } = useSelector((state: RootState) => state.trade);
     const dispatch = useDispatch();
     const router = useRouter();
+    const refreshToken = useTokenRefresh();
+
 
     useEffect(() => {
+        refreshToken();
         dispatch(fetchCampaigns() as any);
     }, [dispatch]);
 
-    const handleEditCampaign = (id: string) => {};
+    const handleEditCampaign = (id: string) => {
+        router.push(`/trade/edit/${id}`);
+    };
+   
 
     const handleViewCampaign = (id: string) => {
         dispatch(fetchCampaignById(id) as any).then(() => {

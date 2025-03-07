@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input, Select, Table, message, Radio } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-    createCampaign,
+    fetchCampaignById,
+    updateCampaign,
     setCurrentCampaign,
     updateField,
     fetchProducts,
@@ -15,12 +16,12 @@ import {
 } from '@/hooks/slices/trade/tradeSlice';
 import { RootState } from '@/hooks/store';
 import { debounce } from 'lodash';
+import { useParams, useRouter } from 'next/navigation';
 
 const { Option } = Select;
 
-export default function CampaignRegistration() {
+export default function CampaignEdit() {
     const dispatch = useDispatch();
-
     const { currentCampaign, products, operators, filiais } = useSelector(
         (state: RootState) => state.trade
     );
@@ -40,31 +41,58 @@ export default function CampaignRegistration() {
     const [tipoMeta, setTipoMeta] = useState('VALOR');
     const [meta_valor, setMetaValor] = useState('');
     const user = useSelector((state: RootState) => state.auth.user);
+    const params = useParams();
+    const campaignId = params?.campaignId as string;
+    const [datainicial, setDatainicial] = useState('');
+    const [datafinal, setDatafinal] = useState('');
+    const [valorTotal, setValorTotal] = useState(0);
+
     useEffect(() => {
-        dispatch(fetchFiliais('') as any);
-    }, []);
+        if (campaignId) {
+            dispatch(fetchCampaignById(campaignId) as any);
+            dispatch(fetchFiliais('') as any);
+        }
+    }, [dispatch, campaignId]);
+
+    useEffect(() => {
+        if (currentCampaign) {
+            setCampaignName(currentCampaign.campanha?.nome || '');
+            setFilial(currentCampaign.campanha?.filial || '');
+            setDatainicial(currentCampaign.campanha?.datainicial || '');
+            setDatafinal(currentCampaign.campanha?.datafinal || '');
+            setValorTotal(currentCampaign.campanha?.valor_total || 0);
+            setOperadores(currentCampaign.participantes);
+            setMetaValor(currentCampaign.campanha?.meta_valor);
+            setMarcaProdutos(currentCampaign.itens);
+            setTipoMeta(currentCampaign.campanha?.tipoMeta);
+        }
+    }, [currentCampaign]);
 
     const handleAddOperador = () => {
         if (selectedOperador && meta_valor && premiacao) {
-            const idparticipante = tipoOperador === 'teleoperador' 
-                ? operators.find(op => op.nome === selectedOperador)?.matricula 
-                : operators.find(op => op.nome === selectedOperador)?.codusur;
-    
+            const idparticipante =
+                tipoOperador === 'teleoperador'
+                    ? operators.find((op) => op.nome === selectedOperador)
+                          ?.matricula
+                    : operators.find((op) => op.nome === selectedOperador)
+                          ?.codusur;
+
             if (!idparticipante) {
                 message.error('Operador não encontrado!');
                 return;
             }
-    
+
             const participante = {
-                modelo: tipoOperador === 'teleoperador' ? 'teleoperador' : 'RCA',
+                modelo:
+                    tipoOperador === 'teleoperador' ? 'teleoperador' : 'RCA',
                 meta: tipoMeta,
                 idparticipante,
                 meta_valor: parseFloat(meta_valor),
-                meta_quantidade:meta_valor,
+                meta_quantidade: meta_valor,
                 premiacao,
                 tipo_meta: tipoMeta,
             };
-    
+
             setOperadores([
                 ...operadores,
                 { ...participante, nome: selectedOperador, tipo: tipoOperador },
@@ -91,11 +119,11 @@ export default function CampaignRegistration() {
     };
 
     const handleRemoveOperador = (index: number) => {
-        setOperadores(operadores.filter((_:any, i:any) => i !== index));
+        setOperadores(operadores.filter((_: any, i: any) => i !== index));
     };
 
     const handleRemoveMarcaProduto = (index: number) => {
-        setMarcaProdutos(marcaProdutos.filter((_:any, i:any) => i !== index));
+        setMarcaProdutos(marcaProdutos.filter((_: any, i: any) => i !== index));
     };
 
     const handleSearchOperador = (searchTerm: string) => {
@@ -110,37 +138,45 @@ export default function CampaignRegistration() {
 
     const handleSearchProduto = useCallback(
         debounce((searchTerm: string) => {
-            dispatch(fetchProducts({ productName: searchTerm, type: tipoMarcaProduto }) as any);
+            dispatch(
+                fetchProducts({
+                    productName: searchTerm,
+                    type: tipoMarcaProduto,
+                }) as any
+            );
         }, 300),
         [dispatch, tipoMarcaProduto]
     );
 
-    const handleSaveCampaign = async () => {
-        
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    };
 
+    const handleUpdateCampaign = async () => {
         const campaignData = {
             nome: campaignName,
             filial,
-            datainicial: formatDate(currentCampaign?.datainicial || ''),
-            datafinal: formatDate(currentCampaign?.datafinal || ''),
-            valor_total: currentCampaign?.valor_total,
+            datainicial: formatDate(datainicial),
+            datafinal: formatDate(datafinal),
+            valor_total: valorTotal,
             userlanc: user?.username,
             datalanc: formatDate(new Date().toISOString()),
             status: true,
-            
             participantes: operadores.map((op: any) => ({
                 modelo: op.modelo,
-                nome: op.nome,
                 meta: tipoMeta,
                 idparticipante: op.idparticipante,
                 meta_valor: op.meta_valor.toString(),
                 meta_quantidade: op.meta_quantidade,
                 premiacao: op.premiacao,
             })),
-            itens: marcaProdutos.map(produto => ({
+            itens: marcaProdutos.map((produto) => ({
                 metrica: tipoMarcaProduto,
                 iditem: produto.codprod,
-                nome: produto.nome,
             })),
         };
 
@@ -155,36 +191,17 @@ export default function CampaignRegistration() {
         }
 
         try {
-            const response = await fetch('/api/campaings', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(campaignData),
-            });
-
-            if (!response.ok) {
-                throw new Error('Erro ao criar campanha');
-            }
-
-            const result = await response.json();
-            console.log('Campaign created:', result);
-            message.success('Campanha criada com sucesso!');
-            setTimeout(() => {
-                window.location.href = '/trade/list';
-            }, 1000);
+            await dispatch(
+                updateCampaign({
+                    id: campaignId as string,
+                    data: campaignData,
+                }) as any
+            );
+            message.success('Campanha atualizada com sucesso!');
         } catch (error) {
-            console.error('Erro ao criar campanha:', error);
-            message.error('Erro ao criar campanha');
+            console.error('Erro ao atualizar campanha:', error);
+            message.error('Erro ao atualizar campanha');
         }
-    };
-
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
     };
 
     const handleSetState = (field: any, value: any) => {
@@ -205,7 +222,7 @@ export default function CampaignRegistration() {
             >
                 <div className="p-4">
                     <h1 className="text-xl font-bold text-green-600 mb-4">
-                        Cadastro de Campanhas Trade Marketing
+                        Edição de Campanhas Trade Marketing
                     </h1>
 
                     <div className="max-w-3xl mx-auto space-y-4">
@@ -216,7 +233,9 @@ export default function CampaignRegistration() {
                             <Input
                                 placeholder="Nome da Campanha"
                                 value={campaignName}
-                                onChange={(e) => setCampaignName(e.target.value)}
+                                onChange={(e) =>
+                                    setCampaignName(e.target.value)
+                                }
                                 className="mb-2"
                             />
                             <Select
@@ -229,7 +248,10 @@ export default function CampaignRegistration() {
                                 filterOption={false}
                             >
                                 {filiais.map((filial: any) => (
-                                    <Option key={filial.idempresa} value={filial.idempresa}>
+                                    <Option
+                                        key={filial.idempresa}
+                                        value={filial.idempresa}
+                                    >
                                         {filial.fantasia}
                                     </Option>
                                 ))}
@@ -270,7 +292,9 @@ export default function CampaignRegistration() {
                             <div className="flex gap-2 mb-2">
                                 <Radio.Group
                                     value={tipoMeta}
-                                    onChange={(e) => setTipoMeta(e.target.value)}
+                                    onChange={(e) =>
+                                        setTipoMeta(e.target.value)
+                                    }
                                     className="flex space-x-4"
                                 >
                                     <Radio value="VALOR" id="valor" />
@@ -278,7 +302,10 @@ export default function CampaignRegistration() {
                                         Valor
                                     </label>
                                     <Radio value="QUANTIDADE" id="quantidade" />
-                                    <label htmlFor="quantidade" className="text-sm">
+                                    <label
+                                        htmlFor="quantidade"
+                                        className="text-sm"
+                                    >
                                         Quantidade
                                     </label>
                                 </Radio.Group>
@@ -295,9 +322,11 @@ export default function CampaignRegistration() {
                                         setSelectedOperador(option.label);
                                     }}
                                     options={operators.map((operator: any) => ({
-                                        value: tipoOperador === 'teleoperador' ? operator.matricula : operator.codusur,
+                                        value:
+                                            tipoOperador === 'teleoperador'
+                                                ? operator.matricula
+                                                : operator.codusur,
                                         label: operator.nome,
-                                        nome: operator.nome,
                                     }))}
                                 />
                             </div>
@@ -315,7 +344,9 @@ export default function CampaignRegistration() {
                                     placeholder="Meta"
                                     className="flex-1"
                                     value={meta_valor}
-                                    onChange={(e) => setMetaValor(e.target.value)}
+                                    onChange={(e) =>
+                                        setMetaValor(e.target.value)
+                                    }
                                 />
                                 <Input
                                     placeholder="Premiação"
@@ -352,8 +383,8 @@ export default function CampaignRegistration() {
                                     },
                                     {
                                         title: 'Tipo',
-                                        dataIndex: 'tipo',
-                                        key: 'tipo',
+                                        dataIndex: 'modelo',
+                                        key: 'modelo',
                                     },
                                     {
                                         title: 'Ação',
@@ -427,7 +458,6 @@ export default function CampaignRegistration() {
                                                 : product.marca,
                                         codprod: product.codprod,
                                         descricao: product.descricao,
-                                        nome: product.nome,
                                     }))}
                                 />
                             </div>
@@ -436,13 +466,13 @@ export default function CampaignRegistration() {
                                 columns={[
                                     {
                                         title: 'Código',
-                                        dataIndex: 'codprod',
-                                        key: 'codprod',
+                                        dataIndex: 'iditem',
+                                        key: 'iditem',
                                     },
                                     {
                                         title: 'Descrição',
-                                        dataIndex: 'descricao',
-                                        key: 'descricao',
+                                        dataIndex: 'nome',
+                                        key: 'nome',
                                     },
                                     {
                                         title: 'Ação',
@@ -474,24 +504,14 @@ export default function CampaignRegistration() {
                                 <Input
                                     type="date"
                                     className="flex-1"
-                                    value={currentCampaign?.datainicial}
-                                    onChange={(e) =>
-                                        handleSetState(
-                                            'datainicial',
-                                            e.target.value
-                                        )
-                                    }
+                                    value={datainicial}
+                                    onChange={(e) => setDatainicial(e.target.value)}
                                 />
                                 <Input
                                     type="date"
                                     className="flex-1"
-                                    value={currentCampaign?.datafinal}
-                                    onChange={(e) =>
-                                        handleSetState(
-                                            'datafinal',
-                                            e.target.value
-                                        )
-                                    }
+                                    value={datafinal}
+                                    onChange={(e) => setDatafinal(e.target.value)}
                                 />
                             </div>
                         </div>
@@ -502,13 +522,8 @@ export default function CampaignRegistration() {
                             </h2>
                             <Input
                                 placeholder="Meta Geral"
-                                value={currentCampaign?.valor_total}
-                                onChange={(e) =>
-                                    handleSetState(
-                                        'valor_total',
-                                        Number(e.target.value)
-                                    )
-                                }
+                                value={valorTotal}
+                                onChange={(e) => setValorTotal(Number(e.target.value))}
                             />
                         </div>
 
@@ -516,9 +531,9 @@ export default function CampaignRegistration() {
                         <div className="flex justify-end">
                             <Button
                                 className="bg-green-500 hover:bg-green-600"
-                                onClick={handleSaveCampaign}
+                                onClick={handleUpdateCampaign}
                             >
-                                Salvar Campanha
+                                Atualizar Campanha
                             </Button>
                         </div>
                     </div>

@@ -22,7 +22,7 @@ export async function POST(request) {
             datalanc,
             status,
             participantes,
-            itens
+            itens,
         } = campaignData;
 
         console.log('Campaign Data:', campaignData);
@@ -56,36 +56,43 @@ export async function POST(request) {
         const campaignId = campaignResult.rows[0].id;
 
         const participantQuery = `
-        INSERT INTO intra.trd_campanha_distribuicao_participantes (idcampanha_distribuicao, modelo, meta, idparticipante, premiacao, meta_valor, meta_quantidade)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        INSERT INTO intra.trd_campanha_distribuicao_participantes (idcampanha_distribuicao, modelo, meta, idparticipante, premiacao, meta_valor, meta_quantidade, nome)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
     `;
-    for (const participant of participantes) {
-        if (!participant.idparticipante) {
-            await pool.query('ROLLBACK');
-            return NextResponse.json(
-                { error: 'ID do participante é obrigatório' },
-                { status: 400 }
-            );
-        }
-    
-        const participantValues = [
-            campaignId,
-            participant.modelo,
-            participant.meta,
-            participant.idparticipante,
-            participant.premiacao,
-            participant.meta_valor,
-            participant.meta_quantidade,
-        ];
-        await pool.query(participantQuery, participantValues);
-    }
+        for (const participant of participantes) {
+            if (!participant.idparticipante) {
+                await pool.query('ROLLBACK');
+                return NextResponse.json(
+                    { error: 'ID do participante é obrigatório' },
+                    { status: 400 }
+                );
+            }
 
-        const itemQuery = `
-            INSERT INTO intra.trd_campanha_distribuicao_itens (idcampanha_distribuicao, metrica, iditem)
-            VALUES ($1, $2, $3)
+            const participantValues = [
+                campaignId,
+                participant.modelo,
+                participant.meta,
+                participant.idparticipante,
+                participant.premiacao,
+                participant.meta_valor,
+                participant.meta_quantidade,
+                participant.nome,
+
+            ];
+            await pool.query(participantQuery, participantValues);
+        }
+
+        const itemQuery = ` 
+            INSERT INTO intra.trd_campanha_distribuicao_itens (idcampanha_distribuicao, metrica,nome,iditem)
+            VALUES ($1, $2, $3, $4)
         `;
         for (const item of itens) {
-            const itemValues = [campaignId, item.metrica, item.iditem];
+            const itemValues = [
+                campaignId,
+                item.metrica,
+                item.nome,
+                item.iditem,
+            ];
             await pool.query(itemQuery, itemValues);
         }
 
@@ -101,5 +108,3 @@ export async function POST(request) {
         );
     }
 }
-
-

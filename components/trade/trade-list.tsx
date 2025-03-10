@@ -49,7 +49,7 @@ export function TableTrade() {
     const handleEditCampaign = (id: string) => {
         router.push(`/trade/edit/${id}`);
     };
-    const { campaigns = [], currentCampaign = null } = useSelector(
+    const { campaigns , currentCampaign } = useSelector(
         (state: RootState) => state.trade || {}
     );
 
@@ -146,7 +146,7 @@ export function TableTrade() {
                                     cursor: 'pointer', 
                                     marginRight: 8,
                                     transition: 'transform 0.2s',
-                                    ':hover': { transform: 'scale(1.2)' }
+                                    
                                 }}
                                 className="hover:scale-110"
                             />

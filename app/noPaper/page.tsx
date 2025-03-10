@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { submitOrder, setOrderState } from '@/hooks/slices/noPaper/orderSlice';
 import { message, Upload } from 'antd';
+import type { UploadFile } from 'antd/es/upload/interface';
 import OriginData from '@/components/nopaper/form/origin-data-form';
 import FinancialData from '@/components/nopaper/form/financial-data-form';
 import TaxesData from '@/components/nopaper/form/taxes-data-form';
@@ -26,8 +27,7 @@ export default function NoPaper() {
     const dispatch = useDispatch<AppDispatch>();
     const orderData = useSelector((state: any) => state.order);
     const user = useSelector((state: any) => state.auth.user);
-    const [imageUrl, setImageUrl] = useState<string>('');
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [fileList, setFileList] = useState<UploadFile[]>([]);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isViewOpen, setIsViewOpen] = useState(false);
 
@@ -55,7 +55,7 @@ export default function NoPaper() {
                 userOP: user?.username,
             };
 
-            // 1. Primeiro, criar a OP
+            
             const response = await dispatch(submitOrder(orderWithUser));
             const opId = response.payload?.id;
 
@@ -64,12 +64,21 @@ export default function NoPaper() {
                 return;
             }
 
-            // 2. Se houver arquivo selecionado, fazer o upload
-            if (selectedFile) {
-                const uploadResponse = await handleUpload(selectedFile, opId);
-                if (uploadResponse.length > 0) {
+          
+            if (fileList.length > 0) {
+                const uploadPromises = fileList.map(file => {
+                    if (file.originFileObj) {
+                        return handleUpload(file.originFileObj, opId);
+                    }
+                    return Promise.resolve([]);
+                });
+                
+                const results = await Promise.all(uploadPromises);
+                const successfulUploads = results.filter(urls => urls.length > 0).length;
+                
+                if (successfulUploads > 0) {
                     message.success(
-                        'Ordem de pagamento e arquivo enviados com sucesso!'
+                        `Ordem de pagamento criada e ${successfulUploads} ${successfulUploads === 1 ? 'arquivo enviado' : 'arquivos enviados'} com sucesso!`
                     );
                 }
             } else {
@@ -176,46 +185,34 @@ export default function NoPaper() {
                                     <Upload
                                         name="files"
                                         listType="picture-card"
-                                        className="avatar-uploader"
-                                        showUploadList={false}
-                                        beforeUpload={(file) => {
-                                            const isLt2M =
-                                                file.size / 1024 / 1024 < 2;
-                                            if (!isLt2M) {
-                                                message.error(
-                                                    'O arquivo deve ser menor que 2MB!'
-                                                );
-                                                return false;
-                                            }
-                                            return true;
-                                        }}
+                                        fileList={fileList}
+                                        beforeUpload={beforeUpload}
                                         accept=".xls,.xlsx,.pdf,.jpg,.jpeg,.png"
-                                        onChange={(info) => {
-                                            const file =
-                                                info.file.originFileObj;
-                                            if (file) {
-                                                setSelectedFile(file);
-                                                setImageUrl(
-                                                    URL.createObjectURL(file)
-                                                );
+                                        onChange={({ fileList: newFileList }) => {
+                                            setFileList(newFileList);
+                                        }}
+                                        multiple
+                                        onPreview={async (file) => {
+                                            if (!file.url && !file.preview) {
+                                                file.preview = await new Promise((resolve) => {
+                                                    const reader = new FileReader();
+                                                    reader.readAsDataURL(file.originFileObj as File);
+                                                    reader.onload = () => resolve(reader.result as string);
+                                                });
                                             }
+                                            window.open(file.url || file.preview, '_blank');
                                         }}
                                     >
-                                        {imageUrl ? (
-                                            <img
-                                                src={imageUrl}
-                                                alt="arquivo"
-                                                style={{ width: '100%' }}
-                                            />
-                                        ) : (
-                                            <div>
-                                                <PlusOutlined />
-                                                <div style={{ marginTop: 8 }}>
-                                                    Upload
-                                                </div>
+                                        <div>
+                                            <PlusOutlined />
+                                            <div style={{ marginTop: 8 }}>
+                                                Upload
                                             </div>
-                                        )}
+                                        </div>
                                     </Upload>
+                                    <div className="text-sm text-gray-500 mt-2">
+                                        Você pode anexar múltiplos arquivos (Excel, PDF, JPG ou PNG)
+                                    </div>
                                 </div>
 
                                 <div className="flex justify-end">

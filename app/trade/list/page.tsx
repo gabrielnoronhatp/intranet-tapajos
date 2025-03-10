@@ -15,7 +15,7 @@ import { TableTrade } from '@/components/trade/trade-list';
 import axios from 'axios';
 const { RangePicker } = DatePicker;
 
-export default function NoPaperList() {
+export default function TradeList() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
     return (

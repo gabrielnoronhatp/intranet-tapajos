@@ -26,9 +26,7 @@ interface TableTradeProps {
 }
 
 export function TableTrade() {
-    const { campaigns, currentCampaign } = useSelector(
-        (state: RootState) => state.trade
-    );
+ 
     const dispatch = useDispatch();
     const router = useRouter();
     const refreshToken = useTokenRefresh();
@@ -41,6 +39,9 @@ export function TableTrade() {
     const handleEditCampaign = (id: string) => {
         router.push(`/trade/edit/${id}`);
     };
+    const { campaigns = [], currentCampaign = null } = useSelector(
+        (state: RootState) => state.trade || {}
+    );
 
     const handleViewCampaign = (id: string) => {
         dispatch(fetchCampaignById(id) as any).then(() => {

@@ -7,6 +7,7 @@ WORKDIR /app
 # Copiar arquivos do projeto
 COPY package.json package-lock.json ./
 RUN npm install
+RUN npm i sharp
 
 COPY . .
 

@@ -77,7 +77,6 @@ export async function POST(request) {
                 participant.meta_valor,
                 participant.meta_quantidade,
                 participant.nome,
-
             ];
             await pool.query(participantQuery, participantValues);
         }

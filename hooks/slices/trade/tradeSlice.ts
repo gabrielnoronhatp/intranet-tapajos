@@ -1,11 +1,8 @@
-
 import { apiCampaing } from '@/app/service/apiInstance';
 import useTokenRefresh from '@/hooks/useTokenRefresh';
 import { ICampaign } from '@/types/Trade/ITrade';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-
-
 
 export const fetchCampaigns = createAsyncThunk(
     'trade/fetchCampaigns',
@@ -165,9 +162,10 @@ const tradeSlice = createSlice({
             })
             .addCase(updateCampaign.fulfilled, (state, action) => {
                 state.campaigns = state.campaigns.map((campaign: any) =>
-                    campaign.id === action.payload.id ? action.payload : campaign
+                    campaign.id === action.payload.id
+                        ? action.payload
+                        : campaign
                 );
-                
             })
             .addCase(createCampaign.fulfilled, (state: any, action) => {
                 state.campaigns.push(action.payload);
@@ -217,7 +215,6 @@ const tradeSlice = createSlice({
             .addCase(fetchCampaignById.fulfilled, (state, action) => {
                 state.currentCampaign = action.payload;
             });
-
     },
 });
 

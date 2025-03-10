@@ -16,7 +16,7 @@ const useTokenRefresh = () => {
             });
             const newToken = response.data.access_token;
             localStorage.setItem('tradeToken', newToken);
-            dispatch(setToken(newToken)); 
+            dispatch(setToken(newToken));
             return newToken;
         } catch (error) {
             console.error('Error fetching token:', error);
@@ -25,12 +25,12 @@ const useTokenRefresh = () => {
     };
 
     useEffect(() => {
-        tokenCall(); 
+        tokenCall();
         const intervalId = setInterval(() => {
-            tokenCall(); 
+            tokenCall();
         }, 1800000);
 
-        return () => clearInterval(intervalId); 
+        return () => clearInterval(intervalId);
     }, [dispatch]);
 
     return tokenCall;

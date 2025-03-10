@@ -11,8 +11,6 @@ import { useDispatch } from 'react-redux';
 
 export default function Home() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
- 
-  
 
     return (
         <AuthGuard>

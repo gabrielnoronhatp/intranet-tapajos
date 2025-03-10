@@ -114,25 +114,34 @@ export function DataTableOrder({
         console.log(info);
     };
 
-    const checkUserPermission = async (signerName: string, signatureNumber: number) => {
+    const checkUserPermission = async (
+        signerName: string,
+        signatureNumber: number
+    ) => {
         try {
             const response = await api.post('/orders/permission', {
                 signerName,
                 signatureNumber,
             });
-       
-            return response.data
+
+            return response.data;
         } catch (error) {
             console.error('Error checking user permission:', error);
             return false;
         }
     };
 
-    const handleSignatureClick = async (record: any, signatureNumber: number) => {
+    const handleSignatureClick = async (
+        record: any,
+        signatureNumber: number
+    ) => {
         const auth = localStorage.getItem('auth');
         const userName = JSON.parse(auth || '{}');
         const user = userName.user;
-        const hasPermission = await checkUserPermission(user.username, signatureNumber)  ;
+        const hasPermission = await checkUserPermission(
+            user.username,
+            signatureNumber
+        );
         if (hasPermission) {
             dispatch(setOrderId(record.id));
             dispatch(setSignatureNumber(signatureNumber));

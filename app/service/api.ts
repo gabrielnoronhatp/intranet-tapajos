@@ -24,7 +24,4 @@ const apiDev = axios.create({
     withCredentials: false,
 });
 
-
-
-
 export { api, apiDev };

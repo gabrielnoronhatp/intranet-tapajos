@@ -8,8 +8,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
     fetchCampaignById,
     updateCampaign,
-    setCurrentCampaign,
-    updateField,
     fetchProducts,
     fetchOperators,
     fetchFiliais,
@@ -17,7 +15,6 @@ import {
 import { RootState } from '@/hooks/store';
 import { debounce } from 'lodash';
 import { useParams, useRouter } from 'next/navigation';
-
 const { Option } = Select;
 
 export default function CampaignEdit() {
@@ -204,9 +201,6 @@ export default function CampaignEdit() {
         }
     };
 
-    const handleSetState = (field: any, value: any) => {
-        dispatch(setCurrentCampaign({ [field]: value }));
-    };
 
     const handleSearchFilial = (value: string) => {
         dispatch(fetchFiliais(value) as any);
@@ -505,13 +499,17 @@ export default function CampaignEdit() {
                                     type="date"
                                     className="flex-1"
                                     value={datainicial}
-                                    onChange={(e) => setDatainicial(e.target.value)}
+                                    onChange={(e) =>
+                                        setDatainicial(e.target.value)
+                                    }
                                 />
                                 <Input
                                     type="date"
                                     className="flex-1"
                                     value={datafinal}
-                                    onChange={(e) => setDatafinal(e.target.value)}
+                                    onChange={(e) =>
+                                        setDatafinal(e.target.value)
+                                    }
                                 />
                             </div>
                         </div>
@@ -523,7 +521,9 @@ export default function CampaignEdit() {
                             <Input
                                 placeholder="Meta Geral"
                                 value={valorTotal}
-                                onChange={(e) => setValorTotal(Number(e.target.value))}
+                                onChange={(e) =>
+                                    setValorTotal(Number(e.target.value))
+                                }
                             />
                         </div>
 

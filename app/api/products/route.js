@@ -6,7 +6,7 @@ const pool = new Pool({
     password: process.env.PG_PASSWORD,
     host: process.env.PG_HOST,
     database: process.env.PG_DATABASE,
-    port: 5432, 
+    port: 5432,
 });
 
 export async function GET(request) {

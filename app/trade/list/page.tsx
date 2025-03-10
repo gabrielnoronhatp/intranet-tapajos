@@ -18,10 +18,6 @@ const { RangePicker } = DatePicker;
 export default function NoPaperList() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-        
-
-
-  
     return (
         <AuthGuard>
             <div>
@@ -49,7 +45,7 @@ export default function NoPaperList() {
                             </div>
 
                             <div className="rounded-lg border bg-card">
-                                <TableTrade  />
+                                <TableTrade />
                             </div>
 
                             <FloatingActionButton href="/trade" />

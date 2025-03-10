@@ -4,27 +4,57 @@ import { ICampaign } from '@/types/Trade/ITrade';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
+// Create a function to get API instance only when needed
+const getApiInstance = async () => {
+  if (typeof window !== 'undefined') {
+    const { apiCampaing } = await import('@/app/service/apiInstance');
+    return apiCampaing;
+  }
+  return null;
+};
+
 export const fetchCampaigns = createAsyncThunk(
     'trade/fetchCampaigns',
-    async () => {
-        const response = await apiCampaing.get(`/campanhas`);
-        return response.data;
+    async (_, { rejectWithValue }) => {
+        try {
+            const api = await getApiInstance();
+            if (!api) return rejectWithValue('API not available');
+            
+            const response = await api.get(`/campanhas`);
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error);
+        }
     }
 );
 
 export const fetchCampaignById = createAsyncThunk(
     'trade/fetchCampaignById',
-    async (id: string) => {
-        const response = await apiCampaing.get(`/campanhas/${id}`);
-        return response.data;
+    async (id: string, { rejectWithValue }) => {
+        try {
+            const api = await getApiInstance();
+            if (!api) return rejectWithValue('API not available');
+            
+            const response = await api.get(`/campanhas/${id}`);
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error);
+        }
     }
 );
 
 export const updateCampaign = createAsyncThunk(
     'trade/updateCampaign',
-    async ({ id, data }: { id: string; data: any }) => {
-        const response = await apiCampaing.put(`/campanhas/${id}`, data);
-        return response.data;
+    async ({ id, data }: { id: string; data: any }, { rejectWithValue }) => {
+        try {
+            const api = await getApiInstance();
+            if (!api) return rejectWithValue('API not available');
+            
+            const response = await api.put(`/campanhas/${id}`, data);
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error);
+        }
     }
 );
 
@@ -32,26 +62,40 @@ export const createCampaign = createAsyncThunk(
     'trade/createCampaign',
     async (data: any, { rejectWithValue }) => {
         try {
-            const response = await apiCampaing.post(`campanhas`, data);
-            setTimeout(() => {
-                window.location.href = '/trade/list';
-            }, 1000);
+            const api = await getApiInstance();
+            if (!api) return rejectWithValue('API not available');
+            
+            const response = await api.post(`campanhas`, data);
+            
+            if (typeof window !== 'undefined') {
+                setTimeout(() => {
+                    window.location.href = '/trade/list';
+                }, 1000);
+            }
+            
             return response.data;
         } catch (error: any) {
             if (error.response && error.response.status === 422) {
                 console.error('Erro de validação:', error.response.data);
                 return rejectWithValue(error.response.data);
             }
-            throw error;
+            return rejectWithValue(error);
         }
     }
 );
 
 export const deleteCampaign = createAsyncThunk(
     'trade/deleteCampaign',
-    async (id: string) => {
-        await apiCampaing.delete(`/campanhas/${id}`);
-        return id;
+    async (id: string, { rejectWithValue }) => {
+        try {
+            const api = await getApiInstance();
+            if (!api) return rejectWithValue('API not available');
+            
+            await api.delete(`/campanhas/${id}`);
+            return id;
+        } catch (error) {
+            return rejectWithValue(error);
+        }
     }
 );
 
@@ -102,14 +146,17 @@ export const deactivateCampaign = createAsyncThunk(
     'trade/deactivateCampaign',
     async (id: string, { rejectWithValue }) => {
         try {
-            const response = await apiCampaing.delete(`/campanhas/${id}`);
+            const api = await getApiInstance();
+            if (!api) return rejectWithValue('API not available');
+            
+            const response = await api.delete(`/campanhas/${id}`);
             return response.data;
         } catch (error: any) {
             if (error.response && error.response.status === 404) {
                 console.error('Campanha não encontrada:', error.response.data);
                 return rejectWithValue(error.response.data);
             }
-            throw error;
+            return rejectWithValue(error);
         }
     }
 );

@@ -1,7 +1,15 @@
 'use client';
 import axios from 'axios';
-import store from '@/hooks/store';
 import { setToken } from '@/hooks/slices/token/tokenSlice';
+
+// Create a function to get store only on client side
+const getStore = () => {
+    if (typeof window !== 'undefined') {
+        // Dynamic import to avoid SSR issues
+        return import('@/hooks/store').then(module => module.default);
+    }
+    return null;
+};
 
 // Função para obter token do localStorage (client-side)
 const getStoredToken = () => {
@@ -28,8 +36,13 @@ const refreshTokenSilently = async () => {
         const newToken = response.data.access_token;
         console.log('New token obtained:', newToken ? 'Yes (token exists)' : 'No');
         
-        // Salvar no Redux
-        store.dispatch(setToken({ token: newToken }));
+        // Salvar no Redux (apenas no cliente)
+        if (typeof window !== 'undefined') {
+            const store = await getStore();
+            if (store) {
+                store.dispatch(setToken({ token: newToken }));
+            }
+        }
         
         // Salvar no localStorage para persistência
         saveTokenToStorage(newToken);
@@ -41,7 +54,8 @@ const refreshTokenSilently = async () => {
     }
 };
 
-const api = (() => {
+// Create API instance factory function
+const createApiInstance = () => {
     const instance = axios.create({
         baseURL: 'http://10.2.10.202:8000/',
         headers: {
@@ -49,37 +63,33 @@ const api = (() => {
         },
     });
 
-    instance.interceptors.request.use(async (config) => {
-        // Tentar obter token do Redux
-        let token = store.getState().token.token;
-        
-        // Se não existir no Redux, tentar localStorage
-        if (!token) {
+    // Only add interceptors on the client side
+    if (typeof window !== 'undefined') {
+        instance.interceptors.request.use(async (config) => {
+            let token = null;
+            
+            // Try to get token from localStorage first
             token = getStoredToken();
             
-            // Se existir no localStorage, atualizar Redux
-            if (token) {
-                store.dispatch(setToken({ token }));
+            // If no token in localStorage, refresh it
+            if (!token) {
+                console.log('No token found, refreshing...');
+                token = await refreshTokenSilently();
             }
-        }
-        
-        // Se ainda não tiver token, obter um novo
-        if (!token) {
-            console.log('No token found, refreshing...');
-            token = await refreshTokenSilently();
-        }
-        
-        if (token) {
-            console.log('Setting Authorization header with token');
-            config.headers.Authorization = `Bearer ${token}`;
-        } else {
-            console.warn('No token available for request');
-        }
-        
-        return config;
-    });
+            
+            if (token) {
+                console.log('Setting Authorization header with token');
+                config.headers.Authorization = `Bearer ${token}`;
+            } else {
+                console.warn('No token available for request');
+            }
+            
+            return config;
+        });
+    }
 
     return instance;
-})();
+};
 
-export const apiCampaing = api;
+// Export a lazy-initialized API instance
+export const apiCampaing = createApiInstance();

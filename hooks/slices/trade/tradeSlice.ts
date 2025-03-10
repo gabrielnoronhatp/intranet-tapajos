@@ -101,20 +101,20 @@ export const deleteCampaign = createAsyncThunk(
 
 export const fetchProducts = createAsyncThunk(
     'trade/fetchProducts',
-    async ({ productName, type }: { productName?: any; type: any }) => {
+    async ({ productName, type }: { productName?: string; type: string }, { rejectWithValue }) => {
         try {
+            const api = await getApiInstance();
+            if (!api) return rejectWithValue('API not available');
+            
             const url = productName
-                ? `/api/products?name=${encodeURIComponent(productName)}&type=${type}`
-                : '/api/products';
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error('Failed to fetch products');
-            }
-            const data = await response.json();
-            return data;
+                ? `/produtos?busca=${encodeURIComponent(productName)}&tipo=${type}`
+                : '/produtos';
+                
+            const response = await api.get(url);
+            return response.data;
         } catch (error: any) {
             console.error('Error fetching products:', error);
-            throw error;
+            return rejectWithValue(error);
         }
     }
 );

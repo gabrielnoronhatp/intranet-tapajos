@@ -8,7 +8,6 @@ const pool = new Pool({
     database: process.env.PG_DATABASE,
     port: 5432,
 });
-export const dynamic = 'force-dynamic'; // Adicione esta linha
 
 export async function GET(request) {
     try {

@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { NextResponse } from 'next/server';
 import { Pool } from 'pg';
 
@@ -9,50 +11,50 @@ const pool = new Pool({
     port: 5432,
 });
 
-
-
 export async function GET(request) {
+    const client = await pool.connect();
+    
     try {
+        // Extrair parâmetros da URL
         const { searchParams } = new URL(request.url);
-        const type = searchParams.get('type');
-        const searchTerm = searchParams.get('name') || '';
-
-        let query;
-        let values = [`%${searchTerm}%`];
-
-        if (type === 'vendedor') {
-            query = `
-                SELECT codusur, nome
-                FROM wint.pcusuari
-                WHERE dttermino IS NULL
-                AND UPPER(CONCAT(codusur, '-', nome)) LIKE UPPER($1)
-            `;
-        } else if (type === 'teleoperador') {
-            query = `
-                SELECT e.matricula, e.nome
-                FROM wint.pcempr e
-                WHERE EXISTS (
-                    SELECT 1 FROM wint.pcpedc 
-                    WHERE codemitente = e.matricula AND condvenda = 1
-                    AND posicao = 'F'
-                    AND data >= (CURRENT_DATE - INTERVAL '45 day')
-                )
-                AND UPPER(CONCAT(e.matricula, '-', e.nome)) LIKE UPPER($1)
-            `;
-        } else {
-            return NextResponse.json(
-                { error: 'Invalid type parameter' },
-                { status: 400 }
-            );
+        const name = searchParams.get('name') || '';
+        const type = searchParams.get('type') || '';
+        
+        console.log(`Buscando operadores com name=${name} e type=${type}`);
+        
+        let query = `
+            SELECT id, nome, tipo 
+            FROM intra.operadores 
+            WHERE 1=1
+        `;
+        
+        const queryParams = [];
+        let paramIndex = 1;
+        
+        if (name) {
+            query += ` AND nome ILIKE $${paramIndex}`;
+            queryParams.push(`%${name}%`);
+            paramIndex++;
         }
-
-        const result = await pool.query(query, values);
+        
+        if (type) {
+            query += ` AND tipo = $${paramIndex}`;
+            queryParams.push(type);
+            paramIndex++;
+        }
+        
+        query += ` ORDER BY nome LIMIT 50`;
+        
+        const result = await client.query(query, queryParams);
+        
         return NextResponse.json(result.rows);
     } catch (error) {
-        console.error('Erro na consulta ao banco de dados:', error);
+        console.error('Erro ao buscar operadores:', error.message, error.stack);
         return NextResponse.json(
-            { error: 'Internal Server Error' },
+            { error: 'Erro ao buscar operadores', details: error.message },
             { status: 500 }
         );
+    } finally {
+        client.release();
     }
 }

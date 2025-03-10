@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Table as AntdTable, Modal } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/hooks/store';
@@ -26,15 +26,25 @@ interface TableTradeProps {
 }
 
 export function TableTrade() {
- 
+    const [clientSideReady, setClientSideReady] = useState(false);
     const dispatch = useDispatch();
     const router = useRouter();
     const refreshToken = useTokenRefresh();
 
     useEffect(() => {
-        refreshToken();
-        dispatch(fetchCampaigns() as any);
-    }, [dispatch]);
+        setClientSideReady(true);
+    }, []);
+
+    useEffect(() => {
+        if (!clientSideReady) return;
+        
+        const initializeData = async () => {
+            await refreshToken();
+            dispatch(fetchCampaigns() as any);
+        };
+        
+        initializeData();
+    }, [dispatch, clientSideReady]);
 
     const handleEditCampaign = (id: string) => {
         router.push(`/trade/edit/${id}`);

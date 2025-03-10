@@ -6,9 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input, Select, Table, message, Radio } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-    createCampaign,
     setCurrentCampaign,
-    updateField,
     fetchProducts,
     fetchOperators,
     fetchFiliais,

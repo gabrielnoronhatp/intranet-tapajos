@@ -9,10 +9,8 @@ services:
             - '2002:3000'
             - '2003:3001'
         restart: always
-        environment:
-            - VITE_API_URL=http://10.2.10.17:3001
-            - NODE_ENV=production
-            - HTTPS=true
+        env_file:
+            - .env
         networks:
             - app_network
 

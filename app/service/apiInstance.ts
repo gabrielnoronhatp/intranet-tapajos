@@ -54,7 +54,7 @@ const refreshTokenSilently = async () => {
     }
 };
 
-// Create API instance factory function
+// Função para criar instância de API
 const createApiInstance = () => {
     const instance = axios.create({
         baseURL: 'http://10.2.10.202:8000/',
@@ -63,27 +63,12 @@ const createApiInstance = () => {
         },
     });
 
-    // Only add interceptors on the client side
     if (typeof window !== 'undefined') {
         instance.interceptors.request.use(async (config) => {
-            let token = null;
-            
-            // Try to get token from localStorage first
-            token = getStoredToken();
-            
-            // If no token in localStorage, refresh it
-            if (!token) {
-                console.log('No token found, refreshing...');
-                token = await refreshTokenSilently();
-            }
-            
+            const token = getStoredToken();
             if (token) {
-                console.log('Setting Authorization header with token');
                 config.headers.Authorization = `Bearer ${token}`;
-            } else {
-                console.warn('No token available for request');
             }
-            
             return config;
         });
     }
@@ -91,5 +76,4 @@ const createApiInstance = () => {
     return instance;
 };
 
-// Export a lazy-initialized API instance
-export const apiCampaing = createApiInstance();
+export const apiInstance = createApiInstance();

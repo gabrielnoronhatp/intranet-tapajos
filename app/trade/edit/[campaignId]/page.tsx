@@ -9,8 +9,9 @@ import {
     fetchCampaignById,
     updateCampaign,
     fetchProducts,
-    fetchOperators,
+    
     fetchFiliais,
+    fetchOperators,
 } from '@/hooks/slices/trade/tradeSlice';
 import { RootState } from '@/hooks/store';
 import { debounce } from 'lodash';
@@ -126,8 +127,8 @@ export default function CampaignEdit() {
     const handleSearchOperador = (searchTerm: string) => {
         if (searchTerm) {
             const type =
-                tipoOperador === 'teleoperador' ? 'teleoperador' : 'vendedor';
-            dispatch(fetchOperators({ productName: searchTerm, type }) as any);
+                tipoOperador === 'teleoperador' ? 'operador' : 'vendedor';
+            dispatch(fetchOperators({ busca: searchTerm, type }) as any);
         } else {
             message.error('Digite o nome para buscar!');
         }
@@ -315,7 +316,7 @@ export default function CampaignEdit() {
                                     onSelect={(value: string, option: any) => {
                                         setSelectedOperador(option.label);
                                     }}
-                                    options={operators.map((operator: any) => ({
+                                    options={operators?.map((operator: any) => ({
                                         value:
                                             tipoOperador === 'teleoperador'
                                                 ? operator.matricula

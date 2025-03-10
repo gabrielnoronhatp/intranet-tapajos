@@ -17,7 +17,7 @@ const { RangePicker } = DatePicker;
 
 export default function TradeList() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
+ 
     return (
         <AuthGuard>
             <div>

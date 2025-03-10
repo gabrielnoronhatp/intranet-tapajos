@@ -30,14 +30,7 @@ export function TableTrade() {
     const dispatch = useDispatch();
     const router = useRouter();
     const refreshToken = useTokenRefresh();
-
     useEffect(() => {
-        setClientSideReady(true);
-    }, []);
-
-    useEffect(() => {
-        if (!clientSideReady) return;
-        
         const initializeData = async () => {
             await refreshToken();
             dispatch(fetchCampaigns() as any);

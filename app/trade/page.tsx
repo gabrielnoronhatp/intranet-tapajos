@@ -6,10 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Input, Select, Table, message, Radio } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import {
+    createCampaign,
     setCurrentCampaign,
     fetchProducts,
-    fetchOperators,
     fetchFiliais,
+    fetchOperators,
+    fetchProductsByType,
 } from '@/hooks/slices/trade/tradeSlice';
 import { RootState } from '@/hooks/store';
 import { debounce } from 'lodash';
@@ -79,11 +81,7 @@ export default function CampaignRegistration() {
         }
     };
 
-    const handleAddMarcaProduto = (
-        nome: string,
-        codprod: string,
-        descricao: string
-    ) => {
+    const handleAddMarcaProduto = (nome: string, codprod: string, descricao: string) => {
         if (nome) {
             setMarcaProdutos([...marcaProdutos, { nome, codprod, descricao }]);
             setProductName('');
@@ -103,8 +101,8 @@ export default function CampaignRegistration() {
     const handleSearchOperador = (searchTerm: string) => {
         if (searchTerm) {
             const type =
-                tipoOperador === 'teleoperador' ? 'teleoperador' : 'vendedor';
-            dispatch(fetchOperators({ productName: searchTerm, type }) as any);
+                tipoOperador === 'teleoperador' ? 'operador' : 'vendedor';
+            dispatch(fetchOperators({ busca: searchTerm, type }) as any);
         } else {
             message.error('Digite o nome para buscar!');
         }
@@ -112,12 +110,15 @@ export default function CampaignRegistration() {
 
     const handleSearchProduto = useCallback(
         debounce((searchTerm: string) => {
-            dispatch(
-                fetchProducts({
-                    productName: searchTerm,
-                    type: tipoMarcaProduto,
-                }) as any
-            );
+            if (searchTerm) {
+                const type =
+                    tipoMarcaProduto === 'produto' ? 'produto' : 'marca';
+                dispatch(
+                    fetchProductsByType({ busca: searchTerm, type }) as any
+                );
+            } else {
+                message.error('Digite o nome para buscar!');
+            }
         }, 300),
         [dispatch, tipoMarcaProduto]
     );
@@ -309,14 +310,16 @@ export default function CampaignRegistration() {
                                     onSelect={(value: string, option: any) => {
                                         setSelectedOperador(option.label);
                                     }}
-                                    options={operators.map((operator: any) => ({
-                                        value:
-                                            tipoOperador === 'teleoperador'
-                                                ? operator.matricula
-                                                : operator.codusur,
-                                        label: operator.nome,
-                                        nome: operator.nome,
-                                    }))}
+                                    options={(operators || []).map(
+                                        (operator: any) => ({
+                                            value:
+                                                tipoOperador === 'teleoperador'
+                                                    ? operator.matricula
+                                                    : operator.codusur,
+                                            label: operator.nome,
+                                            nome: operator.nome,
+                                        })
+                                    )}
                                 />
                             </div>
                             <div className="flex gap-2 mb-2">
@@ -430,23 +433,11 @@ export default function CampaignRegistration() {
                                     filterOption={false}
                                     onSearch={handleSearchProduto}
                                     onSelect={(value: string, option: any) => {
-                                        handleAddMarcaProduto(
-                                            option.label,
-                                            option.value,
-                                            option.label
-                                        );
+                                        handleAddMarcaProduto(option.label, option.value, option.label);
                                     }}
-                                    options={products?.map((product: any) => ({
-                                        value:
-                                            tipoMarcaProduto === 'produto'
-                                                ? product.codprod
-                                                : product.codmarca,
-                                        label:
-                                            tipoMarcaProduto === 'produto'
-                                                ? product.descricao
-                                                : product.marca,
-                                        codprod: product.codprod,
-                                        descricao: product.descricao,
+                                    options={(products || []).map((product: any) => ({
+                                        value: tipoMarcaProduto === 'produto' ? product.codprod : product.codmarca,
+                                        label: tipoMarcaProduto === 'produto' ? product.descricao : product.marca,
                                         nome: product.nome,
                                     }))}
                                 />

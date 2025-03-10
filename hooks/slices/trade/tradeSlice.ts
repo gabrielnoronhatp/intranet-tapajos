@@ -1,60 +1,30 @@
-import { apiCampaing } from '@/app/service/apiInstance';
+import { apiInstance } from '@/app/service/apiInstance';
 import useTokenRefresh from '@/hooks/useTokenRefresh';
 import { ICampaign } from '@/types/Trade/ITrade';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-// Create a function to get API instance only when needed
-const getApiInstance = async () => {
-  if (typeof window !== 'undefined') {
-    const { apiCampaing } = await import('@/app/service/apiInstance');
-    return apiCampaing;
-  }
-  return null;
-};
-
 export const fetchCampaigns = createAsyncThunk(
     'trade/fetchCampaigns',
-    async (_, { rejectWithValue }) => {
-        try {
-            const api = await getApiInstance();
-            if (!api) return rejectWithValue('API not available');
-            
-            const response = await api.get(`/campanhas`);
-            return response.data;
-        } catch (error) {
-            return rejectWithValue(error);
-        }
+    async () => {
+        const response = await apiInstance.get(`/campanhas`);
+        return response.data;
     }
 );
 
 export const fetchCampaignById = createAsyncThunk(
     'trade/fetchCampaignById',
-    async (id: string, { rejectWithValue }) => {
-        try {
-            const api = await getApiInstance();
-            if (!api) return rejectWithValue('API not available');
-            
-            const response = await api.get(`/campanhas/${id}`);
-            return response.data;
-        } catch (error) {
-            return rejectWithValue(error);
-        }
+    async (id: string) => {
+        const response = await apiInstance.get(`/campanhas/${id}`);
+        return response.data;
     }
 );
 
 export const updateCampaign = createAsyncThunk(
     'trade/updateCampaign',
-    async ({ id, data }: { id: string; data: any }, { rejectWithValue }) => {
-        try {
-            const api = await getApiInstance();
-            if (!api) return rejectWithValue('API not available');
-            
-            const response = await api.put(`/campanhas/${id}`, data);
-            return response.data;
-        } catch (error) {
-            return rejectWithValue(error);
-        }
+    async ({ id, data }: { id: string; data: any }) => {
+        const response = await apiInstance.put(`/campanhas/${id}`, data);
+        return response.data;
     }
 );
 
@@ -62,75 +32,62 @@ export const createCampaign = createAsyncThunk(
     'trade/createCampaign',
     async (data: any, { rejectWithValue }) => {
         try {
-            const api = await getApiInstance();
-            if (!api) return rejectWithValue('API not available');
-            
-            const response = await api.post(`campanhas`, data);
-            
-            if (typeof window !== 'undefined') {
-                setTimeout(() => {
-                    window.location.href = '/trade/list';
-                }, 1000);
-            }
-            
+            const response = await apiInstance.post(`campanhas`, data);
+            setTimeout(() => {
+                window.location.href = '/trade/list';
+            }, 1000);
             return response.data;
         } catch (error: any) {
             if (error.response && error.response.status === 422) {
                 console.error('Erro de validação:', error.response.data);
                 return rejectWithValue(error.response.data);
             }
-            return rejectWithValue(error);
+            throw error;
         }
     }
 );
 
 export const deleteCampaign = createAsyncThunk(
     'trade/deleteCampaign',
-    async (id: string, { rejectWithValue }) => {
-        try {
-            const api = await getApiInstance();
-            if (!api) return rejectWithValue('API not available');
-            
-            await api.delete(`/campanhas/${id}`);
-            return id;
-        } catch (error) {
-            return rejectWithValue(error);
-        }
+    async (id: string) => {
+        await apiInstance.delete(`/campanhas/${id}`);
+        return id;
     }
 );
 
 export const fetchProducts = createAsyncThunk(
     'trade/fetchProducts',
-    async ({ productName, type }: { productName?: string; type: string }, { rejectWithValue }) => {
+    async ({ productName, type }: { productName?: any; type: any }) => {
         try {
-            const api = await getApiInstance();
-            if (!api) return rejectWithValue('API not available');
-            
             const url = productName
-                ? `/produtos?busca=${encodeURIComponent(productName)}&tipo=${type}`
-                : '/produtos';
-                
-            const response = await api.get(url);
-            return response.data;
+                ? `/api/products?name=${encodeURIComponent(productName)}&type=${type}`
+                : '/api/products';
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error('Failed to fetch products');
+            }
+            const data = await response.json();
+            return data;
         } catch (error: any) {
             console.error('Error fetching products:', error);
-            return rejectWithValue(error);
+            throw error;
         }
     }
 );
 
 export const fetchOperators = createAsyncThunk(
     'trade/fetchOperators',
-    async ({ productName, type }: { productName?: string; type: string }) => {
-        const url = productName
-            ? `/api/operators?name=${encodeURIComponent(productName)}&type=${type}`
-            : '/api/operators';
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error('Failed to fetch operators');
+    async ({ busca, type }: { busca: string; type: 'operador' | 'vendedor' }, { rejectWithValue }) => {
+        try {
+            const endpoint = type === 'operador' ? '/busca_operadores' : '/busca_vendedores';
+            
+            const response = await apiInstance.post(endpoint, { busca });
+            const data = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
+            return data;
+        } catch (error) {
+            console.error(`Error fetching ${type}s:`, error);
+            return rejectWithValue(error);
         }
-        const data = await response.json();
-        return data;
     }
 );
 
@@ -146,21 +103,37 @@ export const deactivateCampaign = createAsyncThunk(
     'trade/deactivateCampaign',
     async (id: string, { rejectWithValue }) => {
         try {
-            const api = await getApiInstance();
-            if (!api) return rejectWithValue('API not available');
-            
-            const response = await api.delete(`/campanhas/${id}`);
+            const response = await apiInstance.delete(`/campanhas/${id}`);
             return response.data;
         } catch (error: any) {
             if (error.response && error.response.status === 404) {
                 console.error('Campanha não encontrada:', error.response.data);
                 return rejectWithValue(error.response.data);
             }
-            return rejectWithValue(error);
+            throw error;
         }
     }
 );
 
+// Função para buscar produtos ou marcas
+export const fetchProductsByType = createAsyncThunk(
+    'trade/fetchProductsByType',
+    async ({ busca, type }: { busca: string; type: 'produto' | 'marca' }, { rejectWithValue }) => {
+        try {
+            const endpoint = type === 'produto' ? '/busca_produtos' : '/busca_marcas';
+            const response = await apiInstance.post(endpoint, { busca });
+            
+            // Verifique se a resposta é uma string JSON e analise-a
+            const data = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
+            console.log('Dados recebidos:', data); // Adicione este log
+            
+            return data;
+        } catch (error) {
+            console.error(`Error fetching ${type}s:`, error);
+            return rejectWithValue(error);
+        }
+    }
+);
 const initialState: ICampaign = {
     nome: '',
     datainicial: '',
@@ -261,7 +234,12 @@ const tradeSlice = createSlice({
             })
             .addCase(fetchCampaignById.fulfilled, (state, action) => {
                 state.currentCampaign = action.payload;
-            });
+            })
+            .addCase(fetchProductsByType.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.products = action.payload;
+                console.log('Produtos atualizados:', state.products); // Adicione este log
+            })
     },
 });
 

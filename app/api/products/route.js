@@ -9,7 +9,7 @@ const pool = new Pool({
     port: 5432,
 });
 
-export const dynamic = 'force-dynamic';
+
 
 export async function GET(request) {
     try {

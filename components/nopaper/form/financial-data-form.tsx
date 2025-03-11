@@ -62,13 +62,35 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
     const handleFormaPagamentoChange = (value: string) => {
         onChange('metodoOP', value);
         validateField('metodoOP', value);
-        if (value === 'avista') {
-            onChange('qtparcelasOP', 1);
-            onChange('installmentDates', []);
-        } else if (value !== 'boleto') {
-            onChange('qtparcelasOP', 1);
-            onChange('installmentDates', []);
+    
+        let newParcelasOP = [];
+    
+        if (value === 'pix') {
+            newParcelasOP = [
+                {
+                    parcela: datapixOP, // Apenas a data da parcela
+                },
+            ];
+        } else if (value === 'boleto') {
+            newParcelasOP = installmentDates.map((date: string) => ({
+                parcela: date, // Apenas a data da parcela
+            }));
+        } else if (value === 'deposito') {
+            newParcelasOP = [
+                {
+                    parcela: dtdepositoOP, // Apenas a data da parcela
+                },
+            ];
+        } else if (value === 'avista') {
+            newParcelasOP = [
+                {
+                    parcela: dtavista, // Apenas a data da parcela
+                },
+            ];
         }
+    
+        onChange('parcelasOP', newParcelasOP);
+        onChange('qtparcelasOP', newParcelasOP.length);
     };
 
     const handleInstallmentsChange = (

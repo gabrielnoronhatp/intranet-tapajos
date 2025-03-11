@@ -76,10 +76,10 @@ export default function EditOrderPage() {
 
         const adjustedOrderData = { ...orderData };
 
-        if (adjustedOrderData.forma_pag === 'pix') {
-            delete adjustedOrderData.banco;
-            delete adjustedOrderData.agencia;
-            delete adjustedOrderData.conta;
+        if (adjustedOrderData.metodoOP === 'pix') {
+            delete adjustedOrderData.bancoOP;
+            delete adjustedOrderData.agenciaOP;
+            delete adjustedOrderData.contaOP;
         }
 
         try {

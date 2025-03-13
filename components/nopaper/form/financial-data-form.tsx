@@ -24,7 +24,7 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
     const dispatch = useDispatch();
     const {
         metodoOP,
-        installmentDates = [],
+        parcelasOP = [],
         dtavista,
         bancoOP,
         contagerencialOP,
@@ -63,28 +63,48 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
         onChange('metodoOP', value);
         validateField('metodoOP', value);
     
-        let newParcelasOP = [];
+        let newParcelasOP:any = [];
     
         if (value === 'pix') {
             newParcelasOP = [
                 {
                     parcela: datapixOP, // Apenas a data da parcela
+                    banco: bancoOP,       // Adicione outros campos se necessário
+                    agencia: agenciaOP,
+                    conta: contaOP,
+                    tipopixOP: tipopixOP,
+                    chavepixOP: chavepixOP,
                 },
             ];
         } else if (value === 'boleto') {
-            newParcelasOP = installmentDates.map((date: string) => ({
-                parcela: date, // Apenas a data da parcela
+            newParcelasOP = Array.from({ length: qtparcelasOP }, (_, index) => ({
+                parcela: '', // Inicialize as datas vazias
+                banco: '',
+                agencia: '',
+                conta: '',
+                tipopixOP: '',
+                chavepixOP: '',
             }));
         } else if (value === 'deposito') {
             newParcelasOP = [
                 {
                     parcela: dtdepositoOP, // Apenas a data da parcela
+                    banco: bancoOP || '',
+                    agencia: agenciaOP || '',
+                    conta: contaOP || '',
+                    tipopixOP: tipopixOP || '',
+                    chavepixOP: chavepixOP || '',
                 },
             ];
         } else if (value === 'avista') {
             newParcelasOP = [
                 {
                     parcela: dtavista, // Apenas a data da parcela
+                    banco: '',
+                    agencia: '',
+                    conta: '',
+                    tipopixOP: '',
+                    chavepixOP: '',
                 },
             ];
         }
@@ -93,19 +113,13 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
         onChange('qtparcelasOP', newParcelasOP.length);
     };
 
-    const handleInstallmentsChange = (
-        e: React.ChangeEvent<HTMLInputElement>
-    ) => {
-        const numInstallments = parseInt(e.target.value, 10);
-        onChange('qtparcelasOP', numInstallments);
-        onChange('parcelasOP', numInstallments);
-        onChange('installmentDates', Array(numInstallments).fill(''));
-    };
-
-    const handleInstallmentDateChange = (index: number, date: string) => {
-        const newDates = [...installmentDates];
-        newDates[index] = date;
-        onChange('installmentDates', newDates);
+    const handleParcelasChange = (index: number, field: string, value: any) => {
+        const updatedParcelas = [...parcelasOP];
+        updatedParcelas[index] = {
+            ...updatedParcelas[index],
+            [field]: value,
+        };
+        onChange('parcelasOP', updatedParcelas);
     };
 
     return (
@@ -128,208 +142,141 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                     </p>
                 )}
 
-                {metodoOP === 'avista' && (
-                    <div className="space-y-2">
+                {/* Renderização dinâmica das parcelas */}
+                {parcelasOP.map((parcela: any, index: number) => (
+                    <div key={index} className="space-y-2 border p-2 rounded">
+                        <Label className="text-xs font-semibold text-primary uppercase">
+                            Parcela {index + 1}
+                        </Label>
+
                         <Label className="text-xs font-semibold text-primary uppercase">
                             Data de Vencimento
                         </Label>
                         <Input
                             type="date"
-                            value={dtavista}
+                            value={parcela.parcela || ''}
                             onChange={(e) =>
-                                onChange('dtavista', e.target.value)
+                                handleParcelasChange(index, 'parcela', e.target.value)
                             }
                             className="form-control"
                         />
-                        {formErrors.dtvista && (
-                            <p className="text-red-500 text-xs">
-                                {formErrors.dtvista}
-                            </p>
+                        {formErrors.parcelasOP &&
+                            formErrors.parcelasOP[index]?.parcela && (
+                                <p className="text-red-500 text-xs">
+                                    {formErrors.parcelasOP[index].parcela}
+                                </p>
+                            )}
+
+                        {metodoOP === 'deposito' && (
+                            <>
+                                <Label className="text-xs font-semibold text-primary uppercase">
+                                    Banco
+                                </Label>
+                                <Input
+                                    type="text"
+                                    value={parcela.banco || ''}
+                                    onChange={(e) =>
+                                        handleParcelasChange(index, 'banco', e.target.value)
+                                    }
+                                    placeholder="Banco"
+                                    className="form-control"
+                                />
+                                {formErrors.parcelasOP &&
+                                    formErrors.parcelasOP[index]?.banco && (
+                                        <p className="text-red-500 text-xs">
+                                            {formErrors.parcelasOP[index].banco}
+                                        </p>
+                                    )}
+
+                                <Label className="text-xs font-semibold text-primary uppercase">
+                                    Agência
+                                </Label>
+                                <Input
+                                    type="text"
+                                    value={parcela.agencia || ''}
+                                    onChange={(e) =>
+                                        handleParcelasChange(index, 'agencia', e.target.value)
+                                    }
+                                    placeholder="Agência"
+                                    className="form-control"
+                                />
+                                {formErrors.parcelasOP &&
+                                    formErrors.parcelasOP[index]?.agencia && (
+                                        <p className="text-red-500 text-xs">
+                                            {formErrors.parcelasOP[index].agencia}
+                                        </p>
+                                    )}
+
+                                <Label className="text-xs font-semibold text-primary uppercase">
+                                    Conta
+                                </Label>
+                                <Input
+                                    type="text"
+                                    value={parcela.conta || ''}
+                                    onChange={(e) =>
+                                        handleParcelasChange(index, 'conta', e.target.value)
+                                    }
+                                    placeholder="Conta"
+                                    className="form-control"
+                                />
+                                {formErrors.parcelasOP &&
+                                    formErrors.parcelasOP[index]?.conta && (
+                                        <p className="text-red-500 text-xs">
+                                            {formErrors.parcelasOP[index].conta}
+                                        </p>
+                                    )}
+                            </>
+                        )}
+
+                        {metodoOP === 'pix' && (
+                            <>
+                                <Label className="text-xs font-semibold text-primary uppercase">
+                                    Tipo de Chave PIX
+                                </Label>
+                                <SelectField
+                                    value={parcela.tipopixOP || ''}
+                                    onChange={(value: string) =>
+                                        handleParcelasChange(index, 'tipopixOP', value)
+                                    }
+                                    options={[
+                                        { value: 'cpf/cnpj', label: 'CPF/CNPJ' },
+                                        { value: 'telefone', label: 'Telefone' },
+                                        { value: 'email', label: 'E-mail' },
+                                        { value: 'aleatoria', label: 'Aleatória' },
+                                    ]}
+                                    label=""
+                                />
+                                {formErrors.parcelasOP &&
+                                    formErrors.parcelasOP[index]?.tipopixOP && (
+                                        <p className="text-red-500 text-xs">
+                                            {formErrors.parcelasOP[index].tipopixOP}
+                                        </p>
+                                    )}
+
+                                <Label className="text-xs font-semibold text-primary uppercase">
+                                    Chave PIX
+                                </Label>
+                                <Input
+                                    type="text"
+                                    value={parcela.chavepixOP || ''}
+                                    onChange={(e) =>
+                                        handleParcelasChange(index, 'chavepixOP', e.target.value)
+                                    }
+                                    placeholder="Insira a Chave PIX"
+                                    className="form-control"
+                                />
+                                {formErrors.parcelasOP &&
+                                    formErrors.parcelasOP[index]?.chavepixOP && (
+                                        <p className="text-red-500 text-xs">
+                                            {formErrors.parcelasOP[index].chavepixOP}
+                                        </p>
+                                    )}
+                            </>
                         )}
                     </div>
-                )}
+                ))}
 
-                {metodoOP === 'boleto' && (
-                    <div className="space-y-2">
-                        <Label className="text-xs font-semibold text-primary uppercase">
-                            Número de Parcelas
-                        </Label>
-                        <Input
-                            type="number"
-                            value={qtparcelasOP}
-                            onChange={handleInstallmentsChange}
-                            min={1}
-                            max={12}
-                            className="form-control"
-                        />
-                        {Array.from({ length: qtparcelasOP }).map(
-                            (_, index) => (
-                                <div key={index} className="space-y-1">
-                                    <Label className="text-xs font-semibold text-primary uppercase">
-                                        Data de Vencimento {index + 1}
-                                    </Label>
-                                    <Input
-                                        type="date"
-                                        value={installmentDates[index] || ''}
-                                        onChange={(e) =>
-                                            handleInstallmentDateChange(
-                                                index,
-                                                e.target.value
-                                            )
-                                        }
-                                        className="form-control"
-                                    />
-                                    {formErrors.installmentDates &&
-                                        formErrors.installmentDates[index] && (
-                                            <p className="text-red-500 text-xs">
-                                                {
-                                                    formErrors.installmentDates[
-                                                        index
-                                                    ]
-                                                }
-                                            </p>
-                                        )}
-                                </div>
-                            )
-                        )}
-                    </div>
-                )}
-
-                {metodoOP === 'deposito' && (
-                    <div className="space-y-2">
-                        <Label className="text-xs font-semibold text-primary uppercase">
-                            Banco
-                        </Label>
-                        <Input
-                            type="text"
-                            value={bancoOP}
-                            onChange={(e) =>
-                                onChange('bancoOP', e.target.value)
-                            }
-                            placeholder="Banco"
-                            className="form-control"
-                        />
-                        {formErrors.bancoOP && (
-                            <p className="text-red-500 text-xs">
-                                {formErrors.bancoOP}
-                            </p>
-                        )}
-
-                        <Label className="text-xs font-semibold text-primary uppercase">
-                            Agência
-                        </Label>
-                        <Input
-                            type="text"
-                            value={agenciaOP}
-                            onChange={(e) =>
-                                onChange('agenciaOP', e.target.value)
-                            }
-                            placeholder="Agência"
-                            className="form-control"
-                        />
-                        {formErrors.agenciaOP && (
-                            <p className="text-red-500 text-xs">
-                                {formErrors.agenciaOP}
-                            </p>
-                        )}
-
-                        <Label className="text-xs font-semibold text-primary uppercase">
-                            Conta
-                        </Label>
-                        <Input
-                            type="text"
-                            value={contaOP}
-                            onChange={(e) =>
-                                onChange('contaOP', e.target.value)
-                            }
-                            placeholder="Conta"
-                            className="form-control"
-                        />
-                        {formErrors.contaOP && (
-                            <p className="text-red-500 text-xs">
-                                {formErrors.contaOP}
-                            </p>
-                        )}
-
-                        <Label className="text-xs font-semibold text-primary uppercase">
-                            Data de Depósito
-                        </Label>
-                        <Input
-                            type="date"
-                            value={dtdepositoOP}
-                            onChange={(e) =>
-                                onChange('dtdepositoOP', e.target.value)
-                            }
-                            className="form-control"
-                        />
-                        {formErrors.dtdepositoOP && (
-                            <p className="text-red-500 text-xs">
-                                {formErrors.dtdepositoOP}
-                            </p>
-                        )}
-                    </div>
-                )}
-
-                {metodoOP === 'pix' && (
-                    <div className="space-y-2">
-                        <Label className="text-xs font-semibold text-primary uppercase">
-                            Tipo de Chave PIX
-                        </Label>
-                        <SelectField
-                            value={tipopixOP}
-                            onChange={(value: string) =>
-                                onChange('tipopixOP', value)
-                            }
-                            options={[
-                                { value: 'cpf/cnpj', label: 'CPF/CNPJ' },
-                                { value: 'telefone', label: 'Telefone' },
-                                { value: 'email', label: 'E-mail' },
-                                { value: 'aleatoria', label: 'Aleatória' },
-                            ]}
-                            label=""
-                        />
-                        {formErrors.tipopixOP && (
-                            <p className="text-red-500 text-xs">
-                                {formErrors.tipopixOP}
-                            </p>
-                        )}
-
-                        <Label className="text-xs font-semibold text-primary uppercase">
-                            Chave PIX
-                        </Label>
-                        <Input
-                            type="text"
-                            value={chavepixOP}
-                            onChange={(e) =>
-                                onChange('chavepixOP', e.target.value)
-                            }
-                            placeholder="Insira a Chave PIX"
-                            className="form-control"
-                        />
-                        {formErrors.chavepixOP && (
-                            <p className="text-red-500 text-xs">
-                                {formErrors.chavepixOP}
-                            </p>
-                        )}
-
-                        <Label className="text-xs font-semibold text-primary uppercase">
-                            Data de Pagamento PIX
-                        </Label>
-                        <Input
-                            type="date"
-                            value={datapixOP}
-                            onChange={(e) =>
-                                onChange('datapixOP', e.target.value)
-                            }
-                            className="form-control"
-                        />
-                        {formErrors.datapixOP && (
-                            <p className="text-red-500 text-xs">
-                                {formErrors.datapixOP}
-                            </p>
-                        )}
-                    </div>
-                )}
+                {/* Outros campos existentes */}
             </div>
             <div className="space-y-2">
                 <Label className="text-xs font-semibold text-primary uppercase">

@@ -19,11 +19,22 @@ const initialState = {
     qtitensOP: 0,
     valorimpostoOP: 0,
     dtavistaOP: null,
+    dataVencimentoOP: '',
     bancoOP: null,
     agenciaOP: null,
     contaOP: null,
     dtdepositoOP: '',
-    parcelasOP: null,
+    parcelasOP: [
+        // Estrutura padrão de uma parcela
+        {
+            parcela: null,
+            banco: '',
+            agencia: '',
+            conta: '',
+            tipopixOP: '',
+            chavepixOP: '',
+        },
+    ],
     produtosOP: [
         {
             produto: '',
@@ -107,22 +118,28 @@ const orderSlice = createSlice({
                 contaOP: rest.conta || null,
                 dtdepositoOP: rest.dtdeposito || null,
                 parcelasOP:
-                    rest.installmentDates?.length > 0
-                        ? rest.installmentDates.map((date: string) => ({
-                              parcela: date,
+                    rest.parcelasOP?.length > 0
+                        ? rest.parcelasOP.map((parcela: any) => ({
+                              parcela: parcela.parcela || null,
+                              banco: parcela.banco || '',
+                              agencia: parcela.agencia || '',
+                              conta: parcela.conta || '',
+                              tipopixOP: parcela.tipopixOP || '',
+                              chavepixOP: parcela.chavepixOP || ''
                           }))
-                        : null,
+                        : [],
                 produtosOP: produtosOP,
                 observacaoOP: rest.observacao || null,
-                tipopixOP: rest.tipopix || null,
-                chavepixOP: rest.chavepix || null,
-                datapixOP: rest.datapix || null,
+                tipopixOP: rest.tipopixOP || null,
+                chavepixOP: rest.chavepixOP || null,
+                datapixOP: rest.datapixOP || null,
                 opcaoLancOP: rest.tipoLancamento || null,
                 ccustoOP: centrosCusto.map((centro: CentroCusto) => ({
                     centrocusto: centro.centroCusto,
                     valor: centro.valor,
                 })),
                 userOP: rest.user || null,
+                dataVencimentoOP: rest.dataVencimentoOP || null,
             };
         },
         setOrderState: (state, action) => {

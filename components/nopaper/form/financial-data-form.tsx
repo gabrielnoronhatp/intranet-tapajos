@@ -60,20 +60,23 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
-        return date.toISOString().split('T')[0]; 
+        if (isNaN(date.getTime())) {
+            return '';
+        }
+        return date.toISOString().split('T')[0];
     };
 
     const handleFormaPagamentoChange = (value: string) => {
         onChange('metodoOP', value);
         validateField('metodoOP', value);
-    
-        let newParcelasOP:any = [];
-    
+
+        let newParcelasOP: any = [];
+
         if (value === 'pix') {
             newParcelasOP = [
                 {
-                    parcela: datapixOP, 
-                    banco: bancoOP,      
+                    parcela: datapixOP,
+                    banco: bancoOP,
                     agencia: agenciaOP,
                     conta: contaOP,
                     tipopixOP: tipopixOP,
@@ -81,18 +84,21 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                 },
             ];
         } else if (value === 'boleto') {
-            newParcelasOP = Array.from({ length: qtparcelasOP }, (_, index) => ({
-                parcela: '', // Inicialize as datas vazias
-                banco: '',
-                agencia: '',
-                conta: '',
-                tipopixOP: '',
-                chavepixOP: '',
-            }));
+            newParcelasOP = Array.from(
+                { length: qtparcelasOP },
+                (_, index) => ({
+                    parcela: '',
+                    banco: '',
+                    agencia: '',
+                    conta: '',
+                    tipopixOP: '',
+                    chavepixOP: '',
+                })
+            );
         } else if (value === 'deposito') {
             newParcelasOP = [
                 {
-                    parcela: dtdepositoOP, 
+                    parcela: dtdepositoOP,
                     banco: bancoOP || '',
                     agencia: agenciaOP || '',
                     conta: contaOP || '',
@@ -103,7 +109,7 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
         } else if (value === 'avista') {
             newParcelasOP = [
                 {
-                    parcela: dtavista, 
+                    parcela: dtavista,
                     banco: '',
                     agencia: '',
                     conta: '',
@@ -112,7 +118,7 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                 },
             ];
         }
-    
+
         onChange('parcelasOP', newParcelasOP);
         onChange('qtparcelasOP', newParcelasOP.length);
     };
@@ -149,8 +155,6 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                 {/* Renderização dinâmica das parcelas */}
                 {parcelasOP.map((parcela: any, index: number) => (
                     <div key={index} className="space-y-2 border p-2 rounded">
-                      
-
                         <Label className="text-xs font-semibold text-primary uppercase">
                             Data de Vencimento
                         </Label>
@@ -158,7 +162,11 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                             type="date"
                             value={formatDate(parcela.parcela || '')}
                             onChange={(e) =>
-                                handleParcelasChange(index, 'parcela', e.target.value)
+                                handleParcelasChange(
+                                    index,
+                                    'parcela',
+                                    e.target.value
+                                )
                             }
                             className="form-control"
                         />
@@ -178,7 +186,11 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                                     type="text"
                                     value={parcela.banco || ''}
                                     onChange={(e) =>
-                                        handleParcelasChange(index, 'banco', e.target.value)
+                                        handleParcelasChange(
+                                            index,
+                                            'banco',
+                                            e.target.value
+                                        )
                                     }
                                     placeholder="Banco"
                                     className="form-control"
@@ -197,7 +209,11 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                                     type="text"
                                     value={parcela.agencia || ''}
                                     onChange={(e) =>
-                                        handleParcelasChange(index, 'agencia', e.target.value)
+                                        handleParcelasChange(
+                                            index,
+                                            'agencia',
+                                            e.target.value
+                                        )
                                     }
                                     placeholder="Agência"
                                     className="form-control"
@@ -205,7 +221,10 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                                 {formErrors.parcelasOP &&
                                     formErrors.parcelasOP[index]?.agencia && (
                                         <p className="text-red-500 text-xs">
-                                            {formErrors.parcelasOP[index].agencia}
+                                            {
+                                                formErrors.parcelasOP[index]
+                                                    .agencia
+                                            }
                                         </p>
                                     )}
 
@@ -216,7 +235,11 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                                     type="text"
                                     value={parcela.conta || ''}
                                     onChange={(e) =>
-                                        handleParcelasChange(index, 'conta', e.target.value)
+                                        handleParcelasChange(
+                                            index,
+                                            'conta',
+                                            e.target.value
+                                        )
                                     }
                                     placeholder="Conta"
                                     className="form-control"
@@ -238,20 +261,36 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                                 <SelectField
                                     value={parcela.tipopix || ''}
                                     onChange={(value: string) =>
-                                        handleParcelasChange(index, 'tipopix', value)
+                                        handleParcelasChange(
+                                            index,
+                                            'tipopix',
+                                            value
+                                        )
                                     }
                                     options={[
-                                        { value: 'cpf/cnpj', label: 'CPF/CNPJ' },
-                                        { value: 'telefone', label: 'Telefone' },
+                                        {
+                                            value: 'cpf/cnpj',
+                                            label: 'CPF/CNPJ',
+                                        },
+                                        {
+                                            value: 'telefone',
+                                            label: 'Telefone',
+                                        },
                                         { value: 'email', label: 'E-mail' },
-                                        { value: 'aleatoria', label: 'Aleatória' },
+                                        {
+                                            value: 'aleatoria',
+                                            label: 'Aleatória',
+                                        },
                                     ]}
                                     label=""
                                 />
                                 {formErrors.parcelasOP &&
                                     formErrors.parcelasOP[index]?.tipopixOP && (
                                         <p className="text-red-500 text-xs">
-                                            {formErrors.parcelasOP[index].tipopixOP}
+                                            {
+                                                formErrors.parcelasOP[index]
+                                                    .tipopixOP
+                                            }
                                         </p>
                                     )}
 
@@ -262,15 +301,23 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                                     type="text"
                                     value={parcela.chavepix || ''}
                                     onChange={(e) =>
-                                        handleParcelasChange(index, 'chavepix', e.target.value)
+                                        handleParcelasChange(
+                                            index,
+                                            'chavepix',
+                                            e.target.value
+                                        )
                                     }
                                     placeholder="Insira a Chave PIX"
                                     className="form-control"
                                 />
                                 {formErrors.parcelasOP &&
-                                    formErrors.parcelasOP[index]?.chavepixOP && (
+                                    formErrors.parcelasOP[index]
+                                        ?.chavepixOP && (
                                         <p className="text-red-500 text-xs">
-                                            {formErrors.parcelasOP[index].chavepixOP}
+                                            {
+                                                formErrors.parcelasOP[index]
+                                                    .chavepixOP
+                                            }
                                         </p>
                                     )}
                             </>

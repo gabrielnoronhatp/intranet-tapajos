@@ -1,8 +1,8 @@
 'use client';
 import React from 'react';
-import { CheckCircle2, XCircle, Eye, Edit } from 'lucide-react';
+import { CheckCircle2, XCircle, Eye, Edit, FileWarning } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { Image, Upload, UploadFile, message, Input, Button } from 'antd';
+import { Image, Upload, UploadFile, message, Input, Button, Modal } from 'antd';
 import { api } from '@/app/service/api';
 import { UploadChangeParam } from 'antd/es/upload';
 import './data-table-order-styles.css';
@@ -151,6 +151,28 @@ export function DataTableOrder({
         }
     };
 
+    const handleCancelOrderModal = async (orderId: number) => {
+        Modal.confirm({
+            title: 'Confirmar Cancelamento',
+            content: 'Você tem certeza que deseja cancelar esta ordem?',
+            onOk: async () => {
+                await handleCancelOrder(orderId);
+            },
+            okButtonProps: {
+                style: { backgroundColor: '#4CAF50', borderColor: '#4CAF50' }
+            },
+        });
+    };
+
+    const handleCancelOrder = async (orderId: number) => {
+        try {
+            await api.post(`cancelar-ordem/${orderId}`);
+            fetchOrders();
+        } catch (error) {
+            console.error('Error canceling order:', error);
+        }
+    };
+
     const columns = [
         { title: 'ID', dataIndex: 'id', key: 'id' },
         { title: 'Fornecedor', dataIndex: 'fornecedor', key: 'fornecedor' },
@@ -229,29 +251,36 @@ export function DataTableOrder({
             key: 'acoes',
             align: 'center',
             render: (record: any) => {
-                const hasSignature =
-                    record.assinatura1 ||
-                    record.assinatura2 ||
-                    record.assinatura3;
+                const hasSignature = record.assinatura1 || record.assinatura2 || record.assinatura3;
+                const isCanceled = record.canceled;
+
                 return (
                     <>
-                        <Eye
-                            color="green"
-                            onClick={() => toggleView(record)}
-                            style={{ cursor: 'pointer', marginRight: 8 }}
-                        />
-                        <Edit
-                            color={hasSignature ? 'gray' : 'green'}
-                            onClick={() =>
-                                !hasSignature && navigateToEditPage(record.id)
-                            }
-                            style={{
-                                cursor: hasSignature
-                                    ? 'not-allowed'
-                                    : 'pointer',
-                                marginRight: 8,
-                            }}
-                        />
+                        {!isCanceled && (
+                            <Eye
+                                color="green"
+                                onClick={() => toggleView(record)}
+                                style={{ cursor: 'pointer', marginRight: 8 }}
+                            />
+                        )}
+                        {!isCanceled && (
+                            <Edit
+                                color={hasSignature ? 'gray' : 'green'}
+                                onClick={() => !hasSignature && navigateToEditPage(record.id)}
+                                style={{
+                                    cursor: hasSignature ? 'not-allowed' : 'pointer',
+                                    marginRight: 8,
+                                }}
+                            />
+                        )}
+                        {!isCanceled && (
+                            <FileWarning
+                                type="link"
+                                onClick={() => handleCancelOrderModal(record.id)}
+                                style={{ color: 'green' }}
+                            />
+                        )}
+                        
                     </>
                 );
             },

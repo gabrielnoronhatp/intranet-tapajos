@@ -77,6 +77,22 @@ export const submitOrder = createAsyncThunk(
     }
 );
 
+export const cancelOrder = createAsyncThunk(
+    'order/cancelOrder',
+    async (orderId: number, { rejectWithValue }) => {
+        try {
+            const response = await api.put(`/cancelar-ordem/${orderId}`);
+            if (response.status === 200) {
+                toast.success('Ordem de pagamento cancelada com sucesso!');
+                return response.data;
+            }
+        } catch (error: any) {
+            toast.error('Erro ao cancelar ordem de pagamento.');
+            return rejectWithValue(error.response.data);
+        }
+    }
+);
+
 const orderSlice = createSlice({
     name: 'order',
     initialState,
@@ -154,6 +170,11 @@ const orderSlice = createSlice({
             }
         },
     },
+    extraReducers: (builder) => {
+        builder.addCase(cancelOrder.fulfilled, (state, action) => {
+            // Atualize o estado conforme necessário
+        });
+    }
 });
 
 export const { prepareOrderData, setOrderState } = orderSlice.actions;

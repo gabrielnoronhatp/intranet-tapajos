@@ -122,8 +122,8 @@ const OriginData: React.FC<OriginDataProps> = ({ data, onChange }) => {
                                               label: 'USO E CONSUMO',
                                           },
                                           {
-                                              value: 'despesas',
-                                              label: 'DESPESAS OPERACIONAIS',
+                                              value: 'adiantamento',
+                                              label: 'ADIANTAMENTO',
                                           },
                                       ]
                                     : ramoOP === 'varejo'

@@ -53,6 +53,7 @@ const initialState = {
         },
     ],
     userOP: null,
+    canceled: false,
 };
 
 export const submitOrder = createAsyncThunk(
@@ -81,7 +82,7 @@ export const cancelOrder = createAsyncThunk(
     'order/cancelOrder',
     async (orderId: number, { rejectWithValue }) => {
         try {
-            const response = await api.put(`/cancelar-ordem/${orderId}`);
+            const response = await api.put(`cancelar-ordem/${orderId}`);
             if (response.status === 200) {
                 toast.success('Ordem de pagamento cancelada com sucesso!');
                 return response.data;
@@ -155,6 +156,7 @@ const orderSlice = createSlice({
                 })),
                 userOP: rest.user || null,
                 dataVencimentoOP: rest.dataVencimentoOP || null,
+                canceled: false,
             };
         },
         setOrderState: (state, action) => {
@@ -172,7 +174,7 @@ const orderSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder.addCase(cancelOrder.fulfilled, (state, action) => {
-            // Atualize o estado conforme necessário
+            state.canceled = true;
         });
     }
 });

@@ -19,18 +19,7 @@ const { RangePicker } = DatePicker;
 export default function TradeList() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-    const handleCancelOrder = async (orderId: number) => {
-        try {
-            const response = await api.put(`/cancelar-ordem/${orderId}`);
-            if (response.status === 200) {
-                alert('Ordem de pagamento cancelada com sucesso!');
-                // Atualize a lista de ordens ou faça outra ação necessária
-            }
-        } catch (error) {
-            console.error('Erro ao cancelar ordem de pagamento:', error);
-            alert('Erro ao cancelar ordem de pagamento.');
-        }
-    };
+    
 
     return (
         <AuthGuard>
@@ -56,7 +45,7 @@ export default function TradeList() {
                                         Listagem de Campanhas
                                     </p>
                                 </div>
-                                <Button onClick={() => handleCancelOrder(1)}>Desativar</Button>
+                               
                             </div>
 
                             <div className="rounded-lg border bg-card">

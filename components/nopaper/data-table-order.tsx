@@ -15,6 +15,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { OrderState } from '@/types/noPaper/Order/OrderTypes';
 import { useRouter } from 'next/navigation';
+import { cancelOrder } from '@/hooks/slices/noPaper/orderSlice';
 
 interface DataTableOrderProps {
     searchParams: Record<string, string>;
@@ -154,7 +155,7 @@ export function DataTableOrder({
     const handleCancelOrderModal = async (orderId: number) => {
         Modal.confirm({
             title: 'Confirmar Cancelamento',
-            content: 'Você tem certeza que deseja cancelar esta ordem?',
+            content: 'Você tem certeza que deseja cancelar esta ordem?',    
             onOk: async () => {
                 await handleCancelOrder(orderId);
             },
@@ -166,7 +167,7 @@ export function DataTableOrder({
 
     const handleCancelOrder = async (orderId: number) => {
         try {
-            await api.post(`cancelar-ordem/${orderId}`);
+            dispatch(cancelOrder(orderId) as any);
             fetchOrders();
         } catch (error) {
             console.error('Error canceling order:', error);

@@ -1,6 +1,5 @@
 'use client';
 import React from 'react';
-import { setOrderState } from '@/hooks/slices/noPaper/orderSlice';
 import { SelectField } from '../select-field';
 import { FormSection } from '../form-section';
 import { Input } from '@/components/ui/input';
@@ -59,6 +58,11 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
         dispatch(fetchContasGerenciais('') as any);
     }, [dispatch]);
 
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toISOString().split('T')[0]; 
+    };
+
     const handleFormaPagamentoChange = (value: string) => {
         onChange('metodoOP', value);
         validateField('metodoOP', value);
@@ -68,8 +72,8 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
         if (value === 'pix') {
             newParcelasOP = [
                 {
-                    parcela: datapixOP, // Apenas a data da parcela
-                    banco: bancoOP,       // Adicione outros campos se necessário
+                    parcela: datapixOP, 
+                    banco: bancoOP,      
                     agencia: agenciaOP,
                     conta: contaOP,
                     tipopixOP: tipopixOP,
@@ -88,7 +92,7 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
         } else if (value === 'deposito') {
             newParcelasOP = [
                 {
-                    parcela: dtdepositoOP, // Apenas a data da parcela
+                    parcela: dtdepositoOP, 
                     banco: bancoOP || '',
                     agencia: agenciaOP || '',
                     conta: contaOP || '',
@@ -99,7 +103,7 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
         } else if (value === 'avista') {
             newParcelasOP = [
                 {
-                    parcela: dtavista, // Apenas a data da parcela
+                    parcela: dtavista, 
                     banco: '',
                     agencia: '',
                     conta: '',
@@ -117,7 +121,7 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
         const updatedParcelas = [...parcelasOP];
         updatedParcelas[index] = {
             ...updatedParcelas[index],
-            [field]: value,
+            [field]: field === 'parcela' ? formatDate(value) : value,
         };
         onChange('parcelasOP', updatedParcelas);
     };
@@ -145,16 +149,14 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                 {/* Renderização dinâmica das parcelas */}
                 {parcelasOP.map((parcela: any, index: number) => (
                     <div key={index} className="space-y-2 border p-2 rounded">
-                        <Label className="text-xs font-semibold text-primary uppercase">
-                            Parcela {index + 1}
-                        </Label>
+                      
 
                         <Label className="text-xs font-semibold text-primary uppercase">
                             Data de Vencimento
                         </Label>
                         <Input
                             type="date"
-                            value={parcela.parcela || ''}
+                            value={formatDate(parcela.parcela || '')}
                             onChange={(e) =>
                                 handleParcelasChange(index, 'parcela', e.target.value)
                             }
@@ -234,9 +236,9 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                                     Tipo de Chave PIX
                                 </Label>
                                 <SelectField
-                                    value={parcela.tipopixOP || ''}
+                                    value={parcela.tipopix || ''}
                                     onChange={(value: string) =>
-                                        handleParcelasChange(index, 'tipopixOP', value)
+                                        handleParcelasChange(index, 'tipopix', value)
                                     }
                                     options={[
                                         { value: 'cpf/cnpj', label: 'CPF/CNPJ' },
@@ -258,9 +260,9 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                                 </Label>
                                 <Input
                                     type="text"
-                                    value={parcela.chavepixOP || ''}
+                                    value={parcela.chavepix || ''}
                                     onChange={(e) =>
-                                        handleParcelasChange(index, 'chavepixOP', e.target.value)
+                                        handleParcelasChange(index, 'chavepix', e.target.value)
                                     }
                                     placeholder="Insira a Chave PIX"
                                     className="form-control"

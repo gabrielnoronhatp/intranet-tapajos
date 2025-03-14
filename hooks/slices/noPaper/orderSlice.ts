@@ -25,14 +25,13 @@ const initialState = {
     contaOP: null,
     dtdepositoOP: '',
     parcelasOP: [
-        // Estrutura padrão de uma parcela
         {
             parcela: null,
             banco: '',
             agencia: '',
             conta: '',
-            tipopixOP: '',
-            chavepixOP: '',
+            tipopix: '',
+            chavepix: '',
         },
     ],
     produtosOP: [
@@ -125,7 +124,7 @@ const orderSlice = createSlice({
                               agencia: parcela.agencia || '',
                               conta: parcela.conta || '',
                               tipopixOP: parcela.tipopixOP || '',
-                              chavepixOP: parcela.chavepixOP || ''
+                              chavepixOP: parcela.chavepixOP || '',
                           }))
                         : [],
                 produtosOP: produtosOP,

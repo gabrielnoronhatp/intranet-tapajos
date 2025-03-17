@@ -14,12 +14,11 @@ import { OrderState } from '@/types/noPaper/Order/OrderTypes';
 import { TableTrade } from '@/components/trade/trade-list';
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
+import { MetaTable } from '@/components/trade/meta-table';
 const { RangePicker } = DatePicker;
 
 export default function TradeList() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
-    
 
     return (
         <AuthGuard>
@@ -45,11 +44,18 @@ export default function TradeList() {
                                         Listagem de Campanhas
                                     </p>
                                 </div>
-                               
                             </div>
 
                             <div className="rounded-lg border bg-card">
-                                <TableTrade />
+                                <TradeList/>
+                                {/* <MetaTable
+                                    metaGeralCampanha={122000} 
+                                    vendedores={[
+                                        { metas: [100, 200, 300] },
+                                    ]}
+                                    metaGeralRange={['90-99', '100-129', '130-139']}
+                                    metaVendedorRange={['90-99', '100-129', '130-139']}
+                                /> */}
                             </div>
 
                             <FloatingActionButton href="/trade" />

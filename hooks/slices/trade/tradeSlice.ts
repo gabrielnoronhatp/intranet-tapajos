@@ -94,8 +94,16 @@ export const fetchOperators = createAsyncThunk(
 export const fetchFiliais = createAsyncThunk(
     'trade/fetchFiliais',
     async (filter: string) => {
-        const response = await axios.get(`/api/filiais?filter=${filter}`);
-        return response.data;
+        try {
+            const response = await apiInstance.get(`/filiais`);
+            return response.data;
+        } catch (error: any) {
+            if (error.response && error.response.status === 404) {
+            return    console.error('Campanha não encontrada:', error.response.data);
+            
+            }
+            throw error;
+        }
     }
 );
 

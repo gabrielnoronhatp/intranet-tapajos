@@ -29,8 +29,23 @@ const OriginData: React.FC<OriginDataProps> = ({ data, onChange }) => {
     const dispatch = useDispatch();
     const [documentType, setDocumentType] = useState('nota');
 
+    useEffect(() => {
+        if (notaOP && !serieOP) {
+            setDocumentType('fatura');
+        } else if (notaOP && serieOP) {
+            setDocumentType('nota');
+        }
+    }, [notaOP, serieOP]);
+
     const handleFieldChange = (field: string, value: string) => {
         dispatch(setOrderState({ [field]: value }));
+    };
+
+    const handleDocumentTypeChange = (value: string) => {
+        setDocumentType(value);
+        if (value === 'fatura') {
+            dispatch(setOrderState({ serieOP: '' }));
+        }
     };
 
     const handleSelectSupplierChange = (value: string) => {
@@ -63,7 +78,7 @@ const OriginData: React.FC<OriginDataProps> = ({ data, onChange }) => {
                 </Label>
                 <RadioGroup
                     value={documentType}
-                    onValueChange={(value) => setDocumentType(value)}
+                    onValueChange={handleDocumentTypeChange}
                     className="flex space-x-4"
                 >
                     <RadioGroupItem value="nota" id="nota" />

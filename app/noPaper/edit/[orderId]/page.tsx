@@ -28,6 +28,7 @@ export default function EditOrderPage() {
     const [existingFiles, setExistingFiles] = useState<
         Array<{ url: string; name: string }>
     >([]);
+    const [fileList, setFileList] = useState<any[]>([]);
 
     useEffect(() => {
         const fetchOrderData = async () => {
@@ -47,7 +48,28 @@ export default function EditOrderPage() {
                         return;
                     }
                     dispatch(setOrderState(data));
-                    setExistingFiles(data.anexos || []);
+                    
+                    // Buscar arquivos anexados
+                    try {
+                        const filesResponse = await api.get(`arquivos/${orderId}`);
+                        if (
+                            filesResponse.data &&
+                            filesResponse.data.urls &&
+                            Array.isArray(filesResponse.data.urls)
+                        ) {
+                            // Mapeia as URLs para o formato esperado
+                            const formattedUrls = filesResponse.data.urls.map(
+                                (url: string) => ({
+                                    url: url,
+                                    name: url.split('/').pop() || 'file', // Extrai o nome do arquivo da URL
+                                })
+                            );
+                            setExistingFiles(formattedUrls);
+                        }
+                    } catch (fileError) {
+                        console.error('Erro ao buscar arquivos:', fileError);
+                        setExistingFiles([]);
+                    }
                 }
                 setIsLoading(false);
             } catch (error) {
@@ -119,7 +141,14 @@ export default function EditOrderPage() {
             message.error('Formato de arquivo não suportado!');
             return false;
         }
-        return true;
+        setSelectedFile(file);
+        return false; // Retorna false para evitar o upload automático
+    };
+
+    const handleUploadChange = (info: any) => {
+        if (info.file) {
+            setSelectedFile(info.file.originFileObj);
+        }
     };
 
     if (isLoading) {
@@ -162,21 +191,29 @@ export default function EditOrderPage() {
                                 />
 
                                 <div className="mt-6">
+                                    <h3 className="text-md font-bold mb-2">Anexar Arquivo:</h3>
                                     <Upload
                                         listType="picture-card"
-                                        showUploadList={false}
+                                        showUploadList={true}
                                         beforeUpload={beforeUpload}
                                         accept=".xls,.xlsx,.pdf,.jpg,.jpeg,.png"
-                                        onChange={(info) => {
-                                            const file =
-                                                info.file.originFileObj;
-                                            file && setSelectedFile(file);
-                                        }}
+                                        onChange={handleUploadChange}
+                                        fileList={selectedFile ? [
+                                            {
+                                                uid: '-1',
+                                                name: selectedFile.name,
+                                                status: 'done',
+                                                url: URL.createObjectURL(selectedFile),
+                                            }
+                                        ] : []}
+                                        onRemove={() => setSelectedFile(null)}
                                     >
-                                        <PlusOutlined />
-                                        <div style={{ marginTop: 8 }}>
-                                            Upload
-                                        </div>
+                                        {!selectedFile && (
+                                            <div>
+                                                <PlusOutlined />
+                                                <div style={{ marginTop: 8 }}>Upload</div>
+                                            </div>
+                                        )}
                                     </Upload>
 
                                     {existingFiles.length > 0 && (
@@ -192,18 +229,18 @@ export default function EditOrderPage() {
                                                             className="flex items-center justify-between p-2 bg-gray-50 rounded hover:bg-gray-100"
                                                         >
                                                             <div className="flex flex-col flex-1">
-                                                                <a
-                                                                    href={
-                                                                        file.url
-                                                                    }
-                                                                    target="_blank"
-                                                                    rel="noopener noreferrer"
-                                                                    className="truncate text-blue-600 underline"
-                                                                >
+                                                                <span className="truncate">
                                                                     {file.name}
-                                                                </a>
+                                                                </span>
                                                             </div>
-                                                            {/* Opcional: Adicionar opção para remover arquivos existentes */}
+                                                            <a
+                                                                href={file.url}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600 ml-2"
+                                                            >
+                                                                Download
+                                                            </a>
                                                         </div>
                                                     )
                                                 )}

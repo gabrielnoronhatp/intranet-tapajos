@@ -85,7 +85,7 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
             ];
         } else if (value === 'boleto') {
             newParcelasOP = Array.from(
-                { length: qtparcelasOP },
+                { length: qtparcelasOP || 1 },
                 (_, index) => ({
                     parcela: '',
                     banco: '',
@@ -152,11 +152,52 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                     </p>
                 )}
 
+                {metodoOP === 'boleto' && (
+                    <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-primary uppercase">
+                            Número de Parcelas
+                        </Label>
+                        <Input
+                            type="number"
+                            min="1"
+                            value={qtparcelasOP || ''}
+                            onChange={(e) => {
+                                const value = parseInt(e.target.value);
+                                onChange('qtparcelasOP', value);
+                                
+                                // Atualiza as parcelas quando o número muda
+                                if (value > 0) {
+                                    const newParcelasOP = Array.from(
+                                        { length: value },
+                                        (_, index) => ({
+                                            parcela: '',
+                                            banco: '',
+                                            agencia: '',
+                                            conta: '',
+                                            tipopixOP: '',
+                                            chavepixOP: '',
+                                        })
+                                    );
+                                    onChange('parcelasOP', newParcelasOP);
+                                }
+                            }}
+                            className="form-control"
+                        />
+                        {formErrors.qtparcelasOP && (
+                            <p className="text-red-500 text-xs">
+                                {formErrors.qtparcelasOP}
+                            </p>
+                        )}
+                    </div>
+                )}
+
                 {/* Renderização dinâmica das parcelas */}
                 {parcelasOP.map((parcela: any, index: number) => (
                     <div key={index} className="space-y-2 border p-2 rounded">
                         <Label className="text-xs font-semibold text-primary uppercase">
-                            Data de Vencimento
+                            {metodoOP === 'boleto' 
+                                ? `Data de Vencimento - Parcela ${index + 1}` 
+                                : 'Data de Vencimento'}
                         </Label>
                         <Input
                             type="date"

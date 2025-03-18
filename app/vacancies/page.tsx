@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Navbar } from '@/components/layout/navbar';
 import { Sidebar } from '@/components/layout/sidebar';
-import { FloatingActionButton } from '@/components/vacancies/floating-action-button';
+
 import { Table as AntdTable, Input, Button, Select } from 'antd';
 import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
 import { Upload } from 'lucide-react';

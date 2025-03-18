@@ -47,7 +47,7 @@ export default function TradeList() {
                             </div>
 
                             <div className="rounded-lg border bg-card">
-                                <TradeList/>
+                                <TableTrade />
                                 {/* <MetaTable
                                     metaGeralCampanha={122000} 
                                     vendedores={[

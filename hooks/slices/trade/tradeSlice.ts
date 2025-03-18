@@ -96,7 +96,8 @@ export const fetchFiliais = createAsyncThunk(
     async (filter: string) => {
         try {
             const response = await apiInstance.get(`/filiais`);
-            return response.data;
+            const data = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
+            return data;
         } catch (error: any) {
             if (error.response && error.response.status === 404) {
             return    console.error('Campanha não encontrada:', error.response.data);

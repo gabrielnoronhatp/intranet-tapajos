@@ -5,7 +5,8 @@ import { Navbar } from '@/components/layout/navbar';
 import { Sidebar } from '@/components/layout/sidebar';
 import { EmployeeList } from '@/components/employees/employee-list';
 import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
-import { FloatingActionButton } from '@/components/vacancies/floating-action-button';
+import { FloatingActionButton } from '@/components/nopaper/floating-action-button';
+
 
 export default function EmployeeListPage() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);

@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Table as AntdTable, Modal } from 'antd';
+import { Table as AntdTable, Modal, Input, DatePicker, Button, Space, Form } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/hooks/store';
 import { ICampaign } from '@/types/Trade/ITrade';
@@ -8,10 +8,12 @@ import {
     deactivateCampaign,
     fetchCampaignById,
     fetchCampaigns,
+    searchCampaigns,
 } from '@/hooks/slices/trade/tradeSlice';
-import { Eye, Edit, FileWarning } from 'lucide-react';
+import { Eye, Edit, FileWarning, Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import useTokenRefresh from '@/hooks/useTokenRefresh';
+import dayjs from 'dayjs';
 
 interface TableTradeProps {
     data: Array<{
@@ -27,9 +29,11 @@ interface TableTradeProps {
 
 export function TableTrade() {
     const [clientSideReady, setClientSideReady] = useState(false);
+    const [searchForm] = Form.useForm();
     const dispatch = useDispatch();
     const router = useRouter();
     const refreshToken = useTokenRefresh();
+    
     useEffect(() => {
         const initializeData = async () => {
             await refreshToken();
@@ -38,6 +42,29 @@ export function TableTrade() {
         
         initializeData();
     }, [dispatch, clientSideReady]);
+
+    const handleSearch = (values: any) => {
+        const searchParams: any = {};
+        
+        if (values.nome) {
+            searchParams.nome = values.nome;
+        }
+        
+        if (values.datainicial) {
+            searchParams.datainicial = dayjs(values.datainicial).format('DD/MM/YYYY');
+        }
+        
+        if (values.datafinal) {
+            searchParams.datafinal = dayjs(values.datafinal).format('DD/MM/YYYY');
+        }
+        
+        dispatch(searchCampaigns(searchParams) as any);
+    };
+
+    const handleReset = () => {
+        searchForm.resetFields();
+        dispatch(fetchCampaigns() as any);
+    };
 
     const handleEditCampaign = (id: string) => {
         router.push(`/trade/edit/${id}`);
@@ -170,13 +197,54 @@ export function TableTrade() {
     ];
 
     return (
-        <div className="rounded-md border">
-            <AntdTable
-                columns={columns}
-                dataSource={campaigns}
-                rowKey="nome"
-                pagination={false}
-            />
+        <div className="space-y-4">
+            <Form 
+                form={searchForm}
+                layout="inline" 
+                onFinish={handleSearch}
+                className="mb-4 p-4 bg-white rounded-md shadow-sm"
+            >
+                <Form.Item name="nome" className="mb-2 md:mb-0">
+                    <Input placeholder="Nome da campanha" />
+                </Form.Item>
+                
+                <Form.Item name="datainicial" className="mb-2 md:mb-0">
+                    <DatePicker 
+                        placeholder="Data inicial" 
+                        format="DD/MM/YYYY"
+                    />
+                </Form.Item>
+                
+                <Form.Item name="datafinal" className="mb-2 md:mb-0">
+                    <DatePicker 
+                        placeholder="Data final" 
+                        format="DD/MM/YYYY"
+                    />
+                </Form.Item>
+                
+                <Form.Item className="mb-2 md:mb-0">
+                    <Space>
+                        <Button 
+                            type="primary" 
+                            htmlType="submit"
+                            style={{ backgroundColor: '#4CAF50', borderColor: '#4CAF50' }}
+                            icon={<Search size={16} />}
+                        >
+                            Buscar
+                        </Button>
+                        <Button onClick={handleReset}>Limpar</Button>
+                    </Space>
+                </Form.Item>
+            </Form>
+            
+            <div className="rounded-md border">
+                <AntdTable
+                    columns={columns}
+                    dataSource={campaigns}
+                    rowKey="nome"
+                    pagination={false}
+                />
+            </div>
         </div>
     );
 }

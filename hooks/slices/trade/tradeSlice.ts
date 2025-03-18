@@ -143,6 +143,24 @@ export const fetchProductsByType = createAsyncThunk(
         }
     }
 );
+
+export const searchCampaigns = createAsyncThunk(
+    'trade/searchCampaigns',
+    async (searchParams: {
+        nome?: string;
+        datainicial?: string;
+        datafinal?: string;
+    }) => {
+        try {
+            const response = await apiInstance.post('/campanhas/pesquisa', searchParams);
+            return response.data;
+        } catch (error: any) {
+            console.error('Error searching campaigns:', error);
+            throw error;
+        }
+    }
+);
+
 const initialState: ICampaign = {
     nome: '',
     datainicial: '',
@@ -248,6 +266,17 @@ const tradeSlice = createSlice({
                 state.status = 'succeeded';
                 state.products = action.payload;
                 console.log('Produtos atualizados:', state.products); // Adicione este log
+            })
+            .addCase(searchCampaigns.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(searchCampaigns.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.campaigns = action.payload;
+            })
+            .addCase(searchCampaigns.rejected, (state: any, action) => {
+                state.status = 'failed';
+                state.error = action.error.message;
             })
     },
 });

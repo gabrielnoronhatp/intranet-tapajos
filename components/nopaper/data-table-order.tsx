@@ -112,7 +112,16 @@ export function DataTableOrder({
     };
 
     const handleUploadChange = (info: UploadChangeParam<UploadFile<any>>) => {
-        console.log(info);
+        if (info.file.status === 'done') {
+            message.success(`${info.file.name} uploaded successfully`);
+            // Refresh file list after successful upload
+            toggleView(selectedItem);
+        } else if (info.file.status === 'error') {
+            message.error(`${info.file.name} upload failed.`);
+        }
+        
+        // Update fileList state
+        setFileList(info.fileList);
     };
 
     const checkUserPermission = async (
@@ -422,24 +431,25 @@ export function DataTableOrder({
                                     }) => {
                                         try {
                                             const formData = new FormData();
-                                            formData.append(
-                                                'files',
-                                                file as File
-                                            );
+                                            formData.append('files', file as File);
+                                            
                                             const response = await api.post(
                                                 `upload/${selectedItem.id}`,
-                                                formData
+                                                formData,
+                                                {
+                                                    headers: {
+                                                        'Content-Type': 'multipart/form-data',
+                                                    },
+                                                }
                                             );
 
                                             if (response.status !== 200) {
-                                                throw new Error(
-                                                    'Upload failed'
-                                                );
+                                                throw new Error('Upload failed');
                                             }
 
-                                            const result = await response;
-                                            onSuccess?.(result);
+                                            onSuccess?.(response.data);
                                         } catch (error) {
+                                            console.error('Upload error:', error);
                                             onError?.(error as any);
                                         }
                                     }}

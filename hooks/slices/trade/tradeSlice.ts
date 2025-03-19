@@ -95,7 +95,8 @@ export const fetchFiliais = createAsyncThunk(
     'trade/fetchFiliais',
     async (filter: string) => {
         try {
-            const response = await apiInstance.post(`/filiais`);
+            const response = await apiInstance.get(`/filiais`);
+            console.log(response);
             const data = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
             return data;
         } catch (error: any) {

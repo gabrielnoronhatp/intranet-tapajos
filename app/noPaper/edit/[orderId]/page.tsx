@@ -146,9 +146,15 @@ export default function EditOrderPage() {
     };
 
     const handleUploadChange = (info: any) => {
-        if (info.file) {
+        if (info.file.status === 'done') {
+            message.success(`${info.file.name} foi enviado com sucesso!`);
             setSelectedFile(info.file.originFileObj);
+        } else if (info.file.status === 'error') {
+            message.error(`Falha ao enviar ${info.file.name}.`);
         }
+        
+        // Update fileList state
+        setFileList(info.fileList);
     };
 
     if (isLoading) {
@@ -195,7 +201,6 @@ export default function EditOrderPage() {
                                     <Upload
                                         listType="picture-card"
                                         showUploadList={true}
-                                        beforeUpload={beforeUpload}
                                         accept=".xls,.xlsx,.pdf,.jpg,.jpeg,.png"
                                         onChange={handleUploadChange}
                                         fileList={selectedFile ? [
@@ -207,6 +212,57 @@ export default function EditOrderPage() {
                                             }
                                         ] : []}
                                         onRemove={() => setSelectedFile(null)}
+                                        customRequest={async ({
+                                            file,
+                                            onSuccess,
+                                            onError,
+                                        }) => {
+                                            try {
+                                                const formData = new FormData();
+                                                formData.append('files', file as File);
+                                                
+                                                const response = await api.post(
+                                                    `upload/${orderId}`,
+                                                    formData,
+                                                    {
+                                                        headers: {
+                                                            'Content-Type': 'multipart/form-data',
+                                                        },
+                                                    }
+                                                );
+
+                                                if (response.status !== 200) {
+                                                    throw new Error('Upload failed');
+                                                }
+
+                                                message.success('Arquivo enviado com sucesso!', 3);
+                                                onSuccess?.(response.data);
+                                                
+                                                // Atualizar a lista de arquivos existentes após o upload
+                                                try {
+                                                    const filesResponse = await api.get(`arquivos/${orderId}`);
+                                                    if (
+                                                        filesResponse.data &&
+                                                        filesResponse.data.urls &&
+                                                        Array.isArray(filesResponse.data.urls)
+                                                    ) {
+                                                        const formattedUrls = filesResponse.data.urls.map(
+                                                            (url: string) => ({
+                                                                url: url,
+                                                                name: url.split('/').pop() || 'file',
+                                                            })
+                                                        );
+                                                        setExistingFiles(formattedUrls);
+                                                    }
+                                                } catch (fileError) {
+                                                    console.error('Erro ao atualizar lista de arquivos:', fileError);
+                                                }
+                                            } catch (error) {
+                                                console.error('Upload error:', error);
+                                                message.error('Falha ao enviar o arquivo. Tente novamente.', 3);
+                                                onError?.(error as any);
+                                            }
+                                        }}
                                     >
                                         {!selectedFile && (
                                             <div>

@@ -89,6 +89,16 @@ export const setSignatureNumber = createAction<number>(
     'noPaper/setSignatureNumber'
 );
 
+export const deleteFile = createAsyncThunk(
+    'noPaper/deleteFile',
+    async (fileKey: string) => {
+        const response = await api.delete('/excluir-arquivo', {
+            data: { fileKey }
+        });
+        return response.data;
+    }
+);
+
 const noPaperSlice = createSlice({
     name: 'noPaper',
     initialState,
@@ -157,6 +167,16 @@ const noPaperSlice = createSlice({
             })
             .addCase(createServiceType.fulfilled, (state, action) => {
                 state.loading = false;
+            })
+            .addCase(deleteFile.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(deleteFile.fulfilled, (state, action) => {
+                state.loading = false;
+            })
+            .addCase(deleteFile.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message || 'Failed to delete file';
             });
     },
 });

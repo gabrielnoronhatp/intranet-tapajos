@@ -48,14 +48,7 @@ export default function TradeList() {
 
                             <div className="rounded-lg border bg-card">
                                 <TableTrade />
-                                {/* <MetaTable
-                                    metaGeralCampanha={122000} 
-                                    vendedores={[
-                                        { metas: [100, 200, 300] },
-                                    ]}
-                                    metaGeralRange={['90-99', '100-129', '130-139']}
-                                    metaVendedorRange={['90-99', '100-129', '130-139']}
-                                /> */}
+                               
                             </div>
 
                             <FloatingActionButton href="/trade" />

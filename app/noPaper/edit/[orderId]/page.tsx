@@ -5,15 +5,16 @@ import { Navbar } from '@/components/layout/navbar';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Button } from '@/components/ui/button';
 import { setOrderState } from '@/hooks/slices/noPaper/orderSlice';
-import { message, Upload } from 'antd';
+import { message, Upload, Modal } from 'antd';
 import OriginData from '@/components/nopaper/form/origin-data-form';
 import FinancialData from '@/components/nopaper/form/financial-data-form';
 import TaxesData from '@/components/nopaper/form/taxes-data-form';
 import CenterOfCoust from '@/components/nopaper/form/center-of-coust-form';
 import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
-import { PlusOutlined } from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { api } from '@/app/service/api';
 import { useParams, useRouter } from 'next/navigation';
+import { deleteFile } from '@/hooks/slices/noPaper/noPaperSlice';
 
 export default function EditOrderPage() {
     const dispatch = useDispatch();
@@ -157,6 +158,48 @@ export default function EditOrderPage() {
         setFileList(info.fileList);
     };
 
+    const handleDeleteFile = async (fileUrl: string) => {
+        try {
+            const match = fileUrl.match(/amazonaws\.com\/(.+)$/);
+
+            if (!match || !match[1]) {
+                message.error('Formato de URL inválido');
+                return;
+            }
+
+            const fileKey = match[1];
+
+            Modal.confirm({
+                title: 'Confirmar Exclusão',
+                content: 'Você tem certeza que deseja excluir este arquivo?',
+                onOk: async () => {
+                    try {
+                        await dispatch(deleteFile(fileKey) as any);
+                        message.success('Arquivo excluído com sucesso');
+
+                        // Atualizar a lista de arquivos
+                        const updatedFiles = existingFiles.filter(
+                            (file) => file.url !== fileUrl
+                        );
+                        setExistingFiles(updatedFiles);
+                    } catch (error) {
+                        console.error('Erro ao excluir arquivo:', error);
+                        message.error('Erro ao excluir arquivo');
+                    }
+                },
+                okButtonProps: {
+                    style: {
+                        backgroundColor: '#f44336',
+                        borderColor: '#f44336',
+                    },
+                },
+            });
+        } catch (error) {
+            console.error('Erro ao excluir arquivo:', error);
+            message.error('Erro ao excluir arquivo');
+        }
+    };
+
     if (isLoading) {
         return <div>Carregando...</div>;
     }
@@ -278,28 +321,32 @@ export default function EditOrderPage() {
                                                 Arquivos Existentes:
                                             </h3>
                                             <div className="grid grid-cols-1 gap-2">
-                                                {existingFiles.map(
-                                                    (file, index) => (
-                                                        <div
-                                                            key={index}
-                                                            className="flex items-center justify-between p-2 bg-gray-50 rounded hover:bg-gray-100"
-                                                        >
-                                                            <div className="flex flex-col flex-1">
-                                                                <span className="truncate">
-                                                                    {file.name}
-                                                                </span>
-                                                            </div>
+                                                {existingFiles.map((file, index) => (
+                                                    <div
+                                                        key={index}
+                                                        className="flex items-center justify-between p-2 bg-gray-50 rounded hover:bg-gray-100"
+                                                    >
+                                                        <div className="flex flex-col flex-1">
+                                                            <span className="truncate">{file.name}</span>
+                                                        </div>
+                                                        <div className="flex space-x-2">
                                                             <a
                                                                 href={file.url}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
-                                                                className="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600 ml-2"
+                                                                className="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600"
                                                             >
                                                                 Download
                                                             </a>
+                                                            <button
+                                                                onClick={() => handleDeleteFile(file.url)}
+                                                                className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600 flex items-center"
+                                                            >
+                                                                <DeleteOutlined size={16} className="mr-1" /> Excluir
+                                                            </button>
                                                         </div>
-                                                    )
-                                                )}
+                                                    </div>
+                                                ))}
                                             </div>
                                         </div>
                                     )}

@@ -162,6 +162,19 @@ export const searchCampaigns = createAsyncThunk(
     }
 );
 
+export const sendMetaTable = createAsyncThunk(
+    'trade/sendMetaTable',
+    async (metaData: any, { rejectWithValue }) => {
+        try {
+            const response = await apiInstance.post('/metas', metaData);
+            return response.data;
+        } catch (error: any) {
+            console.error('Error sending meta table:', error);
+            return rejectWithValue(error.response.data);
+        }
+    }
+);
+
 const initialState: ICampaign = {
     nome: '',
     datainicial: '',
@@ -279,6 +292,13 @@ const tradeSlice = createSlice({
                 state.status = 'failed';
                 state.error = action.error.message;
             })
+            .addCase(sendMetaTable.fulfilled, (state, action) => {
+                console.log('Meta table sent successfully:', action.payload);
+            })
+            .addCase(sendMetaTable.rejected, (state: any, action) => {
+                state.status = 'failed';
+                state.error = action.payload;
+            });
     },
 });
 

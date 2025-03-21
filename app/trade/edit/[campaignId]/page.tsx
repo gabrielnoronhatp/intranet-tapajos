@@ -16,6 +16,7 @@ import {
 import { RootState } from '@/hooks/store';
 import { debounce } from 'lodash';
 import { useParams, useRouter } from 'next/navigation';
+import { MetaTable } from '@/components/trade/meta-table';
 const { Option } = Select;
 
 export default function CampaignEdit() {
@@ -525,6 +526,19 @@ export default function CampaignEdit() {
                                 onChange={(e) =>
                                     setValorTotal(Number(e.target.value))
                                 }
+                            />
+                        </div>
+
+                        <div className="bg-white p-4 rounded shadow">
+                            <h2 className="text-lg font-bold text-green-600">
+                                Meta Geral
+                            </h2>
+                            <MetaTable
+                                metaGeralRange={['90-99', '100-129', '130-139']}
+                                metaVendedorRange={['90-99', '100-129', '130-139']}
+                                isEditing={true}
+                                campaignId={campaignId}
+                                escala={currentCampaign.campanha?.escala}
                             />
                         </div>
 

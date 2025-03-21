@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { submitOrder, setOrderState } from '@/hooks/slices/noPaper/orderSlice';
-import { message, Upload } from 'antd';
-import type { UploadFile } from 'antd/es/upload/interface';
+import { GetProp, message, Upload } from 'antd';
+import type { UploadFile, UploadProps } from 'antd/es/upload/interface';
 import OriginData from '@/components/nopaper/form/origin-data-form';
 import FinancialData from '@/components/nopaper/form/financial-data-form';
 import TaxesData from '@/components/nopaper/form/taxes-data-form';
@@ -55,7 +55,6 @@ export default function NoPaper() {
                 userOP: user?.username,
             };
 
-            
             const response = await dispatch(submitOrder(orderWithUser));
             const opId = response.payload?.id;
 
@@ -64,18 +63,19 @@ export default function NoPaper() {
                 return;
             }
 
-          
             if (fileList.length > 0) {
-                const uploadPromises = fileList.map(file => {
+                const uploadPromises = fileList.map((file) => {
                     if (file.originFileObj) {
                         return handleUpload(file.originFileObj, opId);
                     }
                     return Promise.resolve([]);
                 });
-                
+
                 const results = await Promise.all(uploadPromises);
-                const successfulUploads = results.filter(urls => urls.length > 0).length;
-                
+                const successfulUploads = results.filter(
+                    (urls) => urls.length > 0
+                ).length;
+
                 if (successfulUploads > 0) {
                     message.success(
                         `Ordem de pagamento criada e ${successfulUploads} ${successfulUploads === 1 ? 'arquivo enviado' : 'arquivos enviados'} com sucesso!`
@@ -114,31 +114,22 @@ export default function NoPaper() {
             return [];
         }
     };
+    type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 
-    const beforeUpload = (file: File) => {
-        const allowedTypes = [
-            'image/jpeg',
-            'image/png',
-            'application/pdf',
-            'application/vnd.ms-excel',
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        ];
-
-        const isAllowedType = allowedTypes.includes(file.type);
-        if (!isAllowedType) {
-            message.error(
-                'Você só pode enviar arquivos Excel, PDF, JPG ou PNG!'
-            );
+    const beforeUpload = (file: FileType) => {
+        const isJpgOrPng =
+            file.type === 'image/jpeg' ||
+            file.type === 'image/png' ||
+            file.type === 'application/pdf';
+        if (!isJpgOrPng) {
+            message.error('You can only upload JPG/PNG file!');
         }
-
         const isLt2M = file.size / 1024 / 1024 < 2;
         if (!isLt2M) {
-            message.error('O arquivo deve ser menor que 2MB!');
+            message.error('Image must smaller than 2MB!');
         }
-
-        return isAllowedType && isLt2M;
+        return isJpgOrPng && isLt2M;
     };
-
     return (
         <AuthGuard>
             <div className="min-h-screen bg-background">
@@ -184,24 +175,15 @@ export default function NoPaper() {
                                 <div className="mt-6">
                                     <Upload
                                         name="files"
-                                        listType="picture-card"
                                         fileList={fileList}
                                         beforeUpload={beforeUpload}
                                         accept=".xls,.xlsx,.pdf,.jpg,.jpeg,.png"
-                                        onChange={({ fileList: newFileList }) => {
+                                        onChange={({
+                                            fileList: newFileList,
+                                        }) => {
                                             setFileList(newFileList);
                                         }}
                                         multiple
-                                        onPreview={async (file) => {
-                                            if (!file.url && !file.preview) {
-                                                file.preview = await new Promise((resolve) => {
-                                                    const reader = new FileReader();
-                                                    reader.readAsDataURL(file.originFileObj as File);
-                                                    reader.onload = () => resolve(reader.result as string);
-                                                });
-                                            }
-                                            window.open(file.url || file.preview, '_blank');
-                                        }}
                                     >
                                         <div>
                                             <PlusOutlined />
@@ -211,7 +193,8 @@ export default function NoPaper() {
                                         </div>
                                     </Upload>
                                     <div className="text-sm text-gray-500 mt-2">
-                                        Você pode anexar múltiplos arquivos (Excel, PDF, JPG ou PNG)
+                                        Você pode anexar múltiplos arquivos
+                                        (Excel, PDF, JPG ou PNG)
                                     </div>
                                 </div>
 

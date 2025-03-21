@@ -15,6 +15,7 @@ import {
 } from '@/hooks/slices/trade/tradeSlice';
 import { RootState } from '@/hooks/store';
 import { debounce } from 'lodash';
+import { MetaTable } from '@/components/trade/meta-table';
 
 const { Option } = Select;
 
@@ -81,7 +82,11 @@ export default function CampaignRegistration() {
         }
     };
 
-    const handleAddMarcaProduto = (nome: string, codprod: string, descricao: string) => {
+    const handleAddMarcaProduto = (
+        nome: string,
+        codprod: string,
+        descricao: string
+    ) => {
         if (nome) {
             setMarcaProdutos([...marcaProdutos, { nome, codprod, descricao }]);
             setProductName('');
@@ -433,13 +438,25 @@ export default function CampaignRegistration() {
                                     filterOption={false}
                                     onSearch={handleSearchProduto}
                                     onSelect={(value: string, option: any) => {
-                                        handleAddMarcaProduto(option.label, option.value, option.label);
+                                        handleAddMarcaProduto(
+                                            option.label,
+                                            option.value,
+                                            option.label
+                                        );
                                     }}
-                                    options={(products || []).map((product: any) => ({
-                                        value: tipoMarcaProduto === 'produto' ? product.codprod : product.codmarca,
-                                        label: tipoMarcaProduto === 'produto' ? product.descricao : product.marca,
-                                        nome: product.nome,
-                                    }))}
+                                    options={(products || []).map(
+                                        (product: any) => ({
+                                            value:
+                                                tipoMarcaProduto === 'produto'
+                                                    ? product.codprod
+                                                    : product.codmarca,
+                                            label:
+                                                tipoMarcaProduto === 'produto'
+                                                    ? product.descricao
+                                                    : product.marca,
+                                            nome: product.nome,
+                                        })
+                                    )}
                                 />
                             </div>
                             <Table
@@ -523,6 +540,19 @@ export default function CampaignRegistration() {
                             />
                         </div>
 
+                        <div className="bg-white p-4 rounded shadow">
+                            <h2 className="text-lg font-bold text-green-600">
+                                Meta Geral
+                            </h2>
+                            <MetaTable
+                                metaGeralRange={['90-99', '100-129', '130-139']}
+                                metaVendedorRange={[
+                                    '90-99',
+                                    '100-129',
+                                    '130-139',
+                                ]}
+                            />
+                        </div>
                         {/* Submit Button */}
                         <div className="flex justify-end">
                             <Button

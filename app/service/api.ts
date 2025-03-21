@@ -4,7 +4,7 @@ const devUrl = 'http://10.2.10.17:3002/api/';
 const localUrl = 'http://localhost:3002/api/';
 
 const api = axios.create({
-    baseURL: baseUrl,
+    baseURL: localUrl,
     headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',

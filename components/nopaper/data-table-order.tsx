@@ -1,6 +1,13 @@
 'use client';
 import React from 'react';
-import { CheckCircle2, XCircle, Eye, Edit, FileWarning } from 'lucide-react';
+import {
+    CheckCircle2,
+    XCircle,
+    Eye,
+    Edit,
+    FileWarning,
+    Trash2,
+} from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Image, Upload, UploadFile, message, Input, Button, Modal } from 'antd';
 import { api } from '@/app/service/api';
@@ -11,6 +18,7 @@ import { PinModal } from './pin-modal';
 import {
     setOrderId,
     setSignatureNumber,
+    deleteFile,
 } from '@/hooks/slices/noPaper/noPaperSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { OrderState } from '@/types/noPaper/Order/OrderTypes';
@@ -119,7 +127,7 @@ export function DataTableOrder({
         } else if (info.file.status === 'error') {
             message.error(`${info.file.name} upload failed.`);
         }
-        
+
         // Update fileList state
         setFileList(info.fileList);
     };
@@ -164,12 +172,12 @@ export function DataTableOrder({
     const handleCancelOrderModal = async (orderId: number) => {
         Modal.confirm({
             title: 'Confirmar Cancelamento',
-            content: 'Você tem certeza que deseja cancelar esta ordem?',    
+            content: 'Você tem certeza que deseja cancelar esta ordem?',
             onOk: async () => {
                 await handleCancelOrder(orderId);
             },
             okButtonProps: {
-                style: { backgroundColor: '#4CAF50', borderColor: '#4CAF50' }
+                style: { backgroundColor: '#4CAF50', borderColor: '#4CAF50' },
             },
         });
     };
@@ -180,6 +188,50 @@ export function DataTableOrder({
             fetchOrders();
         } catch (error) {
             console.error('Error canceling order:', error);
+        }
+    };
+
+    const handleDeleteFile = async (fileUrl: string) => {
+        try {
+            // Para URLs no formato "https://intranet-tapajos.s3.us-east-1.amazonaws.com/578/1742492011990-NFSE 2133.pdf"
+            const match = fileUrl.match(/amazonaws\.com\/(.+)$/);
+
+            if (!match || !match[1]) {
+                message.error('Formato de URL inválido');
+                return;
+            }
+
+            // Extrai a parte após "amazonaws.com/" (ex: "578/1742492011990-NFSE 2133.pdf")
+            const fileKey = match[1];
+
+            Modal.confirm({
+                title: 'Confirmar Exclusão',
+                content: 'Você tem certeza que deseja excluir este arquivo?',
+                onOk: async () => {
+                    try {
+                        await dispatch(deleteFile(fileKey) as any);
+                        message.success('Arquivo excluído com sucesso');
+
+                        // Atualizar a lista de arquivos
+                        const updatedFileUrls = fileUrls.filter(
+                            (file) => file.url !== fileUrl
+                        );
+                        // setFileUrls(updatedFileUrls);
+                    } catch (error) {
+                        console.error('Erro ao excluir arquivo:', error);
+                        message.error('Erro ao excluir arquivo');
+                    }
+                },
+                okButtonProps: {
+                    style: {
+                        backgroundColor: '#f44336',
+                        borderColor: '#f44336',
+                    },
+                },
+            });
+        } catch (error) {
+            console.error('Erro ao excluir arquivo:', error);
+            message.error('Erro ao excluir arquivo');
         }
     };
 
@@ -261,7 +313,10 @@ export function DataTableOrder({
             key: 'acoes',
             align: 'center',
             render: (record: any) => {
-                const hasSignature = record.assinatura1 || record.assinatura2 || record.assinatura3;
+                const hasSignature =
+                    record.assinatura1 ||
+                    record.assinatura2 ||
+                    record.assinatura3;
                 const isCanceled = record.canceled;
 
                 return (
@@ -276,9 +331,14 @@ export function DataTableOrder({
                         {!isCanceled && (
                             <Edit
                                 color={hasSignature ? 'gray' : 'green'}
-                                onClick={() => !hasSignature && navigateToEditPage(record.id)}
+                                onClick={() =>
+                                    !hasSignature &&
+                                    navigateToEditPage(record.id)
+                                }
                                 style={{
-                                    cursor: hasSignature ? 'not-allowed' : 'pointer',
+                                    cursor: hasSignature
+                                        ? 'not-allowed'
+                                        : 'pointer',
                                     marginRight: 8,
                                 }}
                             />
@@ -286,11 +346,12 @@ export function DataTableOrder({
                         {!isCanceled && (
                             <FileWarning
                                 type="link"
-                                onClick={() => handleCancelOrderModal(record.id)}
+                                onClick={() =>
+                                    handleCancelOrderModal(record.id)
+                                }
                                 style={{ color: 'green' }}
                             />
                         )}
-                        
                     </>
                 );
             },
@@ -402,14 +463,30 @@ export function DataTableOrder({
                                                                 {file.name}
                                                             </span>
                                                         </div>
-                                                        <a
-                                                            href={file.url}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600"
-                                                        >
-                                                            Download
-                                                        </a>
+                                                        <div className="flex space-x-2">
+                                                            <a
+                                                                href={file.url}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600"
+                                                            >
+                                                                Download
+                                                            </a>
+                                                            <button
+                                                                onClick={() =>
+                                                                    handleDeleteFile(
+                                                                        file.url
+                                                                    )
+                                                                }
+                                                                className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600 flex items-center"
+                                                            >
+                                                                <Trash2
+                                                                    size={16}
+                                                                    className="mr-1"
+                                                                />{' '}
+                                                                Excluir
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 )
                                             )}
@@ -431,25 +508,34 @@ export function DataTableOrder({
                                     }) => {
                                         try {
                                             const formData = new FormData();
-                                            formData.append('files', file as File);
-                                            
+                                            formData.append(
+                                                'files',
+                                                file as File
+                                            );
+
                                             const response = await api.post(
                                                 `upload/${selectedItem.id}`,
                                                 formData,
                                                 {
                                                     headers: {
-                                                        'Content-Type': 'multipart/form-data',
+                                                        'Content-Type':
+                                                            'multipart/form-data',
                                                     },
                                                 }
                                             );
 
                                             if (response.status !== 200) {
-                                                throw new Error('Upload failed');
+                                                throw new Error(
+                                                    'Upload failed'
+                                                );
                                             }
 
                                             onSuccess?.(response.data);
                                         } catch (error) {
-                                            console.error('Upload error:', error);
+                                            console.error(
+                                                'Upload error:',
+                                                error
+                                            );
                                             onError?.(error as any);
                                         }
                                     }}

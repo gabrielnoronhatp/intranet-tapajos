@@ -15,17 +15,6 @@ import { useRouter } from 'next/navigation';
 import useTokenRefresh from '@/hooks/useTokenRefresh';
 import dayjs from 'dayjs';
 
-interface TableTradeProps {
-    data: Array<{
-        nome: string;
-        datainicial: string;
-        datafinal: string;
-        valor_total: number;
-        userlanc: string;
-        datalanc: string;
-        status: boolean;
-    }>;
-}
 
 export function TableTrade() {
     const [clientSideReady, setClientSideReady] = useState(false);

@@ -76,19 +76,19 @@ export const MetaTable: React.FC<MetaTableProps> = ({
         }
     }, [escala, metaGeralRange.length, metaVendedorRange.length]);
 
-    useEffect(() => {
-        if (onEscalaChange) {
-            const formattedMetas = metaGeralRange.map((rangeGeral, rowIndex) => ({
-                id: rowIndex + 1,
-                linha: rangeGeral,
-                ...metaVendedorRange.reduce<Record<string, number>>((acc, rangeVendedor, colIndex) => {
-                    acc[`col${colIndex + 1}`] = metas[rowIndex][colIndex];
-                    return acc;
-                }, {}),            }));
+    // useEffect(() => {
+    //     if (onEscalaChange) {
+    //         const formattedMetas = metaGeralRange.map((rangeGeral, rowIndex) => ({
+    //             id: rowIndex + 1,
+    //             linha: rangeGeral,
+    //             ...metaVendedorRange.reduce<Record<string, number>>((acc, rangeVendedor, colIndex) => {
+    //                 acc[`col${colIndex + 1}`] = metas[rowIndex][colIndex];
+    //                 return acc;
+    //             }, {}),            }));
 
-            onEscalaChange(formattedMetas);
-        }
-    }, [metaGeralRange, metaVendedorRange, metas, onEscalaChange]);
+    //         onEscalaChange(formattedMetas);
+    //     }
+    // }, [metaGeralRange, metaVendedorRange, metas, onEscalaChange]);
 
     const validateRangeFormat = (value: string) => {
         const rangePattern = /^\d{2}-\d{2}$/;
@@ -156,32 +156,32 @@ export const MetaTable: React.FC<MetaTableProps> = ({
         const formattedMetas = [];
         
         // Primeira linha: id da campanha, linha vazia, e colunas com os ranges dos vendedores
-        formattedMetas.push({
-            id: campaignId ? parseInt(campaignId) : 1, // Usa o ID da campanha se disponível
-            linha: "", // Primeira linha tem linha vazia
-            ...metaVendedorRange.reduce((acc: any, range: any, index: any) => {
-                acc[`col${index + 1}`] = range;
-                return acc;
-            }, {})
-        });
+        // formattedMetas.push({
+        //     id: campaignId ? parseInt(campaignId) : 1, // Usa o ID da campanha se disponível
+        //     linha: "", // Primeira linha tem linha vazia
+        //     ...metaVendedorRange.reduce((acc, range, index) => {
+        //         acc[`col${index + 1}`] = range;
+        //         return acc;
+        //     }, {})
+        // });
         
         // Linhas seguintes: id sequencial, linha com range geral, e colunas com valores numéricos
-        metaGeralRange.forEach((rangeGeral: any, index: any) => {
-            formattedMetas.push({
-                id: index + 2, // +2 porque a primeira linha já é id=1
-                linha: rangeGeral,
-                ...metaVendedorRange.reduce((acc: any, _, colIndex: any) => {
-                    acc[`col${colIndex + 1}`] = metas[index]?.[colIndex] || 0;
-                    return acc;
-                }, {})
-            });
-        });
+        // metaGeralRange.forEach((rangeGeral, index) => {
+        //     formattedMetas.push({
+        //         id: index + 2, // +2 porque a primeira linha já é id=1
+        //         linha: rangeGeral,
+        //         ...metaVendedorRange.reduce((acc, _, colIndex) => {
+        //             acc[`col${colIndex + 1}`] = metas[index]?.[colIndex] || 0;
+        //             return acc;
+        //         }, {})
+        //     });
+        // });
 
         // Enviar os dados formatados para o backend
-        dispatch(sendMetaTable({
-            formattedMetas,
-            campaignId: isEditing ? campaignId : undefined
-        }) as any);
+        // dispatch(sendMetaTable({
+        //     formattedMetas,
+        //     campaignId: isEditing ? campaignId : undefined
+        // }) as any);
     };
 
     if (isLoading) {

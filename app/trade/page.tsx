@@ -166,20 +166,10 @@ export default function CampaignRegistration() {
         }
 
         try {
-            const response = await fetch('/api/campaings', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(campaignData),
-            });
+           
 
-            if (!response.ok) {
-                throw new Error('Erro ao criar campanha');
-            }
+            await dispatch(createCampaign(campaignData) as any);
 
-            const result = await response.json();
-            console.log('Campaign created:', result);
             message.success('Campanha criada com sucesso!');
             setTimeout(() => {
                 window.location.href = '/trade/list';
@@ -204,10 +194,6 @@ export default function CampaignRegistration() {
 
     const handleSearchFilial = (value: string) => {
         dispatch(fetchFiliais(value) as any);
-    };
-    const [escala, setEscala] = useState([]);
-    const handleEscalaChange = (newEscala: any) => {
-        setEscala(newEscala);
     };
 
     return (
@@ -546,7 +532,7 @@ export default function CampaignRegistration() {
 
                         <div className="bg-white p-4 rounded shadow">
                             <h2 className="text-lg font-bold text-green-600">
-                                Meta Geral
+                                Escala
                             </h2>
                             <MetaTable
                                 metaGeralRange={['90-99', '100-129', '130-139']}
@@ -555,7 +541,7 @@ export default function CampaignRegistration() {
                                     '100-129',
                                     '130-139',
                                 ]}
-                                onEscalaChange={handleEscalaChange}
+                               onEscalaChange={() => {}}
                             />
                         </div>
                         {/* Submit Button */}

@@ -1,8 +1,7 @@
 import { apiInstance } from '@/app/service/apiInstance';
-import useTokenRefresh from '@/hooks/useTokenRefresh';
-import { ICampaign } from '@/types/Trade/ITrade';
+import { ICampaign, IEscala } from '@/types/Trade/ITrade';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+
 
 export const fetchCampaigns = createAsyncThunk(
     'trade/fetchCampaigns',
@@ -164,13 +163,18 @@ export const searchCampaigns = createAsyncThunk(
 
 export const sendMetaTable = createAsyncThunk(
     'trade/sendMetaTable',
-    async (metaData: any, { rejectWithValue }) => {
+    async (metaData: { formattedMetas: any[], campaignId?: string }, { rejectWithValue }) => {
         try {
-            const response = await apiInstance.post('/metas', metaData);
+            // Se houver um campaignId, incluí-lo na requisição
+            const payload = metaData.campaignId 
+                ? { metas: metaData.formattedMetas, campaignId: metaData.campaignId }
+                : { metas: metaData.formattedMetas };
+                
+            const response = await apiInstance.post('/metas', payload);
             return response.data;
         } catch (error: any) {
             console.error('Error sending meta table:', error);
-            return rejectWithValue(error.response.data);
+            return rejectWithValue(error.response?.data || error.message);
         }
     }
 );
@@ -188,6 +192,7 @@ const initialState: ICampaign = {
     campaigns: [],
     currentCampaign: {} as ICampaign,
     filiais: [] as any,
+    escala: [] as IEscala[],
 };
 
 const tradeSlice = createSlice({

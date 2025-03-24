@@ -30,12 +30,12 @@ const OriginData: React.FC<OriginDataProps> = ({ data, onChange }) => {
     const [documentType, setDocumentType] = useState('nota');
 
     useEffect(() => {
-        if (notaOP && !serieOP) {
-            setDocumentType('fatura');
-        } else if (notaOP && serieOP) {
+        if (documentType === 'nota' && notaOP) {
             setDocumentType('nota');
+        } else if (documentType === 'fatura' && !notaOP && !serieOP) {
+            setDocumentType('fatura');
         }
-    }, [notaOP, serieOP]);
+    }, [notaOP, serieOP, documentType]);
 
     const handleFieldChange = (field: string, value: string) => {
         dispatch(setOrderState({ [field]: value }));

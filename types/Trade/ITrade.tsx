@@ -11,6 +11,19 @@ export interface ICampaign {
     products: IProduct[];
     currentCampaign?: any;
     filiais: any;
+    escala: IEscala[];
+}
+
+export interface IEscala {
+    metaGeralRange: [];
+    metaVendedorRange: [];
+    valoresMeta: IValorMeta[];
+}
+
+export interface IValorMeta {
+    idMetaGeral: number;
+    idMetaVendedor: number;
+    celValordaMeta: number;
 }
 
 export interface IProduct {

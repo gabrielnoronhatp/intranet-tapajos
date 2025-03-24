@@ -205,6 +205,10 @@ export default function CampaignRegistration() {
     const handleSearchFilial = (value: string) => {
         dispatch(fetchFiliais(value) as any);
     };
+    const [escala, setEscala] = useState([]);
+    const handleEscalaChange = (newEscala: any) => {
+        setEscala(newEscala);
+    };
 
     return (
         <div className="min-h-screen bg-background">
@@ -551,6 +555,7 @@ export default function CampaignRegistration() {
                                     '100-129',
                                     '130-139',
                                 ]}
+                                onEscalaChange={handleEscalaChange}
                             />
                         </div>
                         {/* Submit Button */}

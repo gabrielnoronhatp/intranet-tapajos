@@ -531,7 +531,7 @@ export default function CampaignEdit() {
 
                         <div className="bg-white p-4 rounded shadow">
                             <h2 className="text-lg font-bold text-green-600">
-                                Meta Geral
+                             Escala 
                             </h2>
                             <MetaTable
                                 metaGeralRange={['90-99', '100-129', '130-139']}

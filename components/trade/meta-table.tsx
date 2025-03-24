@@ -156,32 +156,37 @@ export const MetaTable: React.FC<MetaTableProps> = ({
         const formattedMetas = [];
         
         // Primeira linha: id da campanha, linha vazia, e colunas com os ranges dos vendedores
-        // formattedMetas.push({
-        //     id: campaignId ? parseInt(campaignId) : 1, // Usa o ID da campanha se disponível
-        //     linha: "", // Primeira linha tem linha vazia
-        //     ...metaVendedorRange.reduce((acc, range, index) => {
-        //         acc[`col${index + 1}`] = range;
-        //         return acc;
-        //     }, {})
-        // });
+        formattedMetas.push({
+            id: campaignId ? parseInt(campaignId) : 1, // Usa o ID da campanha se disponível
+            linha: "", // Primeira linha tem linha vazia
+            ...metaVendedorRange.reduce((acc, range, index) => {
+                acc[`col${index + 1}`] = range;
+                return acc;
+            }, {})
+        });
         
         // Linhas seguintes: id sequencial, linha com range geral, e colunas com valores numéricos
-        // metaGeralRange.forEach((rangeGeral, index) => {
-        //     formattedMetas.push({
-        //         id: index + 2, // +2 porque a primeira linha já é id=1
-        //         linha: rangeGeral,
-        //         ...metaVendedorRange.reduce((acc, _, colIndex) => {
-        //             acc[`col${colIndex + 1}`] = metas[index]?.[colIndex] || 0;
-        //             return acc;
-        //         }, {})
-        //     });
-        // });
+        metaGeralRange.forEach((rangeGeral, index) => {
+            formattedMetas.push({
+                id: index + 2, // +2 porque a primeira linha já é id=1
+                linha: rangeGeral,
+                ...metaVendedorRange.reduce((acc, _, colIndex) => {
+                    acc[`col${colIndex + 1}`] = metas[index]?.[colIndex] || 0;
+                    return acc;
+                }, {})
+            });
+        });
 
         // Enviar os dados formatados para o backend
-        // dispatch(sendMetaTable({
-        //     formattedMetas,
-        //     campaignId: isEditing ? campaignId : undefined
-        // }) as any);
+        dispatch(sendMetaTable({
+            formattedMetas,
+            campaignId: isEditing ? campaignId : undefined
+        }) as any);
+        
+        // Se a função onEscalaChange foi fornecida, chame-a com os dados formatados
+        if (onEscalaChange) {
+            onEscalaChange(formattedMetas);
+        }
     };
 
     if (isLoading) {

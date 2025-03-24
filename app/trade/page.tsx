@@ -138,7 +138,6 @@ export default function CampaignRegistration() {
             userlanc: user?.username,
             datalanc: formatDate(new Date().toISOString()),
             status: true,
-
             participantes: operadores.map((op: any) => ({
                 modelo: op.modelo,
                 nome: op.nome,
@@ -166,14 +165,8 @@ export default function CampaignRegistration() {
         }
 
         try {
-           
-
             await dispatch(createCampaign(campaignData) as any);
-
             message.success('Campanha criada com sucesso!');
-            setTimeout(() => {
-                window.location.href = '/trade/list';
-            }, 1000);
         } catch (error) {
             console.error('Erro ao criar campanha:', error);
             message.error('Erro ao criar campanha');

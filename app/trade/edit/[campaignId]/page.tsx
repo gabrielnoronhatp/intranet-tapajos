@@ -536,7 +536,7 @@ export default function CampaignEdit() {
                             <MetaTable
                                 metaGeralRange={['90-99', '100-129', '130-139']}
                                 metaVendedorRange={['90-99', '100-129', '130-139']}
-                                isEditing={true}
+                                onEscalaChange={() => {}}
                                 campaignId={campaignId}
                                 escala={currentCampaign.campanha?.escala}
                             />

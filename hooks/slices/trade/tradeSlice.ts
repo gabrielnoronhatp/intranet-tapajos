@@ -32,7 +32,7 @@ export const updateCampaign = createAsyncThunk(
 
             const campaignDataOnly = {
                 nome: data.nome,
-                filial: data.filial,
+                idempresa: data.idempresa,
                 datalanc: data.datalanc,
                 userlanc: data.userlanc,
                 datainicial: data.datainicial,

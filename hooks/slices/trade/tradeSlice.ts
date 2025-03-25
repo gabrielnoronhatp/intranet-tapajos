@@ -49,10 +49,12 @@ export const updateCampaign = createAsyncThunk(
 
             if (data.escala) {
                 try {
-                    const escalaWithCampaignId = data.escala.map((item: any) => ({
-                        ...item,
-                        id: parseInt(id),
-                    }));
+                    const escalaWithCampaignId = data.escala.map(
+                        (item: any) => ({
+                            ...item,
+                            id: parseInt(id),
+                        })
+                    );
 
                     await dispatch(
                         sendMetaTable({
@@ -79,7 +81,7 @@ export const updateCampaign = createAsyncThunk(
                         return {
                             ...participant,
                             nome: participant.nome,
-                            meta: participant.meta,
+                            meta: participant.meta || 'VALOR',
                             meta_valor: participant.meta_valor,
                             meta_quantidade: participant.meta_quantidade,
                             idparticipante: participant.idparticipante,
@@ -118,6 +120,7 @@ export const updateCampaign = createAsyncThunk(
                             ...item,
                             iditem: item.iditem,
                             nome: item.nome,
+                            metrica: item.metrica || 'marca',
                         };
                     });
 
@@ -161,6 +164,7 @@ export const createCampaignParticipants = createAsyncThunk(
                 const participantWithCampaignId = {
                     ...participant,
                     idcampanha_distribuicao: parseInt(campaignId),
+                    meta: participant.meta || 'VALOR',
                 };
 
                 console.log(
@@ -168,22 +172,16 @@ export const createCampaignParticipants = createAsyncThunk(
                     participantWithCampaignId
                 );
 
-                // Enviar o objeto diretamente
                 const response = await apiInstance.post(
-                    `/participantes`,
+                    '/participantes',
                     participantWithCampaignId
-                );
-
-                console.log(
-                    'Resposta do servidor (participante):',
-                    response.data
                 );
                 results.push(response.data);
             }
 
             return results;
         } catch (error: any) {
-            console.error('Erro ao cadastrar participantes:', error);
+            console.error('Erro ao criar participantes:', error);
             return rejectWithValue(error.response?.data || error.message);
         }
     }
@@ -203,6 +201,7 @@ export const createCampaignItems = createAsyncThunk(
                 const itemWithCampaignId = {
                     ...item,
                     idcampanha_distribuicao: parseInt(campaignId),
+                    metrica: item.metrica || 'marca',
                 };
 
                 console.log(
@@ -210,19 +209,16 @@ export const createCampaignItems = createAsyncThunk(
                     itemWithCampaignId
                 );
 
-                // Enviar o objeto diretamente
                 const response = await apiInstance.post(
-                    `/itens`,
+                    '/itens',
                     itemWithCampaignId
                 );
-
-                console.log('Resposta do servidor (item):', response.data);
                 results.push(response.data);
             }
 
             return results;
         } catch (error: any) {
-            console.error('Erro ao cadastrar itens:', error);
+            console.error('Erro ao criar itens:', error);
             return rejectWithValue(error.response?.data || error.message);
         }
     }
@@ -455,8 +451,8 @@ export const sendMetaTable = createAsyncThunk(
 
             let response;
             if (metaData.isEditing) {
-                response = await apiInstance.post(
-                    '/campanha_distribuicao_escala',
+                response = await apiInstance.put(
+                    `/campanha_distribuicao_escala/${formattedData[0].id}`,
                     formattedData
                 );
             } else {
@@ -532,6 +528,7 @@ export const deleteParticipantFromCampaign = createAsyncThunk(
                 'Resposta do servidor (remoção de participante):',
                 response.data
             );
+
             return { campaignId, participantId };
         } catch (error: any) {
             console.error('Erro ao remover participante:', error);

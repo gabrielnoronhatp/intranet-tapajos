@@ -73,6 +73,11 @@ export function TableTrade() {
         (state: RootState) => state.trade || {}
     );
 
+    // Ordenar as campanhas por data de lançamento em ordem decrescente
+    const sortedCampaigns = campaigns?.slice().sort((a: any, b: any) => {
+        return new Date(b.datalanc).getTime() - new Date(a.datalanc).getTime();
+    });
+
     const handleViewCampaign = (id: string) => {
         dispatch(fetchCampaignById(id) as any).then(() => {
             const escalaData = currentCampaign?.escala || [];
@@ -373,7 +378,7 @@ export function TableTrade() {
             <div className="rounded-md border">
                 <AntdTable
                     columns={columns}
-                    dataSource={campaigns}
+                    dataSource={sortedCampaigns}
                     rowKey="nome"
                     pagination={false}
                 />

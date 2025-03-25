@@ -35,6 +35,7 @@ export default function CampaignEdit() {
             descricao: string;
             iditem: number;
             codmarca: number;
+            metrica: string;
         }>
     >([]);
     const [tipoOperador, setTipoOperador] = useState('teleoperador');
@@ -44,7 +45,7 @@ export default function CampaignEdit() {
     const [meta, setMeta] = useState('');
     const [premiacao, setPremiacao] = useState('');
     const [campaignName, setCampaignName] = useState('');
-    const [filial, setFilial] = useState('');
+    const [idempresa, setIdempresa] = useState('');
     const [tipoMeta, setTipoMeta] = useState('VALOR');
     const [meta_valor, setMetaValor] = useState('');
     const user = useSelector((state: RootState) => state.auth.user);
@@ -70,7 +71,7 @@ export default function CampaignEdit() {
     useEffect(() => {
         if (currentCampaign) {
             setCampaignName(currentCampaign.campanha?.nome || '');
-            setFilial(currentCampaign.campanha?.filial || '');
+            setIdempresa(currentCampaign.campanha?.idempresa || '');
             setDatainicial(currentCampaign.campanha?.datainicial || '');
             setDatafinal(currentCampaign.campanha?.datafinal || '');
             setValorTotal(currentCampaign.campanha?.valor_total || 0);
@@ -78,34 +79,48 @@ export default function CampaignEdit() {
             setMetaValor(currentCampaign.campanha?.meta_valor);
             setMarcaProdutos(currentCampaign.itens);
             setTipoMeta(currentCampaign.campanha?.tipoMeta);
-            
+
             if (currentCampaign.escala && currentCampaign.escala.length > 0) {
-                console.log('Dados da escala carregados:', currentCampaign.escala);
-                
+                console.log(
+                    'Dados da escala carregados:',
+                    currentCampaign.escala
+                );
+
                 const escalaData = currentCampaign.escala;
                 let metaGeralRange: string[] = [];
                 let metaVendedorRange: string[] = [];
                 let valoresMeta: any[] = [];
-                
-                const primeiraLinha = escalaData.find((item: any) => item.linha === '');
+
+                const primeiraLinha = escalaData.find(
+                    (item: any) => item.linha === ''
+                );
                 if (primeiraLinha) {
-                    const usesCol = Object.keys(primeiraLinha).some(key => key.startsWith('col') && !key.startsWith('coluna'));
+                    const usesCol = Object.keys(primeiraLinha).some(
+                        (key) =>
+                            key.startsWith('col') && !key.startsWith('coluna')
+                    );
                     const columnPrefix = usesCol ? 'col' : 'coluna';
-                    
+
                     metaVendedorRange = Object.keys(primeiraLinha)
                         .filter((key) => key.startsWith(columnPrefix))
                         .map((key) => primeiraLinha[key]);
                 }
-                
-                const outrasLinhas = escalaData.filter((item: any) => item.linha !== '');
+
+                const outrasLinhas = escalaData.filter(
+                    (item: any) => item.linha !== ''
+                );
                 metaGeralRange = outrasLinhas.map((item: any) => item.linha);
-                
+
                 valoresMeta = [];
                 outrasLinhas.forEach((linha: any, idxLinha: number) => {
                     metaVendedorRange.forEach((_, idxCol: number) => {
-                        const usesCol = Object.keys(linha).some(key => key.startsWith('col') && !key.startsWith('coluna'));
+                        const usesCol = Object.keys(linha).some(
+                            (key) =>
+                                key.startsWith('col') &&
+                                !key.startsWith('coluna')
+                        );
                         const columnPrefix = usesCol ? 'col' : 'coluna';
-                        
+
                         const colKey = `${columnPrefix}${idxCol + 1}`;
                         if (linha[colKey] !== undefined) {
                             valoresMeta.push({
@@ -116,11 +131,11 @@ export default function CampaignEdit() {
                         }
                     });
                 });
-                
+
                 setEscalaProcessada({
                     metaGeralRange,
                     metaVendedorRange,
-                    valoresMeta
+                    valoresMeta,
                 });
             }
         }
@@ -173,7 +188,14 @@ export default function CampaignEdit() {
         if (nome) {
             setMarcaProdutos([
                 ...marcaProdutos,
-                { nome, codprod, descricao, iditem, codmarca },
+                {
+                    nome,
+                    codprod,
+                    descricao,
+                    iditem,
+                    codmarca,
+                    metrica: tipoMarcaProduto,
+                },
             ]);
             setProductName('');
         } else {
@@ -214,7 +236,7 @@ export default function CampaignEdit() {
     const handleUpdateCampaign = async () => {
         const campaignData = {
             nome: campaignName,
-            filial,
+            idempresa: idempresa,
             datainicial: formatDate(datainicial),
             datafinal: formatDate(datafinal),
             valor_total: valorTotal,
@@ -230,7 +252,8 @@ export default function CampaignEdit() {
             !campaignData.nome ||
             !campaignData.datainicial ||
             !campaignData.datafinal ||
-            !campaignData.valor_total
+            !campaignData.valor_total ||
+            !campaignData.idempresa
         ) {
             console.error('Campos obrigatórios ausentes');
             return;
@@ -311,7 +334,6 @@ export default function CampaignEdit() {
         setItemToDelete(null);
     };
 
-    // Função para receber os dados da tabela de metas
     const handleEscalaSubmit = (formattedMetas: any[]) => {
         setEscalaData(formattedMetas);
     };
@@ -346,8 +368,8 @@ export default function CampaignEdit() {
                                 showSearch
                                 placeholder="Filial"
                                 className="w-full mb-2"
-                                value={filial}
-                                onChange={(value) => setFilial(value)}
+                                value={idempresa}
+                                onChange={(value) => setIdempresa(value)}
                                 onSearch={handleSearchFilial}
                                 filterOption={false}
                             >

@@ -37,7 +37,7 @@ export default function CampaignRegistration() {
     const [meta, setMeta] = useState('');
     const [premiacao, setPremiacao] = useState('');
     const [campaignName, setCampaignName] = useState('');
-    const [filial, setFilial] = useState('');
+    const [idempresa, setIdempresa] = useState('');
     const [tipoMeta, setTipoMeta] = useState('VALOR');
     const [meta_valor, setMetaValor] = useState('');
     const user = useSelector((state: RootState) => state.auth.user);
@@ -137,7 +137,7 @@ export default function CampaignRegistration() {
     const handleSaveCampaign = async () => {
         const campaignData = {
             nome: campaignName,
-            filial,
+            idempresa,
             datainicial: formatDate(currentCampaign?.datainicial || ''),
             datafinal: formatDate(currentCampaign?.datafinal || ''),
             valor_total: currentCampaign?.valor_total,
@@ -226,8 +226,8 @@ export default function CampaignRegistration() {
                                 showSearch
                                 placeholder="Filial"
                                 className="w-full mb-2"
-                                value={filial}
-                                onChange={(value) => setFilial(value)}
+                                value={idempresa}
+                                onChange={(value) => setIdempresa(value)}
                                 onSearch={handleSearchFilial}
                                 filterOption={false}
                             >

@@ -57,6 +57,8 @@ export default function CampaignEdit() {
     const [participantToDelete, setParticipantToDelete] = useState<any>(null);
     const [isItemModalVisible, setIsItemModalVisible] = useState(false);
     const [itemToDelete, setItemToDelete] = useState<number | null>(null);
+    const [escalaProcessada, setEscalaProcessada] = useState<any>(null);
+    const [escalaData, setEscalaData] = useState<any[]>([]);
 
     useEffect(() => {
         if (campaignId) {
@@ -76,6 +78,51 @@ export default function CampaignEdit() {
             setMetaValor(currentCampaign.campanha?.meta_valor);
             setMarcaProdutos(currentCampaign.itens);
             setTipoMeta(currentCampaign.campanha?.tipoMeta);
+            
+            if (currentCampaign.escala && currentCampaign.escala.length > 0) {
+                console.log('Dados da escala carregados:', currentCampaign.escala);
+                
+                const escalaData = currentCampaign.escala;
+                let metaGeralRange: string[] = [];
+                let metaVendedorRange: string[] = [];
+                let valoresMeta: any[] = [];
+                
+                const primeiraLinha = escalaData.find((item: any) => item.linha === '');
+                if (primeiraLinha) {
+                    const usesCol = Object.keys(primeiraLinha).some(key => key.startsWith('col') && !key.startsWith('coluna'));
+                    const columnPrefix = usesCol ? 'col' : 'coluna';
+                    
+                    metaVendedorRange = Object.keys(primeiraLinha)
+                        .filter((key) => key.startsWith(columnPrefix))
+                        .map((key) => primeiraLinha[key]);
+                }
+                
+                const outrasLinhas = escalaData.filter((item: any) => item.linha !== '');
+                metaGeralRange = outrasLinhas.map((item: any) => item.linha);
+                
+                valoresMeta = [];
+                outrasLinhas.forEach((linha: any, idxLinha: number) => {
+                    metaVendedorRange.forEach((_, idxCol: number) => {
+                        const usesCol = Object.keys(linha).some(key => key.startsWith('col') && !key.startsWith('coluna'));
+                        const columnPrefix = usesCol ? 'col' : 'coluna';
+                        
+                        const colKey = `${columnPrefix}${idxCol + 1}`;
+                        if (linha[colKey] !== undefined) {
+                            valoresMeta.push({
+                                idMetaGeral: idxLinha + 1,
+                                idMetaVendedor: idxCol + 1,
+                                celValordaMeta: parseFloat(linha[colKey]),
+                            });
+                        }
+                    });
+                });
+                
+                setEscalaProcessada({
+                    metaGeralRange,
+                    metaVendedorRange,
+                    valoresMeta
+                });
+            }
         }
     }, [currentCampaign]);
 
@@ -168,26 +215,15 @@ export default function CampaignEdit() {
         const campaignData = {
             nome: campaignName,
             filial,
-            datainicial: moment(datainicial).format('DD/MM/YYYY'),
-            datafinal: moment(datafinal).format('DD/MM/YYYY'),
+            datainicial: formatDate(datainicial),
+            datafinal: formatDate(datafinal),
             valor_total: valorTotal,
             userlanc: user?.username,
-            datalanc: moment().format('DD/MM/YYYY'),
+            datalanc: formatDate(new Date().toISOString()),
             status: true,
-            participantes: operadores.map((op: any) => ({
-                modelo: op.modelo,
-                meta: "VALOR",
-                nome: op.nome,
-                meta_valor: op.meta_valor,
-                idparticipante: op.idparticipante,
-                meta_quantidade: op.meta_quantidade,
-                premiacao: op.premiacao.toString(),
-            })),
-            itens: marcaProdutos.map((produto) => ({
-                metrica: tipoMarcaProduto,
-                iditem: produto.iditem,
-                nome: produto.nome,
-            })),
+            participantes: operadores,
+            itens: marcaProdutos,
+            escala: escalaData,
         };
 
         if (
@@ -203,7 +239,7 @@ export default function CampaignEdit() {
         try {
             await dispatch(
                 updateCampaign({
-                    id: campaignId as string,
+                    id: campaignId,
                     data: campaignData,
                 }) as any
             );
@@ -273,6 +309,11 @@ export default function CampaignEdit() {
     const handleCancelDeleteItem = () => {
         setIsItemModalVisible(false);
         setItemToDelete(null);
+    };
+
+    // Função para receber os dados da tabela de metas
+    const handleEscalaSubmit = (formattedMetas: any[]) => {
+        setEscalaData(formattedMetas);
     };
 
     return (
@@ -605,15 +646,10 @@ export default function CampaignEdit() {
                                 Escala
                             </h2>
                             <MetaTable
-                                metaGeralRange={['90-99', '100-129', '130-139']}
-                                metaVendedorRange={[
-                                    '90-99',
-                                    '100-129',
-                                    '130-139',
-                                ]}
-                                onEscalaChange={() => {}}
+                                isEditing={true}
                                 campaignId={campaignId}
-                                escala={currentCampaign.campanha?.escala}
+                                escala={escalaProcessada}
+                                onEscalaSubmit={handleEscalaSubmit}
                             />
                         </div>
 

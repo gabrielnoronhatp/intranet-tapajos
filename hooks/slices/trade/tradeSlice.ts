@@ -49,17 +49,14 @@ export const updateCampaign = createAsyncThunk(
 
             if (data.escala) {
                 try {
-                    const escalaWithCampaignId = data.escala.map(
-                        (item: any) => ({
-                            ...item,
-                            id: parseInt(id),
-                        })
-                    );
+                    const escalaWithCampaignId = data.escala.map((item: any) => ({
+                        ...item,
+                        id: parseInt(id),
+                    }));
 
                     await dispatch(
                         sendMetaTable({
                             formattedMetas: escalaWithCampaignId,
-                            campaignId: id,
                             isEditing: true,
                         })
                     ).unwrap();
@@ -277,16 +274,16 @@ export const createCampaign = createAsyncThunk(
             // Se houver dados de escala, envie-os
             if (escala && escala.length > 0) {
                 try {
-                    // Adicionar o ID da campanha a cada objeto da escala
+                    // Não adicionar o campo idcampanha_distribuicao
                     const escalaWithCampaignId = escala.map((item: any) => ({
                         ...item,
-                        id: parseInt(campaignId), // Usar o ID da campanha em todos os objetos
+                        id: parseInt(campaignId), // Usar apenas o campo id
                     }));
 
                     await dispatch(
                         sendMetaTable({
                             formattedMetas: escalaWithCampaignId,
-                            campaignId,
+                            isEditing: false,
                         })
                     ).unwrap();
                     console.log('Escala cadastrada com sucesso');
@@ -452,27 +449,19 @@ export const sendMetaTable = createAsyncThunk(
         { rejectWithValue }
     ) => {
         try {
-            const formattedData = metaData.formattedMetas.map((meta) => {
-                if (metaData.campaignId) {
-                    return {
-                        ...meta,
-                        idcampanha_distribuicao: parseInt(metaData.campaignId),
-                    };
-                }
-                return meta;
-            });
+            const formattedData = metaData.formattedMetas;
 
             console.log('Enviando dados de meta formatados:', formattedData);
 
             let response;
             if (metaData.isEditing) {
-                response = await apiInstance.put(
-                    '/distribuicao_escala',
+                response = await apiInstance.post(
+                    '/campanha_distribuicao_escala',
                     formattedData
                 );
             } else {
                 response = await apiInstance.post(
-                    '/distribuicao_escala',
+                    '/campanha_distribuicao_escala',
                     formattedData
                 );
             }

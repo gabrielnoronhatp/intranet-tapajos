@@ -9,8 +9,6 @@ interface Vendedor {
 }
 
 interface MetaTableProps {
-    metaGeralRange: string[];
-    metaVendedorRange: string[];
     isEditing?: boolean;
     campaignId?: string;
     escala?: {
@@ -26,18 +24,20 @@ interface MetaTableProps {
 }
 
 export const MetaTable: React.FC<MetaTableProps> = ({
-    metaGeralRange: initialMetaGeralRange,
-    metaVendedorRange: initialMetaVendedorRange,
     isEditing = false,
     campaignId,
     escala,
     onEscalaSubmit,
 }) => {
+    // Definir valores padrão para os ranges
+    const defaultMetaGeralRange = ['90-99', '100-129', '130-139'];
+    const defaultMetaVendedorRange = ['90-99', '100-129', '130-139'];
+    
     const [metaGeralRange, setMetaGeralRange] = useState<string[]>(
-        escala?.metaGeralRange || initialMetaGeralRange
+        escala?.metaGeralRange || defaultMetaGeralRange
     );
     const [metaVendedorRange, setMetaVendedorRange] = useState<string[]>(
-        escala?.metaVendedorRange || initialMetaVendedorRange
+        escala?.metaVendedorRange || defaultMetaVendedorRange
     );
     const [vendedores, setVendedores] = useState<Vendedor[]>([
         {
@@ -149,7 +149,7 @@ export const MetaTable: React.FC<MetaTableProps> = ({
             id: campaignIdNumber,
             linha: "",
             ...metaVendedorRange.reduce((acc: any, range: any, index: number) => {
-                acc[`col${index + 1}`] = range;
+                acc[`coluna${index + 1}`] = range;
                 return acc;
             }, {})
         });
@@ -159,7 +159,7 @@ export const MetaTable: React.FC<MetaTableProps> = ({
                 id: campaignIdNumber,
                 linha: rangeGeral,
                 ...metaVendedorRange.reduce((acc: any, _, colIndex: number) => {
-                    acc[`col${colIndex + 1}`] = metas[index]?.[colIndex] || 0;
+                    acc[`coluna${colIndex + 1}`] = metas[index]?.[colIndex] || 0;
                     return acc;
                 }, {})
             });

@@ -535,12 +535,6 @@ export default function CampaignRegistration() {
                                 Escala
                             </h2>
                             <MetaTable
-                                metaGeralRange={['90-99', '100-129', '130-139']}
-                                metaVendedorRange={[
-                                    '90-99',
-                                    '100-129',
-                                    '130-139',
-                                ]}
                                 onEscalaSubmit={handleEscalaSubmit}
                             />
                         </div>

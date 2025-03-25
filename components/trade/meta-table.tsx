@@ -249,12 +249,7 @@ export const MetaTable: React.FC<MetaTableProps> = ({
                   
                 </tbody>
             </table>
-            {/* <button
-                // onClick={enviarTabelaParaBackend}
-                className="bg-green-500 text-white px-4 py-2 rounded mt-4"
-            >
-                Enviar Tabela
-            </button> */}
+           
         </div>
     );
 };

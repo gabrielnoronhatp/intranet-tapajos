@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Navbar } from '@/components/layout/navbar';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Button } from '@/components/ui/button';
-import { Input, Select, Table, message, Radio } from 'antd';
+import { Input, Select, Table, message, Radio, Modal } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import {
     fetchCampaignById,
@@ -12,6 +12,8 @@ import {
     
     fetchFiliais,
     fetchOperators,
+    deleteParticipantFromCampaign,
+    deleteItemFromCampaign,
 } from '@/hooks/slices/trade/tradeSlice';
 import { RootState } from '@/hooks/store';
 import { debounce } from 'lodash';
@@ -45,6 +47,10 @@ export default function CampaignEdit() {
     const [datainicial, setDatainicial] = useState('');
     const [datafinal, setDatafinal] = useState('');
     const [valorTotal, setValorTotal] = useState(0);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [participantToDelete, setParticipantToDelete] = useState<any>(null);
+    const [isItemModalVisible, setIsItemModalVisible] = useState(false);
+    const [itemToDelete, setItemToDelete] = useState<number | null>(null);
 
     useEffect(() => {
         if (campaignId) {
@@ -206,6 +212,50 @@ export default function CampaignEdit() {
 
     const handleSearchFilial = (value: string) => {
         dispatch(fetchFiliais(value) as any);
+    };
+
+    const showDeleteConfirm = (participant: any) => {
+        setParticipantToDelete(participant);
+        setIsModalVisible(true);
+    };
+
+    const handleDeleteParticipant = () => {
+        if (participantToDelete) {
+            dispatch(deleteParticipantFromCampaign({
+                campaignId,
+                participantId: participantToDelete.idparticipante
+            }) as any);
+            setOperadores(operadores.filter((op: any) => op.idparticipante !== participantToDelete.idparticipante));
+            setIsModalVisible(false);
+            setParticipantToDelete(null);
+        }
+    };
+
+    const showDeleteItemConfirm = (itemId: number) => {
+        setItemToDelete(itemId);
+        setIsItemModalVisible(true);
+    };
+
+    const handleConfirmDeleteItem = () => {
+        if (itemToDelete !== null) {
+            dispatch(deleteItemFromCampaign({
+                campaignId,
+                itemId: itemToDelete
+            }) as any);
+            setMarcaProdutos(marcaProdutos.filter((item: any) => item.codprod !== itemToDelete));
+            setIsItemModalVisible(false);
+            setItemToDelete(null);
+        }
+    };
+
+    const handleCancelDelete = () => {
+        setIsModalVisible(false);
+        setParticipantToDelete(null);
+    };
+
+    const handleCancelDeleteItem = () => {
+        setIsItemModalVisible(false);
+        setItemToDelete(null);
     };
 
     return (
@@ -385,12 +435,10 @@ export default function CampaignEdit() {
                                     {
                                         title: 'Ação',
                                         key: 'acao',
-                                        render: (_, __, index) => (
+                                        render: (_, record) => (
                                             <Button
                                                 className="bg-red-500 hover:bg-red-600"
-                                                onClick={() =>
-                                                    handleRemoveOperador(index)
-                                                }
+                                                onClick={() => showDeleteConfirm(record)}
                                             >
                                                 Remover
                                             </Button>
@@ -473,14 +521,10 @@ export default function CampaignEdit() {
                                     {
                                         title: 'Ação',
                                         key: 'acao',
-                                        render: (_, __, index) => (
+                                        render: (_, record:any) => (
                                             <Button
                                                 className="bg-red-500 hover:bg-red-600"
-                                                onClick={() =>
-                                                    handleRemoveMarcaProduto(
-                                                        index
-                                                    )
-                                                }
+                                                onClick={() => showDeleteItemConfirm(record.id)}
                                             >
                                                 Remover
                                             </Button>
@@ -554,6 +598,30 @@ export default function CampaignEdit() {
                     </div>
                 </div>
             </main>
+
+            <Modal
+                title="Confirmar Remoção de Participante"
+                visible={isModalVisible}
+                onOk={handleDeleteParticipant}
+                onCancel={handleCancelDelete}
+                okText="Sim"
+                cancelText="Não"
+                okButtonProps={{ style: { backgroundColor: 'green', borderColor: 'green' } }}
+            >
+                <p>Tem certeza de que deseja remover este participante?</p>
+            </Modal>
+
+            <Modal
+                title="Confirmar Remoção de Item"
+                visible={isItemModalVisible}
+                onOk={handleConfirmDeleteItem}
+                onCancel={handleCancelDeleteItem}
+                okText="Sim"
+                cancelText="Não"
+                okButtonProps={{ style: { backgroundColor: 'green', borderColor: 'green' } }}
+            >
+                <p>Tem certeza de que deseja remover este item?</p>
+            </Modal>
         </div>
     );
 }

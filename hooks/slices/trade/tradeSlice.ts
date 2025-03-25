@@ -23,86 +23,23 @@ export const updateCampaign = createAsyncThunk(
     'trade/updateCampaign',
     async ({ id, data }: { id: string; data: any }, { dispatch, rejectWithValue }) => {
         try {
-            // Primeiro, atualizamos apenas os dados básicos da campanha
+            // Dados básicos da campanha
             const campaignDataOnly = {
                 nome: data.nome,
                 filial: data.filial,
+                datalanc: data.datalanc,
+                userlanc: data.userlanc,
                 datainicial: data.datainicial,
                 datafinal: data.datafinal,
                 valor_total: data.valor_total,
                 status: data.status
             };
             
-            // Atualizamos a campanha principal
+            // Atualizar apenas a campanha principal
             const response = await apiInstance.put(`/campanhas/${id}`, campaignDataOnly);
-            
             console.log('Campanha atualizada com sucesso:', response.data);
             
-            // Se houver participantes, atualizamos ou criamos novos
-            if (data.participantes && data.participantes.length > 0) {
-                console.log('Atualizando participantes:', data.participantes);
-                
-                // Para cada participante, verificamos se já existe (tem ID) ou é novo
-                for (const participant of data.participantes) {
-                    if (participant.id) {
-                        // Se já existe, atualizamos
-                        try {
-                            await apiInstance.put(`/participantes/${participant.id}`, {
-                                ...participant,
-                                idcampanha_distribuicao: parseInt(id)
-                            });
-                            console.log(`Participante ${participant.id} atualizado com sucesso`);
-                        } catch (error) {
-                            console.error(`Erro ao atualizar participante ${participant.id}:`, error);
-                        }
-                    } else {
-                        // Se é novo, criamos
-                        try {
-                            await apiInstance.post(`/participantes`, {
-                                ...participant,
-                                idcampanha_distribuicao: parseInt(id)
-                            });
-                            console.log('Novo participante criado com sucesso');
-                        } catch (error) {
-                            console.error('Erro ao criar novo participante:', error);
-                        }
-                    }
-                }
-            }
-            
-            // Se houver itens, atualizamos ou criamos novos
-            if (data.itens && data.itens.length > 0) {
-                console.log('Atualizando itens:', data.itens);
-                
-                // Para cada item, verificamos se já existe (tem ID) ou é novo
-                for (const item of data.itens) {
-                    if (item.id) {
-                        // Se já existe, atualizamos
-                        try {
-                            await apiInstance.put(`/itens/${item.id}`, {
-                                ...item,
-                                idcampanha_distribuicao: parseInt(id)
-                            });
-                            console.log(`Item ${item.id} atualizado com sucesso`);
-                        } catch (error) {
-                            console.error(`Erro ao atualizar item ${item.id}:`, error);
-                        }
-                    } else {
-                        // Se é novo, criamos
-                        try {
-                            await apiInstance.post(`/itens`, {
-                                ...item,
-                                idcampanha_distribuicao: parseInt(id)
-                            });
-                            console.log('Novo item criado com sucesso');
-                        } catch (error) {
-                            console.error('Erro ao criar novo item:', error);
-                        }
-                    }
-                }
-            }
-            
-            // Atualizamos a escala/metas se fornecidas
+            // Atualizar escala/metas se fornecidas
             if (data.escala) {
                 try {
                     await dispatch(sendMetaTable({
@@ -115,7 +52,6 @@ export const updateCampaign = createAsyncThunk(
                 }
             }
             
-            // Retornamos a campanha atualizada
             return response.data;
         } catch (error: any) {
             console.error('Erro ao atualizar campanha:', error);
@@ -418,6 +354,36 @@ export const deleteItem = createAsyncThunk(
     }
 );
 
+export const deleteParticipantFromCampaign = createAsyncThunk(
+    'trade/deleteParticipantFromCampaign',
+    async ({ campaignId, participantId }: { campaignId: string; participantId: number }, { rejectWithValue }) => {
+        try {
+            console.log(`Removendo participante com ID: ${participantId} da campanha ${campaignId}`);
+            const response = await apiInstance.delete(`participantes/${campaignId}/${participantId}`);
+            console.log('Resposta do servidor (remoção de participante):', response.data);
+            return { campaignId, participantId };
+        } catch (error: any) {
+            console.error('Erro ao remover participante:', error);
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
+export const deleteItemFromCampaign = createAsyncThunk(
+    'trade/deleteItemFromCampaign',
+    async ({ campaignId, itemId }: { campaignId: string; itemId: number }, { rejectWithValue }) => {
+        try {
+            console.log(`Removendo item com ID: ${itemId} da campanha ${campaignId}`);
+            const response = await apiInstance.delete(`itens/${campaignId}/${itemId}`);
+            console.log('Resposta do servidor (remoção de item):', response.data);
+            return { campaignId, itemId };
+        } catch (error: any) {
+            console.error('Erro ao remover item:', error);
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
 const initialState: ICampaign = {
     nome: '',
     datainicial: '',
@@ -566,6 +532,22 @@ const tradeSlice = createSlice({
             .addCase(deleteItem.rejected, (state: any, action) => {
                 state.status = 'failed';
                 state.error = action.payload;
+            })
+            .addCase(deleteParticipantFromCampaign.fulfilled, (state, action) => {
+                const { campaignId, participantId } = action.payload;
+                if (state.currentCampaign.id === campaignId) {
+                    state.currentCampaign.participantes = state.currentCampaign.participantes.filter(
+                        (p: any) => p.id !== participantId
+                    );
+                }
+            })
+            .addCase(deleteItemFromCampaign.fulfilled, (state, action) => {
+                const { campaignId, itemId } = action.payload;
+                if (state.currentCampaign.id === campaignId) {
+                    state.currentCampaign.itens = state.currentCampaign.itens.filter(
+                        (i: any) => i.id !== itemId
+                    );
+                }
             });
     },
 });

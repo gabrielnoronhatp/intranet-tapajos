@@ -41,6 +41,8 @@ export default function CampaignRegistration() {
     const [tipoMeta, setTipoMeta] = useState('VALOR');
     const [meta_valor, setMetaValor] = useState('');
     const user = useSelector((state: RootState) => state.auth.user);
+    const [escalaData, setEscalaData] = useState<any[]>([]);
+
     useEffect(() => {
         dispatch(fetchFiliais('') as any);
     }, []);
@@ -128,6 +130,10 @@ export default function CampaignRegistration() {
         [dispatch, tipoMarcaProduto]
     );
 
+    const handleEscalaSubmit = (formattedMetas: any[]) => {
+        setEscalaData(formattedMetas);
+    };
+
     const handleSaveCampaign = async () => {
         const campaignData = {
             nome: campaignName,
@@ -152,6 +158,7 @@ export default function CampaignRegistration() {
                 iditem: produto.codprod,
                 nome: produto.nome,
             })),
+            escala: escalaData,
         };
 
         if (
@@ -226,8 +233,8 @@ export default function CampaignRegistration() {
                             >
                                 {filiais.map((filial: any) => (
                                     <Option
-                                        key={filial.idempresa}
-                                        value={filial.idempresa}
+                                        key={filial.fantasia}
+                                        value={filial.fantasia}
                                     >
                                         {filial.fantasia}
                                     </Option>
@@ -534,7 +541,7 @@ export default function CampaignRegistration() {
                                     '100-129',
                                     '130-139',
                                 ]}
-                               onEscalaChange={() => {}}
+                                onEscalaSubmit={handleEscalaSubmit}
                             />
                         </div>
                         {/* Submit Button */}

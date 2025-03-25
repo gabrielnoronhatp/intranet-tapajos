@@ -2,7 +2,6 @@ import { apiInstance } from '@/app/service/apiInstance';
 import { ICampaign, IEscala } from '@/types/Trade/ITrade';
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-
 export const fetchCampaigns = createAsyncThunk(
     'trade/fetchCampaigns',
     async () => {
@@ -21,9 +20,16 @@ export const fetchCampaignById = createAsyncThunk(
 
 export const updateCampaign = createAsyncThunk(
     'trade/updateCampaign',
-    async ({ id, data }: { id: string; data: any }, { dispatch, rejectWithValue }) => {
+    async (
+        { id, data }: { id: string; data: any },
+        { dispatch, rejectWithValue }
+    ) => {
         try {
-            // Dados básicos da campanha
+            const currentCampaignResponse = await apiInstance.get(
+                `/campanhas/${id}`
+            );
+            const currentCampaign = currentCampaignResponse.data;
+
             const campaignDataOnly = {
                 nome: data.nome,
                 filial: data.filial,
@@ -32,52 +38,107 @@ export const updateCampaign = createAsyncThunk(
                 datainicial: data.datainicial,
                 datafinal: data.datafinal,
                 valor_total: data.valor_total,
-                status: data.status
+                status: data.status,
             };
-            
-            // Atualizar apenas a campanha principal
-            const response = await apiInstance.put(`/campanhas/${id}`, campaignDataOnly);
+
+            const response = await apiInstance.put(
+                `/campanhas/${id}`,
+                campaignDataOnly
+            );
             console.log('Campanha atualizada com sucesso:', response.data);
-            
-            // Atualizar escala/metas se fornecidas
+
             if (data.escala) {
                 try {
-                    await dispatch(sendMetaTable({
-                        formattedMetas: data.escala,
-                        campaignId: id
-                    })).unwrap();
+                    const escalaWithCampaignId = data.escala.map(
+                        (item: any) => ({
+                            ...item,
+                            id: parseInt(id),
+                        })
+                    );
+
+                    await dispatch(
+                        sendMetaTable({
+                            formattedMetas: escalaWithCampaignId,
+                            campaignId: id,
+                            isEditing: true,
+                        })
+                    ).unwrap();
                     console.log('Escala atualizada com sucesso');
                 } catch (error) {
                     console.error('Erro ao atualizar escala:', error);
                 }
             }
 
-            // Adicionar novos participantes se fornecidos
             if (data.participantes && data.participantes.length > 0) {
-                try {
-                    await dispatch(createCampaignParticipants({
-                        campaignId: id,
-                        participants: data.participantes
-                    })).unwrap();
-                    console.log('Participantes adicionados com sucesso');
-                } catch (error) {
-                    console.error('Erro ao adicionar participantes:', error);
+                const newParticipants = data.participantes
+                    .filter(
+                        (p: any) =>
+                            !currentCampaign.participantes.some(
+                                (cp: any) =>
+                                    cp.idparticipante === p.idparticipante
+                            )
+                    )
+                    .map((participant: any) => {
+                        return {
+                            ...participant,
+                            nome: participant.nome,
+                            meta: participant.meta,
+                            meta_valor: participant.meta_valor,
+                            meta_quantidade: participant.meta_quantidade,
+                            idparticipante: participant.idparticipante,
+                            premiacao: String(participant.premiacao),
+                        };
+                    });
+
+                if (newParticipants.length > 0) {
+                    try {
+                        await dispatch(
+                            createCampaignParticipants({
+                                campaignId: id,
+                                participants: newParticipants,
+                            })
+                        ).unwrap();
+                        console.log('Participantes adicionados com sucesso');
+                    } catch (error) {
+                        console.error(
+                            'Erro ao adicionar participantes:',
+                            error
+                        );
+                    }
                 }
             }
 
-            // Adicionar novos itens se fornecidos
             if (data.itens && data.itens.length > 0) {
-                try {
-                    await dispatch(createCampaignItems({
-                        campaignId: id,
-                        items: data.itens
-                    })).unwrap();
-                    console.log('Itens adicionados com sucesso');
-                } catch (error) {
-                    console.error('Erro ao adicionar itens:', error);
+                const newItems = data.itens
+                    .filter(
+                        (i: any) =>
+                            !currentCampaign.itens.some(
+                                (ci: any) => ci.iditem === i.iditem
+                            )
+                    )
+                    .map((item: any) => {
+                        return {
+                            ...item,
+                            iditem: item.iditem,
+                            nome: item.nome,
+                        };
+                    });
+
+                if (newItems.length > 0) {
+                    try {
+                        await dispatch(
+                            createCampaignItems({
+                                campaignId: id,
+                                items: newItems,
+                            })
+                        ).unwrap();
+                        console.log('Itens adicionados com sucesso');
+                    } catch (error) {
+                        console.error('Erro ao adicionar itens:', error);
+                    }
                 }
             }
-            
+
             return response.data;
         } catch (error: any) {
             console.error('Erro ao atualizar campanha:', error);
@@ -88,29 +149,41 @@ export const updateCampaign = createAsyncThunk(
 
 export const createCampaignParticipants = createAsyncThunk(
     'trade/createCampaignParticipants',
-    async ({ campaignId, participants }: { campaignId: string; participants: any[] }, { rejectWithValue }) => {
+    async (
+        {
+            campaignId,
+            participants,
+        }: { campaignId: string; participants: any[] },
+        { rejectWithValue }
+    ) => {
         try {
             const results = [];
-            
+
             // Para cada participante, fazer uma requisição separada
             for (const participant of participants) {
                 const participantWithCampaignId = {
                     ...participant,
-                    idcampanha_distribuicao: parseInt(campaignId)
+                    idcampanha_distribuicao: parseInt(campaignId),
                 };
-                
-                console.log(`Enviando participante para a campanha ${campaignId}:`, participantWithCampaignId);
-                
-                // Enviar o objeto diretamente
-                const response = await apiInstance.post(
-                    `/participantes`, 
+
+                console.log(
+                    `Enviando participante para a campanha ${campaignId}:`,
                     participantWithCampaignId
                 );
-                
-                console.log('Resposta do servidor (participante):', response.data);
+
+                // Enviar o objeto diretamente
+                const response = await apiInstance.post(
+                    `/participantes`,
+                    participantWithCampaignId
+                );
+
+                console.log(
+                    'Resposta do servidor (participante):',
+                    response.data
+                );
                 results.push(response.data);
             }
-            
+
             return results;
         } catch (error: any) {
             console.error('Erro ao cadastrar participantes:', error);
@@ -121,29 +194,35 @@ export const createCampaignParticipants = createAsyncThunk(
 
 export const createCampaignItems = createAsyncThunk(
     'trade/createCampaignItems',
-    async ({ campaignId, items }: { campaignId: string; items: any[] }, { rejectWithValue }) => {
+    async (
+        { campaignId, items }: { campaignId: string; items: any[] },
+        { rejectWithValue }
+    ) => {
         try {
             const results = [];
-            
+
             // Para cada item, fazer uma requisição separada
             for (const item of items) {
                 const itemWithCampaignId = {
                     ...item,
-                    idcampanha_distribuicao: parseInt(campaignId)
+                    idcampanha_distribuicao: parseInt(campaignId),
                 };
-                
-                console.log(`Enviando item para a campanha ${campaignId}:`, itemWithCampaignId);
-                
-                // Enviar o objeto diretamente
-                const response = await apiInstance.post(
-                    `/itens`, 
+
+                console.log(
+                    `Enviando item para a campanha ${campaignId}:`,
                     itemWithCampaignId
                 );
-                
+
+                // Enviar o objeto diretamente
+                const response = await apiInstance.post(
+                    `/itens`,
+                    itemWithCampaignId
+                );
+
                 console.log('Resposta do servidor (item):', response.data);
                 results.push(response.data);
             }
-            
+
             return results;
         } catch (error: any) {
             console.error('Erro ao cadastrar itens:', error);
@@ -156,63 +235,74 @@ export const createCampaign = createAsyncThunk(
     'trade/createCampaign',
     async (data: any, { dispatch, rejectWithValue }) => {
         try {
-            // Primeiro, criamos apenas a campanha sem participantes e itens
-            const campaignDataOnly = {
-                nome: data.nome,
-                filial: data.filial,
-                datainicial: data.datainicial,
-                datafinal: data.datafinal,
-                valor_total: data.valor_total,
-                userlanc: data.userlanc,
-                datalanc: data.datalanc,
-                status: data.status
-            };
-            
-            // Enviamos apenas os dados da campanha
-            const response = await apiInstance.post(`campanhas`, campaignDataOnly);
+            // Separar os dados da escala do resto dos dados da campanha
+            const { escala, ...campaignData } = data;
+
+            // Criar a campanha
+            const response = await apiInstance.post(`campanhas`, campaignData);
             const campaignId = response.data.id;
-            
+
             console.log('Campanha criada com ID:', campaignId);
-            
-            // Se houver participantes, cadastre-os separadamente
+
+            // Se houver participantes, cadastre-os
             if (data.participantes && data.participantes.length > 0) {
-                console.log('Cadastrando participantes:', data.participantes);
                 try {
-                    await dispatch(createCampaignParticipants({
-                        campaignId,
-                        participants: data.participantes
-                    })).unwrap();
+                    await dispatch(
+                        createCampaignParticipants({
+                            campaignId,
+                            participants: data.participantes,
+                        })
+                    ).unwrap();
                     console.log('Participantes cadastrados com sucesso');
                 } catch (error) {
                     console.error('Erro ao cadastrar participantes:', error);
                 }
             }
-            
-            // Se houver itens, cadastre-os separadamente
+
+            // Se houver itens, cadastre-os
             if (data.itens && data.itens.length > 0) {
-                console.log('Cadastrando itens:', data.itens);
                 try {
-                    await dispatch(createCampaignItems({
-                        campaignId,
-                        items: data.itens
-                    })).unwrap();
+                    await dispatch(
+                        createCampaignItems({
+                            campaignId,
+                            items: data.itens,
+                        })
+                    ).unwrap();
                     console.log('Itens cadastrados com sucesso');
                 } catch (error) {
                     console.error('Erro ao cadastrar itens:', error);
                 }
             }
-            
+
+            // Se houver dados de escala, envie-os
+            if (escala && escala.length > 0) {
+                try {
+                    // Adicionar o ID da campanha a cada objeto da escala
+                    const escalaWithCampaignId = escala.map((item: any) => ({
+                        ...item,
+                        id: parseInt(campaignId), // Usar o ID da campanha em todos os objetos
+                    }));
+
+                    await dispatch(
+                        sendMetaTable({
+                            formattedMetas: escalaWithCampaignId,
+                            campaignId,
+                        })
+                    ).unwrap();
+                    console.log('Escala cadastrada com sucesso');
+                } catch (error) {
+                    console.error('Erro ao cadastrar escala:', error);
+                }
+            }
+
             setTimeout(() => {
                 window.location.href = '/trade/list';
             }, 1000);
-            
+
             return response.data;
         } catch (error: any) {
-            if (error.response && error.response.status === 422) {
-                console.error('Erro de validação:', error.response.data);
-                return rejectWithValue(error.response.data);
-            }
-            throw error;
+            console.error('Erro ao criar campanha:', error);
+            return rejectWithValue(error.response?.data || error.message);
         }
     }
 );
@@ -247,12 +337,19 @@ export const fetchProducts = createAsyncThunk(
 
 export const fetchOperators = createAsyncThunk(
     'trade/fetchOperators',
-    async ({ busca, type }: { busca: string; type: 'operador' | 'vendedor' }, { rejectWithValue }) => {
+    async (
+        { busca, type }: { busca: string; type: 'operador' | 'vendedor' },
+        { rejectWithValue }
+    ) => {
         try {
-            const endpoint = type === 'operador' ? '/busca_operadores' : '/busca_vendedores';
-            
+            const endpoint =
+                type === 'operador' ? '/busca_operadores' : '/busca_vendedores';
+
             const response = await apiInstance.post(endpoint, { busca });
-            const data = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
+            const data =
+                typeof response.data === 'string'
+                    ? JSON.parse(response.data)
+                    : response.data;
             return data;
         } catch (error) {
             console.error(`Error fetching ${type}s:`, error);
@@ -267,12 +364,17 @@ export const fetchFiliais = createAsyncThunk(
         try {
             const response = await apiInstance.get(`/filiais`);
             console.log(response);
-            const data = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
+            const data =
+                typeof response.data === 'string'
+                    ? JSON.parse(response.data)
+                    : response.data;
             return data;
         } catch (error: any) {
             if (error.response && error.response.status === 404) {
-            return    console.error('Campanha não encontrada:', error.response.data);
-            
+                return console.error(
+                    'Campanha não encontrada:',
+                    error.response.data
+                );
             }
             throw error;
         }
@@ -295,18 +397,22 @@ export const deactivateCampaign = createAsyncThunk(
     }
 );
 
-// Função para buscar produtos ou marcas
 export const fetchProductsByType = createAsyncThunk(
     'trade/fetchProductsByType',
-    async ({ busca, type }: { busca: string; type: 'produto' | 'marca' }, { rejectWithValue }) => {
+    async (
+        { busca, type }: { busca: string; type: 'produto' | 'marca' },
+        { rejectWithValue }
+    ) => {
         try {
-            const endpoint = type === 'produto' ? '/busca_produtos' : '/busca_marcas';
+            const endpoint =
+                type === 'produto' ? '/busca_produtos' : '/busca_marcas';
             const response = await apiInstance.post(endpoint, { busca });
-            
-            // Verifique se a resposta é uma string JSON e analise-a
-            const data = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
-            console.log('Dados recebidos:', data); // Adicione este log
-            
+            const data =
+                typeof response.data === 'string'
+                    ? JSON.parse(response.data)
+                    : response.data;
+            console.log('Dados recebidos:', data);
+
             return data;
         } catch (error) {
             console.error(`Error fetching ${type}s:`, error);
@@ -323,7 +429,10 @@ export const searchCampaigns = createAsyncThunk(
         datafinal?: string;
     }) => {
         try {
-            const response = await apiInstance.post('/campanhas/pesquisa', searchParams);
+            const response = await apiInstance.post(
+                '/campanhas/pesquisa',
+                searchParams
+            );
             return response.data;
         } catch (error: any) {
             console.error('Error searching campaigns:', error);
@@ -334,14 +443,40 @@ export const searchCampaigns = createAsyncThunk(
 
 export const sendMetaTable = createAsyncThunk(
     'trade/sendMetaTable',
-    async (metaData: { formattedMetas: any[], campaignId?: string }, { rejectWithValue }) => {
+    async (
+        metaData: {
+            formattedMetas: any[];
+            campaignId?: string;
+            isEditing?: boolean;
+        },
+        { rejectWithValue }
+    ) => {
         try {
-            // Se houver um campaignId, incluí-lo na requisição
-            const payload = metaData.campaignId 
-                ? { metas: metaData.formattedMetas, campaignId: metaData.campaignId }
-                : { metas: metaData.formattedMetas };
-                
-            const response = await apiInstance.post('/metas', payload);
+            const formattedData = metaData.formattedMetas.map((meta) => {
+                if (metaData.campaignId) {
+                    return {
+                        ...meta,
+                        idcampanha_distribuicao: parseInt(metaData.campaignId),
+                    };
+                }
+                return meta;
+            });
+
+            console.log('Enviando dados de meta formatados:', formattedData);
+
+            let response;
+            if (metaData.isEditing) {
+                response = await apiInstance.put(
+                    '/distribuicao_escala',
+                    formattedData
+                );
+            } else {
+                response = await apiInstance.post(
+                    '/distribuicao_escala',
+                    formattedData
+                );
+            }
+
             return response.data;
         } catch (error: any) {
             console.error('Error sending meta table:', error);
@@ -355,8 +490,13 @@ export const deleteParticipant = createAsyncThunk(
     async (participantId: number, { rejectWithValue }) => {
         try {
             console.log(`Removendo participante com ID: ${participantId}`);
-            const response = await apiInstance.delete(`/participantes/${participantId}`);
-            console.log('Resposta do servidor (remoção de participante):', response.data);
+            const response = await apiInstance.delete(
+                `/participantes/${participantId}`
+            );
+            console.log(
+                'Resposta do servidor (remoção de participante):',
+                response.data
+            );
             return participantId;
         } catch (error: any) {
             console.error('Erro ao remover participante:', error);
@@ -371,7 +511,10 @@ export const deleteItem = createAsyncThunk(
         try {
             console.log(`Removendo item com ID: ${itemId}`);
             const response = await apiInstance.delete(`/itens/${itemId}`);
-            console.log('Resposta do servidor (remoção de item):', response.data);
+            console.log(
+                'Resposta do servidor (remoção de item):',
+                response.data
+            );
             return itemId;
         } catch (error: any) {
             console.error('Erro ao remover item:', error);
@@ -382,11 +525,24 @@ export const deleteItem = createAsyncThunk(
 
 export const deleteParticipantFromCampaign = createAsyncThunk(
     'trade/deleteParticipantFromCampaign',
-    async ({ campaignId, participantId }: { campaignId: string; participantId: number }, { rejectWithValue }) => {
+    async (
+        {
+            campaignId,
+            participantId,
+        }: { campaignId: string; participantId: number },
+        { rejectWithValue }
+    ) => {
         try {
-            console.log(`Removendo participante com ID: ${participantId} da campanha ${campaignId}`);
-            const response = await apiInstance.delete(`participantes/${campaignId}/${participantId}`);
-            console.log('Resposta do servidor (remoção de participante):', response.data);
+            console.log(
+                `Removendo participante com ID: ${participantId} da campanha ${campaignId}`
+            );
+            const response = await apiInstance.delete(
+                `participantes/${campaignId}/${participantId}`
+            );
+            console.log(
+                'Resposta do servidor (remoção de participante):',
+                response.data
+            );
             return { campaignId, participantId };
         } catch (error: any) {
             console.error('Erro ao remover participante:', error);
@@ -397,11 +553,21 @@ export const deleteParticipantFromCampaign = createAsyncThunk(
 
 export const deleteItemFromCampaign = createAsyncThunk(
     'trade/deleteItemFromCampaign',
-    async ({ campaignId, itemId }: { campaignId: string; itemId: number }, { rejectWithValue }) => {
+    async (
+        { campaignId, itemId }: { campaignId: string; itemId: number },
+        { rejectWithValue }
+    ) => {
         try {
-            console.log(`Removendo item com ID: ${itemId} da campanha ${campaignId}`);
-            const response = await apiInstance.delete(`itens/${campaignId}/${itemId}`);
-            console.log('Resposta do servidor (remoção de item):', response.data);
+            console.log(
+                `Removendo item com ID: ${itemId} da campanha ${campaignId}`
+            );
+            const response = await apiInstance.delete(
+                `itens/${campaignId}/${itemId}`
+            );
+            console.log(
+                'Resposta do servidor (remoção de item):',
+                response.data
+            );
             return { campaignId, itemId };
         } catch (error: any) {
             console.error('Erro ao remover item:', error);
@@ -538,9 +704,10 @@ const tradeSlice = createSlice({
             .addCase(deleteParticipant.fulfilled, (state, action) => {
                 // Se estivermos editando uma campanha, atualize a lista de participantes
                 if (state.currentCampaign.participantes) {
-                    state.currentCampaign.participantes = state.currentCampaign.participantes.filter(
-                        (p: any) => p.id !== action.payload
-                    );
+                    state.currentCampaign.participantes =
+                        state.currentCampaign.participantes.filter(
+                            (p: any) => p.id !== action.payload
+                        );
                 }
             })
             .addCase(deleteParticipant.rejected, (state: any, action) => {
@@ -548,31 +715,36 @@ const tradeSlice = createSlice({
                 state.error = action.payload;
             })
             .addCase(deleteItem.fulfilled, (state, action) => {
-                // Se estivermos editando uma campanha, atualize a lista de itens
                 if (state.currentCampaign.itens) {
-                    state.currentCampaign.itens = state.currentCampaign.itens.filter(
-                        (i: any) => i.id !== action.payload
-                    );
+                    state.currentCampaign.itens =
+                        state.currentCampaign.itens.filter(
+                            (i: any) => i.id !== action.payload
+                        );
                 }
             })
             .addCase(deleteItem.rejected, (state: any, action) => {
                 state.status = 'failed';
                 state.error = action.payload;
             })
-            .addCase(deleteParticipantFromCampaign.fulfilled, (state, action) => {
-                const { campaignId, participantId } = action.payload;
-                if (state.currentCampaign.id === campaignId) {
-                    state.currentCampaign.participantes = state.currentCampaign.participantes.filter(
-                        (p: any) => p.id !== participantId
-                    );
+            .addCase(
+                deleteParticipantFromCampaign.fulfilled,
+                (state, action) => {
+                    const { campaignId, participantId } = action.payload;
+                    if (state.currentCampaign.id === campaignId) {
+                        state.currentCampaign.participantes =
+                            state.currentCampaign.participantes.filter(
+                                (p: any) => p.id !== participantId
+                            );
+                    }
                 }
-            })
+            )
             .addCase(deleteItemFromCampaign.fulfilled, (state, action) => {
                 const { campaignId, itemId } = action.payload;
                 if (state.currentCampaign.id === campaignId) {
-                    state.currentCampaign.itens = state.currentCampaign.itens.filter(
-                        (i: any) => i.id !== itemId
-                    );
+                    state.currentCampaign.itens =
+                        state.currentCampaign.itens.filter(
+                            (i: any) => i.id !== itemId
+                        );
                 }
             });
     },

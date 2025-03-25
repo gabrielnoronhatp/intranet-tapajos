@@ -22,7 +22,7 @@ interface MetaTableProps {
             celValordaMeta: number;
         }[];
     };
-    onEscalaChange: (formattedMetas: any[]) => void;
+    onEscalaSubmit: (formattedMetas: any[]) => void;
 }
 
 export const MetaTable: React.FC<MetaTableProps> = ({
@@ -31,7 +31,7 @@ export const MetaTable: React.FC<MetaTableProps> = ({
     isEditing = false,
     campaignId,
     escala,
-    onEscalaChange,
+    onEscalaSubmit,
 }) => {
     const [metaGeralRange, setMetaGeralRange] = useState<string[]>(
         escala?.metaGeralRange || initialMetaGeralRange
@@ -75,8 +75,6 @@ export const MetaTable: React.FC<MetaTableProps> = ({
             setMetas(newMetas);
         }
     }, [escala, metaGeralRange.length, metaVendedorRange.length]);
-
-  
 
     const validateRangeFormat = (value: string) => {
         const rangePattern = /^\d{2}-\d{2}$/;
@@ -137,45 +135,57 @@ export const MetaTable: React.FC<MetaTableProps> = ({
             return row;
         });
         setMetas(newMetas);
-    // };
-
-    // const enviarTabelaParaBackend = () => {
-    //     // Criar o array de dados formatados
-    //     const formattedMetas = [];
-        
-    //     // Primeira linha: id da campanha, linha vazia, e colunas com os ranges dos vendedores
-    //     formattedMetas.push({
-    //         id: campaignId ? parseInt(campaignId) : 1, // Usa o ID da campanha se disponível
-    //         linha: "", // Primeira linha tem linha vazia
-    //         ...metaVendedorRange.reduce((acc, range, index) => {
-    //             acc[`col${index + 1}`] = range;
-    //             return acc;
-    //         }, {})
-    //     });
-        
-    //     // Linhas seguintes: id sequencial, linha com range geral, e colunas com valores numéricos
-    //     metaGeralRange.forEach((rangeGeral, index) => {
-    //         formattedMetas.push({
-    //             id: index + 2, // +2 porque a primeira linha já é id=1
-    //             linha: rangeGeral,
-    //             ...metaVendedorRange.reduce((acc, _, colIndex) => {
-    //                 acc[`col${colIndex + 1}`] = metas[index]?.[colIndex] || 0;
-    //                 return acc;
-    //             }, {})
-    //         });
-    //     });
-
-        // // Enviar os dados formatados para o backend
-        // dispatch(sendMetaTable({
-        //     formattedMetas,
-        //     campaignId: isEditing ? campaignId : undefined
-        // }) as any);
-        
-        // // Se a função onEscalaChange foi fornecida, chame-a com os dados formatados
-        // if (onEscalaChange) {
-        //     onEscalaChange(formattedMetas);
-        // }
     };
+
+    const prepareFormattedMetas = () => {
+        // Criar o array de dados formatados
+        const formattedMetas = [];
+        
+        // ID da campanha
+        const campaignIdNumber = campaignId ? parseInt(campaignId) : 1;
+        
+        // Primeira linha: linha vazia, e colunas com os ranges dos vendedores
+        formattedMetas.push({
+            id: campaignIdNumber,
+            linha: "",
+            ...metaVendedorRange.reduce((acc: any, range: any, index: number) => {
+                acc[`col${index + 1}`] = range;
+                return acc;
+            }, {})
+        });
+        
+        metaGeralRange.forEach((rangeGeral: any, index: number) => {
+            formattedMetas.push({
+                id: campaignIdNumber,
+                linha: rangeGeral,
+                ...metaVendedorRange.reduce((acc: any, _, colIndex: number) => {
+                    acc[`col${colIndex + 1}`] = metas[index]?.[colIndex] || 0;
+                    return acc;
+                }, {})
+            });
+        });
+
+        return formattedMetas;
+    };
+
+    const enviarTabelaParaBackend = () => {
+        const formattedMetas = prepareFormattedMetas();
+
+        dispatch(sendMetaTable({
+            formattedMetas,
+            campaignId: campaignId,
+            isEditing: isEditing
+        }) as any);
+        
+        onEscalaSubmit(formattedMetas);
+    };
+
+    useEffect(() => {
+        if (onEscalaSubmit) {
+            const formattedMetas = prepareFormattedMetas();
+            onEscalaSubmit(formattedMetas);
+        }
+    }, [metaGeralRange, metaVendedorRange, metas, campaignId]);
 
     if (isLoading) {
         return <div className="text-center py-4">Carregando tabela de metas...</div>;
@@ -207,7 +217,6 @@ export const MetaTable: React.FC<MetaTableProps> = ({
                                 />
                             </th>
                         ))}
-                    
                     </tr>
                 </thead>
                 <tbody>
@@ -246,10 +255,8 @@ export const MetaTable: React.FC<MetaTableProps> = ({
                             ))}
                         </tr>
                     ))}
-                  
                 </tbody>
             </table>
-           
         </div>
     );
 };

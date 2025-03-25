@@ -18,6 +18,7 @@ import { RootState } from '@/hooks/store';
 import { debounce } from 'lodash';
 import { useParams, useRouter } from 'next/navigation';
 import { MetaTable } from '@/components/trade/meta-table';
+import moment from 'moment';
 const { Option } = Select;
 
 export default function CampaignEdit() {
@@ -28,7 +29,13 @@ export default function CampaignEdit() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [operadores, setOperadores] = useState<any>([]);
     const [marcaProdutos, setMarcaProdutos] = useState<
-        Array<{ nome: string; codprod: string; descricao: string }>
+        Array<{
+            nome: string;
+            codprod: string;
+            descricao: string;
+            iditem: number;
+            codmarca: number;
+        }>
     >([]);
     const [tipoOperador, setTipoOperador] = useState('teleoperador');
     const [tipoMarcaProduto, setTipoMarcaProduto] = useState('marca');
@@ -112,22 +119,19 @@ export default function CampaignEdit() {
     const handleAddMarcaProduto = (
         nome: string,
         codprod: string,
-        descricao: string
+        descricao: string,
+        iditem: number,
+        codmarca: number
     ) => {
         if (nome) {
-            setMarcaProdutos([...marcaProdutos, { nome, codprod, descricao }]);
+            setMarcaProdutos([
+                ...marcaProdutos,
+                { nome, codprod, descricao, iditem, codmarca },
+            ]);
             setProductName('');
         } else {
             message.error('Preencha o nome antes de adicionar!');
         }
-    };
-
-    const handleRemoveOperador = (index: number) => {
-        setOperadores(operadores.filter((_: any, i: any) => i !== index));
-    };
-
-    const handleRemoveMarcaProduto = (index: number) => {
-        setMarcaProdutos(marcaProdutos.filter((_: any, i: any) => i !== index));
     };
 
     const handleSearchOperador = (searchTerm: string) => {
@@ -164,23 +168,25 @@ export default function CampaignEdit() {
         const campaignData = {
             nome: campaignName,
             filial,
-            datainicial: formatDate(datainicial),
-            datafinal: formatDate(datafinal),
+            datainicial: moment(datainicial).format('DD/MM/YYYY'),
+            datafinal: moment(datafinal).format('DD/MM/YYYY'),
             valor_total: valorTotal,
             userlanc: user?.username,
-            datalanc: formatDate(new Date().toISOString()),
+            datalanc: moment().format('DD/MM/YYYY'),
             status: true,
             participantes: operadores.map((op: any) => ({
                 modelo: op.modelo,
-                meta: tipoMeta,
+                meta: "VALOR",
+                nome: op.nome,
+                meta_valor: op.meta_valor,
                 idparticipante: op.idparticipante,
-                meta_valor: op.meta_valor.toString(),
                 meta_quantidade: op.meta_quantidade,
-                premiacao: op.premiacao,
+                premiacao: op.premiacao.toString(),
             })),
             itens: marcaProdutos.map((produto) => ({
                 metrica: tipoMarcaProduto,
-                iditem: produto.codprod,
+                iditem: produto.iditem,
+                nome: produto.nome,
             })),
         };
 
@@ -208,7 +214,6 @@ export default function CampaignEdit() {
         }
     };
 
-
     const handleSearchFilial = (value: string) => {
         dispatch(fetchFiliais(value) as any);
     };
@@ -220,11 +225,18 @@ export default function CampaignEdit() {
 
     const handleDeleteParticipant = () => {
         if (participantToDelete) {
-            dispatch(deleteParticipantFromCampaign({
-                campaignId,
-                participantId: participantToDelete.idparticipante
-            }) as any);
-            setOperadores(operadores.filter((op: any) => op.idparticipante !== participantToDelete.idparticipante));
+            dispatch(
+                deleteParticipantFromCampaign({
+                    campaignId,
+                    participantId: participantToDelete.idparticipante,
+                }) as any
+            );
+            setOperadores(
+                operadores.filter(
+                    (op: any) =>
+                        op.idparticipante !== participantToDelete.idparticipante
+                )
+            );
             setIsModalVisible(false);
             setParticipantToDelete(null);
         }
@@ -237,11 +249,17 @@ export default function CampaignEdit() {
 
     const handleConfirmDeleteItem = () => {
         if (itemToDelete !== null) {
-            dispatch(deleteItemFromCampaign({
-                campaignId,
-                itemId: itemToDelete
-            }) as any);
-            setMarcaProdutos(marcaProdutos.filter((item: any) => item.codprod !== itemToDelete));
+            dispatch(
+                deleteItemFromCampaign({
+                    campaignId,
+                    itemId: itemToDelete,
+                }) as any
+            );
+            setMarcaProdutos(
+                marcaProdutos.filter(
+                    (item: any) => item.codprod !== itemToDelete
+                )
+            );
             setIsItemModalVisible(false);
             setItemToDelete(null);
         }
@@ -294,8 +312,8 @@ export default function CampaignEdit() {
                             >
                                 {filiais.map((filial: any) => (
                                     <Option
-                                        key={filial.idempresa}
-                                        value={filial.idempresa}
+                                        key={filial.fantasia}
+                                        value={filial.fantasia}
                                     >
                                         {filial.fantasia}
                                     </Option>
@@ -366,13 +384,15 @@ export default function CampaignEdit() {
                                     onSelect={(value: string, option: any) => {
                                         setSelectedOperador(option.label);
                                     }}
-                                    options={operators?.map((operator: any) => ({
-                                        value:
-                                            tipoOperador === 'teleoperador'
-                                                ? operator.matricula
-                                                : operator.codusur,
-                                        label: operator.nome,
-                                    }))}
+                                    options={operators?.map(
+                                        (operator: any) => ({
+                                            value:
+                                                tipoOperador === 'teleoperador'
+                                                    ? operator.matricula
+                                                    : operator.codusur,
+                                            label: operator.nome,
+                                        })
+                                    )}
                                 />
                             </div>
                             <div className="flex gap-2 mb-2">
@@ -437,7 +457,9 @@ export default function CampaignEdit() {
                                         render: (_, record) => (
                                             <Button
                                                 className="bg-red-500 hover:bg-red-600"
-                                                onClick={() => showDeleteConfirm(record)}
+                                                onClick={() =>
+                                                    showDeleteConfirm(record)
+                                                }
                                             >
                                                 Remover
                                             </Button>
@@ -487,7 +509,9 @@ export default function CampaignEdit() {
                                         handleAddMarcaProduto(
                                             option.label,
                                             option.value,
-                                            option.label
+                                            option.label,
+                                            option.value,
+                                            option.value
                                         );
                                     }}
                                     options={products?.map((product: any) => ({
@@ -520,10 +544,14 @@ export default function CampaignEdit() {
                                     {
                                         title: 'Ação',
                                         key: 'acao',
-                                        render: (_, record:any) => (
+                                        render: (_, record: any) => (
                                             <Button
                                                 className="bg-red-500 hover:bg-red-600"
-                                                onClick={() => showDeleteItemConfirm(record.id)}
+                                                onClick={() =>
+                                                    showDeleteItemConfirm(
+                                                        record.id
+                                                    )
+                                                }
                                             >
                                                 Remover
                                             </Button>
@@ -574,11 +602,15 @@ export default function CampaignEdit() {
 
                         <div className="bg-white p-4 rounded shadow">
                             <h2 className="text-lg font-bold text-green-600">
-                             Escala 
+                                Escala
                             </h2>
                             <MetaTable
                                 metaGeralRange={['90-99', '100-129', '130-139']}
-                                metaVendedorRange={['90-99', '100-129', '130-139']}
+                                metaVendedorRange={[
+                                    '90-99',
+                                    '100-129',
+                                    '130-139',
+                                ]}
                                 onEscalaChange={() => {}}
                                 campaignId={campaignId}
                                 escala={currentCampaign.campanha?.escala}
@@ -605,7 +637,9 @@ export default function CampaignEdit() {
                 onCancel={handleCancelDelete}
                 okText="Sim"
                 cancelText="Não"
-                okButtonProps={{ style: { backgroundColor: 'green', borderColor: 'green' } }}
+                okButtonProps={{
+                    style: { backgroundColor: 'green', borderColor: 'green' },
+                }}
             >
                 <p>Tem certeza de que deseja remover este participante?</p>
             </Modal>
@@ -617,7 +651,9 @@ export default function CampaignEdit() {
                 onCancel={handleCancelDeleteItem}
                 okText="Sim"
                 cancelText="Não"
-                okButtonProps={{ style: { backgroundColor: 'green', borderColor: 'green' } }}
+                okButtonProps={{
+                    style: { backgroundColor: 'green', borderColor: 'green' },
+                }}
             >
                 <p>Tem certeza de que deseja remover este item?</p>
             </Modal>

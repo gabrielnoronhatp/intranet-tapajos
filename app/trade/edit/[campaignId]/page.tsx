@@ -8,8 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
     fetchCampaignById,
     updateCampaign,
-    fetchProducts,
-    
+    fetchProductsByType,
     fetchFiliais,
     fetchOperators,
     deleteParticipantFromCampaign,
@@ -144,9 +143,9 @@ export default function CampaignEdit() {
     const handleSearchProduto = useCallback(
         debounce((searchTerm: string) => {
             dispatch(
-                fetchProducts({
-                    productName: searchTerm,
-                    type: tipoMarcaProduto,
+                fetchProductsByType({
+                    busca: searchTerm,
+                    type: tipoMarcaProduto as 'produto' | 'marca',
                 }) as any
             );
         }, 300),

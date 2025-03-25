@@ -51,6 +51,32 @@ export const updateCampaign = createAsyncThunk(
                     console.error('Erro ao atualizar escala:', error);
                 }
             }
+
+            // Adicionar novos participantes se fornecidos
+            if (data.participantes && data.participantes.length > 0) {
+                try {
+                    await dispatch(createCampaignParticipants({
+                        campaignId: id,
+                        participants: data.participantes
+                    })).unwrap();
+                    console.log('Participantes adicionados com sucesso');
+                } catch (error) {
+                    console.error('Erro ao adicionar participantes:', error);
+                }
+            }
+
+            // Adicionar novos itens se fornecidos
+            if (data.itens && data.itens.length > 0) {
+                try {
+                    await dispatch(createCampaignItems({
+                        campaignId: id,
+                        items: data.itens
+                    })).unwrap();
+                    console.log('Itens adicionados com sucesso');
+                } catch (error) {
+                    console.error('Erro ao adicionar itens:', error);
+                }
+            }
             
             return response.data;
         } catch (error: any) {

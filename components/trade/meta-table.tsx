@@ -29,10 +29,8 @@ export const MetaTable: React.FC<MetaTableProps> = ({
     escala,
     onEscalaSubmit,
 }) => {
-    // Definir valores padrão para os ranges
     const defaultMetaGeralRange = ['90-99', '100-129', '130-139'];
     const defaultMetaVendedorRange = ['90-99', '100-129', '130-139'];
-    
     const [metaGeralRange, setMetaGeralRange] = useState<string[]>(
         escala?.metaGeralRange || defaultMetaGeralRange
     );
@@ -52,21 +50,25 @@ export const MetaTable: React.FC<MetaTableProps> = ({
 
     useEffect(() => {
         if (escala?.valoresMeta && escala.valoresMeta.length > 0) {
-            const maxMetaGeral = Math.max(...escala.valoresMeta.map(v => v.idMetaGeral));
-            const maxMetaVendedor = Math.max(...escala.valoresMeta.map(v => v.idMetaVendedor));
-            
+            const maxMetaGeral = Math.max(
+                ...escala.valoresMeta.map((v) => v.idMetaGeral)
+            );
+            const maxMetaVendedor = Math.max(
+                ...escala.valoresMeta.map((v) => v.idMetaVendedor)
+            );
+
             const newMetas = Array(maxMetaGeral)
                 .fill(null)
                 .map(() => Array(maxMetaVendedor).fill(0));
-            
-            escala.valoresMeta.forEach(meta => {
+
+            escala.valoresMeta.forEach((meta) => {
                 const rowIndex = meta.idMetaGeral - 1;
                 const colIndex = meta.idMetaVendedor - 1;
                 if (rowIndex >= 0 && colIndex >= 0) {
                     newMetas[rowIndex][colIndex] = meta.celValordaMeta;
                 }
             });
-            
+
             setMetas(newMetas);
         } else if (metaGeralRange.length > 0 && metaVendedorRange.length > 0) {
             const newMetas = Array(metaGeralRange.length)
@@ -81,29 +83,6 @@ export const MetaTable: React.FC<MetaTableProps> = ({
         return rangePattern.test(value);
     };
 
-    const adicionarRangeMetaGeral = () => {
-        const novoRange = '00-00';
-
-        if (metaGeralRange.length < 3) {
-            const newMetaGeralRange = [...metaGeralRange, novoRange];
-            setMetaGeralRange(newMetaGeralRange);
-        }
-        const novosVendedores = vendedores.map((vendedor) => {
-            const novasMetas = [...vendedor.metas];
-            novasMetas.push(0);
-            return { ...vendedor, metas: novasMetas };
-        });
-        setVendedores(novosVendedores);
-    };
-
-    const adicionarRangeMetaVendedor = () => {
-        const novoRange = '00-00';
-       
-        if (metaVendedorRange.length < 3) {
-            setMetaVendedorRange([...metaVendedorRange, novoRange]);
-        }
-    };
-
     const handleMetaGeralRangeChange = (index: number, value: string) => {
         if (validateRangeFormat(value) || value === '') {
             const newMetaGeralRange = [...metaGeralRange];
@@ -113,7 +92,6 @@ export const MetaTable: React.FC<MetaTableProps> = ({
     };
 
     const handleMetaVendedorRangeChange = (index: number, value: string) => {
-        
         if (validateRangeFormat(value) || value === '') {
             const newMetaVendedorRange = [...metaVendedorRange];
             newMetaVendedorRange[index] = value;
@@ -126,11 +104,9 @@ export const MetaTable: React.FC<MetaTableProps> = ({
         colIndex: number,
         value: string
     ) => {
-        const newMetas = metas.map((row, r) => {
+        const newMetas: any = metas.map((row, r) => {
             if (r === rowIndex) {
-                return row.map((cell, c) =>
-                    c === colIndex ? Number(value) : cell
-                );
+                return row.map((cell, c) => (c === colIndex ? value : cell));
             }
             return row;
         });
@@ -138,46 +114,35 @@ export const MetaTable: React.FC<MetaTableProps> = ({
     };
 
     const prepareFormattedMetas = () => {
-        // Criar o array de dados formatados
         const formattedMetas = [];
-        
-        // ID da campanha
+
         const campaignIdNumber = campaignId ? parseInt(campaignId) : 1;
-        
-        // Primeira linha: linha vazia, e colunas com os ranges dos vendedores
+
         formattedMetas.push({
             id: campaignIdNumber,
-            linha: "",
-            ...metaVendedorRange.reduce((acc: any, range: any, index: number) => {
-                acc[`coluna${index + 1}`] = range;
-                return acc;
-            }, {})
+            linha: '',
+            ...metaVendedorRange.reduce(
+                (acc: any, range: any, index: number) => {
+                    acc[`coluna${index + 1}`] = range;
+                    return acc;
+                },
+                {}
+            ),
         });
-        
+
         metaGeralRange.forEach((rangeGeral: any, index: number) => {
             formattedMetas.push({
                 id: campaignIdNumber,
                 linha: rangeGeral,
                 ...metaVendedorRange.reduce((acc: any, _, colIndex: number) => {
-                    acc[`coluna${colIndex + 1}`] = metas[index]?.[colIndex] || 0;
+                    acc[`coluna${colIndex + 1}`] =
+                        metas[index]?.[colIndex] || 0;
                     return acc;
-                }, {})
+                }, {}),
             });
         });
 
         return formattedMetas;
-    };
-
-    const enviarTabelaParaBackend = () => {
-        const formattedMetas = prepareFormattedMetas();
-
-        dispatch(sendMetaTable({
-            formattedMetas,
-            campaignId: campaignId,
-            isEditing: isEditing
-        }) as any);
-        
-        onEscalaSubmit(formattedMetas);
     };
 
     useEffect(() => {
@@ -188,7 +153,11 @@ export const MetaTable: React.FC<MetaTableProps> = ({
     }, [metaGeralRange, metaVendedorRange, metas, campaignId]);
 
     if (isLoading) {
-        return <div className="text-center py-4">Carregando tabela de metas...</div>;
+        return (
+            <div className="text-center py-4">
+                Carregando tabela de metas...
+            </div>
+        );
     }
 
     return (
@@ -240,7 +209,7 @@ export const MetaTable: React.FC<MetaTableProps> = ({
                                     className="py-2 px-4 border-b border-gray-200 text-center"
                                 >
                                     <Input
-                                        type="number"
+                                        type="string"
                                         value={metas[rowIndex]?.[colIndex] || 0}
                                         onChange={(e) =>
                                             handleMetaVendedorChange(

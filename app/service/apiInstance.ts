@@ -28,13 +28,13 @@ const saveTokenToStorage = (token: string) => {
 
 const refreshTokenSilently = async () => {
     try {
-        console.log('Refreshing token silently...');
+       
         const response = await axios.post('http://10.2.10.202:8000/token', {
             username: 'trade',
             password: '#$%23345',
         });
         const newToken = response.data.access_token;
-        console.log('New token obtained:', newToken ? 'Yes (token exists)' : 'No');
+       
         
         // Salvar no Redux (apenas no cliente)
         if (typeof window !== 'undefined') {

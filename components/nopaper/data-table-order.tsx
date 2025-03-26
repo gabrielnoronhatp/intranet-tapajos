@@ -79,7 +79,6 @@ export function DataTableOrder({
         if (!isViewOpen) {
             try {
                 const response = await api.get(`arquivos/${item.id}`);
-                console.log(response.data);
 
                 if (
                     response.data &&

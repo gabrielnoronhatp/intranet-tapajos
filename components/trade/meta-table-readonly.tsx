@@ -23,7 +23,6 @@ export const MetaTableReadOnly: React.FC<MetaTableReadOnlyProps> = ({
     const [metas, setMetas] = useState<number[][]>([[]]);
 
     useEffect(() => {
-        console.log('escala', escala);
         if (escala?.valoresMeta && escala.valoresMeta.length > 0) {
             const maxMetaGeral = Math.max(...escala.valoresMeta.map(v => v.idMetaGeral));
             const maxMetaVendedor = Math.max(...escala.valoresMeta.map(v => v.idMetaVendedor));

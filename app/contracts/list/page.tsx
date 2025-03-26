@@ -165,7 +165,7 @@ export default function ContractList() {
 
         try {
             const response = await apiDev.get(`contracts/${contract.id}/files`);
-            console.log(response.data);
+       
 
             if (
                 response.data &&

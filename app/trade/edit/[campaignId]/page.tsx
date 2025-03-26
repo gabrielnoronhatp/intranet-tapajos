@@ -313,14 +313,18 @@ export default function CampaignEdit() {
                     campaignId,
                     itemId: itemToDelete,
                 }) as any
-            );
-            setMarcaProdutos(
-                marcaProdutos.filter(
-                    (item: any) => item.codprod !== itemToDelete
-                )
-            );
-            setIsItemModalVisible(false);
-            setItemToDelete(null);
+            ).then(() => {
+                setMarcaProdutos(
+                    marcaProdutos.filter(
+                        (item: any) => item.iditem !== itemToDelete
+                    )
+                );
+                setIsItemModalVisible(false);
+                setItemToDelete(null);
+            }).catch((error: any) => {
+                console.error('Erro ao remover item:', error);
+                message.error('Erro ao remover item');
+            });
         }
     };
 
@@ -612,7 +616,7 @@ export default function CampaignEdit() {
                                                 className="bg-red-500 hover:bg-red-600"
                                                 onClick={() =>
                                                     showDeleteItemConfirm(
-                                                        record.id
+                                                        record.iditem
                                                     )
                                                 }
                                             >
@@ -621,7 +625,7 @@ export default function CampaignEdit() {
                                         ),
                                     },
                                 ]}
-                                rowKey="nome"
+                                rowKey="iditem"
                                 pagination={false}
                             />
                         </div>

@@ -81,7 +81,6 @@ export function TableTrade() {
     const handleViewCampaign = (id: string) => {
         dispatch(fetchCampaignById(id) as any).then(() => {
             const escalaData = currentCampaign?.escala || [];
-            console.log('Dados da escala:', escalaData);
 
             let metaGeralRange: string[] = [];
             let metaVendedorRange: string[] = [];
@@ -130,9 +129,7 @@ export function TableTrade() {
                 });
             }
 
-            console.log('Ranges de meta geral:', metaGeralRange);
-            console.log('Ranges de meta vendedor:', metaVendedorRange);
-            console.log('Valores de meta:', valoresMeta);
+           
 
             Modal.info({
                 title: 'Detalhes da Campanha',

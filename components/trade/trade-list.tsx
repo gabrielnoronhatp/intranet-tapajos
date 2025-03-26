@@ -22,7 +22,7 @@ import { useRouter } from 'next/navigation';
 import useTokenRefresh from '@/hooks/useTokenRefresh';
 import dayjs from 'dayjs';
 import { MetaTableReadOnly } from './meta-table-readonly';
-import { log } from 'console';
+
 
 export function TableTrade() {
     const [clientSideReady, setClientSideReady] = useState(false);
@@ -76,8 +76,7 @@ export function TableTrade() {
 
     const sortedCampaigns = campaigns?.slice().sort((a: any, b: any) => {
         //order by id descending
-        return b.id - a.id; 
-
+        return b.id - a.id;
     });
 
     const handleViewCampaign = (id: string) => {
@@ -89,36 +88,37 @@ export function TableTrade() {
             let valoresMeta: any[] = [];
 
             if (escalaData.length > 0) {
-                // A primeira linha contém os ranges dos vendedores (linha vazia)
                 const primeiraLinha = escalaData.find(
                     (item: any) => item.linha === ''
                 );
-                
+
                 if (primeiraLinha) {
-                    // Verificar se os dados usam col1 ou coluna1
-                    const usesCol = Object.keys(primeiraLinha).some(key => key.startsWith('col') && !key.startsWith('coluna'));
+                    const usesCol = Object.keys(primeiraLinha).some(
+                        (key) =>
+                            key.startsWith('col') && !key.startsWith('coluna')
+                    );
                     const columnPrefix = usesCol ? 'col' : 'coluna';
-                    
-                    // Extrair os ranges dos vendedores com o prefixo correto
+
                     metaVendedorRange = Object.keys(primeiraLinha)
                         .filter((key) => key.startsWith(columnPrefix))
                         .map((key) => primeiraLinha[key]);
                 }
 
-                // As outras linhas contêm os ranges gerais e os valores das metas
                 const outrasLinhas = escalaData.filter(
                     (item: any) => item.linha !== ''
                 );
                 metaGeralRange = outrasLinhas.map((item: any) => item.linha);
 
-                // Extrair os valores das metas
                 valoresMeta = [];
                 outrasLinhas.forEach((linha: any, idxLinha: number) => {
                     metaVendedorRange.forEach((_, idxCol: number) => {
-                        // Verificar se os dados usam col1 ou coluna1
-                        const usesCol = Object.keys(linha).some(key => key.startsWith('col') && !key.startsWith('coluna'));
+                        const usesCol = Object.keys(linha).some(
+                            (key) =>
+                                key.startsWith('col') &&
+                                !key.startsWith('coluna')
+                        );
                         const columnPrefix = usesCol ? 'col' : 'coluna';
-                        
+
                         const colKey = `${columnPrefix}${idxCol + 1}`;
                         if (linha[colKey] !== undefined) {
                             valoresMeta.push({
@@ -130,8 +130,6 @@ export function TableTrade() {
                     });
                 });
             }
-
-           
 
             Modal.info({
                 title: 'Detalhes da Campanha',

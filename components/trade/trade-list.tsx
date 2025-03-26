@@ -22,6 +22,7 @@ import { useRouter } from 'next/navigation';
 import useTokenRefresh from '@/hooks/useTokenRefresh';
 import dayjs from 'dayjs';
 import { MetaTableReadOnly } from './meta-table-readonly';
+import { log } from 'console';
 
 export function TableTrade() {
     const [clientSideReady, setClientSideReady] = useState(false);
@@ -73,9 +74,10 @@ export function TableTrade() {
         (state: RootState) => state.trade || {}
     );
 
-    // Ordenar as campanhas por data de lançamento em ordem decrescente
     const sortedCampaigns = campaigns?.slice().sort((a: any, b: any) => {
-        return new Date(b.datalanc).getTime() - new Date(a.datalanc).getTime();
+        //order by id descending
+        return b.id - a.id; 
+
     });
 
     const handleViewCampaign = (id: string) => {
@@ -376,7 +378,7 @@ export function TableTrade() {
                 <AntdTable
                     columns={columns}
                     dataSource={sortedCampaigns}
-                    rowKey="nome"
+                    rowKey="id"
                     pagination={false}
                 />
             </div>

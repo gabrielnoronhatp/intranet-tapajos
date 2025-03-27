@@ -25,7 +25,6 @@ import useTokenRefresh from '@/hooks/useTokenRefresh';
 import dayjs from 'dayjs';
 import { MetaTableReadOnly } from './meta-table-readonly';
 
-
 export function TableTrade() {
     const [clientSideReady, setClientSideReady] = useState(false);
     const [searchForm] = Form.useForm();
@@ -195,14 +194,20 @@ export function TableTrade() {
                                             <strong>Meta:</strong>{' '}
                                             {participante.meta}
                                         </p>
-                                        <p>
-                                            <strong>Meta Quantidade:</strong>{' '}
-                                            {participante.meta_quantidade}
-                                        </p>
-                                        <p>
-                                            <strong>Meta Valor:</strong>{' '}
-                                            {participante.meta_valor}
-                                        </p>
+                                        {participante.meta === 'QUANTIDADE' && (
+                                            <p>
+                                                <strong>
+                                                    Meta Quantidade:
+                                                </strong>{' '}
+                                                {participante.meta_quantidade}
+                                            </p>
+                                        )}
+                                        {participante.meta === 'VALOR' && (
+                                            <p>
+                                                <strong>Meta Valor:</strong>{' '}
+                                                {participante.meta_valor}
+                                            </p>
+                                        )}
                                         <p>
                                             <strong>Premiação:</strong>{' '}
                                             {participante.premiacao}
@@ -262,6 +267,12 @@ export function TableTrade() {
     };
 
     const showDeleteConfirm = (id: string) => {
+        const campaign = campaigns.find((c: any) => c.id === id);
+        if (campaign && campaign.status === false) {
+            message.warning('Esta campanha já está desativada.');
+            return;
+        }
+
         Modal.confirm({
             title: 'Você tem certeza que deseja desativar esta campanha?',
             content: 'Esta ação não pode ser desfeita.',
@@ -269,7 +280,10 @@ export function TableTrade() {
             okType: 'danger',
             cancelText: 'Não',
             onOk() {
-                dispatch(deactivateCampaign(id) as any);
+                dispatch(deactivateCampaign(id) as any).then(() => {
+                    message.success('Campanha desativada com sucesso!');
+                    dispatch(fetchCampaigns() as any);
+                });
             },
             onCancel() {
                 console.log('Cancelado');

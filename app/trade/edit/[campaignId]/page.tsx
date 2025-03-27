@@ -238,12 +238,21 @@ export default function CampaignEdit() {
         return `${day}/${month}/${year}`;
     };
 
+    
+    const formatDateUTC = (dateString: string) => {
+        const date = new Date(dateString + 'T00:00:00Z'); // Garante UTC sem alteração pelo fuso
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const year = date.getUTCFullYear();
+        return `${day}/${month}/${year}`;
+    };
+
     const handleUpdateCampaign = async () => {
         const campaignData = {
             nome: campaignName,
             idempresa: idempresa,
-            datainicial: formatDate(datainicial),
-            datafinal: formatDate(datafinal),
+            datainicial: formatDateUTC(datainicial),
+            datafinal: formatDateUTC(datafinal),
             valor_total: valorTotal,
             userlanc: user?.username,
             datalanc: formatDate(new Date().toISOString()),

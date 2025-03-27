@@ -8,6 +8,7 @@ import {
     Button,
     Space,
     Form,
+    message,
 } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/hooks/store';
@@ -16,8 +17,9 @@ import {
     fetchCampaignById,
     fetchCampaigns,
     searchCampaigns,
+    cloneCampaign,
 } from '@/hooks/slices/trade/tradeSlice';
-import { Eye, Edit, FileWarning, Search } from 'lucide-react';
+import { Eye, Edit, FileWarning, Search, Copy } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import useTokenRefresh from '@/hooks/useTokenRefresh';
 import dayjs from 'dayjs';
@@ -275,6 +277,17 @@ export function TableTrade() {
         });
     };
 
+    const handleCloneCampaign = async (id: string) => {
+        try {
+            await dispatch(cloneCampaign(id) as any).unwrap();
+            message.success('Campanha duplicada com sucesso!');
+            dispatch(fetchCampaigns() as any);
+        } catch (error) {
+            message.error('Erro ao duplicar campanha');
+            console.error('Erro:', error);
+        }
+    };
+
     const columns = [
         { title: 'Nome', dataIndex: 'nome', key: 'nome' },
         { title: 'Data Inicial', dataIndex: 'datainicial', key: 'datainicial' },
@@ -292,41 +305,32 @@ export function TableTrade() {
             title: 'Ações',
             key: 'acoes',
             render: (record: any) => (
-                <>
+                <div className="flex items-center space-x-2">
                     {record.status !== false && (
                         <>
                             <Eye
                                 color="green"
                                 onClick={() => handleViewCampaign(record.id)}
-                                style={{
-                                    cursor: 'pointer',
-                                    marginRight: 8,
-                                    transition: 'transform 0.2s',
-                                }}
-                                className="hover:scale-110"
+                                className="cursor-pointer hover:scale-110 transition-transform"
                             />
                             <Edit
                                 color="green"
                                 onClick={() => handleEditCampaign(record.id)}
-                                style={{
-                                    cursor: 'pointer',
-                                    marginRight: 8,
-                                    transition: 'transform 0.2s',
-                                }}
-                                className="hover:scale-110"
+                                className="cursor-pointer hover:scale-110 transition-transform"
+                            />
+                            <Copy
+                                color="#4CAF50"
+                                onClick={() => handleCloneCampaign(record.id)}
+                                className="cursor-pointer hover:scale-110 transition-transform"
                             />
                         </>
                     )}
                     <FileWarning
                         color="green"
                         onClick={() => showDeleteConfirm(record.id)}
-                        style={{
-                            cursor: 'pointer',
-                            transition: 'transform 0.2s',
-                        }}
-                        className="hover:scale-110"
+                        className="cursor-pointer hover:scale-110 transition-transform"
                     />
-                </>
+                </div>
             ),
         },
     ];

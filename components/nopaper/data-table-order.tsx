@@ -9,7 +9,7 @@ import {
     Trash2,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { Image, Upload, UploadFile, message, Input, Button, Modal } from 'antd';
+import { Image, Upload, UploadFile, message, Modal } from 'antd';
 import { api } from '@/app/service/api';
 import { UploadChangeParam } from 'antd/es/upload';
 import './data-table-order-styles.css';

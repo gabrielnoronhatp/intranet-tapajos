@@ -66,8 +66,8 @@ export default function CampaignRegistration() {
                     tipoOperador === 'teleoperador' ? 'teleoperador' : 'RCA',
                 meta: tipoMeta,
                 idparticipante,
-                meta_valor: parseFloat(meta_valor),
-                meta_quantidade: meta_valor,
+                meta_valor: tipoMeta === 'VALOR' ? parseFloat(meta_valor) : 0,
+                meta_quantidade: tipoMeta === 'QUANTIDADE' ? parseFloat(meta_valor) : 0,
                 premiacao,
                 tipo_meta: tipoMeta,
             };
@@ -331,17 +331,21 @@ export default function CampaignRegistration() {
                                     placeholder="Meta"
                                     className="flex-1"
                                     value={meta_valor}
-                                    onChange={(e) =>
-                                        setMetaValor(e.target.value)
-                                    }
+                                    onChange={(e) => {
+                                        const inputValue = e.target.value;
+                                        const formattedValue = inputValue.replace(/[^0-9,\.]/g, '').replace(',', '.');
+                                        setMetaValor(formattedValue);
+                                    }}
                                 />
                                 <Input
                                     placeholder="Premiação"
                                     className="flex-1"
                                     value={premiacao}
-                                    onChange={(e) =>
-                                        setPremiacao(e.target.value)
-                                    }
+                                    onChange={(e) => {
+                                        const inputValue = e.target.value;
+                                        const formattedValue = inputValue.replace(/[^0-9,\.]/g, '').replace(',', '.');
+                                        setPremiacao(formattedValue);
+                                    }}
                                 />
                                 <Button
                                     className="bg-green-500 hover:bg-green-600"
@@ -360,13 +364,17 @@ export default function CampaignRegistration() {
                                     },
                                     {
                                         title: 'Meta',
-                                        dataIndex: 'meta_valor',
-                                        key: 'meta_valor',
+                                        key: 'meta',
+                                        render: (record: any) => {
+                                            const value = record.tipo_meta === 'VALOR' ? record.meta_valor : record.meta_quantidade;
+                                            return parseFloat(value).toLocaleString('pt-BR');
+                                        },
                                     },
                                     {
                                         title: 'Premiação',
                                         dataIndex: 'premiacao',
                                         key: 'premiacao',
+                                        render: (text: string) => parseFloat(text).toLocaleString('pt-BR'),
                                     },
                                     {
                                         title: 'Tipo',
@@ -379,9 +387,7 @@ export default function CampaignRegistration() {
                                         render: (_, __, index) => (
                                             <Button
                                                 className="bg-red-500 hover:bg-red-600"
-                                                onClick={() =>
-                                                    handleRemoveOperador(index)
-                                                }
+                                                onClick={() => handleRemoveOperador(index)}
                                             >
                                                 Remover
                                             </Button>
@@ -521,12 +527,16 @@ export default function CampaignRegistration() {
                             <Input
                                 placeholder="Meta Geral"
                                 value={currentCampaign?.valor_total}
-                                onChange={(e) =>
+                                onChange={(e) => {
+                                    const inputValue = e.target.value;
+                                    const formattedValue = inputValue
+                                        .replace(/[^0-9,\.]/g, '')
+                                        .replace(',', '.');
                                     handleSetState(
                                         'valor_total',
-                                        Number(e.target.value)
-                                    )
-                                }
+                                        formattedValue
+                                    );
+                                }}
                             />
                         </div>
 
@@ -534,9 +544,7 @@ export default function CampaignRegistration() {
                             <h2 className="text-lg font-bold text-green-600">
                                 Escala
                             </h2>
-                            <MetaTable
-                                onEscalaSubmit={handleEscalaSubmit}
-                            />
+                            <MetaTable onEscalaSubmit={handleEscalaSubmit} />
                         </div>
                         {/* Submit Button */}
                         <div className="flex justify-end">

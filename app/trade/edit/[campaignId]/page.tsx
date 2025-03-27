@@ -53,7 +53,7 @@ export default function CampaignEdit() {
     const campaignId = params?.campaignId as string;
     const [datainicial, setDatainicial] = useState('');
     const [datafinal, setDatafinal] = useState('');
-    const [valorTotal, setValorTotal] = useState(0);
+    const [valorTotal, setValorTotal] = useState<number | string>(0);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [participantToDelete, setParticipantToDelete] = useState<any>(null);
     const [isItemModalVisible, setIsItemModalVisible] = useState(false);
@@ -142,6 +142,11 @@ export default function CampaignEdit() {
     }, [currentCampaign]);
 
     const handleAddOperador = () => {
+        if (!tipoMeta) {
+            message.error('Por favor, selecione uma métrica antes de adicionar um operador.');
+            return;
+        }
+
         if (selectedOperador && meta_valor && premiacao) {
             const idparticipante =
                 tipoOperador === 'teleoperador'
@@ -160,8 +165,8 @@ export default function CampaignEdit() {
                     tipoOperador === 'teleoperador' ? 'teleoperador' : 'RCA',
                 meta: tipoMeta,
                 idparticipante,
-                meta_valor: parseFloat(meta_valor),
-                meta_quantidade: meta_valor,
+                meta_valor: tipoMeta === 'VALOR' ? parseFloat(meta_valor) : 0,
+                meta_quantidade: tipoMeta === 'QUANTIDADE' ? parseFloat(meta_valor) : 0,
                 premiacao,
                 tipo_meta: tipoMeta,
             };
@@ -311,12 +316,12 @@ export default function CampaignEdit() {
             dispatch(
                 deleteItemFromCampaign({
                     campaignId,
-                    itemId: itemToDelete,
+                    id: itemToDelete,
                 }) as any
             ).then(() => {
                 setMarcaProdutos(
                     marcaProdutos.filter(
-                        (item: any) => item.iditem !== itemToDelete
+                        (item: any) => item.id !== itemToDelete
                     )
                 );
                 setIsItemModalVisible(false);
@@ -476,17 +481,22 @@ export default function CampaignEdit() {
                                     placeholder="Meta"
                                     className="flex-1"
                                     value={meta_valor}
-                                    onChange={(e) =>
-                                        setMetaValor(e.target.value)
-                                    }
+                                    onChange={(e) => {
+                                        const inputValue = e.target.value;
+                                        const formattedValue = inputValue.replace(',', '.');
+                                        setMetaValor(formattedValue);
+                                    }}
                                 />
                                 <Input
+                                  
                                     placeholder="Premiação"
                                     className="flex-1"
                                     value={premiacao}
-                                    onChange={(e) =>
-                                        setPremiacao(e.target.value)
-                                    }
+                                    onChange={(e) => {
+                                        const inputValue = e.target.value;
+                                        const formattedValue = inputValue.replace(',', '.');
+                                        setPremiacao(formattedValue);
+                                    }}
                                 />
                                 <Button
                                     className="bg-green-500 hover:bg-green-600"
@@ -505,13 +515,17 @@ export default function CampaignEdit() {
                                     },
                                     {
                                         title: 'Meta',
-                                        dataIndex: 'meta_valor',
-                                        key: 'meta_valor',
+                                        key: 'meta',
+                                        render: (record: any) => {
+                                            const value = record.tipo_meta === 'VALOR' ? record.meta_valor : record.meta_quantidade;
+                                            return parseFloat(value).toLocaleString('pt-BR');
+                                        },
                                     },
                                     {
                                         title: 'Premiação',
                                         dataIndex: 'premiacao',
                                         key: 'premiacao',
+                                        render: (text: string) => parseFloat(text).toLocaleString('pt-BR'),
                                     },
                                     {
                                         title: 'Tipo',
@@ -616,7 +630,7 @@ export default function CampaignEdit() {
                                                 className="bg-red-500 hover:bg-red-600"
                                                 onClick={() =>
                                                     showDeleteItemConfirm(
-                                                        record.iditem
+                                                        record.id
                                                     )
                                                 }
                                             >
@@ -659,11 +673,16 @@ export default function CampaignEdit() {
                                 Valor da Meta Geral
                             </h2>
                             <Input
+                                type="number"
                                 placeholder="Meta Geral"
                                 value={valorTotal}
-                                onChange={(e) =>
-                                    setValorTotal(Number(e.target.value))
-                                }
+                                onChange={(e) => {
+                                    const inputValue = e.target.value;
+                                    const formattedValue = inputValue
+                                        .replace(/[^0-9,\.]/g, '')
+                                        .replace(',', '.');
+                                    setValorTotal(formattedValue);
+                                }}
                             />
                         </div>
 

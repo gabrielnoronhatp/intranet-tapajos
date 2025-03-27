@@ -523,21 +523,34 @@ export const deleteParticipantFromCampaign = createAsyncThunk(
 export const deleteItemFromCampaign = createAsyncThunk(
     'trade/deleteItemFromCampaign',
     async (
-        { campaignId, itemId }: { campaignId: string; itemId: number },
+        { campaignId, id }: { campaignId: string; id: number },
         { rejectWithValue }
     ) => {
         try {
            
             const response = await apiInstance.delete(
-                `itens/${campaignId}/${itemId}`
-            );
+                `itens/${campaignId}/${id}`
+            );  
             console.log(
                 '',
                 response.data
             );
-            return { campaignId, itemId };
+            return { campaignId, id };
         } catch (error: any) {
             console.error('Erro ao remover item:', error);
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
+export const cloneCampaign = createAsyncThunk(
+    'trade/cloneCampaign',
+    async (id: string, { rejectWithValue }) => {
+        try {
+            const response = await apiInstance.get(`/campanhas_clone/${id}`);
+            return response.data;
+        } catch (error: any) {
+            console.error('Erro ao duplicar campanha:', error);
             return rejectWithValue(error.response?.data || error.message);
         }
     }
@@ -704,12 +717,17 @@ const tradeSlice = createSlice({
                 }
             )
             .addCase(deleteItemFromCampaign.fulfilled, (state, action) => {
-                const { campaignId, itemId } = action.payload;
+                const { campaignId, id } = action.payload;
                 if (state.currentCampaign.id === campaignId) {
                     state.currentCampaign.itens =
                         state.currentCampaign.itens.filter(
-                            (i: any) => i.id !== itemId
+                            (i: any) => i.id !== id
                         );
+                }
+            })
+            .addCase(cloneCampaign.fulfilled, (state, action) => {
+                if (action.payload) {
+                    state.campaigns = [...state.campaigns, action.payload];
                 }
             });
     },

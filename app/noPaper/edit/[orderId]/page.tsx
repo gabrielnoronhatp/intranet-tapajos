@@ -88,14 +88,32 @@ export default function EditOrderPage() {
     const handleSetState = (field: keyof typeof orderData, value: any) => {
         dispatch(setOrderState({ [field]: value }));
     };
-
+  
+   
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+       
+        const validateCenters = () => {
+            if (!orderData.ccustoOP || orderData.ccustoOP.length === 0) {
+                return false; // Se a lista estiver vazia, retorna falso
+            }
+            
+            return orderData.ccustoOP.every(
+                (center: any) => typeof center.centrocusto === 'string' && center.centrocusto.trim() !== ''
+            );
+        };
+
+        if (!validateCenters()) {
+            message.error('Preencha todos os Centros de Custo antes de continuar.');
+            return;
+        }
 
         if (!orderData.lojaOP) {
             message.error('Por favor, selecione uma filial.');
             return;
         }
+
+
 
         const adjustedOrderData = { ...orderData };
 

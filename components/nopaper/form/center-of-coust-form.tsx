@@ -119,8 +119,8 @@ export default function CenterOfCoust({ data, onChange }: CenterOfCoustProps) {
                         </Label>
                         <Select
                             showSearch
-                            className="w-full"
-                            value={ccustoOP[index]?.centrocusto || ''}
+                            className={`w-full ${!ccustoOP[index]?.centrocusto ? 'border-red-500' : ''}`}
+                            value={ccustoOP[index]?.centrocusto || undefined}
                             onChange={(value) =>
                                 handleCenterChange(index, 'centrocusto', value)
                             }
@@ -129,11 +129,6 @@ export default function CenterOfCoust({ data, onChange }: CenterOfCoustProps) {
                                 label: option.centrocusto,
                             }))}
                         />
-                        {ccustoOP[index]?.centrocusto === '' && (
-                            <p className="text-red-500 text-xs">
-                                Centro de Custo é obrigatório.
-                            </p>
-                        )}
 
                         <Input
                             type="number"

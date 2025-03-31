@@ -492,62 +492,7 @@ export function DataTableOrder({
                                         </div>
                                     </div>
                                 )}
-                                <h3 className="text-md font-bold mt-2">
-                                    Upload de Arquivo:
-                                </h3>
-                                <Upload
-                                    name="files"
-                                    listType="picture-card"
-                                    className="avatar-uploader"
-                                    showUploadList={true}
-                                    customRequest={async ({
-                                        file,
-                                        onSuccess,
-                                        onError,
-                                    }) => {
-                                        try {
-                                            const formData = new FormData();
-                                            formData.append(
-                                                'files',
-                                                file as File
-                                            );
-
-                                            const response = await api.post(
-                                                `upload/${selectedItem.id}`,
-                                                formData,
-                                                {
-                                                    headers: {
-                                                        'Content-Type':
-                                                            'multipart/form-data',
-                                                    },
-                                                }
-                                            );
-
-                                            if (response.status !== 200) {
-                                                throw new Error(
-                                                    'Upload failed'
-                                                );
-                                            }
-
-                                            onSuccess?.(response.data);
-                                        } catch (error) {
-                                            console.error(
-                                                'Upload error:',
-                                                error
-                                            );
-                                            onError?.(error as any);
-                                        }
-                                    }}
-                                    beforeUpload={beforeUpload}
-                                    onChange={handleUploadChange}
-                                    fileList={fileList}
-                                >
-                                    <div>
-                                        <div style={{ marginTop: 8 }}>
-                                            Upload
-                                        </div>
-                                    </div>
-                                </Upload>
+                          
                             </div>
                         </div>
 

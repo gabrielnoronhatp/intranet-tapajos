@@ -16,6 +16,7 @@ import {
 import { RootState } from '@/hooks/store';
 import { debounce } from 'lodash';
 import { MetaTable } from '@/components/trade/meta-table';
+import { formatDateUTC } from '@/lib/utils';
 
 const { Option } = Select;
 
@@ -133,13 +134,13 @@ export default function CampaignRegistration() {
     const handleEscalaSubmit = (formattedMetas: any[]) => {
         setEscalaData(formattedMetas);
     };
-
+    
     const handleSaveCampaign = async () => {
         const campaignData = {
             nome: campaignName,
             idempresa,
-            datainicial: formatDate(currentCampaign?.datainicial || ''),
-            datafinal: formatDate(currentCampaign?.datafinal || ''),
+            datainicial: formatDateUTC(currentCampaign?.datainicial),
+            datafinal: formatDateUTC(currentCampaign?.datafinal),
             valor_total: currentCampaign?.valor_total,
             userlanc: user?.username,
             datalanc: formatDate(new Date().toISOString()),

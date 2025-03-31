@@ -26,19 +26,21 @@ export default function VacanciesPage() {
     const [source, setSource] = useState('Interna');
     const [period, setPeriod] = useState('Comercial');
     const [availablePositions, setAvailablePositions] = useState(1);
-    const [validityPeriod, setValidityPeriod] = useState<[string, string] | null>(null);
+    const [validityPeriod, setValidityPeriod] = useState<
+        [string, string] | null
+    >(null);
 
     const handleAddVacancy = () => {
         if (newVacancy.trim() && imageUrl.trim() && source.trim()) {
             setVacancies([
                 ...vacancies,
-                { 
-                    title: newVacancy, 
-                    imageUrl, 
+                {
+                    title: newVacancy,
+                    imageUrl,
                     source,
                     period,
                     availablePositions,
-                    validityPeriod
+                    validityPeriod,
                 },
             ]);
             setNewVacancy('');
@@ -53,9 +55,21 @@ export default function VacanciesPage() {
     const columns = [
         { title: 'Vaga', dataIndex: 'title', key: 'title' },
         { title: 'Posições', dataIndex: 'positions', key: 'positions' },
-        { title: 'Candidaturas', dataIndex: 'candidaturas', key: 'candidaturas' },
-        { title: 'Contratações', dataIndex: 'contratacoes', key: 'contratacoes' },
-        { title: 'Contratação Até', dataIndex: 'contratacaoAte', key: 'contratacaoAte' },
+        {
+            title: 'Candidaturas',
+            dataIndex: 'candidaturas',
+            key: 'candidaturas',
+        },
+        {
+            title: 'Contratações',
+            dataIndex: 'contratacoes',
+            key: 'contratacoes',
+        },
+        {
+            title: 'Contratação Até',
+            dataIndex: 'contratacaoAte',
+            key: 'contratacaoAte',
+        },
         { title: 'Status', dataIndex: 'status', key: 'status' },
         {
             title: 'Imagem',
@@ -105,65 +119,93 @@ export default function VacanciesPage() {
                                         </div>
                                     </AntdUpload>
                                 </div>
-                                
+
                                 <div className="flex flex-col gap-3">
                                     <Select
                                         placeholder="Selecione a vaga"
                                         value={newVacancy}
-                                        onChange={(value) => setNewVacancy(value)}
+                                        onChange={(value) =>
+                                            setNewVacancy(value)
+                                        }
                                         className="w-1/2 h-8"
                                         size="small"
                                     >
-                                        <Select.Option value="Analista">Analista</Select.Option>
-                                        <Select.Option value="Desenvolvedor">Desenvolvedor</Select.Option>
-                                        <Select.Option value="Gerente">Gerente</Select.Option>
+                                        <Select.Option value="Analista">
+                                            Analista
+                                        </Select.Option>
+                                        <Select.Option value="Desenvolvedor">
+                                            Desenvolvedor
+                                        </Select.Option>
+                                        <Select.Option value="Gerente">
+                                            Gerente
+                                        </Select.Option>
                                     </Select>
-                                    
+
                                     <Select
                                         value={source}
                                         onChange={(value) => setSource(value)}
                                         className="w-1/2 h-8"
                                         size="small"
                                     >
-                                        <Select.Option value="Interna">Interna</Select.Option>
-                                        <Select.Option value="Externa">Externa</Select.Option>
+                                        <Select.Option value="Interna">
+                                            Interna
+                                        </Select.Option>
+                                        <Select.Option value="Externa">
+                                            Externa
+                                        </Select.Option>
                                     </Select>
-                                    
+
                                     <Select
                                         value={period}
                                         onChange={(value) => setPeriod(value)}
                                         className="w-1/2 h-8"
                                         size="small"
                                     >
-                                        <Select.Option value="Comercial">Período Comercial</Select.Option>
-                                        <Select.Option value="Manhã">Manhã</Select.Option>
-                                        <Select.Option value="Tarde">Tarde</Select.Option>
-                                        <Select.Option value="Noite">Noite</Select.Option>
+                                        <Select.Option value="Comercial">
+                                            Período Comercial
+                                        </Select.Option>
+                                        <Select.Option value="Manhã">
+                                            Manhã
+                                        </Select.Option>
+                                        <Select.Option value="Tarde">
+                                            Tarde
+                                        </Select.Option>
+                                        <Select.Option value="Noite">
+                                            Noite
+                                        </Select.Option>
                                     </Select>
-                                    
+
                                     <Input
                                         type="number"
                                         min={1}
                                         value={availablePositions}
-                                        onChange={(e) => setAvailablePositions(Number(e.target.value))}
+                                        onChange={(e) =>
+                                            setAvailablePositions(
+                                                Number(e.target.value)
+                                            )
+                                        }
                                         placeholder="Quantidade de vagas"
                                         className="w-1/2 h-8"
                                         size="small"
                                     />
-                                    
+
                                     <DatePicker.RangePicker
-                                        onChange={(dates:any) => setValidityPeriod(dates)}
+                                        onChange={(dates: any) =>
+                                            setValidityPeriod(dates)
+                                        }
                                         placeholder={['Início', 'Fim']}
                                         className="w-1/2 h-8"
                                         size="small"
                                     />
-                                    
+
                                     <Button
                                         type="primary"
                                         onClick={handleAddVacancy}
                                         className="bg-green-500 hover:bg-green-600 w-1/2 h-8"
-                                        style={{ fontSize: '12px' , height: '30px',
-                                            width: '100px'
+                                        style={{
+                                            fontSize: '12px',
+                                            height: '30px',
+                                            width: '100px',
                                         }}
                                     >
                                         Adicionar Vaga

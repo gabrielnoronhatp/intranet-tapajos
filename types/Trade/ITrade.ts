@@ -6,7 +6,7 @@ export interface ICampaign {
     userlanc: string;
     datalanc: string;
     status: string;
-    operators: IOperator[];
+    operators: Operador[];
     campaigns: ICampaign[];
     products: IProduct[];
     currentCampaign?: any;
@@ -29,13 +29,23 @@ export interface IValorMeta {
 export interface IProduct {
     codprod: string;
     descricao: string;
-}
-
-export interface IOperator {
-    codusur: string;
-    matricula?: string;
+    codmarca: string;
+    marca: string;
     nome: string;
 }
+
+export type Operador = {
+    modelo: string;
+    nome: string;
+    tipo: string;
+    matricula: string;
+    codusur: string;
+    idparticipante: string;
+    meta_valor: number;
+    meta_quantidade: number;
+    premiacao: number | string;
+    tipo_meta: string;
+};
 
 export interface IParticipants {
     idcampanha_distribuicao: number;
@@ -52,3 +62,8 @@ export interface ICampaignItens {
     metrica: string;
     iditem: number;
 }
+export type Escala = {
+    metaGeralRange: [];
+    metaVendedorRange: [];
+    valoresMeta: IValorMeta[];
+};

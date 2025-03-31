@@ -45,7 +45,6 @@ export const updateCampaign = createAsyncThunk(
                 `/campanhas/${id}`,
                 campaignDataOnly
             );
-          
 
             if (data.escala) {
                 try {
@@ -62,7 +61,6 @@ export const updateCampaign = createAsyncThunk(
                             isEditing: true,
                         })
                     ).unwrap();
-                   
                 } catch (error) {
                     console.error('Erro ao atualizar escala:', error);
                 }
@@ -97,7 +95,6 @@ export const updateCampaign = createAsyncThunk(
                                 participants: newParticipants,
                             })
                         ).unwrap();
-                
                     } catch (error) {
                         console.error(
                             'Erro ao adicionar participantes:',
@@ -132,7 +129,6 @@ export const updateCampaign = createAsyncThunk(
                                 items: newItems,
                             })
                         ).unwrap();
-                        
                     } catch (error) {
                         console.error('Erro ao adicionar itens:', error);
                     }
@@ -170,8 +166,6 @@ export const createCampaignParticipants = createAsyncThunk(
                     meta: participant.meta || 'VALOR',
                 };
 
-            
-
                 const response = await apiInstance.post(
                     '/participantes',
                     participantWithCampaignId
@@ -204,8 +198,6 @@ export const createCampaignItems = createAsyncThunk(
                     metrica: item.metrica || 'marca',
                 };
 
-              
-
                 const response = await apiInstance.post(
                     '/itens',
                     itemWithCampaignId
@@ -226,10 +218,10 @@ export const createCampaign = createAsyncThunk(
     async (data: any, { dispatch, rejectWithValue }) => {
         try {
             const { escala, ...campaignData } = data;
-            
+
             const response = await apiInstance.post(`campanhas`, campaignData);
             const campaignId = response.data.id;
-        
+
             if (data.participantes && data.participantes.length > 0) {
                 try {
                     await dispatch(
@@ -238,7 +230,6 @@ export const createCampaign = createAsyncThunk(
                             participants: data.participantes,
                         })
                     ).unwrap();
-                   
                 } catch (error) {
                     console.error('Erro ao cadastrar participantes:', error);
                 }
@@ -252,7 +243,6 @@ export const createCampaign = createAsyncThunk(
                             items: data.itens,
                         })
                     ).unwrap();
-                   
                 } catch (error) {
                     console.error('Erro ao cadastrar itens:', error);
                 }
@@ -271,7 +261,6 @@ export const createCampaign = createAsyncThunk(
                             isEditing: false,
                         })
                     ).unwrap();
-                  
                 } catch (error) {
                     console.error('Erro ao cadastrar escala:', error);
                 }
@@ -345,7 +334,7 @@ export const fetchFiliais = createAsyncThunk(
     async (filter: string) => {
         try {
             const response = await apiInstance.get(`/filiais`);
-            
+
             const data =
                 typeof response.data === 'string'
                     ? JSON.parse(response.data)
@@ -393,7 +382,6 @@ export const fetchProductsByType = createAsyncThunk(
                 typeof response.data === 'string'
                     ? JSON.parse(response.data)
                     : response.data;
-            
 
             return data;
         } catch (error) {
@@ -436,7 +424,6 @@ export const sendMetaTable = createAsyncThunk(
         try {
             const formattedData = metaData.formattedMetas;
 
-
             let response;
             if (metaData.isEditing) {
                 response = await apiInstance.put(
@@ -462,11 +449,10 @@ export const deleteParticipant = createAsyncThunk(
     'trade/deleteParticipant',
     async (participantId: number, { rejectWithValue }) => {
         try {
-           
             const response = await apiInstance.delete(
                 `/participantes/${participantId}`
             );
-           
+
             return participantId;
         } catch (error: any) {
             console.error('Erro ao remover participante:', error);
@@ -479,12 +465,8 @@ export const deleteItem = createAsyncThunk(
     'trade/deleteItem',
     async (itemId: number, { rejectWithValue }) => {
         try {
-            
             const response = await apiInstance.delete(`/itens/${itemId}`);
-            console.log(
-                '',
-                response.data
-            );
+            console.log('', response.data);
             return itemId;
         } catch (error: any) {
             console.error('Erro ao remover item:', error);
@@ -503,14 +485,10 @@ export const deleteParticipantFromCampaign = createAsyncThunk(
         { rejectWithValue }
     ) => {
         try {
-          
             const response = await apiInstance.delete(
                 `participantes/${campaignId}/${participantId}`
             );
-            console.log(
-                '',
-                response.data
-            );
+            console.log('', response.data);
 
             return { campaignId, participantId };
         } catch (error: any) {
@@ -527,14 +505,10 @@ export const deleteItemFromCampaign = createAsyncThunk(
         { rejectWithValue }
     ) => {
         try {
-           
             const response = await apiInstance.delete(
                 `itens/${campaignId}/${id}`
-            );  
-            console.log(
-                '',
-                response.data
             );
+            console.log('', response.data);
             return { campaignId, id };
         } catch (error: any) {
             console.error('Erro ao remover item:', error);
@@ -673,8 +647,7 @@ const tradeSlice = createSlice({
                 state.status = 'failed';
                 state.error = action.error.message;
             })
-            .addCase(sendMetaTable.fulfilled, (state, action) => {
-            })
+            .addCase(sendMetaTable.fulfilled, (state, action) => {})
             .addCase(sendMetaTable.rejected, (state: any, action) => {
                 state.status = 'failed';
                 state.error = action.payload;

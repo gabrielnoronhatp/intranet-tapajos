@@ -24,21 +24,25 @@ export const MetaTableReadOnly: React.FC<MetaTableReadOnlyProps> = ({
 
     useEffect(() => {
         if (escala?.valoresMeta && escala.valoresMeta.length > 0) {
-            const maxMetaGeral = Math.max(...escala.valoresMeta.map(v => v.idMetaGeral));
-            const maxMetaVendedor = Math.max(...escala.valoresMeta.map(v => v.idMetaVendedor));
-            
+            const maxMetaGeral = Math.max(
+                ...escala.valoresMeta.map((v) => v.idMetaGeral)
+            );
+            const maxMetaVendedor = Math.max(
+                ...escala.valoresMeta.map((v) => v.idMetaVendedor)
+            );
+
             const newMetas = Array(maxMetaGeral)
                 .fill(null)
                 .map(() => Array(maxMetaVendedor).fill(0));
-            
-            escala.valoresMeta.forEach(meta => {
+
+            escala.valoresMeta.forEach((meta) => {
                 const rowIndex = meta.idMetaGeral - 1;
                 const colIndex = meta.idMetaVendedor - 1;
                 if (rowIndex >= 0 && colIndex >= 0) {
                     newMetas[rowIndex][colIndex] = meta.celValordaMeta;
                 }
             });
-            
+
             setMetas(newMetas);
         } else if (metaGeralRange.length > 0 && metaVendedorRange.length > 0) {
             const newMetas = Array(metaGeralRange.length)
@@ -84,4 +88,4 @@ export const MetaTableReadOnly: React.FC<MetaTableReadOnlyProps> = ({
             </table>
         </div>
     );
-}; 
+};

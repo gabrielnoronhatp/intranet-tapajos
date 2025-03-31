@@ -176,7 +176,7 @@ const orderSlice = createSlice({
         builder.addCase(cancelOrder.fulfilled, (state, action) => {
             state.canceled = true;
         });
-    }
+    },
 });
 
 export const { prepareOrderData, setOrderState } = orderSlice.actions;

@@ -93,7 +93,7 @@ export const deleteFile = createAsyncThunk(
     'noPaper/deleteFile',
     async (fileKey: string) => {
         const response = await api.delete('/excluir-arquivo', {
-            data: { fileKey }
+            data: { fileKey },
         });
         return response.data;
     }

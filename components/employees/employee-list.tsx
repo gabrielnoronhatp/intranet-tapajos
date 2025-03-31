@@ -12,8 +12,20 @@ interface Employee {
 }
 
 const initialData: Employee[] = [
-    { nome: 'João Silva', vaga: 'Desenvolvedor', periodo: 'Integral', primeiraExperiencia: true, idade: 25 },
-    { nome: 'Maria Oliveira', vaga: 'Designer', periodo: 'Parcial', primeiraExperiencia: false, idade: 30 },
+    {
+        nome: 'João Silva',
+        vaga: 'Desenvolvedor',
+        periodo: 'Integral',
+        primeiraExperiencia: true,
+        idade: 25,
+    },
+    {
+        nome: 'Maria Oliveira',
+        vaga: 'Designer',
+        periodo: 'Parcial',
+        primeiraExperiencia: false,
+        idade: 30,
+    },
     // Adicione mais dados conforme necessário
 ];
 
@@ -74,7 +86,11 @@ export function EmployeeList() {
                     onChange={handleFilterChange}
                 />
             </div>
-            <AntdTable columns={columns} dataSource={filteredData} rowKey="nome" />
+            <AntdTable
+                columns={columns}
+                dataSource={filteredData}
+                rowKey="nome"
+            />
         </div>
     );
-} 
+}

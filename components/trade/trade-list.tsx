@@ -261,7 +261,7 @@ export function TableTrade() {
                         borderColor: '#4CAF50',
                     },
                 },
-                width: 800, 
+                width: 800,
             });
         });
     };

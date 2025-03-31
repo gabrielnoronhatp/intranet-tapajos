@@ -15,15 +15,15 @@ const useTokenRefresh = () => {
                 password: '#$%23345',
             });
             const newToken = response.data.access_token;
-           
+
             // Save token to Redux
             dispatch(setToken({ token: newToken }));
-           
+
             // Save token to localStorage
             if (typeof window !== 'undefined') {
                 localStorage.setItem('auth_token', newToken);
             }
-           
+
             return newToken;
         } catch (error) {
             console.error('Error fetching token:', error);

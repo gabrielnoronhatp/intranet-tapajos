@@ -1,5 +1,5 @@
 export interface IContract {
-    id?: number;
+    id: number;
     idtipo: any;
     idfilial: string;
     idfornecedor: string;
@@ -10,7 +10,8 @@ export interface IContract {
     endereco2?: string;
     email1?: string;
     email2?: string;
-    data_venc_contrato?: string;
+    //todo remove this any
+    data_venc_contrato?: any;
     indice?: string;
     forma_pag?: any; // TODO: find a way to handle this any
     agencia?: string;

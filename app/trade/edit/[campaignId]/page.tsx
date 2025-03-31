@@ -145,7 +145,9 @@ export default function CampaignEdit() {
 
     const handleAddOperador = () => {
         if (!tipoMeta) {
-            message.error('Por favor, selecione uma métrica antes de adicionar um operador.');
+            message.error(
+                'Por favor, selecione uma métrica antes de adicionar um operador.'
+            );
             return;
         }
 
@@ -168,7 +170,8 @@ export default function CampaignEdit() {
                 meta: tipoMeta,
                 idparticipante,
                 meta_valor: tipoMeta === 'VALOR' ? parseFloat(meta_valor) : 0,
-                meta_quantidade: tipoMeta === 'QUANTIDADE' ? parseFloat(meta_valor) : 0,
+                meta_quantidade:
+                    tipoMeta === 'QUANTIDADE' ? parseFloat(meta_valor) : 0,
                 premiacao,
                 tipo_meta: tipoMeta,
             };
@@ -231,8 +234,6 @@ export default function CampaignEdit() {
         }, 300),
         [dispatch, tipoMarcaProduto]
     );
-
-  
 
     const handleUpdateCampaign = async () => {
         const campaignData = {
@@ -314,18 +315,20 @@ export default function CampaignEdit() {
                     campaignId,
                     id: itemToDelete,
                 }) as any
-            ).then(() => {
-                setMarcaProdutos(
-                    marcaProdutos.filter(
-                        (item: any) => item.id !== itemToDelete
-                    )
-                );
-                setIsItemModalVisible(false);
-                setItemToDelete(null);
-            }).catch((error: any) => {
-                console.error('Erro ao remover item:', error);
-                message.error('Erro ao remover item');
-            });
+            )
+                .then(() => {
+                    setMarcaProdutos(
+                        marcaProdutos.filter(
+                            (item: any) => item.id !== itemToDelete
+                        )
+                    );
+                    setIsItemModalVisible(false);
+                    setItemToDelete(null);
+                })
+                .catch((error: any) => {
+                    console.error('Erro ao remover item:', error);
+                    message.error('Erro ao remover item');
+                });
         }
     };
 
@@ -479,18 +482,19 @@ export default function CampaignEdit() {
                                     value={meta_valor}
                                     onChange={(e) => {
                                         const inputValue = e.target.value;
-                                        const formattedValue = inputValue.replace(',', '.');
+                                        const formattedValue =
+                                            inputValue.replace(',', '.');
                                         setMetaValor(formattedValue);
                                     }}
                                 />
                                 <Input
-                                  
                                     placeholder="Premiação"
                                     className="flex-1"
                                     value={premiacao}
                                     onChange={(e) => {
                                         const inputValue = e.target.value;
-                                        const formattedValue = inputValue.replace(',', '.');
+                                        const formattedValue =
+                                            inputValue.replace(',', '.');
                                         setPremiacao(formattedValue);
                                     }}
                                 />
@@ -513,15 +517,23 @@ export default function CampaignEdit() {
                                         title: 'Meta',
                                         key: 'meta',
                                         render: (record: any) => {
-                                            const value = record.tipo_meta &&  record.meta  ? record.meta_valor : record.meta_quantidade;
-                                            return parseFloat(value).toLocaleString('pt-BR');
+                                            const value =
+                                                record.tipo_meta && record.meta
+                                                    ? record.meta_valor
+                                                    : record.meta_quantidade;
+                                            return parseFloat(
+                                                value
+                                            ).toLocaleString('pt-BR');
                                         },
                                     },
                                     {
                                         title: 'Premiação',
                                         dataIndex: 'premiacao',
                                         key: 'premiacao',
-                                        render: (text: string) => parseFloat(text).toLocaleString('pt-BR'),
+                                        render: (text: string) =>
+                                            parseFloat(text).toLocaleString(
+                                                'pt-BR'
+                                            ),
                                     },
                                     {
                                         title: 'Tipo',

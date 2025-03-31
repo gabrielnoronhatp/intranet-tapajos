@@ -7,7 +7,6 @@ import { EmployeeList } from '@/components/employees/employee-list';
 import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
 import { FloatingActionButton } from '@/components/nopaper/floating-action-button';
 
-
 export default function EmployeeListPage() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
@@ -35,4 +34,4 @@ export default function EmployeeListPage() {
             </div>
         </AuthGuard>
     );
-} 
+}

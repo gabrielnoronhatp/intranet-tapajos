@@ -1,19 +1,19 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Table as AntdTable, Input, DatePicker, Button, Modal } from 'antd';
+import { Table as AntdTable, Input, DatePicker, Modal } from 'antd';
 import { apiDev } from '@/app/service/api';
 import { Navbar } from '@/components/layout/navbar';
 import { Sidebar } from '@/components/layout/sidebar';
 import { FloatingActionButton } from '@/components/nopaper/floating-action-button';
 import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
-import { IContract } from '@/types/Contracts/Contracts';
+import { IContract, IFile } from '@/types/Contracts/Contracts';
 import {
     fetchContracts,
     fetchServiceTypes,
     cancelContract,
 } from '@/hooks/slices/contracts/contractSlice';
-import { RootState } from '@/hooks/store';
+import { AppDispatch, RootState } from '@/hooks/store';
 import { useDispatch, useSelector } from 'react-redux';
 import { Eye, Edit, FileWarning } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -33,7 +33,7 @@ export default function ContractList() {
         Array<{ url: string; name: string }>
     >([]);
 
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
     const contracts = useSelector(
         (state: RootState) => state.contracts.contracts
     );
@@ -45,8 +45,8 @@ export default function ContractList() {
 
     useEffect(() => {
         const params: any = new URLSearchParams(searchParams).toString();
-        dispatch(fetchContracts(params) as any);
-        dispatch(fetchServiceTypes() as any);
+        dispatch(fetchContracts(params));
+        dispatch(fetchServiceTypes());
     }, [dispatch, searchParams]);
 
     const handleFilterChange = debounce((key: string, value: string) => {
@@ -67,15 +67,15 @@ export default function ContractList() {
         }
     );
 
-    const handleCancelContract = async (contractId: any) => {
+    const handleCancelContract = async (contractId: number) => {
         try {
-            await dispatch(cancelContract(contractId) as any);
+            await dispatch(cancelContract(contractId));
         } catch (error) {
             console.error('Erro ao cancelar contrato:', error);
         }
     };
 
-    const confirmCancelContract = (contractId: any) => {
+    const confirmCancelContract = (contractId: number) => {
         Modal.confirm({
             title: 'Confirmar Cancelamento',
             content: 'Você tem certeza que deseja cancelar este contrato?',
@@ -92,7 +92,7 @@ export default function ContractList() {
         });
     };
 
-    const rowClassName: any = (record: any) => {
+    const rowClassName = (record: IContract) => {
         if (record.cancelado) return 'contract-cancelled';
 
         const today = new Date();
@@ -165,17 +165,18 @@ export default function ContractList() {
 
         try {
             const response = await apiDev.get(`contracts/${contract.id}/files`);
-       
 
             if (
                 response.data &&
                 response.data.files &&
                 Array.isArray(response.data.files)
             ) {
-                const formattedUrls = response.data.files.map((file: any) => ({
-                    url: file.file_url,
-                    name: file.filename || 'file',
-                }));
+                const formattedUrls = response.data.files.map(
+                    (file: IFile) => ({
+                        url: file.file_url,
+                        name: file.filename || 'file',
+                    })
+                );
                 setFileUrls(formattedUrls);
             } else {
                 setFileUrls([]);
@@ -228,18 +229,21 @@ export default function ContractList() {
 
                             <DatePicker
                                 placeholder="Vencimento"
-                                onChange={(date, dateString: any) =>
+                                onChange={(_, dateString) =>
                                     handleFilterChange(
                                         'data_venc_contrato',
-                                        dateString
+                                        dateString as string
                                     )
                                 }
                                 style={{ marginRight: 8 }}
                             />
                             <DatePicker
                                 placeholder="Data de Lançamento"
-                                onChange={(date, dateString: any) =>
-                                    handleFilterChange('datalanc', dateString)
+                                onChange={(_, dateString) =>
+                                    handleFilterChange(
+                                        'datalanc',
+                                        dateString as string
+                                    )
                                 }
                             />
                         </div>

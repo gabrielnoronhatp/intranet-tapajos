@@ -1,4 +1,3 @@
-import { Item } from './CentroCustoItem';
 import { CentroCusto } from './CentroCustoType';
 
 export interface OrderData {
@@ -14,9 +13,9 @@ export interface OrderData {
     qtitensOP: number | null;
     valorimpostoOP: number;
     dtavistaOP: string | null;
-    bancoOP: string | null;
-    agenciaOP: string | null;
-    contaOP: string | null;
+    bancoOP?: string | null;
+    agenciaOP?: string | null;
+    contaOP?: string | null;
     dtdepositoOP: string | null;
     parcelasOP: { parcela: string }[] | null;
     produtosOP: Item[];
@@ -41,7 +40,7 @@ export interface OrderState {
     tipoLancamento: string;
     formaPagamento: string;
     open: boolean;
-    selectedFornecedor: any;
+    selectedFornecedor: string;
     quantidadeProdutos: number;
     centrosCusto: CentroCusto[];
     installments: number;
@@ -49,7 +48,7 @@ export interface OrderState {
     valorTotal: number;
     itens: Item[];
     isViewOpen: boolean;
-    selectedFilial: any;
+    selectedFilial: string;
     filialOpen: boolean;
     notaFiscal: string;
     serie: string;
@@ -77,4 +76,11 @@ export interface File {
     size: number;
     type: string;
     lastModified: number;
+}
+
+export interface Item {
+    produto: string;
+    quantidade: number;
+    valorUnitario: number;
+    valorTotal: number;
 }

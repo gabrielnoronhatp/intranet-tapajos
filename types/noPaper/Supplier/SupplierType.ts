@@ -9,6 +9,9 @@ export interface IFornecedor {
 
 export interface IFilial {
     loja: string;
+    fantasia: string;
+    id: number;
+    label: string;
 }
 
 export interface IContaGerencial {

@@ -6,7 +6,7 @@ import { setToken } from '@/hooks/slices/token/tokenSlice';
 const getStore = () => {
     if (typeof window !== 'undefined') {
         // Dynamic import to avoid SSR issues
-        return import('@/hooks/store').then(module => module.default);
+        return import('@/hooks/store').then((module) => module.default);
     }
     return null;
 };
@@ -28,14 +28,12 @@ const saveTokenToStorage = (token: string) => {
 
 const refreshTokenSilently = async () => {
     try {
-       
         const response = await axios.post('http://10.2.10.202:8000/token', {
             username: 'trade',
             password: '#$%23345',
         });
         const newToken = response.data.access_token;
-       
-        
+
         // Salvar no Redux (apenas no cliente)
         if (typeof window !== 'undefined') {
             const store = await getStore();
@@ -43,10 +41,10 @@ const refreshTokenSilently = async () => {
                 store.dispatch(setToken({ token: newToken }));
             }
         }
-        
+
         // Salvar no localStorage para persistência
         saveTokenToStorage(newToken);
-        
+
         return newToken;
     } catch (error) {
         console.error('Error refreshing token:', error);

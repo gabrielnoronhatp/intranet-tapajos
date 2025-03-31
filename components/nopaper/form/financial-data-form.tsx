@@ -164,7 +164,7 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                             onChange={(e) => {
                                 const value = parseInt(e.target.value);
                                 onChange('qtparcelasOP', value);
-                                
+
                                 // Atualiza as parcelas quando o número muda
                                 if (value > 0) {
                                     const newParcelasOP = Array.from(
@@ -195,8 +195,8 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                 {parcelasOP.map((parcela: any, index: number) => (
                     <div key={index} className="space-y-2 border p-2 rounded">
                         <Label className="text-xs font-semibold text-primary uppercase">
-                            {metodoOP === 'boleto' 
-                                ? `Data de Vencimento - Parcela ${index + 1}` 
+                            {metodoOP === 'boleto'
+                                ? `Data de Vencimento - Parcela ${index + 1}`
                                 : 'Data de Vencimento'}
                         </Label>
                         <Input

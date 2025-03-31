@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { Button, Input, Select, Upload, Radio } from 'antd';
-import { FilialSelect } from '@/components/nopaper/store-select';
 import { FornecedorSelect } from '@/components/nopaper/supplier-select';
 import FinancialData from '@/components/contracts/duplicated-components/financial-data-form';
 
@@ -16,14 +15,14 @@ import {
     createContract,
     uploadContractFile,
 } from '@/hooks/slices/contracts/contractSlice';
-import { RootState } from '@/hooks/store';
+import { AppDispatch, RootState } from '@/hooks/store';
 import { ServiceTypeSelect } from '@/components/contracts/service-type-select';
 import { fetchLojas } from '@/hooks/slices/noPaper/noPaperSlice';
 import { toast } from 'react-hot-toast';
 import { NumericFormat } from 'react-number-format';
-
+import { IContract } from '@/types/Contracts/Contracts';
 export default function ContractForm() {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
     const { currentContract } = useSelector(
         (state: RootState) => state.contracts
     );
@@ -35,7 +34,7 @@ export default function ContractForm() {
 
     const handleSetState = (
         field: string,
-        value: string | number | Array<any>
+        value: string | number | Array<IContract>
     ) => {
         dispatch(setCurrentContract({ [field]: value }));
     };
@@ -44,7 +43,7 @@ export default function ContractForm() {
         e.preventDefault();
         try {
             const resultAction = await dispatch(
-                createContract(currentContract) as any
+                createContract(currentContract)
             );
             const newContractId = resultAction.payload.id;
 
@@ -53,10 +52,11 @@ export default function ContractForm() {
                     uploadContractFile({
                         contractId: newContractId,
                         file: selectedFile,
-                    }) as any
+                    })
                 );
             }
         } catch (error) {
+            console.log(error);
             toast.error('Erro ao cadastrar contrato ou enviar arquivo.');
         }
     };
@@ -72,7 +72,7 @@ export default function ContractForm() {
     };
 
     useEffect(() => {
-        dispatch(fetchLojas(localSearchQuery) as any);
+        dispatch(fetchLojas(localSearchQuery));
     }, [localSearchQuery, dispatch]);
 
     const handleFileChange = (file: File) => {

@@ -48,7 +48,6 @@ export default function TradeList() {
 
                             <div className="rounded-lg border bg-card">
                                 <TableTrade />
-                               
                             </div>
 
                             <FloatingActionButton href="/trade" />

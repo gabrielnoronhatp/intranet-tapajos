@@ -492,7 +492,6 @@ export function DataTableOrder({
                                         </div>
                                     </div>
                                 )}
-                          
                             </div>
                         </div>
 

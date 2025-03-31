@@ -11,10 +11,8 @@ import { setAuthenticated } from '@/hooks/slices/authSlice';
 import { setUserLanc } from '@/hooks/slices/trade/tradeSlice';
 
 export default function LoginPage() {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isAuthenticated] = useState(false);
 
-    const [isModalVisible, setIsModalVisible] = useState(false);
     const accessToken = useSelector(
         (state: RootState) => state.auth.accessToken
     );

@@ -29,9 +29,8 @@ export const formatDate = (dateString: string) => {
     return `${day}/${month}/${year}`;
 };
 
-
 export const formatDateUTC = (dateString: string) => {
-    const date = new Date(dateString + 'T00:00:00Z'); 
+    const date = new Date(dateString + 'T00:00:00Z');
     const day = String(date.getUTCDate()).padStart(2, '0');
     const month = String(date.getUTCMonth() + 1).padStart(2, '0');
     const year = date.getUTCFullYear();

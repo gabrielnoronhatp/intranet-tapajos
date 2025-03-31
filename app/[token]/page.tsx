@@ -4,7 +4,7 @@ import React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import jwt, { JwtPayload } from 'jsonwebtoken';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { login } from '@/hooks/slices/authSlice';
 import { CpfModal } from '@/components/nopaper/cpf-modal';
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
@@ -19,7 +19,7 @@ export default function TokenPage() {
         (typeof window !== 'undefined' &&
             window.location.pathname.split('/').pop());
 
-    const handleCpfConfirm = (cpf: string) => {
+    const handleCpfConfirm = () => {
         setIsModalOpen(false);
     };
 

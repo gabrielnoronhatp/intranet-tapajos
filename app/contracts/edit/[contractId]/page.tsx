@@ -1,13 +1,13 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import {
     fetchContractDetails,
     updateContract,
     setCurrentContract,
 } from '@/hooks/slices/contracts/contractSlice';
-import { RootState } from '@/hooks/store';
+import { RootState, AppDispatch } from '@/hooks/store';
 import { Button, Input, message, Select, Upload, Radio } from 'antd';
 import { FormSection } from '@/components/nopaper/form-section';
 import { ServiceTypeSelect } from '@/components/contracts/service-type-select';
@@ -20,12 +20,11 @@ import { IContract } from '@/types/Contracts/Contracts';
 import FinancialData from '@/components/contracts/duplicated-components/financial-data-form';
 
 export default function EditContractPage() {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
     const params = useParams();
-    const router = useRouter();
     const contractId = params?.contractId as string;
 
-    const { currentContract, serviceTypes } = useSelector(
+    const { currentContract } = useSelector(
         (state: RootState) => state.contracts
     );
     const { lojas } = useSelector((state: RootState) => state.noPaper);
@@ -35,14 +34,14 @@ export default function EditContractPage() {
 
     useEffect(() => {
         if (contractId) {
-            dispatch(fetchContractDetails(Number(contractId)) as any);
+            dispatch(fetchContractDetails(Number(contractId)));
         }
-        dispatch(fetchLojas('   ') as any);
-    }, [contractId, dispatch]);
+        dispatch(fetchLojas('   '));
+    }, [contractId, selectedFile, dispatch]);
 
     const handleSetState = (
         field: keyof typeof currentContract,
-        value: any
+        value: string | number | boolean | null | undefined
     ) => {
         dispatch(setCurrentContract({ [field]: value }));
     };
@@ -54,9 +53,10 @@ export default function EditContractPage() {
                 updateContract({
                     contractId: Number(contractId),
                     contractData: currentContract,
-                }) as any
+                })
             );
         } catch (error) {
+            console.log(error);
             message.error('Erro ao atualizar contrato');
         }
     };

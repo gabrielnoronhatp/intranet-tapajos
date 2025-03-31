@@ -19,6 +19,8 @@ import { debounce } from 'lodash';
 import { useParams, useRouter } from 'next/navigation';
 import { MetaTable } from '@/components/trade/meta-table';
 import moment from 'moment';
+import { formatDate } from '@/lib/utils';
+import { formatDateUTC } from '@/lib/utils';
 const { Option } = Select;
 
 export default function CampaignEdit() {
@@ -230,22 +232,7 @@ export default function CampaignEdit() {
         [dispatch, tipoMarcaProduto]
     );
 
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
-    };
-
-    
-    const formatDateUTC = (dateString: string) => {
-        const date = new Date(dateString + 'T00:00:00Z'); // Garante UTC sem alteração pelo fuso
-        const day = String(date.getUTCDate()).padStart(2, '0');
-        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-        const year = date.getUTCFullYear();
-        return `${day}/${month}/${year}`;
-    };
+  
 
     const handleUpdateCampaign = async () => {
         const campaignData = {
@@ -526,7 +513,7 @@ export default function CampaignEdit() {
                                         title: 'Meta',
                                         key: 'meta',
                                         render: (record: any) => {
-                                            const value = record.tipo_meta === 'VALOR' ? record.meta_valor : record.meta_quantidade;
+                                            const value = record.tipo_meta &&  record.meta  ? record.meta_valor : record.meta_quantidade;
                                             return parseFloat(value).toLocaleString('pt-BR');
                                         },
                                     },

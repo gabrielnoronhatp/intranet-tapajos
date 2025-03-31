@@ -49,20 +49,20 @@ export default function EditOrderPage() {
                         return;
                     }
                     dispatch(setOrderState(data));
-                    
-                    // Buscar arquivos anexados
+
                     try {
-                        const filesResponse = await api.get(`arquivos/${orderId}`);
+                        const filesResponse = await api.get(
+                            `arquivos/${orderId}`
+                        );
                         if (
                             filesResponse.data &&
                             filesResponse.data.urls &&
                             Array.isArray(filesResponse.data.urls)
                         ) {
-                            // Mapeia as URLs para o formato esperado
                             const formattedUrls = filesResponse.data.urls.map(
                                 (url: string) => ({
                                     url: url,
-                                    name: url.split('/').pop() || 'file', // Extrai o nome do arquivo da URL
+                                    name: url.split('/').pop() || 'file',
                                 })
                             );
                             setExistingFiles(formattedUrls);
@@ -129,23 +129,6 @@ export default function EditOrderPage() {
         }
     };
 
-    const beforeUpload = (file: File) => {
-        const allowedTypes = [
-            'image/jpeg',
-            'image/png',
-            'application/pdf',
-            'application/vnd.ms-excel',
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        ];
-
-        if (!allowedTypes.includes(file.type)) {
-            message.error('Formato de arquivo não suportado!');
-            return false;
-        }
-        setSelectedFile(file);
-        return false; // Retorna false para evitar o upload automático
-    };
-
     const handleUploadChange = (info: any) => {
         if (info.file.status === 'done') {
             message.success(`${info.file.name} foi enviado com sucesso!`);
@@ -153,7 +136,7 @@ export default function EditOrderPage() {
         } else if (info.file.status === 'error') {
             message.error(`Falha ao enviar ${info.file.name}.`);
         }
-        
+
         // Update fileList state
         setFileList(info.fileList);
     };
@@ -177,7 +160,6 @@ export default function EditOrderPage() {
                         await dispatch(deleteFile(fileKey) as any);
                         message.success('Arquivo excluído com sucesso');
 
-                        // Atualizar a lista de arquivos
                         const updatedFiles = existingFiles.filter(
                             (file) => file.url !== fileUrl
                         );
@@ -199,10 +181,6 @@ export default function EditOrderPage() {
             message.error('Erro ao excluir arquivo');
         }
     };
-
-    if (isLoading) {
-        return <div>Carregando...</div>;
-    }
 
     return (
         <AuthGuard>
@@ -240,20 +218,28 @@ export default function EditOrderPage() {
                                 />
 
                                 <div className="mt-6">
-                                    <h3 className="text-md font-bold mb-2">Anexar Arquivo:</h3>
+                                    <h3 className="text-md font-bold mb-2">
+                                        Anexar Arquivo:
+                                    </h3>
                                     <Upload
                                         listType="picture-card"
                                         showUploadList={true}
                                         accept=".xls,.xlsx,.pdf,.jpg,.jpeg,.png"
                                         onChange={handleUploadChange}
-                                        fileList={selectedFile ? [
-                                            {
-                                                uid: '-1',
-                                                name: selectedFile.name,
-                                                status: 'done',
-                                                url: URL.createObjectURL(selectedFile),
-                                            }
-                                        ] : []}
+                                        fileList={
+                                            selectedFile
+                                                ? [
+                                                      {
+                                                          uid: '-1',
+                                                          name: selectedFile.name,
+                                                          status: 'done',
+                                                          url: URL.createObjectURL(
+                                                              selectedFile
+                                                          ),
+                                                      },
+                                                  ]
+                                                : []
+                                        }
                                         onRemove={() => setSelectedFile(null)}
                                         customRequest={async ({
                                             file,
@@ -262,47 +248,81 @@ export default function EditOrderPage() {
                                         }) => {
                                             try {
                                                 const formData = new FormData();
-                                                formData.append('files', file as File);
-                                                
+                                                formData.append(
+                                                    'files',
+                                                    file as File
+                                                );
+
                                                 const response = await api.post(
                                                     `upload/${orderId}`,
                                                     formData,
                                                     {
                                                         headers: {
-                                                            'Content-Type': 'multipart/form-data',
+                                                            'Content-Type':
+                                                                'multipart/form-data',
                                                         },
                                                     }
                                                 );
 
                                                 if (response.status !== 200) {
-                                                    throw new Error('Upload failed');
+                                                    throw new Error(
+                                                        'Upload failed'
+                                                    );
                                                 }
 
-                                                message.success('Arquivo enviado com sucesso!', 3);
+                                                message.success(
+                                                    'Arquivo enviado com sucesso!',
+                                                    3
+                                                );
                                                 onSuccess?.(response.data);
-                                                
-                                                // Atualizar a lista de arquivos existentes após o upload
                                                 try {
-                                                    const filesResponse = await api.get(`arquivos/${orderId}`);
+                                                    const filesResponse =
+                                                        await api.get(
+                                                            `arquivos/${orderId}`
+                                                        );
                                                     if (
                                                         filesResponse.data &&
-                                                        filesResponse.data.urls &&
-                                                        Array.isArray(filesResponse.data.urls)
+                                                        filesResponse.data
+                                                            .urls &&
+                                                        Array.isArray(
+                                                            filesResponse.data
+                                                                .urls
+                                                        )
                                                     ) {
-                                                        const formattedUrls = filesResponse.data.urls.map(
-                                                            (url: string) => ({
-                                                                url: url,
-                                                                name: url.split('/').pop() || 'file',
-                                                            })
+                                                        const formattedUrls =
+                                                            filesResponse.data.urls.map(
+                                                                (
+                                                                    url: string
+                                                                ) => ({
+                                                                    url: url,
+                                                                    name:
+                                                                        url
+                                                                            .split(
+                                                                                '/'
+                                                                            )
+                                                                            .pop() ||
+                                                                        'file',
+                                                                })
+                                                            );
+                                                        setExistingFiles(
+                                                            formattedUrls
                                                         );
-                                                        setExistingFiles(formattedUrls);
                                                     }
                                                 } catch (fileError) {
-                                                    console.error('Erro ao atualizar lista de arquivos:', fileError);
+                                                    console.error(
+                                                        'Erro ao atualizar lista de arquivos:',
+                                                        fileError
+                                                    );
                                                 }
                                             } catch (error) {
-                                                console.error('Upload error:', error);
-                                                message.error('Falha ao enviar o arquivo. Tente novamente.', 3);
+                                                console.error(
+                                                    'Upload error:',
+                                                    error
+                                                );
+                                                message.error(
+                                                    'Falha ao enviar o arquivo. Tente novamente.',
+                                                    3
+                                                );
                                                 onError?.(error as any);
                                             }
                                         }}
@@ -310,7 +330,9 @@ export default function EditOrderPage() {
                                         {!selectedFile && (
                                             <div>
                                                 <PlusOutlined />
-                                                <div style={{ marginTop: 8 }}>Upload</div>
+                                                <div style={{ marginTop: 8 }}>
+                                                    Upload
+                                                </div>
                                             </div>
                                         )}
                                     </Upload>
@@ -321,32 +343,49 @@ export default function EditOrderPage() {
                                                 Arquivos Existentes:
                                             </h3>
                                             <div className="grid grid-cols-1 gap-2">
-                                                {existingFiles.map((file, index) => (
-                                                    <div
-                                                        key={index}
-                                                        className="flex items-center justify-between p-2 bg-gray-50 rounded hover:bg-gray-100"
-                                                    >
-                                                        <div className="flex flex-col flex-1">
-                                                            <span className="truncate">{file.name}</span>
+                                                {existingFiles.map(
+                                                    (file, index) => (
+                                                        <div
+                                                            key={index}
+                                                            className="flex items-center justify-between p-2 bg-gray-50 rounded hover:bg-gray-100"
+                                                        >
+                                                            <div className="flex flex-col flex-1">
+                                                                <span className="truncate">
+                                                                    {file.name}
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex space-x-2">
+                                                                <a
+                                                                    href={
+                                                                        file.url
+                                                                    }
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600"
+                                                                >
+                                                                    Download
+                                                                </a>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() =>
+                                                                        handleDeleteFile(
+                                                                            file.url
+                                                                        )
+                                                                    }
+                                                                    className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600 flex items-center"
+                                                                >
+                                                                    <DeleteOutlined
+                                                                        size={
+                                                                            16
+                                                                        }
+                                                                        className="mr-1"
+                                                                    />
+                                                                    Excluir
+                                                                </button>
+                                                            </div>
                                                         </div>
-                                                        <div className="flex space-x-2">
-                                                            <a
-                                                                href={file.url}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600"
-                                                            >
-                                                                Download
-                                                            </a>
-                                                            <button
-                                                                onClick={() => handleDeleteFile(file.url)}
-                                                                className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600 flex items-center"
-                                                            >
-                                                                <DeleteOutlined size={16} className="mr-1" /> Excluir
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                ))}
+                                                    )
+                                                )}
                                             </div>
                                         </div>
                                     )}

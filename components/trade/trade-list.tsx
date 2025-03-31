@@ -261,14 +261,14 @@ export function TableTrade() {
                         borderColor: '#4CAF50',
                     },
                 },
-                width: 800, // Aumentar a largura para acomodar a tabela
+                width: 800, 
             });
         });
     };
 
     const showDeleteConfirm = (id: string) => {
         const campaign = campaigns.find((c: any) => c.id === id);
-        if (campaign && campaign.status === false) {
+        if (campaign && campaign.status === 'false') {
             message.warning('Esta campanha já está desativada.');
             return;
         }

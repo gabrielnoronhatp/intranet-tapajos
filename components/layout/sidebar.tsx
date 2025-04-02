@@ -38,9 +38,9 @@ export function Sidebar({ isOpen }: SidebarProps) {
             label: <Link href="/trade/list">Trade</Link>,
         },
         {
-            key: '/employees/list',
+            key: '/vacancies',
             icon: <UserRoundSearch className="h-5 w-5" />,
-            label: <Link href="/employees/list">Candidatos</Link>,
+            label: <Link href="/vacancies">Candidatos</Link>,
         },
     ];
 

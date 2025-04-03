@@ -87,7 +87,7 @@ export default function VacancyCandidatesPage() {
         return `https://api.rh.grupotapajos.com.br/candidato/cv/${fileName}`;
     };
 
-    const getCvViewUrl = (file_cv: any | null | undefined  ) => {
+    const getCvViewUrl = (file_cv: any) => {
         if (!file_cv) return null;
 
         const fileName = file_cv.split('/').pop();
@@ -123,7 +123,7 @@ export default function VacancyCandidatesPage() {
         return 'text-green-600';
     };
 
-    const columns:any = [
+    const columns = [
         {
             title: 'Foto',
             dataIndex: ['candidate', 'file_perfil'],

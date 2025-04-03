@@ -294,7 +294,7 @@ export default function VacancyCandidatesPage() {
                                     </div>
                                 ) : candidates && candidates.length > 0 ? (
                                     <Table
-                                        columns={columns}
+                                        columns={columns as any}
                                         dataSource={candidates}
                                         rowKey={(record) => record.candidate.id}
                                         pagination={{ pageSize: 10 }}
@@ -584,16 +584,14 @@ export default function VacancyCandidatesPage() {
                                                 <Button
                                                     type="primary"
                                                     icon={<DownloadOutlined />}
-                                                    onClick={() =>
-                                                        window.open(
-                                                            getCvViewUrl(
-                                                                selectedCandidate
-                                                                    .candidate
-                                                                    .file_cv
-                                                            ),
-                                                            '_blank'
-                                                        )
-                                                    }
+                                                    onClick={() => {
+                                                        const url = getCvViewUrl(
+                                                            selectedCandidate.candidate.file_cv
+                                                        );
+                                                        if (url) {
+                                                            window.open(url, '_blank');
+                                                        }
+                                                    }}
                                                     className="bg-blue-500 hover:bg-blue-600"
                                                 >
                                                     Ver
@@ -605,7 +603,7 @@ export default function VacancyCandidatesPage() {
                                                 style={{ height: '500px' }}
                                             >
                                                 <iframe
-                                                    src={`${getCvViewUrl(selectedCandidate.candidate.file_cv)}#toolbar=0`}
+                                                    src={`${getCvViewUrl(selectedCandidate.candidate.file_cv) || ''}#toolbar=0`}
                                                     width="100%"
                                                     height="100%"
                                                     style={{ border: 'none' }}
@@ -642,5 +640,4 @@ export default function VacancyCandidatesPage() {
                 </Modal>
             </div>
         </AuthGuard>
-    );
-}
+    );}

@@ -2,9 +2,9 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { api } from '@/app/service/api';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
-import { OrderData } from '@/types/noPaper/Order/OrderTypes';
+import { Item, OrderData } from '@/types/noPaper/Order/OrderTypes';
 import { CentroCusto } from '@/types/noPaper/Order/CentroCustoType';
-import { Item } from '@/types/noPaper/Order/CentroCustoItem';
+
 
 const initialState = {
     dtlanc: '',

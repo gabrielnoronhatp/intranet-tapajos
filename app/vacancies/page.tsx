@@ -355,7 +355,7 @@ export default function VacanciesPage() {
         {
             title: 'Status',
             key: 'status',
-            render: (_, record: Vacancy) => {
+            render: ( record: Vacancy) => {
                 const today = dayjs().format('YYYY-MM-DD');
                 const isActive =
                     record.data_inicial <= today &&

@@ -15,6 +15,7 @@ import {
     Descriptions,
     Tag,
     Image,
+    Tabs,
 } from 'antd';
 import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
 import { Upload as AntdUpload } from 'antd';
@@ -25,6 +26,7 @@ import {
     createVacancy,
     updateVacancy,
     deleteVacancy,
+    fetchDepartments,
 } from '@/hooks/slices/vacancySlice';
 import dayjs from 'dayjs';
 import { Vacancy, CreateVacancyPayload } from '@/types/vacancy/IVacancy';
@@ -38,11 +40,12 @@ import { CustomTagRender } from '@/components/employees/tags';
 import { useRouter } from 'next/navigation';
 import { Users } from 'lucide-react';
 
+const { TabPane } = Tabs;
+
 export default function VacanciesPage() {
     const dispatch = useDispatch<AppDispatch>();
-    const { vacancies, loading, error } = useSelector(
-        (state: RootState) => state.vacancy
-    );
+    const { vacancies, loading, error, departments, departmentsLoading } =
+        useSelector((state: RootState) => state.vacancy);
     const router = useRouter();
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -57,6 +60,7 @@ export default function VacanciesPage() {
 
     useEffect(() => {
         dispatch(fetchVacancies());
+        dispatch(fetchDepartments());
     }, [dispatch]);
 
     useEffect(() => {
@@ -349,6 +353,37 @@ export default function VacanciesPage() {
                 a.limit_candidatos - b.limit_candidatos,
         },
         {
+            title: 'Status',
+            key: 'status',
+            render: (_, record: Vacancy) => {
+                const today = dayjs().format('YYYY-MM-DD');
+                const isActive =
+                    record.data_inicial <= today &&
+                    (!record.data_final || record.data_final >= today);
+
+                return (
+                    <Tag color={isActive ? 'green' : 'red'}>
+                        {isActive ? 'Ativa' : 'Inativa'}
+                    </Tag>
+                );
+            },
+            filters: [
+                { text: 'Ativa', value: 'active' },
+                { text: 'Inativa', value: 'inactive' },
+            ],
+            onFilter: (value: string, record: Vacancy) => {
+                const today = dayjs().format('YYYY-MM-DD');
+                const isActive =
+                    record.data_inicial <= today &&
+                    (!record.data_final || record.data_final >= today);
+
+                return (
+                    (value === 'active' && isActive) ||
+                    (value === 'inactive' && !isActive)
+                );
+            },
+        },
+        {
             title: 'Tipo',
             dataIndex: 'isInternalSelection',
             key: 'isInternalSelection',
@@ -429,13 +464,30 @@ export default function VacanciesPage() {
                             </Button>
                         </div>
 
-                        <AntdTable
-                            columns={columns}
-                            dataSource={vacancies}
-                            rowKey="id"
-                            loading={loading}
-                            pagination={{ pageSize: 10 }}
-                        />
+                        <Tabs defaultActiveKey="vacancies">
+                            <TabPane tab="Vagas" key="vacancies">
+                                <AntdTable
+                                    columns={columns as any}
+                                    dataSource={vacancies}
+                                    rowKey="id"
+                                    loading={loading}
+                                    pagination={{ pageSize: 10 }}
+                                />
+                            </TabPane>
+
+                            <TabPane tab="Todos os Candidatos" key="new-tab">
+                                <div>
+                                    <h2 className="text-xl font-bold">
+                                        Conteúdo da Nova Aba
+                                    </h2>
+                                    <p>
+                                        Aqui você pode adicionar qualquer
+                                        conteúdo ou funcionalidade específica
+                                        para esta aba.
+                                    </p>
+                                </div>
+                            </TabPane>
+                        </Tabs>
                     </div>
                 </main>
 
@@ -605,18 +657,35 @@ export default function VacanciesPage() {
                                     },
                                 ]}
                             >
-                                <Select>
-                                    <Select.Option value="TI">TI</Select.Option>
-                                    <Select.Option value="RH">RH</Select.Option>
-                                    <Select.Option value="Financeiro">
-                                        Financeiro
-                                    </Select.Option>
-                                    <Select.Option value="Comercial">
-                                        Comercial
-                                    </Select.Option>
-                                    <Select.Option value="Marketing">
-                                        Marketing
-                                    </Select.Option>
+                                <Select loading={departmentsLoading}>
+                                    {departments && departments.length > 0 ? (
+                                        departments.map((dept) => (
+                                            <Select.Option
+                                                key={dept}
+                                                value={dept}
+                                            >
+                                                {dept}
+                                            </Select.Option>
+                                        ))
+                                    ) : (
+                                        <>
+                                            <Select.Option value="TI">
+                                                TI
+                                            </Select.Option>
+                                            <Select.Option value="RH">
+                                                RH
+                                            </Select.Option>
+                                            <Select.Option value="Financeiro">
+                                                Financeiro
+                                            </Select.Option>
+                                            <Select.Option value="Comercial">
+                                                Comercial
+                                            </Select.Option>
+                                            <Select.Option value="Marketing">
+                                                Marketing
+                                            </Select.Option>
+                                        </>
+                                    )}
                                 </Select>
                             </Form.Item>
 
@@ -672,7 +741,6 @@ export default function VacanciesPage() {
                                 />
                             </Form.Item>
                         </div>
-
                         <Form.Item
                             name="requisitos"
                             label="Requisitos"
@@ -691,7 +759,6 @@ export default function VacanciesPage() {
                                 tagRender={CustomTagRender}
                             />
                         </Form.Item>
-
                         <Form.Item
                             name="diferencial"
                             label="Diferenciais"
@@ -711,8 +778,17 @@ export default function VacanciesPage() {
                                 tagRender={CustomTagRender}
                             />
                         </Form.Item>
-
-                        <Form.Item name="imagem_capa" label="Imagem de Capa">
+                        <Form.Item
+                            name="imagem_capa"
+                            label="Imagem de Capa"
+                            rules={[
+                                {
+                                    required: true,
+                                    message:
+                                        'Por favor, faça upload de uma imagem de capa',
+                                },
+                            ]}
+                        >
                             <AntdUpload
                                 listType="picture-card"
                                 fileList={fileList}
@@ -725,6 +801,7 @@ export default function VacanciesPage() {
                                 {fileList.length < 1 && 'Upload'}
                             </AntdUpload>
                         </Form.Item>
+                        
                     </Form>
                 </Modal>
             </div>

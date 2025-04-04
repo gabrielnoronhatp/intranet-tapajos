@@ -33,6 +33,10 @@ interface VacancyState {
     currentVacancy: Vacancy | null;
     candidates: CandidateWithAnalysis[];
     candidatesLoading: boolean;
+    departments: string[];
+    departmentsLoading: boolean;
+    positions: string[];
+    positionsLoading: boolean;
 }
 
 const initialState: VacancyState = {
@@ -42,6 +46,10 @@ const initialState: VacancyState = {
     currentVacancy: null,
     candidates: [],
     candidatesLoading: false,
+    departments: [],
+    departmentsLoading: false,
+    positions: [],
+    positionsLoading: false,
 };
 
 const API_URL = 'https://api.rh.grupotapajos.com.br';
@@ -325,6 +333,44 @@ export const fetchVacancyCandidates = createAsyncThunk(
     }
 );
 
+export const fetchDepartments = createAsyncThunk(
+    'vacancy/fetchDepartments',
+    async (_, { getState, rejectWithValue }) => {
+        try {
+            const { auth } = getState() as {
+                auth: { accessToken: string | null };
+            };
+
+            if (!auth.accessToken) {
+                return rejectWithValue('Token de autenticação não encontrado');
+            }
+
+            const response = await axios.get(`${API_URL}/cargos`, {
+                headers: {
+                    Authorization: `Bearer ${auth.accessToken}`,
+                },
+            });
+
+            // Aqui estamos assumindo que a API retorna uma lista de strings (cargos)
+            // Vamos usar uma lista de departamentos padrão, já que a API não fornece departamentos
+            const defaultDepartments = ["TI", "RH", "Financeiro", "Comercial", "Marketing", "Logística", "Jurídico"];
+            
+            // Armazenar os cargos para uso futuro
+            const positions = response.data;
+            
+            return {
+                departments: defaultDepartments,
+                positions: positions
+            };
+        } catch (error: any) {
+            console.error('Erro ao buscar departamentos e cargos:', error.response?.data || error.message);
+            return rejectWithValue(
+                error.response?.data?.message || 'Erro ao buscar departamentos e cargos'
+            );
+        }
+    }
+);
+
 const vacancySlice = createSlice({
     name: 'vacancy',
     initialState,
@@ -436,6 +482,23 @@ const vacancySlice = createSlice({
         });
         builder.addCase(fetchVacancyCandidates.rejected, (state, action) => {
             state.candidatesLoading = false;
+            state.error = action.payload as string;
+        });
+
+        builder.addCase(fetchDepartments.pending, (state) => {
+            state.departmentsLoading = true;
+            state.positionsLoading = true;
+            state.error = null;
+        });
+        builder.addCase(fetchDepartments.fulfilled, (state, action) => {
+            state.departmentsLoading = false;
+            state.positionsLoading = false;
+            state.departments = action.payload.departments;
+            state.positions = action.payload.positions;
+        });
+        builder.addCase(fetchDepartments.rejected, (state, action) => {
+            state.departmentsLoading = false;
+            state.positionsLoading = false;
             state.error = action.payload as string;
         });
     },

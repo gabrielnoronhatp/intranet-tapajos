@@ -51,12 +51,16 @@ export default function VacancyCandidatesPage() {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
     const [previewVisible, setPreviewVisible] = useState(false);
+    const [allCandidates, setAllCandidates] = useState<any[]>([]);
 
     useEffect(() => {
         if (id) {
             dispatch(fetchVacancyById(id as string));
             dispatch(fetchVacancyCandidates(id as string));
         }
+        // dispatch(fetchAllCandidates()).then((response) => {
+        //     setAllCandidates(response.payload);
+        // });
     }, [dispatch, id]);
 
     const showCandidateDetails = (candidate: any) => {
@@ -116,8 +120,6 @@ export default function VacancyCandidatesPage() {
         setPreviewVisible(true);
     };
 
-
-    
     const getScoreColor = (score: number) => {
         if (score < 5) return 'text-red-600';
         return 'text-green-600';
@@ -243,6 +245,26 @@ export default function VacancyCandidatesPage() {
         },
     ];
 
+    const allCandidatesColumns = [
+        {
+            title: 'Nome',
+            dataIndex: 'nome_completo',
+            key: 'nome_completo',
+            sorter: (a: any, b: any) =>
+                a.nome_completo.localeCompare(b.nome_completo),
+        },
+        {
+            title: 'Email',
+            dataIndex: 'email',
+            key: 'email',
+        },
+        {
+            title: 'Telefone',
+            dataIndex: 'telefone',
+            key: 'telefone',
+        },
+    ];
+
     return (
         <AuthGuard>
             <div className="min-h-screen bg-background">
@@ -288,23 +310,30 @@ export default function VacancyCandidatesPage() {
                                     </p>
                                 </div>
 
-                                {candidatesLoading ? (
-                                    <div className="flex justify-center items-center h-64">
-                                        <Spin size="large" />
-                                    </div>
-                                ) : candidates && candidates.length > 0 ? (
-                                    <Table
-                                        columns={columns as any}
-                                        dataSource={candidates}
-                                        rowKey={(record) => record.candidate.id}
-                                        pagination={{ pageSize: 10 }}
-                                    />
-                                ) : (
-                                    <Empty
-                                        description="Nenhum candidato encontrado para esta vaga"
-                                        className="my-12"
-                                    />
-                                )}
+                                <Tabs defaultActiveKey="candidates">
+                                    <TabPane tab="Candidatos" key="candidates">
+                                        {candidatesLoading ? (
+                                            <div className="flex justify-center items-center h-64">
+                                                <Spin size="large" />
+                                            </div>
+                                        ) : candidates &&
+                                          candidates.length > 0 ? (
+                                            <Table
+                                                columns={columns as any}
+                                                dataSource={candidates}
+                                                rowKey={(record) =>
+                                                    record.candidate.id
+                                                }
+                                                pagination={{ pageSize: 10 }}
+                                            />
+                                        ) : (
+                                            <Empty
+                                                description="Nenhum candidato encontrado para esta vaga"
+                                                className="my-12"
+                                            />
+                                        )}
+                                    </TabPane>
+                                </Tabs>
                             </>
                         )}
                     </div>
@@ -448,21 +477,22 @@ export default function VacancyCandidatesPage() {
                                             <h3 className="text-lg font-semibold mb-2">
                                                 Análise
                                             </h3>
-                                            
 
                                             {selectedCandidate.analise
                                                 .score && (
                                                 <div className="mb-4">
                                                     <p className="text-2xl text-primary">
-                                            
                                                         Score:
                                                     </p>
-                                                    {selectedCandidate.analise.score < 5 && (
-                                            
-                                            <p className={`text-2xl ${getScoreColor(selectedCandidate.analise.score)} font-bold`}>
+                                                    {selectedCandidate.analise
+                                                        .score < 5 && (
+                                                        <p
+                                                            className={`text-2xl ${getScoreColor(selectedCandidate.analise.score)} font-bold`}
+                                                        >
                                                             {
                                                                 selectedCandidate
-                                                                    .analise.score
+                                                                    .analise
+                                                                    .score
                                                             }
                                                         </p>
                                                     )}
@@ -585,11 +615,17 @@ export default function VacancyCandidatesPage() {
                                                     type="primary"
                                                     icon={<DownloadOutlined />}
                                                     onClick={() => {
-                                                        const url = getCvViewUrl(
-                                                            selectedCandidate.candidate.file_cv
-                                                        );
+                                                        const url =
+                                                            getCvViewUrl(
+                                                                selectedCandidate
+                                                                    .candidate
+                                                                    .file_cv
+                                                            );
                                                         if (url) {
-                                                            window.open(url, '_blank');
+                                                            window.open(
+                                                                url,
+                                                                '_blank'
+                                                            );
                                                         }
                                                     }}
                                                     className="bg-blue-500 hover:bg-blue-600"
@@ -640,4 +676,5 @@ export default function VacancyCandidatesPage() {
                 </Modal>
             </div>
         </AuthGuard>
-    );}
+    );
+}

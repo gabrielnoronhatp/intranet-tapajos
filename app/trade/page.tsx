@@ -8,7 +8,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
     createCampaign,
     setCurrentCampaign,
-    fetchProducts,
     fetchFiliais,
     fetchOperators,
     fetchProductsByType,
@@ -37,7 +36,6 @@ export default function CampaignRegistration() {
     const [tipoMarcaProduto, setTipoMarcaProduto] = useState('marca');
     const [productName, setProductName] = useState('');
     const [selectedOperador, setSelectedOperador] = useState('');
-    const [meta, setMeta] = useState('');
     const [premiacao, setPremiacao] = useState('');
     const [campaignName, setCampaignName] = useState('');
     const [idempresa, setIdempresa] = useState('');
@@ -48,7 +46,7 @@ export default function CampaignRegistration() {
 
     useEffect(() => {
         dispatch(fetchFiliais(''));
-    }, []);
+    }, [productName]);
 
     const handleAddOperador = () => {
         if (selectedOperador && meta_valor && premiacao) {
@@ -465,7 +463,7 @@ export default function CampaignRegistration() {
                                     filterOption={false}
                                     onSearch={handleSearchProduto}
                                     //TODO  delete any
-                                    onSelect={(option: any) => {
+                                    onSelect={(option:  any) => {
                                         handleAddMarcaProduto(
                                             option.label,
                                             option.value,
@@ -482,8 +480,7 @@ export default function CampaignRegistration() {
                                                 tipoMarcaProduto === 'produto'
                                                     ? product.descricao
                                                     : product.marca,
-                                            nome: product.nome,
-                                        })
+                                            nome: product.nome,s
                                     )}
                                 />
                             </div>

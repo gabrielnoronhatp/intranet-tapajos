@@ -9,9 +9,8 @@ import {
     Trash2,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { Image, Upload, UploadFile, message, Modal } from 'antd';
+import {   message, Modal } from 'antd';
 import { api } from '@/app/service/api';
-import { UploadChangeParam } from 'antd/es/upload';
 import './data-table-order-styles.css';
 import { Table as AntdTable } from 'antd';
 import { PinModal } from './pin-modal';
@@ -20,29 +19,28 @@ import {
     setSignatureNumber,
     deleteFile,
 } from '@/hooks/slices/noPaper/noPaperSlice';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, } from 'react-redux';
 import { OrderState } from '@/types/noPaper/Order/OrderTypes';
-import { useRouter } from 'next/navigation';
 import { cancelOrder } from '@/hooks/slices/noPaper/orderSlice';
 
 interface DataTableOrderProps {
     searchParams: Record<string, string>;
-    ordersSearch: Record<string, string>;
+    
 }
 
 export function DataTableOrder({
     searchParams,
-    ordersSearch,
+    
 }: DataTableOrderProps) {
     const dispatch = useDispatch();
-    const router = useRouter();
+
     const [orders, setOrders] = useState<Array<OrderState>>([]);
     const [isViewOpen, setIsViewOpen] = useState(false);
     const [selectedItem, setSelectedItem]: any = useState(null);
     const [fileUrls, setFileUrls] = useState<
         Array<{ url: string; name: string }>
     >([]);
-    const [fileList, setFileList] = useState<any[]>([]);
+    
     const [isPinModalOpen, setIsPinModalOpen] = useState(false);
     const [orderDetails, setOrderDetails] = useState<any>(null);
 
@@ -114,22 +112,8 @@ export function DataTableOrder({
         fetchOrders();
     };
 
-    const beforeUpload = (file: File) => {
-        return true;
-    };
 
-    const handleUploadChange = (info: UploadChangeParam<UploadFile<any>>) => {
-        if (info.file.status === 'done') {
-            message.success(`${info.file.name} uploaded successfully`);
-            // Refresh file list after successful upload
-            toggleView(selectedItem);
-        } else if (info.file.status === 'error') {
-            message.error(`${info.file.name} upload failed.`);
-        }
 
-        // Update fileList state
-        setFileList(info.fileList);
-    };
 
     const checkUserPermission = async (
         signerName: string,
@@ -212,10 +196,7 @@ export function DataTableOrder({
                         message.success('Arquivo excluído com sucesso');
 
                         // Atualizar a lista de arquivos
-                        const updatedFileUrls = fileUrls.filter(
-                            (file) => file.url !== fileUrl
-                        );
-                        // setFileUrls(updatedFileUrls);
+                       
                     } catch (error) {
                         console.error('Erro ao excluir arquivo:', error);
                         message.error('Erro ao excluir arquivo');

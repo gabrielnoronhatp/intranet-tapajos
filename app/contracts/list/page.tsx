@@ -44,7 +44,7 @@ export default function ContractList() {
     const router = useRouter();
 
     useEffect(() => {
-        const params: any = new URLSearchParams(searchParams).toString();
+        const params: string = new URLSearchParams(searchParams).toString();
         dispatch(fetchContracts(params));
         dispatch(fetchServiceTypes());
     }, [dispatch, searchParams]);

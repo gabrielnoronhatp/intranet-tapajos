@@ -15,21 +15,23 @@ import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { api } from '@/app/service/api';
 import { useParams, useRouter } from 'next/navigation';
 import { deleteFile } from '@/hooks/slices/noPaper/noPaperSlice';
+import { RootState, AppDispatch } from '@/hooks/store';
+import { OrderData, CentroCusto } from '@/types/noPaper/Order/OrderTypes';
 
 export default function EditOrderPage() {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
     const params = useParams();
     const router = useRouter();
     const orderId = params?.orderId as string;
 
-    const orderData = useSelector((state: any) => state.order);
+    const orderData = useSelector((state: RootState) => state.order);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
     const [existingFiles, setExistingFiles] = useState<
         Array<{ url: string; name: string }>
     >([]);
-    const [fileList, setFileList] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [fileList, setFileList] = useState<File[]>([]);
 
     useEffect(() => {
         const fetchOrderData = async () => {
@@ -83,9 +85,9 @@ export default function EditOrderPage() {
         if (orderId) {
             fetchOrderData();
         }
-    }, [orderId, dispatch, router]);
+    }, [orderId, dispatch, router, fileList, isLoading ]);
 
-    const handleSetState = (field: keyof typeof orderData, value: any) => {
+    const handleSetState = (field: keyof typeof orderData, value: OrderData) => {
         dispatch(setOrderState({ [field]: value }));
     };
 
@@ -98,7 +100,7 @@ export default function EditOrderPage() {
             }
 
             return orderData.ccustoOP.every(
-                (center: any) =>
+                (center: CentroCusto) =>
                     typeof center.centrocusto === 'string' &&
                     center.centrocusto.trim() !== ''
             );
@@ -148,7 +150,16 @@ export default function EditOrderPage() {
         }
     };
 
-    const handleUploadChange = (info: any) => {
+   type Info = {
+    file: {
+        status: string;
+        name: string;
+        originFileObj: File;
+    };
+    fileList: File[];
+   }
+
+    const handleUploadChange = (info: Info)  => {
         if (info.file.status === 'done') {
             message.success(`${info.file.name} foi enviado com sucesso!`);
             setSelectedFile(info.file.originFileObj);
@@ -176,7 +187,7 @@ export default function EditOrderPage() {
                 content: 'Você tem certeza que deseja excluir este arquivo?',
                 onOk: async () => {
                     try {
-                        await dispatch(deleteFile(fileKey) as any);
+                        await dispatch(deleteFile(fileKey));
                         message.success('Arquivo excluído com sucesso');
 
                         const updatedFiles = existingFiles.filter(
@@ -342,7 +353,7 @@ export default function EditOrderPage() {
                                                     'Falha ao enviar o arquivo. Tente novamente.',
                                                     3
                                                 );
-                                                onError?.(error as any);
+                                                onError?.(error as Error);
                                             }
                                         }}
                                     >

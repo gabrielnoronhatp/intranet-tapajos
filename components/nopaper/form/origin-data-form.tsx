@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch  } from 'react-redux';
 import { Select, Input } from 'antd';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { FilialSelect } from '@/components/nopaper/store-select';
@@ -15,7 +15,7 @@ interface OriginDataProps {
     onChange: (field: keyof any, value: any) => void;
 }
 
-const OriginData: React.FC<OriginDataProps> = ({ data, onChange }) => {
+const OriginData: React.FC<OriginDataProps> = ({ data  }) => {
     const {
         ramoOP,
         opcaoLancOP,

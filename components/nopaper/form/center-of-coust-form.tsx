@@ -1,8 +1,7 @@
 'use client';
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import {  useSelector } from 'react-redux';
 import { useState, useEffect } from 'react';
-import { setOrderState } from '@/hooks/slices/noPaper/orderSlice';
 import { FormSection } from '../form-section';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,7 +15,7 @@ interface CenterOfCoustProps {
 }
 
 export default function CenterOfCoust({ data, onChange }: CenterOfCoustProps) {
-    const dispatch = useDispatch();
+    
     const { ccustoOP, produtosOP, valorimpostoOP } = data;
     const { centrosCustoOptions } = useSelector(
         (state: RootState) => state.noPaper
@@ -49,7 +48,6 @@ export default function CenterOfCoust({ data, onChange }: CenterOfCoustProps) {
 
     useEffect(() => {
         updateCenterValues();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [numCenters, produtosOP, valorimpostoOP]);
 
     const handleNumCentersChange = (e: React.ChangeEvent<HTMLInputElement>) => {

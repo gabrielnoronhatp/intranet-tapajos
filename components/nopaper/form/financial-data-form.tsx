@@ -86,7 +86,7 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
         } else if (value === 'boleto') {
             newParcelasOP = Array.from(
                 { length: qtparcelasOP || 1 },
-                (_, index) => ({
+                () => ({
                     parcela: '',
                     banco: '',
                     agencia: '',
@@ -169,7 +169,7 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                                 if (value > 0) {
                                     const newParcelasOP = Array.from(
                                         { length: value },
-                                        (_, index) => ({
+                                        () => ({
                                             parcela: '',
                                             banco: '',
                                             agencia: '',

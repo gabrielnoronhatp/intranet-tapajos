@@ -3,10 +3,9 @@ import React, { useState } from 'react';
 import { Navbar } from '@/components/layout/navbar';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Button } from '@/components/ui/button';
-import { Input, Select, Table, Radio } from 'antd';
-import { MetaTable } from '@/components/trade/meta-table';
+import { Input, Select, Table } from 'antd';
 
-const { Option } = Select;
+
 
 export default function NegotiationsRegistration() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);

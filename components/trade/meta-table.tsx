@@ -1,12 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { Input } from '../ui/input';
-import { useDispatch } from 'react-redux';
-import { sendMetaTable } from '@/hooks/slices/trade/tradeSlice';
 
-interface Vendedor {
-    metas: number[];
-}
 
 interface MetaTableProps {
     isEditing?: boolean;
@@ -24,7 +19,6 @@ interface MetaTableProps {
 }
 
 export const MetaTable: React.FC<MetaTableProps> = ({
-    isEditing = false,
     campaignId,
     escala,
     onEscalaSubmit,
@@ -37,16 +31,12 @@ export const MetaTable: React.FC<MetaTableProps> = ({
     const [metaVendedorRange, setMetaVendedorRange] = useState<string[]>(
         escala?.metaVendedorRange || defaultMetaVendedorRange
     );
-    const [vendedores, setVendedores] = useState<Vendedor[]>([
-        {
-            metas: [],
-        },
-    ]);
+  
 
     const [metas, setMetas] = useState<number[][]>([[]]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading] = useState(false);
 
-    const dispatch = useDispatch();
+  
 
     useEffect(() => {
         if (escala?.valoresMeta && escala.valoresMeta.length > 0) {
@@ -73,7 +63,7 @@ export const MetaTable: React.FC<MetaTableProps> = ({
         } else if (metaGeralRange.length > 0 && metaVendedorRange.length > 0) {
             const newMetas = Array(metaGeralRange.length)
                 .fill(null)
-                .map((_, i) => Array(metaVendedorRange.length).fill(0));
+                .map(() => Array(metaVendedorRange.length).fill(0));
             setMetas(newMetas);
         }
     }, [escala, metaGeralRange.length, metaVendedorRange.length]);

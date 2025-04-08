@@ -25,7 +25,8 @@ export interface OrderData {
     datapixOP: string | null;
     opcaoLancOP: string | null;
     ccustoOP: CentroCusto[];
-    userOP: string | null;
+    userOP: string;
+    files? : File[];
 }
 
 export interface OrderState {

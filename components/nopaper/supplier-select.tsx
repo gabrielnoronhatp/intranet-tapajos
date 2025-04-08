@@ -5,18 +5,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchFornecedores } from '@/hooks/slices/noPaper/noPaperSlice';
 import { Select } from 'antd';
 import { RootState } from '@/hooks/store';
-import { setOrderState } from '@/hooks/slices/noPaper/orderSlice';
-import { setCurrentContract } from '@/hooks/slices/contracts/contractSlice';
+
 import { Label } from '@/components/ui/label';
 
 interface FornecedorSelectProps {
-    handleSetState: (key: string, value: any) => void;
     fieldValue: string;
     handleSelectChange: (value: string) => void;
 }
 
 export const FornecedorSelect = ({
-    handleSetState,
+    
     fieldValue,
     handleSelectChange,
 }: FornecedorSelectProps) => {
@@ -28,7 +26,7 @@ export const FornecedorSelect = ({
     const { fornecedores } = useSelector((state: RootState) => state.noPaper);
     const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
 
-    const [error, setError] = useState('');
+    const [error] = useState('');
 
     useEffect(() => {
         dispatch(fetchFornecedores(localSearchQuery) as any);

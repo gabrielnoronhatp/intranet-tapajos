@@ -1,6 +1,7 @@
 import { apiInstance } from '@/app/service/apiInstance';
-import { ICampaign, IEscala } from '@/types/Trade/ITrade';
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { IFilial } from '@/types/noPaper/Supplier/SupplierType';
+import { ICampaign, IEscala, IProduct, IParticipants } from '@/types/Trade/ITrade';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 
 export const fetchCampaigns = createAsyncThunk(
     'trade/fetchCampaigns',
@@ -21,7 +22,7 @@ export const fetchCampaignById = createAsyncThunk(
 export const updateCampaign = createAsyncThunk(
     'trade/updateCampaign',
     async (
-        { id, data }: { id: string; data: any },
+        { id, data }: { id: string; data: ICampaign },
         { dispatch, rejectWithValue }
     ) => {
         try {
@@ -49,7 +50,7 @@ export const updateCampaign = createAsyncThunk(
             if (data.escala) {
                 try {
                     const escalaWithCampaignId = data.escala.map(
-                        (item: any) => ({
+                        (item: IEscala) => ({
                             ...item,
                             id: parseInt(id),
                         })
@@ -69,13 +70,13 @@ export const updateCampaign = createAsyncThunk(
             if (data.participantes && data.participantes.length > 0) {
                 const newParticipants = data.participantes
                     .filter(
-                        (p: any) =>
+                        (p: IParticipants) =>
                             !currentCampaign.participantes.some(
-                                (cp: any) =>
+                                (cp: IParticipants) =>
                                     cp.idparticipante === p.idparticipante
                             )
                     )
-                    .map((participant: any) => {
+                    .map((participant: IParticipants) => {
                         return {
                             ...participant,
                             nome: participant.nome,
@@ -107,12 +108,12 @@ export const updateCampaign = createAsyncThunk(
             if (data.itens && data.itens.length > 0) {
                 const newItems = data.itens
                     .filter(
-                        (i: any) =>
+                        (i: IProduct) =>
                             !currentCampaign.itens.some(
-                                (ci: any) => ci.iditem === i.iditem
+                                (ci: IProduct) => ci.iditem === i.iditem
                             )
                     )
-                    .map((item: any) => {
+                        .map((item: IProduct) => {
                         return {
                             ...item,
                             iditem: item.iditem,
@@ -152,7 +153,7 @@ export const createCampaignParticipants = createAsyncThunk(
         {
             campaignId,
             participants,
-        }: { campaignId: string; participants: any[] },
+        }: { campaignId: string; participants: IParticipants[] },
         { rejectWithValue }
     ) => {
         try {
@@ -184,7 +185,7 @@ export const createCampaignParticipants = createAsyncThunk(
 export const createCampaignItems = createAsyncThunk(
     'trade/createCampaignItems',
     async (
-        { campaignId, items }: { campaignId: string; items: any[] },
+        { campaignId, items }: { campaignId: string; items: IParticipants[] },
         { rejectWithValue }
     ) => {
         try {
@@ -331,7 +332,7 @@ export const fetchOperators = createAsyncThunk(
 
 export const fetchFiliais = createAsyncThunk(
     'trade/fetchFiliais',
-    async (filter: string) => {
+    async () => {
         try {
             const response = await apiInstance.get(`/filiais`);
 
@@ -410,12 +411,12 @@ export const searchCampaigns = createAsyncThunk(
         }
     }
 );
-
+ndnqjnjawdnaj nadm a
 export const sendMetaTable = createAsyncThunk(
     'trade/sendMetaTable',
     async (
         metaData: {
-            formattedMetas: any[];
+            formattedMetas: IEscala[];
             campaignId?: string;
             isEditing?: boolean;
         },
@@ -449,10 +450,10 @@ export const deleteParticipant = createAsyncThunk(
     'trade/deleteParticipant',
     async (participantId: number, { rejectWithValue }) => {
         try {
-            const response = await apiInstance.delete(
+          await apiInstance.delete(
                 `/participantes/${participantId}`
             );
-
+            
             return participantId;
         } catch (error: any) {
             console.error('Erro ao remover participante:', error);
@@ -542,7 +543,7 @@ const initialState: ICampaign = {
     operators: [],
     campaigns: [],
     currentCampaign: {} as ICampaign,
-    filiais: [] as any,
+    filiais: [] as IFilial[]    ,
     escala: [] as IEscala[],
 };
 
@@ -550,14 +551,14 @@ const tradeSlice = createSlice({
     name: 'trade',
     initialState,
     reducers: {
-        updateField: (state: any, action: any) => {
+        updateField: (state: ICampaign, action: PayloadAction<{ field: keyof ICampaign; value: any }>) => {
             const { field, value } = action.payload;
             state[field] = value;
         },
-        setUserLanc: (state, action) => {
+        setUserLanc: (state: ICampaign, action: PayloadAction<string>) => {
             state.userlanc = action.payload;
         },
-        setCurrentCampaign: (state, action) => {
+        setCurrentCampaign: (state: ICampaign, action: PayloadAction<ICampaign>) => {
             state.currentCampaign = {
                 ...state.currentCampaign,
                 ...action.payload,
@@ -573,23 +574,23 @@ const tradeSlice = createSlice({
                 state.status = 'succeeded';
                 state.campaigns = action.payload;
             })
-            .addCase(fetchCampaigns.rejected, (state: any, action) => {
+            .addCase(fetchCampaigns.rejected, (state: ICampaign,) => {
                 state.status = 'failed';
-                state.error = action.error.message;
+               
             })
             .addCase(updateCampaign.fulfilled, (state, action) => {
-                state.campaigns = state.campaigns.map((campaign: any) =>
+                state.campaigns = state.campaigns.map((campaign: ICampaign  ) =>
                     campaign.id === action.payload.id
                         ? action.payload
                         : campaign
                 );
             })
-            .addCase(createCampaign.fulfilled, (state: any, action) => {
+            .addCase(createCampaign.fulfilled, (state: ICampaign, action) => {
                 state.campaigns.push(action.payload);
             })
-            .addCase(deleteCampaign.fulfilled, (state: any, action) => {
+            .addCase(deleteCampaign.fulfilled, (state: ICampaign, action) => {
                 state.campaigns = state.campaigns.filter(
-                    (campaign: any) => campaign.id !== action.payload
+                    (campaign: ICampaign) => campaign.id !== action.payload
                 );
             })
             .addCase(fetchProducts.pending, (state) => {
@@ -599,9 +600,9 @@ const tradeSlice = createSlice({
                 state.status = 'succeeded';
                 state.products = action.payload;
             })
-            .addCase(fetchProducts.rejected, (state: any, action) => {
+            .addCase(fetchProducts.rejected, (state: ICampaign) => {
                 state.status = 'failed';
-                state.error = action.payload;
+              
             })
             .addCase(fetchOperators.pending, (state) => {
                 state.status = 'loading';
@@ -610,24 +611,24 @@ const tradeSlice = createSlice({
                 state.status = 'succeeded';
                 state.operators = action.payload;
             })
-            .addCase(fetchOperators.rejected, (state: any, action) => {
+            .addCase(fetchOperators.rejected, (state: ICampaign) => {
                 state.status = 'failed';
-                state.error = action.payload;
+              
             })
             .addCase(fetchFiliais.fulfilled, (state, action) => {
                 state.filiais = action.payload;
             })
             .addCase(deactivateCampaign.fulfilled, (state, action) => {
                 const index = state.campaigns.findIndex(
-                    (campaign: any) => campaign.id === action.payload.id
+                    (campaign: ICampaign) => campaign.id === action.payload.id
                 );
                 if (index !== -1) {
                     state.campaigns[index].status = 'desativado';
                 }
             })
-            .addCase(deactivateCampaign.rejected, (state: any, action) => {
+            .addCase(deactivateCampaign.rejected, (state: ICampaign) => {
                 state.status = 'failed';
-                state.error = action.payload;
+             ;
             })
             .addCase(fetchCampaignById.fulfilled, (state, action) => {
                 state.currentCampaign = action.payload;
@@ -643,25 +644,25 @@ const tradeSlice = createSlice({
                 state.status = 'succeeded';
                 state.campaigns = action.payload;
             })
-            .addCase(searchCampaigns.rejected, (state: any, action) => {
+            .addCase(searchCampaigns.rejected, (state: ICampaign) => {
                 state.status = 'failed';
-                state.error = action.error.message;
+              
             })
-            .addCase(sendMetaTable.fulfilled, (state, action) => {})
-            .addCase(sendMetaTable.rejected, (state: any, action) => {
+            .addCase(sendMetaTable.fulfilled, () => {})
+            .addCase(sendMetaTable.rejected, (state: ICampaign) => {
                 state.status = 'failed';
-                state.error = action.payload;
+                
             })
-            .addCase(deleteParticipant.fulfilled, (state, action) => {
+            .addCase(deleteParticipant.fulfilled, (state: ICampaign, action) => {
                 // Se estivermos editando uma campanha, atualize a lista de participantes
                 if (state.currentCampaign.participantes) {
                     state.currentCampaign.participantes =
                         state.currentCampaign.participantes.filter(
-                            (p: any) => p.id !== action.payload
+                            (p: IParticipants) => p.id !== action.payload
                         );
                 }
             })
-            .addCase(deleteParticipant.rejected, (state: any, action) => {
+            .addCase(deleteParticipant.rejected, (state: ICampaign, action) => {
                 state.status = 'failed';
                 state.error = action.payload;
             })
@@ -669,36 +670,36 @@ const tradeSlice = createSlice({
                 if (state.currentCampaign.itens) {
                     state.currentCampaign.itens =
                         state.currentCampaign.itens.filter(
-                            (i: any) => i.id !== action.payload
+                            (i: IProduct) => i.id !== action.payload
                         );
                 }
             })
-            .addCase(deleteItem.rejected, (state: any, action) => {
+            .addCase(deleteItem.rejected, (state: ICampaign, action) => {
                 state.status = 'failed';
                 state.error = action.payload;
             })
             .addCase(
                 deleteParticipantFromCampaign.fulfilled,
-                (state, action) => {
+                (state: ICampaign, action) => {
                     const { campaignId, participantId } = action.payload;
                     if (state.currentCampaign.id === campaignId) {
                         state.currentCampaign.participantes =
                             state.currentCampaign.participantes.filter(
-                                (p: any) => p.id !== participantId
+                                (p: IParticipants) => p.id !== participantId
                             );
                     }
                 }
             )
-            .addCase(deleteItemFromCampaign.fulfilled, (state, action) => {
+            .addCase(deleteItemFromCampaign.fulfilled, (state: ICampaign, action) => {
                 const { campaignId, id } = action.payload;
                 if (state.currentCampaign.id === campaignId) {
                     state.currentCampaign.itens =
                         state.currentCampaign.itens.filter(
-                            (i: any) => i.id !== id
+                            (i: IProduct) => i.id !== id
                         );
                 }
             })
-            .addCase(cloneCampaign.fulfilled, (state, action) => {
+            .addCase(cloneCampaign.fulfilled, (state: ICampaign, action) => {
                 if (action.payload) {
                     state.campaigns = [...state.campaigns, action.payload];
                 }

@@ -15,7 +15,8 @@ import CenterOfCoust from '@/components/nopaper/form/center-of-coust-form';
 import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
 import { PlusOutlined } from '@ant-design/icons';
 import { api } from '@/app/service/api';
-import { AppDispatch } from '@/hooks/store';
+import { AppDispatch, RootState } from '@/hooks/store';
+import { OrderData } from '@/types/noPaper/Order/OrderTypes';
 
 interface UploadResponse {
     message: string;
@@ -25,13 +26,13 @@ interface UploadResponse {
 
 export default function NoPaper() {
     const dispatch = useDispatch<AppDispatch>();
-    const orderData = useSelector((state: any) => state.order);
-    const user = useSelector((state: any) => state.auth.user);
+    const orderData = useSelector((state: RootState) => state.order);
+    const user = useSelector((state: RootState) => state.auth.user);
     const [fileList, setFileList] = useState<UploadFile[]>([]);
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [isViewOpen, setIsViewOpen] = useState(false);
+    const [isSidebarOpen] = useState(false);
+    const [isViewOpen] = useState(false);
 
-    const handleSetState = (field: keyof typeof orderData, value: any) => {
+    const handleSetState = (field: keyof typeof orderData, value: OrderData) => {
         if ((field === 'lojaOP' || field === 'fornecedorOP') && !value) {
             console.error(`${field} não pode ser vazio.`);
             return;
@@ -46,11 +47,11 @@ export default function NoPaper() {
 
         const validateCenters = () => {
             if (!orderData.ccustoOP || orderData.ccustoOP.length === 0) {
-                return false; // Se a lista estiver vazia, retorna falso
+                return false;
             }
 
             return orderData.ccustoOP.every(
-                (center: any) =>
+                (center: CentroCusto) =>
                     typeof center.centrocusto === 'string' &&
                     center.centrocusto.trim() !== ''
             );
@@ -69,9 +70,9 @@ export default function NoPaper() {
         }
 
         try {
-            const orderWithUser = {
+            const orderWithUser: OrderData = {
                 ...orderData,
-                userOP: user?.username,
+                userOP: user.username,
             };
 
             const response = await dispatch(submitOrder(orderWithUser));
@@ -219,7 +220,7 @@ export default function NoPaper() {
                                             } catch (error) {
                                                 console.error('Upload error:', error);
                                                 message.error('Falha ao enviar o arquivo. Tente novamente.', 3);
-                                                onError?.(error as any);
+                                                onError?.(error);
                                             }
                                         }}
                                     >

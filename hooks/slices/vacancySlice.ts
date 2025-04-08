@@ -74,9 +74,7 @@ export const fetchVacancies = createAsyncThunk(
 
             return response.data;
         } catch (error: any) {
-            return rejectWithValue(
-                error.response?.data?.message 
-            );
+            return rejectWithValue(error.response?.data?.message);
         }
     }
 );
@@ -101,9 +99,7 @@ export const fetchVacancyById = createAsyncThunk(
 
             return response.data;
         } catch (error: any) {
-            return rejectWithValue(
-                error.response?.data?.message 
-            );
+            return rejectWithValue(error.response?.data?.message);
         }
     }
 );
@@ -170,7 +166,11 @@ export const createVacancy = createAsyncThunk(
                     if (!formData.has(field)) {
                         formData.append(
                             field,
-                            String(dataWithCreator[field as keyof typeof dataWithCreator] || '')
+                            String(
+                                dataWithCreator[
+                                    field as keyof typeof dataWithCreator
+                                ] || ''
+                            )
                         );
                     }
                 });
@@ -317,18 +317,22 @@ export const fetchVacancyCandidates = createAsyncThunk(
                 return rejectWithValue('Token de autenticação não encontrado');
             }
 
-            const response = await axios.get(`${API_URL}/candidatos/${vacancyId}`, {
-                headers: {
-                    Authorization: `Bearer ${auth.accessToken}`,
-                },
-            });
+            const response = await axios.get(
+                `${API_URL}/candidatos/${vacancyId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${auth.accessToken}`,
+                    },
+                }
+            );
 
             return response.data;
-        } catch (error: any) {
-            console.error('Erro ao buscar candidatos:', error.response?.data || error.message);
-            return rejectWithValue(
-                error.response?.data?.message 
+        } catch (error: any ) {
+            console.error(
+                'Erro ao buscar candidatos:',
+                error.response?.data || error.message
             );
+            return rejectWithValue(error.response?.data?.message);
         }
     }
 );
@@ -353,19 +357,31 @@ export const fetchDepartments = createAsyncThunk(
 
             // Aqui estamos assumindo que a API retorna uma lista de strings (cargos)
             // Vamos usar uma lista de departamentos padrão, já que a API não fornece departamentos
-            const defaultDepartments = ["TI", "RH", "Financeiro", "Comercial", "Marketing", "Logística", "Jurídico"];
-            
+            const defaultDepartments = [
+                'TI',
+                'RH',
+                'Financeiro',
+                'Comercial',
+                'Marketing',
+                'Logística',
+                'Jurídico',
+            ];
+
             // Armazenar os cargos para uso futuro
             const positions = response.data;
-            
+
             return {
                 departments: defaultDepartments,
-                positions: positions
+                positions: positions,
             };
-        } catch (error: any) {
-            console.error('Erro ao buscar departamentos e cargos:', error.response?.data || error.message);
+        } catch (error) {
+            console.error(
+                'Erro ao buscar departamentos e cargos:',
+                error.response?.data || error.message
+            );
             return rejectWithValue(
-                error.response?.data?.message || 'Erro ao buscar departamentos e cargos'
+                error.response?.data?.message ||
+                    'Erro ao buscar departamentos e cargos'
             );
         }
     }

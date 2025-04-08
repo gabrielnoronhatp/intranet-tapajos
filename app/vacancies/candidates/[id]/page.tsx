@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/hooks/store';
 import {
@@ -38,7 +38,7 @@ import {
 } from '@ant-design/icons';
 import Link from 'next/link';
 import { message } from 'antd';
-
+import { ICandidate } from '@/types/vacancy/IVacancy';
 const { TabPane } = Tabs;
 
 export default function VacancyCandidatesPage() {
@@ -47,7 +47,7 @@ export default function VacancyCandidatesPage() {
     const { currentVacancy, candidates, candidatesLoading, loading } =
         useSelector((state: RootState) => state.vacancy);
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-    const [selectedCandidate, setSelectedCandidate] = useState<any>(null);
+    const [selectedCandidate, setSelectedCandidate] = useState<ICandidate>();
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
     const [previewVisible, setPreviewVisible] = useState(false);
@@ -59,14 +59,14 @@ export default function VacancyCandidatesPage() {
         }
     }, [dispatch, id]);
 
-    const showCandidateDetails = (candidate: any) => {
+    const showCandidateDetails = (candidate: ICandidate) => {
         setSelectedCandidate(candidate);
         setIsModalVisible(true);
     };
 
     const handleModalClose = () => {
         setIsModalVisible(false);
-        setSelectedCandidate(null);
+        setSelectedCandidate(undefined);
     };
 
     const getProfileImageUrl = (file_perfil: string) => {
@@ -253,25 +253,7 @@ export default function VacancyCandidatesPage() {
         },
     ];
 
-    const allCandidatesColumns = [
-        {
-            title: 'Nome',
-            dataIndex: 'nome_completo',
-            key: 'nome_completo',
-            sorter: (a: any, b: any) =>
-                a.nome_completo.localeCompare(b.nome_completo),
-        },
-        {
-            title: 'Email',
-            dataIndex: 'email',
-            key: 'email',
-        },
-        {
-            title: 'Telefone',
-            dataIndex: 'telefone',
-            key: 'telefone',
-        },
-    ];
+  
 
     return (
         <AuthGuard>
@@ -514,7 +496,7 @@ export default function VacancyCandidatesPage() {
                                                         <ReactMarkdown
                                                             components={{
                                                                 h2: ({
-                                                                    node,
+                                                                    
                                                                     ...props
                                                                 }) => (
                                                                     <h3
@@ -523,7 +505,6 @@ export default function VacancyCandidatesPage() {
                                                                     />
                                                                 ),
                                                                 h3: ({
-                                                                    node,
                                                                     ...props
                                                                 }) => (
                                                                     <h4
@@ -532,7 +513,6 @@ export default function VacancyCandidatesPage() {
                                                                     />
                                                                 ),
                                                                 strong: ({
-                                                                    node,
                                                                     ...props
                                                                 }) => (
                                                                     <strong
@@ -541,7 +521,6 @@ export default function VacancyCandidatesPage() {
                                                                     />
                                                                 ),
                                                                 ul: ({
-                                                                    node,
                                                                     ...props
                                                                 }) => (
                                                                     <ul
@@ -550,7 +529,6 @@ export default function VacancyCandidatesPage() {
                                                                     />
                                                                 ),
                                                                 li: ({
-                                                                    node,
                                                                     ...props
                                                                 }) => (
                                                                     <li
@@ -559,7 +537,6 @@ export default function VacancyCandidatesPage() {
                                                                     />
                                                                 ),
                                                                 p: ({
-                                                                    node,
                                                                     ...props
                                                                 }) => (
                                                                     <p

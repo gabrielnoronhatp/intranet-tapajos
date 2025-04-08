@@ -26,7 +26,7 @@ import dayjs from 'dayjs';
 import { MetaTableReadOnly } from './meta-table-readonly';
 
 export function TableTrade() {
-    const [clientSideReady, setClientSideReady] = useState(false);
+    const [clientSideReady] = useState(false);
     const [searchForm] = Form.useForm();
     const dispatch = useDispatch();
     const router = useRouter();

@@ -1,8 +1,8 @@
 'use client';
 import React from 'react';
 import { Label } from '@/components/ui/label';
-import { fetchFiliais, fetchLojas } from '@/hooks/slices/noPaper/noPaperSlice';
-import { setOrderState } from '@/hooks/slices/noPaper/orderSlice';
+import { fetchFiliais } from '@/hooks/slices/noPaper/noPaperSlice';
+
 import { RootState } from '@/hooks/store';
 import { Select } from 'antd';
 import { useEffect, useState } from 'react';
@@ -10,16 +10,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setCurrentContract } from '@/hooks/slices/contracts/contractSlice';
 
 interface FilialSelectProps {
-    handleSetState: (key: string, value: any) => void;
-    validate: boolean;
     fieldValue: string;
     handleSelectChange: (value: string) => void;
     ramo: string;
 }
 
 export const FilialSelect = ({
-    handleSetState,
-    validate,
     fieldValue,
     handleSelectChange,
     ramo,
@@ -29,7 +25,7 @@ export const FilialSelect = ({
         (state: RootState) => state.contracts
     );
     const dispatch = useDispatch();
-    const [error, setError] = useState('');
+    const [error] = useState('');
     const searchQuery = useSelector(
         (state: any) => state.noPaper.searchQuery || ''
     );

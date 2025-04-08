@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { IContract } from '@/types/Contracts/Contracts';
-import { api, apiDev } from '@/app/service/api';
+import { apiDev } from '@/app/service/api';
 import toast from 'react-hot-toast';
 
 interface ContractState {
@@ -21,7 +21,7 @@ const initialState: ContractState = {
 
 export const fetchContracts = createAsyncThunk(
     'contracts/fetchContracts',
-    async (searchParams?: Record<string, string>) => {
+    async (searchParams?: Record<string, string> | string) => {
         try {
             const query = searchParams
                 ? new URLSearchParams(searchParams).toString()
@@ -101,13 +101,8 @@ export const uploadContractFile = createAsyncThunk(
 export const fetchContractFiles = createAsyncThunk(
     'contracts/fetchContractFiles',
     async (contractId: number) => {
-        try {
             const response = await apiDev.get(`contracts/${contractId}/files`);
             return { contractId, files: response.data };
-        } catch (error: any) {
-            // toast.error('Erro ao buscar arquivos do contrato: ' + error.message);
-            throw error;
-        }
     }
 );
 

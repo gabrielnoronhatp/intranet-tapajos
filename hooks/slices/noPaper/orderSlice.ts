@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import { api } from '@/app/service/api';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
@@ -54,6 +54,7 @@ const initialState = {
     ],
     userOP: null,
     canceled: false,
+    files: [],
 };
 
 export const submitOrder = createAsyncThunk(
@@ -157,6 +158,7 @@ const orderSlice = createSlice({
                 userOP: rest.user || null,
                 dataVencimentoOP: rest.dataVencimentoOP || null,
                 canceled: false,
+                files: rest.files || [],
             };
         },
         setOrderState: (state, action) => {
@@ -173,7 +175,7 @@ const orderSlice = createSlice({
         },
     },
     extraReducers: (builder) => {
-        builder.addCase(cancelOrder.fulfilled, (state, action) => {
+        builder.addCase(cancelOrder.fulfilled, (state) => {
             state.canceled = true;
         });
     },

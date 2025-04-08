@@ -15,6 +15,18 @@ export type Vacancy =  {
     data_inicial: string;
     data_criacao: string;
 }
+ 
+export interface ICandidate {
+    id: string;
+    nome_completo: string;
+    email: string;
+    telefone: string;
+    is_primeiraexperiencia: boolean;
+    is_disponivel: string;
+    file_perfil: string;
+    file_cv: string;
+    is_analizado: boolean;
+}
 
 
 export interface CreateVacancyPayload {

@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface AuthState {
     isAuthenticated: boolean;
-    user: null | {
+    user: {
         nome: string;
         email: string;
         username: string;
@@ -23,7 +23,13 @@ const loadInitialState = (): AuthState => {
     }
     return {
         isAuthenticated: false,
-        user: null,
+        user: {
+            nome: '',
+            email: '',
+            username: '',
+            profilePicture: null,
+            accessToken: '',
+        },
         accessToken: null,
         profilePicture: null,
         tokenTrade: null,
@@ -63,7 +69,13 @@ const authSlice = createSlice({
         },
         logout(state) {
             state.isAuthenticated = false;
-            state.user = null;
+            state.user = {
+                nome: '',
+                email: '',
+                username: '',
+                profilePicture: null,
+                accessToken: '',
+            };
             state.accessToken = null;
             state.profilePicture = null;
             console.log('logout');
@@ -76,7 +88,13 @@ const authSlice = createSlice({
         setAuthenticated(state, action: PayloadAction<boolean>) {
             state.isAuthenticated = action.payload;
             if (!action.payload) {
-                state.user = null;
+                state.user = {
+                    nome: '',
+                    email: '',
+                    username: '',
+                    profilePicture: null,
+                    accessToken: '',
+                };
                 state.accessToken = null;
                 state.profilePicture = null;
                 if (typeof window !== 'undefined') {

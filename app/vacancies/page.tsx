@@ -34,7 +34,6 @@ import {
     EyeOutlined,
     EditOutlined,
     DeleteOutlined,
-    UserOutlined,
 } from '@ant-design/icons';
 import { CustomTagRender } from '@/components/employees/tags';
 import { useRouter } from 'next/navigation';

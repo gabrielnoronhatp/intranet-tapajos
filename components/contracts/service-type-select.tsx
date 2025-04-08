@@ -13,13 +13,12 @@ import { PlusOutlined } from '@ant-design/icons';
 import { Button, Divider, Input, Space } from 'antd';
 
 interface ServiceTypeSelectProps {
-    handleSetState: (key: string, value: string) => void;
     fieldValue: string;
     handleSelectChange: (value: string) => void;
 }
 
 export const ServiceTypeSelect = ({
-    handleSetState,
+
     fieldValue,
     handleSelectChange,
 }: ServiceTypeSelectProps) => {
@@ -63,6 +62,7 @@ export const ServiceTypeSelect = ({
             setNewTypeName('');
             message.success('Tipo de serviço criado com sucesso!');
         } catch (error) {
+            console.log(error);
             message.error('Erro ao criar tipo de serviço');
         } finally {
             setIsLoading(false);

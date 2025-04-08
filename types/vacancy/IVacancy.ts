@@ -1,5 +1,4 @@
-// Definição da interface Vacancy baseada no seu modelo
-export interface Vacancy {
+export type Vacancy =  {
     departamento_vaga: string;
     diferencial: string;
     imagem_capa: string;
@@ -9,6 +8,7 @@ export interface Vacancy {
     data_update: string;
     nome_vaga: string;
     id: string;
+    is_ativo: boolean;
     requisitos: string;
     url_link: string | null;
     limit_candidatos: number;

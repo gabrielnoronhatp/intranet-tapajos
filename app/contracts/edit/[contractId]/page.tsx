@@ -36,7 +36,7 @@ export default function EditContractPage() {
         if (contractId) {
             dispatch(fetchContractDetails(Number(contractId)));
         }
-        dispatch(fetchLojas('   '));
+        dispatch(fetchLojas(''));
     }, [contractId, selectedFile, dispatch]);
 
     const handleSetState = (

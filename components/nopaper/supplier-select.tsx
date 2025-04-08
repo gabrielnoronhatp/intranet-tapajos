@@ -1,6 +1,5 @@
 'use client';
 import React from 'react';
-import { Label } from '@/components/ui/label';
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchFornecedores } from '@/hooks/slices/noPaper/noPaperSlice';
@@ -8,6 +7,7 @@ import { Select } from 'antd';
 import { RootState } from '@/hooks/store';
 import { setOrderState } from '@/hooks/slices/noPaper/orderSlice';
 import { setCurrentContract } from '@/hooks/slices/contracts/contractSlice';
+import { Label } from '@/components/ui/label';
 
 interface FornecedorSelectProps {
     handleSetState: (key: string, value: any) => void;

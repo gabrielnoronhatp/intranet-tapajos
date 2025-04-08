@@ -4,9 +4,6 @@ import React from 'react';
 import { Menu } from 'antd';
 import {
     StickyNote,
-    Building2,
-    Settings,
-    HelpCircle,
     FilePen,
     FileChartColumnIncreasing,
     UserRoundSearch,
@@ -33,9 +30,19 @@ export function Sidebar({ isOpen }: SidebarProps) {
             label: <Link href="/contracts/list">Contratos</Link>,
         },
         {
-            key: '/trade/list',
+            key: '/trade',
             icon: <FileChartColumnIncreasing className="h-5 w-5" />,
-            label: <Link href="/trade/list">Trade</Link>,
+            label: 'Trade',
+            children: [
+                {
+                    key: '/trade/list',
+                    label: <Link href="/trade/list">Campanhas </Link>,
+                },
+                {
+                    key: '/tradeNegotiations',
+                    label: <Link href="/tradeNegotiations">Negociações</Link>,
+                },
+            ],
         },
         {
             key: '/vacancies',

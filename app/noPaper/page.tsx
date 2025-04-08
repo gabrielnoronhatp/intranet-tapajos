@@ -193,27 +193,43 @@ export default function NoPaper() {
 
                                 <div className="mt-6">
                                     <Upload
-                                        name="files"
-                                        fileList={fileList}
-                                        beforeUpload={beforeUpload}
+                                        listType="picture-card"
+                                        showUploadList={true}
                                         accept=".xls,.xlsx,.pdf,.jpg,.jpeg,.png"
-                                        onChange={({
-                                            fileList: newFileList,
-                                        }) => {
+                                        beforeUpload={beforeUpload}
+                                        fileList={fileList}
+                                        onChange={({ fileList: newFileList }) => {
                                             setFileList(newFileList);
                                         }}
-                                        multiple
+                                        customRequest={async ({ file, onSuccess, onError }) => {
+                                            try {
+                                                const formData = new FormData();
+                                                formData.append('files', file as File);
+
+                                                const response = await api.post(`upload/${orderData.id}`, formData, {
+                                                    headers: { 'Content-Type': 'multipart/form-data' },
+                                                });
+
+                                                if (response.status !== 200) {
+                                                    throw new Error('Upload failed');
+                                                }
+
+                                                message.success('Arquivo enviado com sucesso!', 3);
+                                                onSuccess?.(response.data);
+                                            } catch (error) {
+                                                console.error('Upload error:', error);
+                                                message.error('Falha ao enviar o arquivo. Tente novamente.', 3);
+                                                onError?.(error as any);
+                                            }
+                                        }}
                                     >
                                         <div>
                                             <PlusOutlined />
-                                            <div style={{ marginTop: 8 }}>
-                                                Upload
-                                            </div>
+                                            <div style={{ marginTop: 8 }}>Upload</div>
                                         </div>
                                     </Upload>
                                     <div className="text-sm text-gray-500 mt-2">
-                                        Você pode anexar múltiplos arquivos
-                                        (Excel, PDF, JPG ou PNG)
+                                        Você pode anexar múltiplos arquivos (Excel, PDF, JPG ou PNG)
                                     </div>
                                 </div>
 

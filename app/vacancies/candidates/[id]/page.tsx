@@ -51,16 +51,12 @@ export default function VacancyCandidatesPage() {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
     const [previewVisible, setPreviewVisible] = useState(false);
-    const [allCandidates, setAllCandidates] = useState<any[]>([]);
 
     useEffect(() => {
         if (id) {
             dispatch(fetchVacancyById(id as string));
             dispatch(fetchVacancyCandidates(id as string));
         }
-        // dispatch(fetchAllCandidates()).then((response) => {
-        //     setAllCandidates(response.payload);
-        // });
     }, [dispatch, id]);
 
     const showCandidateDetails = (candidate: any) => {
@@ -161,6 +157,18 @@ export default function VacancyCandidatesPage() {
             title: 'Telefone',
             dataIndex: ['candidate', 'telefone'],
             key: 'telefone',
+        },
+        {
+            title: 'Score',
+            dataIndex: 'analise',
+            key: 'analise',
+            render: (analise: any) => (
+                <p
+                    className={`text-2xl ${getScoreColor(analise?.score)} font-bold`}
+                >
+                    {analise?.score}
+                </p>
+            ),
         },
         {
             title: 'Primeira Experiência',
@@ -484,18 +492,15 @@ export default function VacancyCandidatesPage() {
                                                     <p className="text-2xl text-primary">
                                                         Score:
                                                     </p>
-                                                    {selectedCandidate.analise
-                                                        .score < 5 && (
-                                                        <p
-                                                            className={`text-2xl ${getScoreColor(selectedCandidate.analise.score)} font-bold`}
-                                                        >
-                                                            {
-                                                                selectedCandidate
-                                                                    .analise
-                                                                    .score
-                                                            }
-                                                        </p>
-                                                    )}
+
+                                                    <p
+                                                        className={`text-2xl ${getScoreColor(selectedCandidate.analise.score)} font-bold`}
+                                                    >
+                                                        {
+                                                            selectedCandidate
+                                                                .analise.score
+                                                        }
+                                                    </p>
                                                 </div>
                                             )}
 

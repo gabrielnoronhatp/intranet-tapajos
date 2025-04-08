@@ -29,15 +29,19 @@ const OriginData: React.FC<OriginDataProps> = ({ data, onChange }) => {
     const dispatch = useDispatch();
     const [documentType, setDocumentType] = useState('nota');
 
+    const [isUserInteracting, setIsUserInteracting] = useState(false);
     useEffect(() => {
-        if (documentType === 'nota' && notaOP) {
-            setDocumentType('nota');
-        } else if (documentType === 'fatura' && !notaOP && !serieOP) {
-            setDocumentType('fatura');
+        if (!isUserInteracting) {
+            if (notaOP && !serieOP) {
+                setDocumentType('fatura');
+            } else if (notaOP && serieOP) {
+                setDocumentType('nota');
+            }
         }
-    }, [notaOP, serieOP, documentType]);
+    }, [notaOP, serieOP, isUserInteracting]);
 
     const handleFieldChange = (field: string, value: string) => {
+        setIsUserInteracting(true);
         dispatch(setOrderState({ [field]: value }));
     };
 

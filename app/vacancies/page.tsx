@@ -44,8 +44,14 @@ const { TabPane } = Tabs;
 
 export default function VacanciesPage() {
     const dispatch = useDispatch<AppDispatch>();
-    const { vacancies, loading, error, departments, departmentsLoading } =
-        useSelector((state: RootState) => state.vacancy);
+    const {
+        vacancies,
+        loading,
+        error,
+        departments,
+        departmentsLoading,
+        positions,
+    } = useSelector((state: RootState) => state.vacancy);
     const router = useRouter();
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -54,8 +60,9 @@ export default function VacanciesPage() {
     const [selectedVacancy, setSelectedVacancy] = useState<Vacancy | null>(
         null
     );
+
     const [form] = Form.useForm();
-    const [fileList, setFileList] = useState<any[]>([]);
+    const [fileList, setFileList] = useState<any>([]);
     const [editingId, setEditingId] = useState<string | null>(null);
 
     useEffect(() => {
@@ -354,16 +361,11 @@ export default function VacanciesPage() {
         },
         {
             title: 'Status',
-            key: 'status',
-            render: ( record: Vacancy) => {
-                const today = dayjs().format('YYYY-MM-DD');
-                const isActive =
-                    record.data_inicial <= today &&
-                    (!record.data_final || record.data_final >= today);
-
+            key: 'is_ativo',
+            render: (is_ativo: Vacancy) => {
                 return (
-                    <Tag color={isActive ? 'green' : 'red'}>
-                        {isActive ? 'Ativa' : 'Inativa'}
+                    <Tag color={is_ativo.is_ativo ? 'green' : 'red'}>
+                        {is_ativo.is_ativo ? 'Ativa' : 'Inativa'}
                     </Tag>
                 );
             },
@@ -639,11 +641,18 @@ export default function VacanciesPage() {
                                     {
                                         required: true,
                                         message:
-                                            'Por favor, informe o nome da vaga',
+                                            'Por favor, selecione o nome da vaga',
                                     },
                                 ]}
                             >
-                                <Input />
+                                <Select
+                                    showSearch
+                                    placeholder="Selecione um cargo"
+                                    options={positions.map((position) => ({
+                                        label: position,
+                                        value: position,
+                                    }))}
+                                />
                             </Form.Item>
 
                             <Form.Item
@@ -801,7 +810,6 @@ export default function VacanciesPage() {
                                 {fileList.length < 1 && 'Upload'}
                             </AntdUpload>
                         </Form.Item>
-                        
                     </Form>
                 </Modal>
             </div>

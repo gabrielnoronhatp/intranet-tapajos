@@ -7,11 +7,11 @@ import {
     DialogHeader,
     DialogTitle,
     DialogFooter,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+} from '../ui/dialog';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/hooks/store';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
 
 interface CpfModalProps {
     isOpen: boolean;

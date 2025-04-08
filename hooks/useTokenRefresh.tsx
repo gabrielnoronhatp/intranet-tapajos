@@ -15,11 +15,7 @@ const useTokenRefresh = () => {
                 password: '#$%23345',
             });
             const newToken = response.data.access_token;
-
-            // Save token to Redux
             dispatch(setToken({ token: newToken }));
-
-            // Save token to localStorage
             if (typeof window !== 'undefined') {
                 localStorage.setItem('auth_token', newToken);
             }
@@ -32,7 +28,6 @@ const useTokenRefresh = () => {
     };
 
     useEffect(() => {
-        // Only run on client side
         if (typeof window !== 'undefined') {
             tokenCall();
             const intervalId = setInterval(() => {

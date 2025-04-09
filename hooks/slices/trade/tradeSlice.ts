@@ -1,6 +1,6 @@
 import { apiInstance } from '@/app/service/apiInstance';
 import { IFilial } from '@/types/noPaper/Supplier/SupplierType';
-import { ICampaign, IEscala, IProduct, IParticipants } from '@/types/Trade/ITrade';
+import { ICampaign, IEscala, IProduct, IParticipants, ICampaignItens } from '@/types/Trade/ITrade';
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 
 export const fetchCampaigns = createAsyncThunk(
@@ -108,12 +108,12 @@ export const updateCampaign = createAsyncThunk(
             if (data.itens && data.itens.length > 0) {
                 const newItems = data.itens
                     .filter(
-                        (i: IProduct) =>
+                        (i: ICampaignItens) =>
                             !currentCampaign.itens.some(
-                                (ci: IProduct) => ci.iditem === i.iditem
+                                (ci: ICampaignItens) => ci.iditem === i.iditem
                             )
                     )
-                        .map((item: IProduct) => {
+                        .map((item: ICampaignItens) => {
                         return {
                             ...item,
                             iditem: item.iditem,
@@ -140,7 +140,7 @@ export const updateCampaign = createAsyncThunk(
             }, 1000);
 
             return response.data;
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Erro ao atualizar campanha:', error);
             return rejectWithValue(error.response?.data || error.message);
         }
@@ -175,7 +175,7 @@ export const createCampaignParticipants = createAsyncThunk(
             }
 
             return results;
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Erro ao criar participantes:', error);
             return rejectWithValue(error.response?.data || error.message);
         }
@@ -207,7 +207,7 @@ export const createCampaignItems = createAsyncThunk(
             }
 
             return results;
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Erro ao criar itens:', error);
             return rejectWithValue(error.response?.data || error.message);
         }
@@ -216,7 +216,7 @@ export const createCampaignItems = createAsyncThunk(
 
 export const createCampaign = createAsyncThunk(
     'trade/createCampaign',
-    async (data: any, { dispatch, rejectWithValue }) => {
+    async (data: ICampaign, { dispatch, rejectWithValue }) => {
         try {
             const { escala, ...campaignData } = data;
 
@@ -251,7 +251,7 @@ export const createCampaign = createAsyncThunk(
 
             if (escala && escala.length > 0) {
                 try {
-                    const escalaWithCampaignId = escala.map((item: any) => ({
+                    const escalaWithCampaignId = escala.map((item: IEscala) => ({
                         ...item,
                         id: parseInt(campaignId),
                     }));
@@ -272,7 +272,7 @@ export const createCampaign = createAsyncThunk(
             }, 1000);
 
             return response.data;
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Erro ao criar campanha:', error);
             return rejectWithValue(error.response?.data || error.message);
         }
@@ -287,9 +287,13 @@ export const deleteCampaign = createAsyncThunk(
     }
 );
 
+type ProductName = string;
+type Type = 'produto' | 'marca';
+
+
 export const fetchProducts = createAsyncThunk(
     'trade/fetchProducts',
-    async ({ productName, type }: { productName?: any; type: any }) => {
+    async ({ productName, type }: { productName: ProductName; type: Type }) => {
         try {
             const url = productName
                 ? `/api/products?name=${encodeURIComponent(productName)}&type=${type}`
@@ -300,7 +304,7 @@ export const fetchProducts = createAsyncThunk(
             }
             const data = await response.json();
             return data;
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error fetching products:', error);
             throw error;
         }
@@ -341,7 +345,7 @@ export const fetchFiliais = createAsyncThunk(
                     ? JSON.parse(response.data)
                     : response.data;
             return data;
-        } catch (error: any) {
+        } catch (error: unknown) {
             if (error.response && error.response.status === 404) {
                 return console.error(
                     'Campanha não encontrada:',
@@ -359,7 +363,7 @@ export const deactivateCampaign = createAsyncThunk(
         try {
             const response = await apiInstance.delete(`/campanhas/${id}`);
             return response.data;
-        } catch (error: any) {
+        } catch (error: unknown) {
             if (error.response && error.response.status === 404) {
                 console.error('Campanha não encontrada:', error.response.data);
                 return rejectWithValue(error.response.data);
@@ -405,13 +409,13 @@ export const searchCampaigns = createAsyncThunk(
                 searchParams
             );
             return response.data;
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error searching campaigns:', error);
             throw error;
         }
     }
 );
-ndnqjnjawdnaj nadm a
+
 export const sendMetaTable = createAsyncThunk(
     'trade/sendMetaTable',
     async (
@@ -439,7 +443,7 @@ export const sendMetaTable = createAsyncThunk(
             }
 
             return response.data;
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error sending meta table:', error);
             return rejectWithValue(error.response?.data || error.message);
         }
@@ -455,7 +459,7 @@ export const deleteParticipant = createAsyncThunk(
             );
             
             return participantId;
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Erro ao remover participante:', error);
             return rejectWithValue(error.response?.data || error.message);
         }
@@ -469,7 +473,7 @@ export const deleteItem = createAsyncThunk(
             const response = await apiInstance.delete(`/itens/${itemId}`);
             console.log('', response.data);
             return itemId;
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Erro ao remover item:', error);
             return rejectWithValue(error.response?.data || error.message);
         }
@@ -492,7 +496,7 @@ export const deleteParticipantFromCampaign = createAsyncThunk(
             console.log('', response.data);
 
             return { campaignId, participantId };
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Erro ao remover participante:', error);
             return rejectWithValue(error.response?.data || error.message);
         }
@@ -511,7 +515,7 @@ export const deleteItemFromCampaign = createAsyncThunk(
             );
             console.log('', response.data);
             return { campaignId, id };
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Erro ao remover item:', error);
             return rejectWithValue(error.response?.data || error.message);
         }
@@ -524,7 +528,7 @@ export const cloneCampaign = createAsyncThunk(
         try {
             const response = await apiInstance.get(`/campanhas_clone/${id}`);
             return response.data;
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Erro ao duplicar campanha:', error);
             return rejectWithValue(error.response?.data || error.message);
         }
@@ -551,7 +555,7 @@ const tradeSlice = createSlice({
     name: 'trade',
     initialState,
     reducers: {
-        updateField: (state: ICampaign, action: PayloadAction<{ field: keyof ICampaign; value: any }>) => {
+        updateField: (state: ICampaign, action: PayloadAction<{ field: keyof ICampaign; value: string | number }>) => {
             const { field, value } = action.payload;
             state[field] = value;
         },

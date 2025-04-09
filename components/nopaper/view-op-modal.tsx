@@ -7,11 +7,11 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-
+import { OrderState, Item, CentroCusto } from '@/types/noPaper/Order/OrderTypes';
 interface ViewOpModalProps {
     isOpen: boolean;
     onClose: () => void;
-    order: any;
+    order: OrderState;
 }
 
 export function ViewOpModal({ isOpen, onClose, order }: ViewOpModalProps) {
@@ -41,7 +41,7 @@ export function ViewOpModal({ isOpen, onClose, order }: ViewOpModalProps) {
                             </div>
                             <div>
                                 <Label>Fornecedor</Label>
-                                <p className="text-sm">{order.fornecedor}</p>
+                                <p className="text-sm">{order.fornecedorOP}</p>
                             </div>
                             <div>
                                 <Label>Nota Fiscal</Label>
@@ -71,13 +71,13 @@ export function ViewOpModal({ isOpen, onClose, order }: ViewOpModalProps) {
                     <div className="space-y-4">
                         <h3 className="font-semibold">Itens</h3>
                         <div className="space-y-2">
-                            {order.itens?.map((item: any, index: number) => (
+                            {order.itens?.map((item: Item, index: number) => (
                                 <div key={index} className="border p-2 rounded">
                                     <p className="text-sm">
                                         <span className="font-medium">
                                             Descrição:
                                         </span>{' '}
-                                        {item.descricao}
+                                        {item.produto}
                                     </p>
                                     <p className="text-sm">
                                         <span className="font-medium">
@@ -95,7 +95,7 @@ export function ViewOpModal({ isOpen, onClose, order }: ViewOpModalProps) {
                         <h3 className="font-semibold">Centros de Custo</h3>
                         <div className="space-y-2">
                             {order.centrosCusto?.map(
-                                (centro: any, index: number) => (
+                                (centro: CentroCusto, index: number) => (
                                     <div
                                         key={index}
                                         className="border p-2 rounded"

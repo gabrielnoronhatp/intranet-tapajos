@@ -6,11 +6,11 @@ interface AuthState {
         nome: string;
         email: string;
         username: string;
-        profilePicture: any;
+        profilePicture: string;
         accessToken: string;
     };
     accessToken: string | null;
-    profilePicture: any;
+    profilePicture: string;
     tokenTrade: string | null;
 }
 
@@ -27,11 +27,11 @@ const loadInitialState = (): AuthState => {
             nome: '',
             email: '',
             username: '',
-            profilePicture: null,
+            profilePicture: '',
             accessToken: '',
         },
         accessToken: null,
-        profilePicture: null,
+        profilePicture: '',
         tokenTrade: null,
     };
 };
@@ -49,7 +49,7 @@ const authSlice = createSlice({
                 email: string;
                 username: string;
                 accessToken: string;
-                profilePicture: any;
+                profilePicture: string;
             }>
         ) {
             state.isAuthenticated = true;
@@ -73,11 +73,11 @@ const authSlice = createSlice({
                 nome: '',
                 email: '',
                 username: '',
-                profilePicture: null,
+                profilePicture: '',
                 accessToken: '',
             };
             state.accessToken = null;
-            state.profilePicture = null;
+            state.profilePicture = '';
             console.log('logout');
             localStorage.removeItem('auth');
 
@@ -92,11 +92,11 @@ const authSlice = createSlice({
                     nome: '',
                     email: '',
                     username: '',
-                    profilePicture: null,
+                    profilePicture: '',
                     accessToken: '',
                 };
                 state.accessToken = null;
-                state.profilePicture = null;
+                state.profilePicture = '';
                 if (typeof window !== 'undefined') {
                     localStorage.removeItem('auth');
                 }
@@ -108,7 +108,7 @@ const authSlice = createSlice({
                 nome: string;
                 email: string;
                 username: string;
-                profilePicture: any;
+                profilePicture: string;
                 accessToken: string;
             }>
         ) {

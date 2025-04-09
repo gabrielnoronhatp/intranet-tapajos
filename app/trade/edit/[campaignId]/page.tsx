@@ -317,7 +317,7 @@ export default function CampaignEdit() {
                     setIsItemModalVisible(false);
                     setItemToDelete(null);
                 })
-                .catch((error: any) => {
+                .catch((error: unknown ) => {
                     console.error('Erro ao remover item:', error);
                     message.error('Erro ao remover item');
                 });
@@ -678,10 +678,8 @@ export default function CampaignEdit() {
                                 value={valorTotal}
                                 onChange={(e) => {
                                     const inputValue = e.target.value;
-                                    const formattedValue = inputValue
-                                        .replace(/[^0-9,\.]/g, '')
-                                        .replace(',', '.');
-                                    setValorTotal(formattedValue);
+                                   
+                                    setValorTotal(Number(inputValue));
                                 }}
                             />
                         </div>

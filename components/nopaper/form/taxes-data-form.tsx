@@ -9,10 +9,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchCentrosCusto } from '@/hooks/slices/noPaper/noPaperSlice';
 import { RootState } from '@/hooks/store';
 import { NumericFormat } from 'react-number-format';
-
+import { OrderState, Item } from '@/types/noPaper/Order/OrderTypes';
 interface TaxesDataProps {
-    data: any;
-    onChange: (field: keyof any, value: any) => void;
+    data: OrderState;
+    onChange: (field: keyof OrderState, value: string | number) => void;
 }
 
 export default function TaxesData({ data, onChange }: TaxesDataProps) {
@@ -23,7 +23,7 @@ export default function TaxesData({ data, onChange }: TaxesDataProps) {
     const { searchQuery } = useSelector((state: RootState) => state.noPaper);
 
     useEffect(() => {
-        dispatch(fetchCentrosCusto('') as any);
+        dispatch(fetchCentrosCusto(''));
     }, [dispatch, searchQuery]);
 
     const handleItensChange = (
@@ -31,7 +31,7 @@ export default function TaxesData({ data, onChange }: TaxesDataProps) {
         field: 'produto' | 'valor' | 'centroCusto',
         value: string | number
     ) => {
-        const updatedItens = produtosOP.map((item: any, i: number) =>
+        const updatedItens = produtosOP.map((item: Item, i: number) =>
             i === index ? { ...item, [field]: value } : item
         );
         onChange('produtosOP', updatedItens);
@@ -45,7 +45,7 @@ export default function TaxesData({ data, onChange }: TaxesDataProps) {
 
         const newItens = Array.from(
             { length: quantidade },
-            (index: any) =>
+            (index: number) =>
                 produtosOP[index] || { produto: '', valor: 0, centroCusto: [] }
         );
         onChange('produtosOP', newItens);
@@ -71,7 +71,7 @@ export default function TaxesData({ data, onChange }: TaxesDataProps) {
                     </p>
                 )}
 
-                {produtosOP.map((item: any, index: number) => (
+                {produtosOP.map((item: Item, index: number) => (
                     <div key={index} className="space-y-1">
                         <Label className="text-xs font-semibold text-primary uppercase">
                             Item {index + 1}: Descrição e Valor

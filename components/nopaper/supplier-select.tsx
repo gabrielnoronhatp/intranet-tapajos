@@ -21,7 +21,7 @@ export const FornecedorSelect = ({
     const dispatch = useDispatch();
 
     const searchQuery = useSelector(
-        (state: any) => state.noPaper.searchQuery || ''
+        (state: RootState) => state.noPaper.searchQuery || ''
     );
     const { fornecedores } = useSelector((state: RootState) => state.noPaper);
     const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
@@ -29,7 +29,7 @@ export const FornecedorSelect = ({
     const [error] = useState('');
 
     useEffect(() => {
-        dispatch(fetchFornecedores(localSearchQuery) as any);
+        dispatch(fetchFornecedores(localSearchQuery));
     }, [dispatch, localSearchQuery]);
 
     const options = fornecedores.map((fornecedor) => ({

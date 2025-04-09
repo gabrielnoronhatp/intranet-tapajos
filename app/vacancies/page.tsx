@@ -16,6 +16,7 @@ import {
     Tag,
     Image,
     Tabs,
+    UploadFile,
 } from 'antd';
 import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
 import { Upload as AntdUpload } from 'antd';
@@ -38,6 +39,7 @@ import {
 import { CustomTagRender } from '@/components/employees/tags';
 import { useRouter } from 'next/navigation';
 import { Users } from 'lucide-react';
+import { ColumnType } from 'antd/es/table';
 
 const { TabPane } = Tabs;
 
@@ -61,7 +63,7 @@ export default function VacanciesPage() {
     );
 
     const [form] = Form.useForm();
-    const [fileList, setFileList] = useState<any>([]);
+    const [fileList, setFileList] = useState<UploadFile[]>([]);
     const [editingId, setEditingId] = useState<string | null>(null);
 
     useEffect(() => {
@@ -403,7 +405,7 @@ export default function VacanciesPage() {
         {
             title: 'Ações',
             key: 'actions',
-            render: (_: any, record: Vacancy) => (
+            render: (record: Vacancy) => (
                 <div className="flex space-x-2">
                     <Button
                         type="primary"
@@ -468,7 +470,8 @@ export default function VacanciesPage() {
                         <Tabs defaultActiveKey="vacancies">
                             <TabPane tab="Vagas" key="vacancies">
                                 <AntdTable
-                                    columns={columns as any}
+                                    columns={columns as ColumnType<Vacancy>[]}
+                                    
                                     dataSource={vacancies}
                                     rowKey="id"
                                     loading={loading}

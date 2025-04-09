@@ -16,7 +16,7 @@ import { AppDispatch, RootState } from '@/hooks/store';
 import { debounce } from 'lodash';
 import { MetaTable } from '@/components/trade/meta-table';
 import { formatDateUTC } from '@/lib/utils';
-import { Escala, IProduct, Operador } from '@/types/Trade/ITrade';
+import { Escala, Operador } from '@/types/Trade/ITrade';
 import { IFilial } from '@/types/noPaper/Supplier/SupplierType';
 
 const { Option } = Select;
@@ -24,7 +24,7 @@ const { Option } = Select;
 export default function CampaignRegistration() {
     const dispatch = useDispatch<AppDispatch>();
 
-    const { currentCampaign, products, operators, filiais } = useSelector(
+    const { currentCampaign, operators, filiais } = useSelector(
         (state: RootState) => state.trade
     );
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -348,10 +348,8 @@ export default function CampaignRegistration() {
                                     value={meta_valor}
                                     onChange={(e) => {
                                         const inputValue = e.target.value;
-                                        const formattedValue = inputValue
-                                            .replace(/[^0-9,\.]/g, '')
-                                            .replace(',', '.');
-                                        setMetaValor(formattedValue);
+                                       
+                                        setMetaValor(inputValue);
                                     }}
                                 />
                                 <Input
@@ -360,10 +358,8 @@ export default function CampaignRegistration() {
                                     value={premiacao}
                                     onChange={(e) => {
                                         const inputValue = e.target.value;
-                                        const formattedValue = inputValue
-                                            .replace(/[^0-9,\.]/g, '')
-                                            .replace(',', '.');
-                                        setPremiacao(formattedValue);
+                                      
+                                        setPremiacao(inputValue);
                                     }}
                                 />
                                 <Button
@@ -463,25 +459,25 @@ export default function CampaignRegistration() {
                                     filterOption={false}
                                     onSearch={handleSearchProduto}
                                     //TODO  delete any
-                                    onSelect={(option:  any) => {
+                                    onSelect={(option: { label: string; value: string; nome: string }) => {
                                         handleAddMarcaProduto(
                                             option.label,
                                             option.value,
                                             option.label
                                         );
                                     }}
-                                    options={(products || []).map(
-                                        (product: IProduct) => ({
-                                            value:
-                                                tipoMarcaProduto === 'produto'
-                                                    ? product.codprod
-                                                    : product.codmarca,
-                                            label:
-                                                tipoMarcaProduto === 'produto'
-                                                    ? product.descricao
-                                                    : product.marca,
-                                            nome: product.nome,s
-                                    )}
+                                    // options={(products || []).map(
+                                    //     (product: IProduct) => ({
+                                    //         value:
+                                    //             tipoMarcaProduto === 'produto'
+                                    //                 ? product.codprod
+                                    //                 : product.codmarca,
+                                    //         label:
+                                    //             tipoMarcaProduto === 'produto'
+                                    //                 ? product.descricao
+                                    //                 : product.marca,
+                                    //         nome: product.nome,
+                                    // )}
                                 />
                             </div>
                             <Table
@@ -558,12 +554,10 @@ export default function CampaignRegistration() {
                                 value={currentCampaign?.valor_total}
                                 onChange={(e) => {
                                     const inputValue = e.target.value;
-                                    const formattedValue = inputValue
-                                        .replace(/[^0-9,\.]/g, '')
-                                        .replace(',', '.');
+                                   
                                     handleSetState(
                                         'valor_total',
-                                        formattedValue
+                                        inputValue
                                     );
                                 }}
                             />

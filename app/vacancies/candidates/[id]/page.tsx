@@ -38,7 +38,8 @@ import {
 } from '@ant-design/icons';
 import Link from 'next/link';
 import { message } from 'antd';
-import { ICandidate } from '@/types/vacancy/IVacancy';
+import { ICandidate, IAnalysis } from '@/types/vacancy/IVacancy';
+import { ColumnType } from 'antd/es/table';
 const { TabPane } = Tabs;
 
 export default function VacancyCandidatesPage() {
@@ -87,7 +88,7 @@ export default function VacancyCandidatesPage() {
         return `https://api.rh.grupotapajos.com.br/candidato/cv/${fileName}`;
     };
 
-    const getCvViewUrl = (file_cv: any) => {
+    const getCvViewUrl = (file_cv: string) => {
         if (!file_cv) return null;
 
         const fileName = file_cv.split('/').pop();
@@ -96,7 +97,7 @@ export default function VacancyCandidatesPage() {
         return `https://api.rh.grupotapajos.com.br/candidato/cv/uploads/cv/${fileName}`;
     };
 
-    const downloadCv = (candidate: any) => {
+    const downloadCv = (candidate: ICandidate) => {
         if (!candidate || !candidate.file_cv) {
             message.error('Currículo não disponível');
             return;
@@ -121,7 +122,7 @@ export default function VacancyCandidatesPage() {
         return 'text-green-600';
     };
 
-    const columns = [
+    const columns: ColumnType<ICandidate>[]  = [
         {
             title: 'Foto',
             dataIndex: ['candidate', 'file_perfil'],
@@ -143,7 +144,7 @@ export default function VacancyCandidatesPage() {
             title: 'Nome',
             dataIndex: ['candidate', 'nome_completo'],
             key: 'nome_completo',
-            sorter: (a: any, b: any) =>
+            sorter: (a: ICandidate, b: ICandidate) =>
                 a.candidate.nome_completo.localeCompare(
                     b.candidate.nome_completo
                 ),
@@ -162,7 +163,7 @@ export default function VacancyCandidatesPage() {
             title: 'Score',
             dataIndex: 'analise',
             key: 'analise',
-            render: (analise: any) => (
+            render: (analise: IAnalysis) => (
                 <p
                     className={`text-2xl ${getScoreColor(analise?.score)} font-bold`}
                 >
@@ -183,7 +184,7 @@ export default function VacancyCandidatesPage() {
                 { text: 'Sim', value: true },
                 { text: 'Não', value: false },
             ],
-            onFilter: (value: boolean, record: any) =>
+            onFilter: (value: boolean, record: ICandidate) =>
                 record.candidate.is_primeiraexperiencia === value,
         },
         {
@@ -199,7 +200,7 @@ export default function VacancyCandidatesPage() {
                 { text: 'Sim', value: 'true' },
                 { text: 'Não', value: 'false' },
             ],
-            onFilter: (value: string, record: any) =>
+            onFilter: (value: string, record: ICandidate) =>
                 record.candidate.is_disponivel === value,
         },
         {
@@ -215,14 +216,14 @@ export default function VacancyCandidatesPage() {
                 { text: 'Sim', value: true },
                 { text: 'Não', value: false },
             ],
-            onFilter: (value: boolean, record: any) =>
+            onFilter: (value: boolean, record: ICandidate) =>
                 record.candidate.is_analizado === value,
         },
         {
             title: 'Currículo',
             dataIndex: ['candidate', 'file_cv'],
             key: 'file_cv',
-            render: (file_cv: string, record: any) =>
+            render: (file_cv: string, record: ICandidate) =>
                 file_cv ? (
                     <Tooltip title="Baixar Currículo">
                         <Button
@@ -241,7 +242,7 @@ export default function VacancyCandidatesPage() {
         {
             title: 'Ações',
             key: 'actions',
-            render: (_: any, record: any) => (
+            render: ( record: ICandidate) => (
                 <Button
                     type="primary"
                     onClick={() => showCandidateDetails(record)}
@@ -309,7 +310,7 @@ export default function VacancyCandidatesPage() {
                                         ) : candidates &&
                                           candidates.length > 0 ? (
                                             <Table
-                                                columns={columns as any}
+                                                columns={columns as ColumnType<ICandidate>[]}
                                                 dataSource={candidates}
                                                 rowKey={(record) =>
                                                     record.candidate.id

@@ -14,7 +14,14 @@ const tagColors = [
   'purple',
 ];
 
-export const CustomTagRender = (props: any) => {
+interface CustomTagRenderProps {
+  label: string;
+  value: string;
+  closable: boolean;
+  onClose: () => void;
+}
+
+export const CustomTagRender = (props: CustomTagRenderProps) => {
   const { label, value, closable, onClose } = props;
   const colorIndex = value?.charCodeAt(0) % tagColors.length;
   const color = tagColors[colorIndex];

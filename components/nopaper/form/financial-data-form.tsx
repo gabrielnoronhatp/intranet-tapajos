@@ -13,11 +13,16 @@ import {
 } from '@/hooks/slices/noPaper/errorSlice';
 import { Select } from 'antd';
 import { RootState } from '@/hooks/store';
-
-interface FinancialDataProps {
-    data: any;
-    onChange: (field: keyof any, value: any) => void;
+import { OrderState, Parcela } from '@/types/noPaper/Order/OrderTypes';  
+    interface FinancialDataProps {
+    data: OrderState;
+    onChange: (field: keyof OrderState, value: string | number) => void;
 }
+
+interface ContaGerencial {
+    conta: string;
+    descricao: string;
+}   
 
 export default function FinancialData({ data, onChange }: FinancialDataProps) {
     const dispatch = useDispatch();
@@ -39,9 +44,9 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
     const { contasGerenciais } = useSelector(
         (state: RootState) => state.noPaper
     );
-    const { formErrors } = useSelector((state: any) => state.error);
+    const { formErrors } = useSelector((state: RootState) => state.error);
 
-    const validateField = (field: string, value: any) => {
+    const validateField = (field: string, value: string | number) => {
         if (!value || (typeof value === 'string' && !value.trim())) {
             dispatch(
                 setFieldError({
@@ -55,7 +60,7 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
     };
 
     useEffect(() => {
-        dispatch(fetchContasGerenciais('') as any);
+        dispatch(fetchContasGerenciais(''));
     }, [dispatch]);
 
     const formatDate = (dateString: string) => {
@@ -70,7 +75,7 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
         onChange('metodoOP', value);
         validateField('metodoOP', value);
 
-        let newParcelasOP: any = [];
+        let newParcelasOP: Parcela[] = [];
 
         if (value === 'pix') {
             newParcelasOP = [
@@ -123,7 +128,7 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
         onChange('qtparcelasOP', newParcelasOP.length);
     };
 
-    const handleParcelasChange = (index: number, field: string, value: any) => {
+    const handleParcelasChange = (index: number, field: string, value: string | number) => {
         const updatedParcelas = [...parcelasOP];
         updatedParcelas[index] = {
             ...updatedParcelas[index],
@@ -192,7 +197,7 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                 )}
 
                 {/* Renderização dinâmica das parcelas */}
-                {parcelasOP.map((parcela: any, index: number) => (
+                {parcelasOP.map((parcela: Parcela, index: number) => (
                     <div key={index} className="space-y-2 border p-2 rounded">
                         <Label className="text-xs font-semibold text-primary uppercase">
                             {metodoOP === 'boleto'
@@ -379,7 +384,7 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                     onChange={(value: string) =>
                         onChange('contagerencialOP', value)
                     }
-                    options={contasGerenciais.map((conta: any) => ({
+                    options={contasGerenciais.map((conta: ContaGerencial) => ({
                         value: conta.conta,
                         label: conta.conta,
                     }))}

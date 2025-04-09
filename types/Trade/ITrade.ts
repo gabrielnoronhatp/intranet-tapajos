@@ -15,7 +15,9 @@ export interface ICampaign {
     products: IProduct[];
     currentCampaign?: ICampaign;
     filiais: IFilial[];
+    participantes: IParticipants[];
     escala: IEscala[];
+    itens: ICampaignItens[];
 }
 
 export interface IEscala {
@@ -65,7 +67,6 @@ export interface IParticipants {
     meta_valor: number;
     meta_quantidade: number;
     premiacao: string;
-  
     nome: string;
     tipo: string;
     matricula: string;
@@ -77,6 +78,7 @@ export interface IParticipants {
 export interface ICampaignItens {
     idcampanha_distribuicao: number;
     metrica: string;
+    nome: string;
     iditem: number;
 }
 export type Escala = {

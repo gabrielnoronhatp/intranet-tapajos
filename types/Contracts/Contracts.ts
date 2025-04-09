@@ -35,8 +35,13 @@ export interface IContract {
     banco?: string;
 }
 
+
 export type ContractFormState = Partial<IContract>;
-export enum TipoServico {
+export type ServiceType = {
+    id: number;
+    nome: string;
+}
+export enum ServiceTypeEnum {
     SERVICO1 = 'servico1',
     SERVICO2 = 'servico2',
 }

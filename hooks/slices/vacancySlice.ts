@@ -73,7 +73,7 @@ export const fetchVacancies = createAsyncThunk(
             });
 
             return response.data;
-        } catch (error: any) {
+        } catch (error: unknown) {
             return rejectWithValue(error.response?.data?.message);
         }
     }
@@ -98,7 +98,7 @@ export const fetchVacancyById = createAsyncThunk(
             });
 
             return response.data;
-        } catch (error: any) {
+        } catch (error: unknown) {
             return rejectWithValue(error.response?.data?.message);
         }
     }
@@ -201,7 +201,7 @@ export const createVacancy = createAsyncThunk(
 
                 return response.data;
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error(
                 'Erro ao criar vaga:',
                 error.response?.data || error.message
@@ -263,7 +263,7 @@ export const updateVacancy = createAsyncThunk(
             );
 
             return response.data;
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error(
                 'Erro ao atualizar vaga:',
                 error.response?.data || error.message
@@ -296,7 +296,7 @@ export const deleteVacancy = createAsyncThunk(
             });
 
             return id;
-        } catch (error: any) {
+        } catch (error: unknown) {
             return rejectWithValue(
                 error.response?.data?.message || 'Erro ao excluir vaga'
             );
@@ -327,7 +327,7 @@ export const fetchVacancyCandidates = createAsyncThunk(
             );
 
             return response.data;
-        } catch (error: any ) {
+        } catch (error: unknown) {
             console.error(
                 'Erro ao buscar candidatos:',
                 error.response?.data || error.message

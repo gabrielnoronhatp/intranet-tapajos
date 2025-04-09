@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import { api } from '@/app/service/api';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
-import { Item, OrderData } from '@/types/noPaper/Order/OrderTypes';
+import { Item, OrderData, Parcela } from '@/types/noPaper/Order/OrderTypes';
 import { CentroCusto } from '@/types/noPaper/Order/CentroCustoType';
 
 
@@ -72,7 +72,7 @@ export const submitOrder = createAsyncThunk(
                 toast.error('Erro ao enviar o pedido' + response.data.message);
                 return rejectWithValue('Erro ao enviar o pedido.');
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             toast.error('Error: ' + error.response.data.message);
             return rejectWithValue(error.response.data);
         }
@@ -88,7 +88,7 @@ export const cancelOrder = createAsyncThunk(
                 toast.success('Ordem de pagamento cancelada com sucesso!');
                 return response.data;
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             toast.error('Erro ao cancelar ordem de pagamento.');
             return rejectWithValue(error.response.data);
         }
@@ -136,7 +136,7 @@ const orderSlice = createSlice({
                 dtdepositoOP: rest.dtdeposito || null,
                 parcelasOP:
                     rest.parcelasOP?.length > 0
-                        ? rest.parcelasOP.map((parcela: any) => ({
+                        ? rest.parcelasOP.map((parcela: Parcela) => ({
                               parcela: parcela.parcela || null,
                               banco: parcela.banco || '',
                               agencia: parcela.agencia || '',

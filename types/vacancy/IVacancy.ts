@@ -26,6 +26,7 @@ export interface ICandidate {
     file_perfil: string;
     file_cv: string;
     is_analizado: boolean;
+    candidate: ICandidate;
 }
 
 
@@ -42,3 +43,8 @@ export interface CreateVacancyPayload {
     url_link?: string | null;
     criado_por?: string | null;
 }
+
+ export type IAnalysis = {
+    score: number;
+    cv_resumo: string;
+ }

@@ -9,10 +9,10 @@ import { FornecedorSelect } from '@/components/nopaper/supplier-select';
 import { Label } from '@/components/ui/label';
 import { FormSection } from '../form-section';
 import { setOrderState } from '@/hooks/slices/noPaper/orderSlice';
-
+import { OrderState } from '@/types/noPaper/Order/OrderTypes';
 interface OriginDataProps {
-    data: any;
-    onChange: (field: keyof any, value: any) => void;
+    data: OrderState;
+    onChange: (field: keyof OrderState, value: string | number) => void;
 }
 
 const OriginData: React.FC<OriginDataProps> = ({ data  }) => {
@@ -103,7 +103,7 @@ const OriginData: React.FC<OriginDataProps> = ({ data  }) => {
                             RAMO
                         </Label>
                         <Select
-                            onChange={(value: any) =>
+                            onChange={(value: string) =>
                                 handleFieldChange('ramoOP', value)
                             }
                             placeholder="Selecione o Ramo"
@@ -185,7 +185,7 @@ const OriginData: React.FC<OriginDataProps> = ({ data  }) => {
                         handleSelectChange={handleSelectFilialChange}
                     />
                     <FornecedorSelect
-                        handleSetState={(value: any) =>
+                        handleSetState={(value: string) =>
                             handleFieldChange(fornecedorOP, value)
                         }
                         fieldValue={fornecedorOP}

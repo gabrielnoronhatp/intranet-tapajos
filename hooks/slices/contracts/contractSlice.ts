@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { IContract } from '@/types/Contracts/Contracts';
 import { apiDev } from '@/app/service/api';
 import toast from 'react-hot-toast';
-
+import { ServiceType } from '@/types/Contracts/Contracts';
 interface ContractState {
     contracts: IContract[];
     loading: boolean;
@@ -28,7 +28,7 @@ export const fetchContracts = createAsyncThunk(
                 : '';
             const response = await apiDev.get(`contracts?${query}`);
             return response.data;
-        } catch (error: any) {
+        } catch (error: unknown) {
             toast.error('Erro ao buscar contratos: ' + error.message);
             throw error;
         }
@@ -45,7 +45,7 @@ export const createContract = createAsyncThunk(
                 window.location.href = '/contracts/list';
             }, 1000);
             return response.data;
-        } catch (error: any) {
+        } catch (error: unknown) {
             toast.error('Erro ao cadastrar contrato: ' + error.message);
             throw error;
         }
@@ -58,14 +58,14 @@ export const fetchServiceTypes = createAsyncThunk(
         try {
             const response = await apiDev.get('service-types/');
             const serviceTypes = response.data.reduce(
-                (acc: { [key: number]: string }, type: any) => {
+                (acc: { [key: number]: string }, type: ServiceType) => {
                     acc[type.id] = type.descricao;
                     return acc;
                 },
                 {}
             );
             return serviceTypes;
-        } catch (error: any) {
+        } catch (error: unknown) {
             toast.error('Erro ao buscar tipos de serviço: ' + error.message);
             throw error;
         }
@@ -91,7 +91,7 @@ export const uploadContractFile = createAsyncThunk(
 
             toast.success('Arquivo enviado com sucesso!');
             return response.data;
-        } catch (error: any) {
+        } catch (error: unknown) {
             toast.error('Erro ao enviar arquivo: ' + error.message);
             throw error;
         }
@@ -112,7 +112,7 @@ export const fetchContractDetails = createAsyncThunk(
         try {
             const response = await apiDev.get(`contracts/${contractId}`);
             return response.data;
-        } catch (error: any) {
+        } catch (error: unknown) {
             toast.error(
                 'Erro ao buscar detalhes do contrato: ' + error.message
             );
@@ -150,7 +150,7 @@ export const updateContract = createAsyncThunk(
                 window.location.href = '/contracts/list';
             }, 1000);
             return response.data;
-        } catch (error: any) {
+        } catch (error: unknown) {
             toast.error('Erro ao atualizar contrato: ' + error.message);
             throw error;
         }
@@ -166,7 +166,7 @@ export const cancelContract = createAsyncThunk(
             });
             toast.success('Contrato cancelado com sucesso!');
             return response.data;
-        } catch (error: any) {
+        } catch (error: unknown) {
             toast.error('Erro ao cancelar contrato: ' + error.message);
             throw error;
         }

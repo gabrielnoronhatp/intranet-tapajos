@@ -29,16 +29,30 @@ export interface OrderData {
     files? : File[];
 }
 
+export interface Parcela {
+    parcela: string;
+    banco: string;
+    agencia: string;
+    conta: string;
+    tipopix: string;
+    chavepix: string;
+}
 export interface OrderState {
+    id: number;
+    idtipo: string;
     dataEmissao: Date;
     fornecedorOP: string | null;
     loading: boolean;
+    canceled: boolean;
     error: string | null;
     success: boolean;
     orderData: OrderData | null;
     isSidebarOpen: boolean;
     ramo: string;
     tipoLancamento: string;
+    assinatura1: string;
+    assinatura2: string;
+    assinatura3: string;    
     formaPagamento: string;
     open: boolean;
     selectedFornecedor: string;

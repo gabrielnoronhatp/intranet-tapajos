@@ -31,7 +31,7 @@ export const ServiceTypeSelect = ({
 
     useEffect(() => {
         // TODO: FOUND A WAY TO DELETE THIS ANY
-        dispatch(fetchServiceTypes() as any);
+        dispatch(fetchServiceTypes());
     }, [dispatch]);
 
     const handleChange = (value: string) => {
@@ -50,7 +50,7 @@ export const ServiceTypeSelect = ({
         setIsLoading(true);
         try {
             const result = await dispatch(
-                createServiceType(newTypeName) as any
+                createServiceType(newTypeName)
             ).unwrap();
             handleSelectChange(result.id.toString());
             dispatch(

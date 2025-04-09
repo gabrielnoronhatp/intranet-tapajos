@@ -27,13 +27,13 @@ export const FilialSelect = ({
     const dispatch = useDispatch();
     const [error] = useState('');
     const searchQuery = useSelector(
-        (state: any) => state.noPaper.searchQuery || ''
+        (state: RootState) => state.noPaper.searchQuery || ''
     );
     const [localSearchQuery, setLocalSearchQuery] =
         useState<string>(searchQuery);
 
     useEffect(() => {
-        dispatch(fetchFiliais({ query: localSearchQuery, ramo }) as any);
+        dispatch(fetchFiliais({ query: localSearchQuery, ramo }));
     }, [dispatch, localSearchQuery, ramo]);
 
     const handleChange = (value: string) => {
@@ -58,7 +58,7 @@ export const FilialSelect = ({
                 onChange={handleChange}
                 onSearch={(value) => setLocalSearchQuery(value)}
                 placeholder="Selecione uma filial..."
-                filterOption={(input: string, option: any) =>
+                filterOption={(input: string, option: string) =>
                     (option?.children ?? '')
                         .toLowerCase()
                         .includes(input.toLowerCase())

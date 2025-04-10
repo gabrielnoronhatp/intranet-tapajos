@@ -10,7 +10,7 @@ import { Input, Select, Table } from 'antd';
 export default function NegotiationsRegistration() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [tables, setTables] = useState([1]);
-    const [contacts, setContacts] = useState([]);
+    const [contacts, setContacts] = useState<{ nome: string; email: string; celular: string; key: number }[]>([]);
     const [contactInput, setContactInput] = useState({ nome: '', email: '', celular: '' });
 
     const addTable = () => {

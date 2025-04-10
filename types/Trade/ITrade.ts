@@ -10,6 +10,7 @@ export interface ICampaign {
     valor_total: number;
     meta_valor: number;
     userlanc: string;
+    tipo_meta: string;
     datalanc: string;
     status: string;
     operators: Operador[];
@@ -20,13 +21,15 @@ export interface ICampaign {
     filiais: IFilial[];
     participantes: IParticipants[];
     escala: IEscala[];
-    itens: ICampaignItens[];
+    itens: IProduct[] ;
 }
 
 export interface IEscala {
-    metaGeralRange: [];
-    metaVendedorRange: [];
-    valoresMeta: IValorMeta[];
+    linha?: string;
+    metaGeralRange?: string[];
+    metaVendedorRange?: string[];
+    valoresMeta?: IValorMeta[];
+    [key: string]: any; // This allows any string key to be used
 }
 
 export interface IValorMeta {
@@ -43,6 +46,7 @@ export interface IProduct {
     descricao: string;
     codmarca: string;
     marca: string;
+    metrica: string;
     nome: string;
 }
 
@@ -75,7 +79,7 @@ export interface IParticipants {
     matricula: string;
     codusur: string;
 
-    tipo_meta: string;
+    tipo_meta: string | null;
 }
 
 export interface ICampaignItens {

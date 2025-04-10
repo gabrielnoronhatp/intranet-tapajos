@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { Input } from '../ui/input';
-import { IEscala } from '@/types/trade/IEscala';
+import { Escala, IEscala } from '@/types/Trade/ITrade';
 
 interface MetaTableProps {
     isEditing?: boolean;
@@ -14,8 +14,8 @@ interface MetaTableProps {
             idMetaVendedor: number;
             celValordaMeta: number;
         }[];
-    };
-    onEscalaSubmit: (formattedMetas: IEscala[]) => void;
+    } | null;
+    onEscalaSubmit: (formattedMetas: IEscala[] | Escala[]) => void;
 }
 
 export const MetaTable: React.FC<MetaTableProps> = ({

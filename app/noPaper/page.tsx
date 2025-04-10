@@ -203,7 +203,7 @@ export default function NoPaper() {
                                         onChange={({ fileList: newFileList }) => {
                                             setFileList(newFileList);
                                         }}
-                                        customRequest={async ({ file, onSuccess, onError }) => {
+                                        customRequest={async ({ file, onSuccess, }) => {
                                             try {
                                                 const formData = new FormData();
                                                 formData.append('files', file as File);

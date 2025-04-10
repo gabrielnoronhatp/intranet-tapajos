@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/hooks/store';
 import {
+    CandidateWithAnalysis,
     fetchVacancyById,
     fetchVacancyCandidates,
 } from '@/hooks/slices/vacancySlice';
@@ -39,7 +40,7 @@ import {
 import Link from 'next/link';
 import { message } from 'antd';
 import { ICandidate, IAnalysis } from '@/types/vacancy/IVacancy';
-import { ColumnType } from 'antd/es/table';
+import { ColumnGroupType, ColumnType } from 'antd/es/table';
 const { TabPane } = Tabs;
 
 export default function VacancyCandidatesPage() {
@@ -122,7 +123,7 @@ export default function VacancyCandidatesPage() {
         return 'text-green-600';
     };
 
-    const columns: ColumnType<ICandidate>[]  = [
+    const columns: ColumnType<ICandidate>[] = [
         {
             title: 'Foto',
             dataIndex: ['candidate', 'file_perfil'],
@@ -184,8 +185,8 @@ export default function VacancyCandidatesPage() {
                 { text: 'Sim', value: true },
                 { text: 'Não', value: false },
             ],
-            onFilter: (value: boolean, record: ICandidate) =>
-                record.candidate.is_primeiraexperiencia === value,
+            onFilter: (value: boolean | React.Key, record: ICandidate) =>
+                record.candidate.is_primeiraexperiencia === (value as boolean),
         },
         {
             title: 'Disponível',
@@ -200,8 +201,8 @@ export default function VacancyCandidatesPage() {
                 { text: 'Sim', value: 'true' },
                 { text: 'Não', value: 'false' },
             ],
-            onFilter: (value: string, record: ICandidate) =>
-                record.candidate.is_disponivel === value,
+            onFilter: (value: boolean | React.Key, record: ICandidate) =>
+                record.candidate.is_disponivel === String(value),
         },
         {
             title: 'Analisado',
@@ -216,8 +217,8 @@ export default function VacancyCandidatesPage() {
                 { text: 'Sim', value: true },
                 { text: 'Não', value: false },
             ],
-            onFilter: (value: boolean, record: ICandidate) =>
-                record.candidate.is_analizado === value,
+            onFilter: (value: boolean | React.Key, record: ICandidate) =>
+                record.candidate.is_analizado === (value as boolean),
         },
         {
             title: 'Currículo',
@@ -242,7 +243,7 @@ export default function VacancyCandidatesPage() {
         {
             title: 'Ações',
             key: 'actions',
-            render: ( record: ICandidate) => (
+            render: (record: ICandidate) => (
                 <Button
                     type="primary"
                     onClick={() => showCandidateDetails(record)}
@@ -253,8 +254,6 @@ export default function VacancyCandidatesPage() {
             ),
         },
     ];
-
-  
 
     return (
         <AuthGuard>
@@ -310,8 +309,15 @@ export default function VacancyCandidatesPage() {
                                         ) : candidates &&
                                           candidates.length > 0 ? (
                                             <Table
-                                                columns={columns as ColumnType<ICandidate>[]}
-                                                dataSource={candidates}
+                                                columns={
+                                                    columns as unknown as (
+                                                        | ColumnGroupType<CandidateWithAnalysis>
+                                                        | ColumnType<CandidateWithAnalysis>
+                                                    )[]
+                                                }
+                                                dataSource={
+                                                    candidates as unknown as CandidateWithAnalysis[]
+                                                }
                                                 rowKey={(record) =>
                                                     record.candidate.id
                                                 }
@@ -497,7 +503,6 @@ export default function VacancyCandidatesPage() {
                                                         <ReactMarkdown
                                                             components={{
                                                                 h2: ({
-                                                                    
                                                                     ...props
                                                                 }) => (
                                                                     <h3

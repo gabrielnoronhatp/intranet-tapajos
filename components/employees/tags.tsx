@@ -1,6 +1,6 @@
 import {  Tag } from 'antd';
 
-const tagColors = [
+export const tagColors = [
   'magenta',
   'red',
   'volcano',
@@ -21,14 +21,13 @@ interface CustomTagRenderProps {
   onClose: () => void;
 }
 
-export const CustomTagRender = (props: CustomTagRenderProps) => {
-  const { label, value, closable, onClose } = props;
-  const colorIndex = value?.charCodeAt(0) % tagColors.length;
-  const color = tagColors[colorIndex];
-
+export  const CustomTagRender = (props: CustomTagRenderProps) => {
+  const { label,  closable, onClose } = props;
+  const labelStr = label ? String(label) : '';
+  
   return (
-    <Tag color={color} closable={closable} onClose={onClose} style={{ marginRight: 3 }}>
-      {label}
+    <Tag closable={closable} onClose={onClose} style={{ marginRight: 3 }}>
+      {labelStr}
     </Tag>
   );
 };

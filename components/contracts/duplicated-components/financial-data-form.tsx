@@ -14,7 +14,6 @@ import { setCurrentContract } from '@/hooks/slices/contracts/contractSlice';
 
 export default function FinancialData() {
     const dispatch = useDispatch();
-    
 
     const handleSetState = (field: string, value: string) => {
         if (field === 'idfilial') {
@@ -27,16 +26,9 @@ export default function FinancialData() {
 
     const [dtavista] = useState<string>('');
 
-    const {
-        forma_pag,
-        banco,
-        agencia,
-
-        tipopix,
-        chavepix,
-
-        conta,
-    } = useSelector((state: RootState) => state.contracts.currentContract);
+    const { forma_pag, banco, agencia, tipopix, chavepix, conta } = useSelector(
+        (state: RootState) => state.contracts.currentContract
+    );
 
     const validateField = (field: string, value: string) => {
         if (!value || (typeof value === 'string' && !value.trim())) {
@@ -60,7 +52,7 @@ export default function FinancialData() {
             <div className="space-y-2">
                 <SelectField
                     label="Escolha a Forma de Pagamento"
-                    value={forma_pag}
+                    value={forma_pag !== undefined ? String(forma_pag) : ''}
                     onChange={handleFormaPagamentoChange}
                     options={[
                         { value: 'boleto    ', label: 'Boleto' },
@@ -129,7 +121,7 @@ export default function FinancialData() {
                             Tipo de Chave PIX
                         </Label>
                         <SelectField
-                            value={tipopix}
+                            value={tipopix || ''}
                             onChange={(value: string) =>
                                 handleSetState('tipo_chave_pix', value)
                             }

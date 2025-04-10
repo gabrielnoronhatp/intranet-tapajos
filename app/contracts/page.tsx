@@ -21,7 +21,7 @@ import { fetchLojas } from '@/hooks/slices/noPaper/noPaperSlice';
 import { toast } from 'react-hot-toast';
 import { NumericFormat } from 'react-number-format';
 import { IContract } from '@/types/Contracts/Contracts';
-import { IFilial } from '@/types/noPaper/Supplier/SupplierType';
+
 
 export default function ContractForm() {
     const dispatch = useDispatch<AppDispatch>();

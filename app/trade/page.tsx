@@ -16,7 +16,7 @@ import { AppDispatch, RootState } from '@/hooks/store';
 import { debounce } from 'lodash';
 import { MetaTable } from '@/components/trade/meta-table';
 import { formatDateUTC } from '@/lib/utils';
-import { Escala, Operador } from '@/types/Trade/ITrade';
+import { Escala, IEscala, Operador } from '@/types/Trade/ITrade';
 import { IFilial } from '@/types/noPaper/Supplier/SupplierType';
 
 const { Option } = Select;
@@ -45,7 +45,7 @@ export default function CampaignRegistration() {
     const [escalaData, setEscalaData] = useState<Escala[]>([]);
 
     useEffect(() => {
-        dispatch(fetchFiliais(''));
+        dispatch(fetchFiliais());
     }, [productName]);
 
     const handleAddOperador = () => {
@@ -146,15 +146,15 @@ export default function CampaignRegistration() {
     );
 
     const handleEscalaSubmit = (formattedMetas: Escala[]) => {
-        setEscalaData(formattedMetas);
+        setEscalaData(formattedMetas as unknown as Escala[]);
     };
 
     const handleSaveCampaign = async () => {
         const campaignData = {
             nome: campaignName,
             idempresa,
-            datainicial: formatDateUTC(currentCampaign?.datainicial),
-            datafinal: formatDateUTC(currentCampaign?.datafinal),
+            datainicial: formatDateUTC(currentCampaign?.datainicial || ''),
+            datafinal: formatDateUTC(currentCampaign?.datafinal || ''),
             valor_total: currentCampaign?.valor_total,
             userlanc: user?.username,
             datalanc: formatDate(new Date().toISOString()),
@@ -187,7 +187,7 @@ export default function CampaignRegistration() {
         }
 
         try {
-            await dispatch(createCampaign(campaignData));
+            await dispatch(createCampaign(campaignData as any));
             message.success('Campanha criada com sucesso!');
         } catch (error) {
             console.error('Erro ao criar campanha:', error);
@@ -207,8 +207,8 @@ export default function CampaignRegistration() {
         dispatch(setCurrentCampaign({ [field]: value }));
     };
 
-    const handleSearchFilial = (value: string) => {
-        dispatch(fetchFiliais(value));
+    const handleSearchFilial = () => {
+        dispatch(fetchFiliais());
     };
 
     return (
@@ -348,7 +348,7 @@ export default function CampaignRegistration() {
                                     value={meta_valor}
                                     onChange={(e) => {
                                         const inputValue = e.target.value;
-                                       
+
                                         setMetaValor(inputValue);
                                     }}
                                 />
@@ -358,7 +358,7 @@ export default function CampaignRegistration() {
                                     value={premiacao}
                                     onChange={(e) => {
                                         const inputValue = e.target.value;
-                                      
+
                                         setPremiacao(inputValue);
                                     }}
                                 />
@@ -459,7 +459,11 @@ export default function CampaignRegistration() {
                                     filterOption={false}
                                     onSearch={handleSearchProduto}
                                     //TODO  delete any
-                                    onSelect={(option: { label: string; value: string; nome: string }) => {
+                                    onSelect={(option: {
+                                        label: string;
+                                        value: string;
+                                        nome: string;
+                                    }) => {
                                         handleAddMarcaProduto(
                                             option.label,
                                             option.value,
@@ -554,11 +558,8 @@ export default function CampaignRegistration() {
                                 value={currentCampaign?.valor_total}
                                 onChange={(e) => {
                                     const inputValue = e.target.value;
-                                   
-                                    handleSetState(
-                                        'valor_total',
-                                        inputValue
-                                    );
+
+                                    handleSetState('valor_total', inputValue);
                                 }}
                             />
                         </div>
@@ -567,7 +568,13 @@ export default function CampaignRegistration() {
                             <h2 className="text-lg font-bold text-green-600">
                                 Escala
                             </h2>
-                            <MetaTable onEscalaSubmit={handleEscalaSubmit} />
+                            <MetaTable
+                                onEscalaSubmit={(formattedMetas: IEscala[]) => {
+                                    handleEscalaSubmit(
+                                        formattedMetas as unknown as Escala[]
+                                    );
+                                }}
+                            />
                         </div>
                         {/* Submit Button */}
                         <div className="flex justify-end">

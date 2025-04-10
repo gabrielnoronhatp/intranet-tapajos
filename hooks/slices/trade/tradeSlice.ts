@@ -562,10 +562,10 @@ const tradeSlice = createSlice({
         setUserLanc: (state: ICampaign, action: PayloadAction<string>) => {
             state.userlanc = action.payload;
         },
-        setCurrentCampaign: (state: ICampaign, action: PayloadAction<ICampaign>) => {
+        setCurrentCampaign: (state: ICampaign, action: PayloadAction<Partial<ICampaign>>) => {
             state.currentCampaign = {
                 ...state.currentCampaign,
-                ...action.payload,
+                ...action.payload
             };
         },
     },

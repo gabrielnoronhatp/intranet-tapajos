@@ -19,7 +19,9 @@ export type Vacancy =  {
 export interface ICandidate {
     id: string;
     nome_completo: string;
+    analise: IAnalysis;
     email: string;
+    cpf: string;
     telefone: string;
     is_primeiraexperiencia: boolean;
     is_disponivel: string;

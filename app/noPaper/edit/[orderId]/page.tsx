@@ -16,7 +16,7 @@ import { api } from '@/app/service/api';
 import { useParams, useRouter } from 'next/navigation';
 import { deleteFile } from '@/hooks/slices/noPaper/noPaperSlice';
 import { RootState, AppDispatch } from '@/hooks/store';
-import { OrderData, OrderState } from '@/types/noPaper/Order/OrderTypes';
+import { OrderState } from '@/types/noPaper/Order/OrderTypes';
 import { UploadChangeParam } from 'antd/es/upload';
 
 export default function EditOrderPage() {
@@ -155,14 +155,7 @@ export default function EditOrderPage() {
         }
     };
 
-    type Info = {
-        file: {
-            status: string;
-            name: string;
-            originFileObj: File;
-        };
-        fileList: File[];
-    };
+
 
     const handleUploadChange = (info: UploadChangeParam<UploadFile<any>>) => {
         if (info.file.status === 'done') {

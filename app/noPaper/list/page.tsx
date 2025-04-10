@@ -8,7 +8,7 @@ import { FloatingActionButton } from '@/components/nopaper/floating-action-butto
 import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
 import { useState, useEffect } from 'react';
 import { DatePicker } from 'antd';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs  from 'dayjs';
 import { api } from '@/app/service/api';
 import { OrderState } from '@/types/noPaper/Order/OrderTypes';
 const { RangePicker } = DatePicker;
@@ -64,7 +64,7 @@ export default function NoPaperList() {
             }
         }
         fetchOrders();
-    }, [searchParams]);
+    }, [searchParams,orders ]);
 
     return (
         <AuthGuard>

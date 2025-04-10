@@ -25,6 +25,7 @@ import {
     IEscala,
     IValorMeta,
     IProduct,
+    ICampaign,
 } from '@/types/Trade/ITrade';
 import { IFilial } from '@/types/noPaper/Supplier/SupplierType';
 
@@ -66,7 +67,7 @@ export default function CampaignEdit() {
     useEffect(() => {
         if (campaignId) {
             dispatch(fetchCampaignById(campaignId));
-            dispatch(fetchFiliais(''));
+            dispatch(fetchFiliais());
         }
     }, [dispatch, campaignId, productName]);
 
@@ -80,7 +81,7 @@ export default function CampaignEdit() {
             setOperadores(currentCampaign.participantes);
             setMetaValor(currentCampaign.campanha?.meta_valor);
             setMarcaProdutos(currentCampaign.itens);
-            setTipoMeta(currentCampaign.campanha?.tipoMeta);
+            setTipoMeta(currentCampaign.campanha?.tipo_meta);
 
             if (currentCampaign.escala && currentCampaign.escala.length > 0) {
                 console.log(
@@ -109,11 +110,11 @@ export default function CampaignEdit() {
                 }
 
                 const outrasLinhas = escalaData.filter(
-                    (item: IEscala) => item.linha !== ''
+                    (item: IEscala) => item.linha !== '' && item.linha !== undefined
                 );
-                metaGeralRange = outrasLinhas.map(
-                    (item: IEscala) => item.linha
-                );
+                metaGeralRange = outrasLinhas
+                    .map((item: IEscala) => item.linha)
+                    .filter((linha): linha is string => linha !== undefined);
 
                 valoresMeta = [];
                 outrasLinhas.forEach((linha: IEscala, idxLinha: number) => {
@@ -154,34 +155,43 @@ export default function CampaignEdit() {
         }
 
         if (selectedOperador && meta_valor && premiacao) {
-            const idparticipante =
+            const operatorFound =
                 tipoOperador === 'teleoperador'
                     ? operators.find((op) => op.nome === selectedOperador)
-                          ?.matricula
-                    : operators.find((op) => op.nome === selectedOperador)
-                          ?.codusur;
+                    : operators.find((op) => op.nome === selectedOperador);
 
-            if (!idparticipante) {
+            if (!operatorFound) {
                 message.error('Operador não encontrado!');
                 return;
             }
 
-            const participante = {
+            const idparticipante =
+                tipoOperador === 'teleoperador'
+                    ? Number(operatorFound.matricula)
+                    : Number(operatorFound.codusur);
+
+            const participante: Partial<IParticipants> = {
                 modelo:
                     tipoOperador === 'teleoperador' ? 'teleoperador' : 'RCA',
                 meta: tipoMeta,
                 idparticipante,
-                meta_valor: tipoMeta === 'VALOR' ? parseFloat(meta_valor) : 0,
+                meta_valor:
+                    tipoMeta === 'VALOR' ? parseFloat(String(meta_valor)) : 0,
                 meta_quantidade:
-                    tipoMeta === 'QUANTIDADE' ? parseFloat(meta_valor) : 0,
+                    tipoMeta === 'QUANTIDADE'
+                        ? parseFloat(String(meta_valor))
+                        : 0,
                 premiacao,
                 tipo_meta: tipoMeta,
+                nome: selectedOperador,
+                tipo: tipoOperador,
+                id: 0,
+                label: selectedOperador,
+                idcampanha_distribuicao: 0,
+                metrica: tipoMeta,
             };
 
-            setOperadores([
-                ...operadores,
-                { ...participante, nome: selectedOperador, tipo: tipoOperador },
-            ]);
+            setOperadores([...operadores, participante as IParticipants]);
             setSelectedOperador('');
             setMetaValor('');
             setPremiacao('');
@@ -198,17 +208,19 @@ export default function CampaignEdit() {
         codmarca: number
     ) => {
         if (nome) {
-            setMarcaProdutos([
-                ...marcaProdutos,
-                {
-                    nome,
-                    codprod,
-                    descricao,
-                    iditem,
-                    codmarca,
-                    metrica: tipoMarcaProduto,
-                },
-            ]);
+            const newProduct: IProduct = {
+                nome,
+                codprod,
+                descricao,
+                id: iditem,
+                codmarca: String(codmarca),
+                metrica: tipoMarcaProduto,
+                label: nome,
+                value: codprod,
+                marca: nome,
+            };
+
+            setMarcaProdutos([...marcaProdutos, newProduct]);
             setProductName('');
         } else {
             message.error('Preencha o nome antes de adicionar!');
@@ -238,18 +250,28 @@ export default function CampaignEdit() {
     );
 
     const handleUpdateCampaign = async () => {
-        const campaignData = {
+        const campaignData: Partial<ICampaign> = {
             nome: campaignName,
-            idempresa: idempresa,
+            idempresa: Number(idempresa),
             datainicial: formatDateUTC(datainicial),
             datafinal: formatDateUTC(datafinal),
-            valor_total: valorTotal,
-            userlanc: user?.username,
+            valor_total: Number(valorTotal),
+            meta_valor: Number(meta_valor),
+            tipo_meta: tipoMeta,
+            userlanc: user?.username || '',
             datalanc: formatDate(new Date().toISOString()),
-            status: true,
+            status: 'active',
             participantes: operadores,
             itens: marcaProdutos,
             escala: escalaData,
+            id: Number(campaignId),
+            idcampanha_distribuicao:
+                currentCampaign?.campanha?.idcampanha_distribuicao || 0,
+            operators: [],
+            campaigns: [],
+            products: [],
+            filiais: [],
+            campanha: {} as ICampaign,
         };
 
         if (
@@ -267,7 +289,7 @@ export default function CampaignEdit() {
             await dispatch(
                 updateCampaign({
                     id: campaignId,
-                    data: campaignData,
+                    data: campaignData as ICampaign,
                 })
             );
             message.success('Campanha atualizada com sucesso!');
@@ -277,8 +299,8 @@ export default function CampaignEdit() {
         }
     };
 
-    const handleSearchFilial = (value: string) => {
-        dispatch(fetchFiliais(value));
+    const handleSearchFilial = () => {
+        dispatch(fetchFiliais());
     };
 
     const showDeleteConfirm = (participant: IParticipants) => {
@@ -454,14 +476,11 @@ export default function CampaignEdit() {
                                     defaultActiveFirstOption={false}
                                     filterOption={false}
                                     onSearch={handleSearchOperador}
-                                    onSelect={(
-                                        value: string,
-                                        option: IParticipants
-                                    ) => {
-                                        setSelectedOperador(option.label);
-                                    }}
+                                    // onSelect={(value: string, option: any) => {
+                                    //     setSelectedOperador(option.label);
+                                    // }}
                                     options={operators?.map(
-                                        (operator: IParticipants) => ({
+                                        (operator: IOperator) => ({
                                             value:
                                                 tipoOperador === 'teleoperador'
                                                     ? operator.matricula
@@ -526,9 +545,9 @@ export default function CampaignEdit() {
                                                 record.tipo_meta && record.meta
                                                     ? record.meta_valor
                                                     : record.meta_quantidade;
-                                            return parseFloat(
-                                                value
-                                            ).toLocaleString('pt-BR');
+                                            return value.toLocaleString(
+                                                'pt-BR'
+                                            );
                                         },
                                     },
                                     {
@@ -599,10 +618,7 @@ export default function CampaignEdit() {
                                     defaultActiveFirstOption={false}
                                     filterOption={false}
                                     onSearch={handleSearchProduto}
-                                    onSelect={(
-                                        value: string,
-                                        option: IProduct
-                                    ) => {
+                                    onSelect={(value: string, option: any) => {
                                         handleAddMarcaProduto(
                                             option.label,
                                             option.value,
@@ -709,7 +725,11 @@ export default function CampaignEdit() {
                             <MetaTable
                                 isEditing={true}
                                 campaignId={campaignId}
-                                escala={escalaProcessada}
+                                escala={escalaProcessada && {
+                                    metaGeralRange: escalaProcessada.metaGeralRange || [],
+                                    metaVendedorRange: escalaProcessada.metaVendedorRange || [],
+                                    valoresMeta: escalaProcessada.valoresMeta || []
+                                }}
                                 onEscalaSubmit={handleEscalaSubmit}
                             />
                         </div>

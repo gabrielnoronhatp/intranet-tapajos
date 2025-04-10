@@ -1,27 +1,11 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { Button, Input, Select, Upload, Radio } from 'antd';
-import { FornecedorSelect } from '@/components/nopaper/supplier-select';
-import FinancialData from '@/components/contracts/duplicated-components/financial-data-form';
+import React, {  useState } from 'react';
 
-import { useDispatch, useSelector } from 'react-redux';
-import { FormSection } from '@/components/nopaper/form-section';
+
 import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
 import { Navbar } from '@/components/layout/navbar';
 import { Sidebar } from '@/components/layout/sidebar';
-import {
-    setCurrentContract,
-    createContract,
-    uploadContractFile,
-} from '@/hooks/slices/contracts/contractSlice';
-import { AppDispatch, RootState } from '@/hooks/store';
-import { ServiceTypeSelect } from '@/components/contracts/service-type-select';
-import { fetchLojas } from '@/hooks/slices/noPaper/noPaperSlice';
-import { toast } from 'react-hot-toast';
-import { NumericFormat } from 'react-number-format';
-import { IContract } from '@/types/Contracts/Contracts';
-import { IFilial } from '@/types/noPaper/Supplier/SupplierType';
 import LineChartComponent from '@/components/charts/charts';
 import { Card, Row, Col } from 'antd';
 import { Line, Bar, Pie } from '@ant-design/charts';
@@ -116,15 +100,10 @@ const MultiChartComponent: React.FC = () => {
 };
 
 export default function ContractForm() {
-    const dispatch = useDispatch<AppDispatch>();
-    const { currentContract } = useSelector(
-        (state: RootState) => state.contracts
-    );
+   
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-    const [tipoMulta, setTipoMulta] = useState<'valor' | 'percentual'>('valor');
-    const [error, setError] = useState<string | null>(null);
-    const { lojas } = useSelector((state: RootState) => state.noPaper);
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  
+  
 
 
     return (

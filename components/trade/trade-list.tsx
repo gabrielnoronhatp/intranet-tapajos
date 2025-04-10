@@ -24,10 +24,9 @@ import { useRouter } from 'next/navigation';
 import useTokenRefresh from '@/hooks/useTokenRefresh';
 import dayjs from 'dayjs';
 import { MetaTableReadOnly } from './meta-table-readonly';
-import { IEscala } from '@/types/trade/IEscala';    
-import { ICampaign } from '@/types/trade/ICampaign';
-import { Participante } from '@/types/trade/IParticipante';
-import { Item } from '@/types/trade/IItem';
+import { ICampaign, IEscala, IParticipants, IProduct} from '@/types/Trade/ITrade';
+
+
 export function TableTrade() {
     const [clientSideReady] = useState(false);
     const [searchForm] = Form.useForm();

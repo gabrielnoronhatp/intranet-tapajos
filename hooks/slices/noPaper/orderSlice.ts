@@ -2,31 +2,31 @@ import { createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import { api } from '@/app/service/api';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
-import { Item, OrderData, Parcela } from '@/types/noPaper/Order/OrderTypes';
+import { Item, OrderData, Parcela, OrderState } from '@/types/noPaper/Order/OrderTypes';
 import { CentroCusto } from '@/types/noPaper/Order/CentroCustoType';
+import { ApiError } from '@/types/Error/IError';
 
-
-const initialState = {
+const initialState: OrderData  = {
     dtlanc: '',
-    ramoOP: null,
+    ramoOP: '',
     notaOP: '',
-    qtparcelasOP: null,
-    contagerencialOP: null,
+    qtparcelasOP: 0,
+    contagerencialOP: '',
     fornecedorOP: '',
     lojaOP: '',
     serieOP: '',
-    metodoOP: null,
+    metodoOP: '',
     qtitensOP: 0,
     valorimpostoOP: 0,
-    dtavistaOP: null,
+    dtavistaOP: '',
     dataVencimentoOP: '',
-    bancoOP: null,
-    agenciaOP: null,
-    contaOP: null,
+    bancoOP: '',
+    agenciaOP: '',
+    contaOP: '',
     dtdepositoOP: '',
     parcelasOP: [
         {
-            parcela: null,
+            parcela: '',
             banco: '',
             agencia: '',
             conta: '',
@@ -37,8 +37,11 @@ const initialState = {
     produtosOP: [
         {
             produto: '',
+            quantidade: 0,
+            valorUnitario: 0,
+            valorTotal: 0,
             valor: 0,
-            centroCusto: [],
+            centrocusto: [] ,
         },
     ],
     observacaoOP: null,
@@ -48,11 +51,11 @@ const initialState = {
     opcaoLancOP: null,
     ccustoOP: [
         {
-            centrocusto: 0,
+            centrocusto: '',
             valor: 0,
         },
     ],
-    userOP: null,
+    userOP: '',
     canceled: false,
     files: [],
 };
@@ -73,8 +76,8 @@ export const submitOrder = createAsyncThunk(
                 return rejectWithValue('Erro ao enviar o pedido.');
             }
         } catch (error: unknown) {
-            toast.error('Error: ' + error.response.data.message);
-            return rejectWithValue(error.response.data);
+            toast.error('Error: ' + error?.response.data.message);
+            return rejectWithValue(error?.response.data);
         }
     }
 );
@@ -105,7 +108,7 @@ const orderSlice = createSlice({
             const produtosOP = itens.map((item: Item) => {
                 const centroCustoFormatado = centrosCusto.map(
                     (cc: CentroCusto) => ({
-                        centrocusto: cc.centroCusto,
+                        centrocusto: cc.centrocusto,
                         valor: cc.valor,
                     })
                 );
@@ -141,18 +144,18 @@ const orderSlice = createSlice({
                               banco: parcela.banco || '',
                               agencia: parcela.agencia || '',
                               conta: parcela.conta || '',
-                              tipopixOP: parcela.tipopixOP || '',
-                              chavepixOP: parcela.chavepixOP || '',
+                              tipopix: parcela.tipopix || '',
+                              chavepix: parcela.chavepix || '',
                           }))
                         : [],
                 produtosOP: produtosOP,
                 observacaoOP: rest.observacao || null,
-                tipopixOP: rest.tipopixOP || null,
-                chavepixOP: rest.chavepixOP || null,
-                datapixOP: rest.datapixOP || null,
+                tipopixOP: rest.tipopix || null,
+                chavepixOP: rest.chavepix || null,
+                datapixOP: rest.datapix || null,
                 opcaoLancOP: rest.tipoLancamento || null,
                 ccustoOP: centrosCusto.map((centro: CentroCusto) => ({
-                    centrocusto: centro.centroCusto,
+                    centrocusto: centro.centrocusto,
                     valor: centro.valor,
                 })),
                 userOP: rest.user || null,

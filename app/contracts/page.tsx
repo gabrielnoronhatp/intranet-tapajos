@@ -99,7 +99,6 @@ export default function ContractForm() {
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <FormSection title="Informações do Serviço">
                                     <ServiceTypeSelect
-                                        handleSetState={handleSetState}
                                         fieldValue={currentContract.idtipo}
                                         handleSelectChange={(value) =>
                                             handleSetState(
@@ -115,7 +114,6 @@ export default function ContractForm() {
                                         fieldValue={
                                             currentContract.idfornecedor
                                         }
-                                        handleSetState={handleSetState}
                                     />
                                     <div className="text-sm font-medium text-[#11833B] uppercase">
                                         SELECIONE A FILIAL
@@ -131,18 +129,13 @@ export default function ContractForm() {
                                         }
                                         showSearch
                                         // find way to remove this any
-                                        filterOption={(
-                                            input: string,
-                                            option: IFilial
-                                        ) =>
-                                            (option?.label ?? '')
-                                                .toLowerCase()
-                                                .includes(input.toLowerCase())
-                                        }
                                         options={lojas.map((filial) => ({
                                             value: filial.loja,
                                             label: filial.loja,
                                         }))}
+                                        filterOption={(input: string, option) =>
+                                            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                                        }
                                         className="w-full mb-4"
                                     />
                                 </FormSection>

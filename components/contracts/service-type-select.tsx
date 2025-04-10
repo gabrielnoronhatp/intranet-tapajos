@@ -13,9 +13,10 @@ import { PlusOutlined } from '@ant-design/icons';
 import { Button, Divider, Input, Space } from 'antd';
 
 interface ServiceTypeSelectProps {
-    fieldValue: string;
+    fieldValue: string | number;
     handleSelectChange: (value: string) => void;
 }
+
 
 export const ServiceTypeSelect = ({
 

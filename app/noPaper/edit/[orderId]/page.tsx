@@ -16,7 +16,7 @@ import { api } from '@/app/service/api';
 import { useParams, useRouter } from 'next/navigation';
 import { deleteFile } from '@/hooks/slices/noPaper/noPaperSlice';
 import { RootState, AppDispatch } from '@/hooks/store';
-import { OrderData, CentroCusto } from '@/types/noPaper/Order/OrderTypes';
+import { OrderData } from '@/types/noPaper/Order/OrderTypes';
 
 export default function EditOrderPage() {
     const dispatch = useDispatch<AppDispatch>();
@@ -96,14 +96,13 @@ export default function EditOrderPage() {
 
         const validateCenters = () => {
             if (!orderData.ccustoOP || orderData.ccustoOP.length === 0) {
-                return false; // Se a lista estiver vazia, retorna falso
+                return false; 
             }
-
-            return orderData.ccustoOP.every(
-                (center: CentroCusto) =>
-                    typeof center.centrocusto === 'string' &&
-                    center.centrocusto.trim() !== ''
-            );
+        
+            return orderData.ccustoOP.every((center) => {
+                const centroCusto = center.centrocusto.toString();
+                return typeof centroCusto === 'string' && centroCusto.trim() !== '';
+            });
         };
 
         if (!validateCenters()) {

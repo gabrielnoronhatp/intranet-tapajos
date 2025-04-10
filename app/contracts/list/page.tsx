@@ -26,9 +26,7 @@ export default function ContractList() {
     );
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isViewOpen, setIsViewOpen] = useState(false);
-    const [selectedContract, setSelectedContract] = useState<IContract | null>(
-        null
-    );
+    const [selectedContract, setSelectedContract] = useState<IContract>();
     const [fileUrls, setFileUrls] = useState<
         Array<{ url: string; name: string }>
     >([]);
@@ -96,7 +94,7 @@ export default function ContractList() {
         if (record.cancelado) return 'contract-cancelled';
 
         const today = new Date();
-        const dueDate = new Date(record.data_venc_contrato);
+        const dueDate = new Date(record.data_venc_contrato || '');
         const timeDiff = dueDate.getTime() - today.getTime();
         const daysToDue = timeDiff / (1000 * 3600 * 24);
 
@@ -186,6 +184,12 @@ export default function ContractList() {
             setFileUrls([]);
         }
     };
+
+    const formatDate = (date: string | Date | undefined): string => {
+        if (!date) return 'N/A';
+        if (date instanceof Date) return date.toLocaleDateString();
+        return date; // Already a string
+    };
     return (
         <AuthGuard>
             <div className="min-h-screen bg-background">
@@ -268,9 +272,11 @@ export default function ContractList() {
                                             </h2>
                                             <p>
                                                 Tipo de Serviço:{' '}
-                                                {serviceTypes[
-                                                    selectedContract.idtipo
-                                                ] || 'Tipo não encontrado'}
+                                                {
+                                                    serviceTypes[
+                                                        selectedContract.idtipo as number
+                                                    ]
+                                                }
                                             </p>
                                             <p>Nome: {selectedContract.nome}</p>
                                             <p>
@@ -287,9 +293,9 @@ export default function ContractList() {
                                             </p>
                                             <p>
                                                 Vencimento:{' '}
-                                                {
+                                                {formatDate(
                                                     selectedContract.data_venc_contrato
-                                                }
+                                                )}
                                             </p>
                                             <p>
                                                 Valor:{' '}

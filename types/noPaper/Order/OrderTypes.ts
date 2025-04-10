@@ -13,11 +13,18 @@ export interface OrderData {
     qtitensOP: number | null;
     valorimpostoOP: number;
     dtavistaOP: string | null;
-    bancoOP?: string | null;
+    bancoOP : string | null;
     agenciaOP?: string | null;
     contaOP?: string | null;
     dtdepositoOP: string | null;
-    parcelasOP: { parcela: string }[] | null;
+    parcelasOP: { 
+        banco:string,
+        agencia:string,
+        conta:string,
+        tipopix:string,
+        chavepix:string,
+        parcela: string 
+    }[] | null;
     produtosOP: Item[];
     observacaoOP: string | null;
     tipopixOP: string | null;
@@ -27,6 +34,7 @@ export interface OrderData {
     ccustoOP: CentroCusto[];
     userOP: string;
     files? : File[];
+    dataVencimentoOP: string | null;
 }
 
 export interface Parcela {
@@ -99,4 +107,5 @@ export interface Item {
     valor: number;
     valorUnitario: number;
     valorTotal: number;
+    centrocusto: CentroCusto[];
 }

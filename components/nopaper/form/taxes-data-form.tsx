@@ -11,7 +11,7 @@ import { RootState } from '@/hooks/store';
 import { NumericFormat } from 'react-number-format';
 import { OrderState, Item } from '@/types/noPaper/Order/OrderTypes';
 interface TaxesDataProps {
-    data: OrderState;
+    data: OrderData;
     onChange: (field: keyof OrderState, value: string | number) => void;
 }
 

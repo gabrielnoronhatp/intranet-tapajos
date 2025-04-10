@@ -5,7 +5,7 @@ import { Navbar } from '@/components/layout/navbar';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Button } from '@/components/ui/button';
 import { setOrderState } from '@/hooks/slices/noPaper/orderSlice';
-import { message, Upload, Modal } from 'antd';
+import { message, Upload, Modal, UploadFile } from 'antd';
 import OriginData from '@/components/nopaper/form/origin-data-form';
 import FinancialData from '@/components/nopaper/form/financial-data-form';
 import TaxesData from '@/components/nopaper/form/taxes-data-form';
@@ -16,7 +16,8 @@ import { api } from '@/app/service/api';
 import { useParams, useRouter } from 'next/navigation';
 import { deleteFile } from '@/hooks/slices/noPaper/noPaperSlice';
 import { RootState, AppDispatch } from '@/hooks/store';
-import { OrderData } from '@/types/noPaper/Order/OrderTypes';
+import { OrderData, OrderState } from '@/types/noPaper/Order/OrderTypes';
+import { UploadChangeParam } from 'antd/es/upload';
 
 export default function EditOrderPage() {
     const dispatch = useDispatch<AppDispatch>();
@@ -25,13 +26,13 @@ export default function EditOrderPage() {
     const orderId = params?.orderId as string;
 
     const orderData = useSelector((state: RootState) => state.order);
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [selectedFile, setSelectedFile] = useState<File>();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [existingFiles, setExistingFiles] = useState<
         Array<{ url: string; name: string }>
     >([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [fileList, setFileList] = useState<File[]>([]);
+    const [fileList, setFileList] = useState<UploadFile<any>[]>([]);
 
     useEffect(() => {
         const fetchOrderData = async () => {
@@ -85,9 +86,12 @@ export default function EditOrderPage() {
         if (orderId) {
             fetchOrderData();
         }
-    }, [orderId, dispatch, router, fileList, isLoading ]);
+    }, [orderId, dispatch, router, fileList, isLoading]);
 
-    const handleSetState = (field: keyof typeof orderData, value: OrderData) => {
+    const handleSetState = (
+        field: keyof OrderState,
+        value: OrderState[keyof OrderState]
+    ) => {
         dispatch(setOrderState({ [field]: value }));
     };
 
@@ -96,12 +100,14 @@ export default function EditOrderPage() {
 
         const validateCenters = () => {
             if (!orderData.ccustoOP || orderData.ccustoOP.length === 0) {
-                return false; 
+                return false;
             }
-        
+
             return orderData.ccustoOP.every((center) => {
                 const centroCusto = center.centrocusto.toString();
-                return typeof centroCusto === 'string' && centroCusto.trim() !== '';
+                return (
+                    typeof centroCusto === 'string' && centroCusto.trim() !== ''
+                );
             });
         };
 
@@ -149,24 +155,22 @@ export default function EditOrderPage() {
         }
     };
 
-   type Info = {
-    file: {
-        status: string;
-        name: string;
-        originFileObj: File;
+    type Info = {
+        file: {
+            status: string;
+            name: string;
+            originFileObj: File;
+        };
+        fileList: File[];
     };
-    fileList: File[];
-   }
 
-    const handleUploadChange = (info: Info)  => {
+    const handleUploadChange = (info: UploadChangeParam<UploadFile<any>>) => {
         if (info.file.status === 'done') {
             message.success(`${info.file.name} foi enviado com sucesso!`);
             setSelectedFile(info.file.originFileObj);
         } else if (info.file.status === 'error') {
             message.error(`Falha ao enviar ${info.file.name}.`);
         }
-
-        // Update fileList state
         setFileList(info.fileList);
     };
 
@@ -211,6 +215,15 @@ export default function EditOrderPage() {
         }
     };
 
+    const handleOnChange = (
+        field: keyof OrderState,
+        value: OrderState[keyof OrderState]
+    ) => {
+        handleSetState(field, value);
+    };
+
+    
+
     return (
         <AuthGuard>
             <div className="min-h-screen bg-background">
@@ -231,7 +244,7 @@ export default function EditOrderPage() {
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <OriginData
                                     data={orderData}
-                                    onChange={handleSetState}
+                                    onChange={handleOnChange}
                                 />
                                 <FinancialData
                                     data={orderData}
@@ -239,11 +252,11 @@ export default function EditOrderPage() {
                                 />
                                 <TaxesData
                                     data={orderData}
-                                    onChange={handleSetState}
+                                    onChange={handleOnChange}
                                 />
                                 <CenterOfCoust
                                     data={orderData}
-                                    onChange={handleSetState}
+                                    onChange={handleOnChange}
                                 />
 
                                 <div className="mt-6">
@@ -269,7 +282,9 @@ export default function EditOrderPage() {
                                                   ]
                                                 : []
                                         }
-                                        onRemove={() => setSelectedFile(null)}
+                                        onRemove={() =>
+                                            setSelectedFile(undefined)
+                                        }
                                         customRequest={async ({
                                             file,
                                             onSuccess,

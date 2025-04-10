@@ -1,12 +1,14 @@
-import { IFilial } from "../noPaper/Supplier/SupplierType";
+import { IFilial } from '../noPaper/Supplier/SupplierType';
 
 export interface ICampaign {
     id: number;
+    idcampanha_distribuicao: number; 
+    idempresa: number;
     nome: string;
     datainicial: string;
     datafinal: string;
-    idempresa: number;
     valor_total: number;
+    meta_valor: number;
     userlanc: string;
     datalanc: string;
     status: string;
@@ -14,6 +16,7 @@ export interface ICampaign {
     campaigns: ICampaign[];
     products: IProduct[];
     currentCampaign?: ICampaign;
+    campanha: ICampaign;
     filiais: IFilial[];
     participantes: IParticipants[];
     escala: IEscala[];
@@ -36,7 +39,7 @@ export interface IProduct {
     id: number;
     label: string;
     value: string;
-    codprod: string;    
+    codprod: string;
     descricao: string;
     codmarca: string;
     marca: string;
@@ -71,7 +74,7 @@ export interface IParticipants {
     tipo: string;
     matricula: string;
     codusur: string;
-    
+
     tipo_meta: string;
 }
 

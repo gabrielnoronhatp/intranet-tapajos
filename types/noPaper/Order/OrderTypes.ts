@@ -1,22 +1,23 @@
 import { CentroCusto } from './CentroCustoType';
 
 export interface OrderData {
+    id:string | number;
     dtlanc: string;
-    ramoOP: string | null;
-    notaOP: string | null;
-    qtparcelasOP: number | null;
-    contagerencialOP: string | null;
-    fornecedorOP: string | null;
-    lojaOP: string | null;
-    serieOP: string | null;
-    metodoOP: string | null;
-    qtitensOP: number | null;
+    ramoOP: string ;
+    notaOP: string ;
+    qtparcelasOP: number ;
+    contagerencialOP: string ;
+    fornecedorOP: string ;
+    lojaOP: string ;
+    serieOP: string ;
+    metodoOP: string ;
+    qtitensOP: number ;
     valorimpostoOP: number;
-    dtavistaOP: string | null;
-    bancoOP : string | null;
-    agenciaOP?: string | null;
-    contaOP?: string | null;
-    dtdepositoOP: string | null;
+    dtavistaOP: string ;
+    bancoOP? : string ;
+    agenciaOP?: string ;
+    contaOP?: string ;
+    dtdepositoOP: string ;
     parcelasOP: { 
         banco:string,
         agencia:string,
@@ -24,17 +25,17 @@ export interface OrderData {
         tipopix:string,
         chavepix:string,
         parcela: string 
-    }[] | null;
+    }[] ;
     produtosOP: Item[];
-    observacaoOP: string | null;
-    tipopixOP: string | null;
-    chavepixOP: string | null;
-    datapixOP: string | null;
-    opcaoLancOP: string | null;
+    observacaoOP: string ;
+    tipopixOP: string ;
+    chavepixOP: string ;
+    datapixOP: string ;
+    opcaoLancOP: string ;
     ccustoOP: CentroCusto[];
     userOP: string;
     files? : File[];
-    dataVencimentoOP: string | null;
+    dataVencimentoOP: string ;
 }
 
 export interface Parcela {
@@ -46,15 +47,40 @@ export interface Parcela {
     chavepix: string;
 }
 export interface OrderState {
+    dtlanc: string;
     id: number;
+    qtparcelasOP: number ;
+    contagerencialOP: string ;
+    fornecedorOP: string ;
+    lojaOP: string ;
+    serieOP: string ;
+    metodoOP: string ;
+    produtosOP: Item[];
+    tipopixOP: string ;
+    chavepixOP: string ;
+    datapixOP: string ;
+    opcaoLancOP: string ;
+    ccustoOP: CentroCusto[];
+    userOP: string;
+    files?: File[];
+    dataVencimentoOP: string ;
+    observacaoOP: string ;
+    qtitensOP: number ;
+    valorimpostoOP: number;
+    ramoOP: string ;
+    notaOP: string ; 
     idtipo: string;
     dataEmissao: Date;
-    fornecedorOP: string | null;
+    dtavistaOP: string ;
+    bancoOP: string ;
+    agenciaOP: string ;
+    parcelasOP: Parcela[]; 
+    dtdepositoOP: string ;
     loading: boolean;
     canceled: boolean;
-    error: string | null;
+    error: string ;
     success: boolean;
-    orderData: OrderData | null;
+    orderData: OrderData ;
     isSidebarOpen: boolean;
     ramo: string;
     tipoLancamento: string;

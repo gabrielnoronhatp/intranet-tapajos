@@ -9,10 +9,10 @@ import { FornecedorSelect } from '@/components/nopaper/supplier-select';
 import { Label } from '@/components/ui/label';
 import { FormSection } from '../form-section';
 import { setOrderState } from '@/hooks/slices/noPaper/orderSlice';
-import { OrderState } from '@/types/noPaper/Order/OrderTypes';
+import { OrderData, OrderState } from '@/types/noPaper/Order/OrderTypes';
 interface OriginDataProps {
-    data: OrderState;
-    onChange: (field: keyof OrderState, value: string | number) => void;
+    data: OrderData; // Alterado para OrderData
+    onChange: (field: keyof OrderState, value: string | number) => void; // Alterado para OrderData
 }
 
 const OriginData: React.FC<OriginDataProps> = ({ data  }) => {

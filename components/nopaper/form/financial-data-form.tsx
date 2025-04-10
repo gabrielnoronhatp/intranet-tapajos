@@ -13,9 +13,9 @@ import {
 } from '@/hooks/slices/noPaper/errorSlice';
 import { Select } from 'antd';
 import { RootState } from '@/hooks/store';
-import { OrderState, Parcela } from '@/types/noPaper/Order/OrderTypes';  
+import { OrderData, OrderState, Parcela } from '@/types/noPaper/Order/OrderTypes';  
     interface FinancialDataProps {
-    data: OrderState;
+    data: OrderData;
     onChange: (field: keyof OrderState, value: string | number) => void;
 }
 

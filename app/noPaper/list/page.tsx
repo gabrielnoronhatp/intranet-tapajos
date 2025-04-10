@@ -34,7 +34,7 @@ export default function NoPaperList() {
     };
 
     const handleDateRangeChange = (
-        dates: [Dayjs, Dayjs] | null,
+        dates: any, // Can't remove  this type
         dateStrings: [string, string]
     ) => {
         if (dates && dates[0] && dates[1]) {
@@ -133,8 +133,7 @@ export default function NoPaperList() {
                                         >
                                             Período
                                         </label>
-                                        {/* TODO: delete  any */}
-                                        <RangePicker
+                                            <RangePicker
                                             onChange={handleDateRangeChange}
                                             placeholder={[
                                                 'Data de Início',
@@ -160,7 +159,7 @@ export default function NoPaperList() {
                             <div className="rounded-lg border bg-card">
                                 <DataTableOrder
                                     searchParams={searchParams}
-                                    ordersSearch={orders}
+                                    // orders={orders}
                                 />
                             </div>
 

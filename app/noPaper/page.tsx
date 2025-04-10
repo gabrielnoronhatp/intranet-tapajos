@@ -16,7 +16,8 @@ import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
 import { PlusOutlined } from '@ant-design/icons';
 import { api } from '@/app/service/api';
 import { AppDispatch, RootState } from '@/hooks/store';
-import { OrderData } from '@/types/noPaper/Order/OrderTypes';
+import { OrderData, OrderState } from '@/types/noPaper/Order/OrderTypes';
+import { CentroCusto } from '@/types/noPaper/Order/CentroCustoType';
 
 interface UploadResponse {
     message: string;
@@ -32,7 +33,7 @@ export default function NoPaper() {
     const [isSidebarOpen] = useState(false);
     const [isViewOpen] = useState(false);
 
-    const handleSetState = (field: keyof typeof orderData, value: OrderData) => {
+    const handleSetState = (field: keyof OrderState, value: OrderState[keyof OrderState]) => {
         if ((field === 'lojaOP' || field === 'fornecedorOP') && !value) {
             console.error(`${field} não pode ser vazio.`);
             return;
@@ -207,7 +208,7 @@ export default function NoPaper() {
                                                 const formData = new FormData();
                                                 formData.append('files', file as File);
 
-                                                const response = await api.post(`upload/${orderData.id}`, formData, {
+                                                const response = await api.post(`upload/${orderData?.id}`, formData, {
                                                     headers: { 'Content-Type': 'multipart/form-data' },
                                                 });
 
@@ -217,10 +218,10 @@ export default function NoPaper() {
 
                                                 message.success('Arquivo enviado com sucesso!', 3);
                                                 onSuccess?.(response.data);
-                                            } catch (error) {
+                                            } catch (error: unknown) {
                                                 console.error('Upload error:', error);
                                                 message.error('Falha ao enviar o arquivo. Tente novamente.', 3);
-                                                onError?.(error);
+                                            
                                             }
                                         }}
                                     >

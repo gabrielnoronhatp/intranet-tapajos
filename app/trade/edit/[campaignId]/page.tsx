@@ -16,11 +16,16 @@ import {
 } from '@/hooks/slices/trade/tradeSlice';
 import { RootState, AppDispatch } from '@/hooks/store';
 import { debounce } from 'lodash';
-import { useParams} from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { MetaTable } from '@/components/trade/meta-table';
 import { formatDate } from '@/lib/utils';
 import { formatDateUTC } from '@/lib/utils';
-import {IParticipants, IEscala, IValorMeta, IProduct } from '@/types/Trade/ITrade';
+import {
+    IParticipants,
+    IEscala,
+    IValorMeta,
+    IProduct,
+} from '@/types/Trade/ITrade';
 import { IFilial } from '@/types/noPaper/Supplier/SupplierType';
 
 const { Option } = Select;
@@ -39,9 +44,9 @@ export default function CampaignEdit() {
     const [selectedOperador, setSelectedOperador] = useState('');
     const [premiacao, setPremiacao] = useState('');
     const [campaignName, setCampaignName] = useState('');
-    const [idempresa, setIdempresa] = useState('');
+    const [idempresa, setIdempresa] = useState<number | string>('');
     const [tipoMeta, setTipoMeta] = useState('VALOR');
-    const [meta_valor, setMetaValor] = useState('');
+    const [meta_valor, setMetaValor] = useState<number | string>('');
     const user = useSelector((state: RootState) => state.auth.user);
     const params = useParams();
     const campaignId = params?.campaignId as string;
@@ -49,10 +54,13 @@ export default function CampaignEdit() {
     const [datafinal, setDatafinal] = useState('');
     const [valorTotal, setValorTotal] = useState<number | string>(0);
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [participantToDelete, setParticipantToDelete] = useState<IParticipants | null>(null);
+    const [participantToDelete, setParticipantToDelete] =
+        useState<IParticipants | null>(null);
     const [isItemModalVisible, setIsItemModalVisible] = useState(false);
     const [itemToDelete, setItemToDelete] = useState<number | null>(null);
-    const [escalaProcessada, setEscalaProcessada] = useState<IEscala | null>(null);
+    const [escalaProcessada, setEscalaProcessada] = useState<IEscala | null>(
+        null
+    );
     const [escalaData, setEscalaData] = useState<IEscala[]>([]);
 
     useEffect(() => {
@@ -65,7 +73,7 @@ export default function CampaignEdit() {
     useEffect(() => {
         if (currentCampaign) {
             setCampaignName(currentCampaign.campanha?.nome || '');
-            setIdempresa(currentCampaign.campanha?.idempresa || '');
+            setIdempresa(currentCampaign.campanha.idempresa);
             setDatainicial(currentCampaign.campanha?.datainicial || '');
             setDatafinal(currentCampaign.campanha?.datafinal || '');
             setValorTotal(currentCampaign.campanha?.valor_total || 0);
@@ -103,7 +111,9 @@ export default function CampaignEdit() {
                 const outrasLinhas = escalaData.filter(
                     (item: IEscala) => item.linha !== ''
                 );
-                metaGeralRange = outrasLinhas.map((item: IEscala) => item.linha);
+                metaGeralRange = outrasLinhas.map(
+                    (item: IEscala) => item.linha
+                );
 
                 valoresMeta = [];
                 outrasLinhas.forEach((linha: IEscala, idxLinha: number) => {
@@ -258,7 +268,7 @@ export default function CampaignEdit() {
                 updateCampaign({
                     id: campaignId,
                     data: campaignData,
-                }) 
+                })
             );
             message.success('Campanha atualizada com sucesso!');
         } catch (error) {
@@ -282,7 +292,7 @@ export default function CampaignEdit() {
                 deleteParticipantFromCampaign({
                     campaignId,
                     participantId: participantToDelete.idparticipante,
-                }) 
+                })
             );
             setOperadores(
                 operadores.filter(
@@ -317,7 +327,7 @@ export default function CampaignEdit() {
                     setIsItemModalVisible(false);
                     setItemToDelete(null);
                 })
-                .catch((error: unknown ) => {
+                .catch((error: unknown) => {
                     console.error('Erro ao remover item:', error);
                     message.error('Erro ao remover item');
                 });
@@ -444,11 +454,14 @@ export default function CampaignEdit() {
                                     defaultActiveFirstOption={false}
                                     filterOption={false}
                                     onSearch={handleSearchOperador}
-                                    onSelect={(value: string, option: IParticipants) => {
+                                    onSelect={(
+                                        value: string,
+                                        option: IParticipants
+                                    ) => {
                                         setSelectedOperador(option.label);
                                     }}
                                     options={operators?.map(
-                                        (operator: IParticipants ) => ({
+                                        (operator: IParticipants) => ({
                                             value:
                                                 tipoOperador === 'teleoperador'
                                                     ? operator.matricula
@@ -586,7 +599,10 @@ export default function CampaignEdit() {
                                     defaultActiveFirstOption={false}
                                     filterOption={false}
                                     onSearch={handleSearchProduto}
-                                    onSelect={(value: string, option: IProduct) => {
+                                    onSelect={(
+                                        value: string,
+                                        option: IProduct
+                                    ) => {
                                         handleAddMarcaProduto(
                                             option.label,
                                             option.value,
@@ -595,18 +611,20 @@ export default function CampaignEdit() {
                                             option.value
                                         );
                                     }}
-                                    options={products?.map((product: IProduct) => ({
-                                        value:
-                                            tipoMarcaProduto === 'produto'
-                                                ? product.codprod
-                                                : product.codmarca,
-                                        label:
-                                            tipoMarcaProduto === 'produto'
-                                                ? product.descricao
-                                                : product.marca,
-                                        codprod: product.codprod,
-                                        descricao: product.descricao,
-                                    }))}
+                                    options={products?.map(
+                                        (product: IProduct) => ({
+                                            value:
+                                                tipoMarcaProduto === 'produto'
+                                                    ? product.codprod
+                                                    : product.codmarca,
+                                            label:
+                                                tipoMarcaProduto === 'produto'
+                                                    ? product.descricao
+                                                    : product.marca,
+                                            codprod: product.codprod,
+                                            descricao: product.descricao,
+                                        })
+                                    )}
                                 />
                             </div>
                             <Table
@@ -678,7 +696,7 @@ export default function CampaignEdit() {
                                 value={valorTotal}
                                 onChange={(e) => {
                                     const inputValue = e.target.value;
-                                   
+
                                     setValorTotal(Number(inputValue));
                                 }}
                             />

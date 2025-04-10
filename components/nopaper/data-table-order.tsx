@@ -26,12 +26,12 @@ import { ColumnType } from 'antd/es/table';
 import { CentroCusto } from '@/types/noPaper/Order/CentroCustoType';
 interface DataTableOrderProps {
     searchParams: Record<string, string>;
-    
+    // orders: OrderState[];
 }
 
 export function DataTableOrder({
     searchParams,
-    
+    // orders,
 }: DataTableOrderProps) {
     const dispatch = useDispatch();
 

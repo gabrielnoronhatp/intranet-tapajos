@@ -8,11 +8,10 @@ import { Label } from '@/components/ui/label';
 import { RootState } from '@/hooks/store';
 import { Select } from 'antd';
 import { NumericFormat } from 'react-number-format';
-import { Item, OrderState } from '@/types/noPaper/Order/OrderTypes';
+import { Item, OrderData, OrderState } from '@/types/noPaper/Order/OrderTypes';
 import { CentroCusto } from '@/types/noPaper/Order/CentroCustoType';
 interface CenterOfCoustProps {
-    //TODO :  remove this any later
-    data: OrderState;
+    data: OrderData;
     onChange: (field: keyof OrderState, value: string | number) => void;
 }
 

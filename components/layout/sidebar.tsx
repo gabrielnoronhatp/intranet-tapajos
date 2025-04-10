@@ -7,6 +7,7 @@ import {
     FilePen,
     FileChartColumnIncreasing,
     UserRoundSearch,
+    BarChart,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -48,6 +49,11 @@ export function Sidebar({ isOpen }: SidebarProps) {
             key: '/vacancies',
             icon: <UserRoundSearch className="h-5 w-5" />,
             label: <Link href="/vacancies">Candidatos</Link>,
+        },
+        {
+            key: '/charts',
+            icon: <BarChart className="h-5 w-5" />,
+            label: <Link href="/charts">Gráficos</Link>,
         },
     ];
 

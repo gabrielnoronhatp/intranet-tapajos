@@ -1,4 +1,4 @@
-@tailwind base;
+ @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -55,4 +55,11 @@
     body {
         @apply bg-background text-foreground;
     }
+}
+
+
+.iconsidebar {
+    margin-left: 12px !important;
+    padding: 0px !important;
+    
 }

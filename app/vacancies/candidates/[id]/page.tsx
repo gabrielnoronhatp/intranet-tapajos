@@ -5,7 +5,6 @@ import { useParams } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/hooks/store';
 import {
-    CandidateWithAnalysis,
     fetchVacancyById,
     fetchVacancyCandidates,
 } from '@/hooks/slices/vacancySlice';
@@ -39,8 +38,8 @@ import {
 } from '@ant-design/icons';
 import Link from 'next/link';
 import { message } from 'antd';
-import { ICandidate, IAnalysis } from '@/types/vacancy/IVacancy';
-import { ColumnGroupType, ColumnType } from 'antd/es/table';
+import { ICandidate } from '@/types/vacancy/IVacancy';
+
 const { TabPane } = Tabs;
 
 export default function VacancyCandidatesPage() {
@@ -59,6 +58,9 @@ export default function VacancyCandidatesPage() {
             dispatch(fetchVacancyById(id as string));
             dispatch(fetchVacancyCandidates(id as string));
         }
+        // dispatch(fetchAllCandidates()).then((response) => {
+        //     setAllCandidates(response.payload);
+        // });
     }, [dispatch, id]);
 
     const showCandidateDetails = (candidate: ICandidate) => {
@@ -123,7 +125,7 @@ export default function VacancyCandidatesPage() {
         return 'text-green-600';
     };
 
-    const columns: ColumnType<ICandidate>[] = [
+    const columns = [
         {
             title: 'Foto',
             dataIndex: ['candidate', 'file_perfil'],
@@ -146,9 +148,7 @@ export default function VacancyCandidatesPage() {
             dataIndex: ['candidate', 'nome_completo'],
             key: 'nome_completo',
             sorter: (a: ICandidate, b: ICandidate) =>
-                a.candidate.nome_completo.localeCompare(
-                    b.candidate.nome_completo
-                ),
+                a.nome_completo.localeCompare(b.nome_completo),
         },
         {
             title: 'Email',
@@ -159,18 +159,6 @@ export default function VacancyCandidatesPage() {
             title: 'Telefone',
             dataIndex: ['candidate', 'telefone'],
             key: 'telefone',
-        },
-        {
-            title: 'Score',
-            dataIndex: 'analise',
-            key: 'analise',
-            render: (analise: IAnalysis) => (
-                <p
-                    className={`text-2xl ${getScoreColor(analise?.score)} font-bold`}
-                >
-                    {analise?.score}
-                </p>
-            ),
         },
         {
             title: 'Primeira Experiência',
@@ -185,8 +173,8 @@ export default function VacancyCandidatesPage() {
                 { text: 'Sim', value: true },
                 { text: 'Não', value: false },
             ],
-            onFilter: (value: boolean | React.Key, record: ICandidate) =>
-                record.candidate.is_primeiraexperiencia === (value as boolean),
+            onFilter: (value: boolean, record: ICandidate) =>
+                record.is_primeiraexperiencia === value,
         },
         {
             title: 'Disponível',
@@ -201,8 +189,8 @@ export default function VacancyCandidatesPage() {
                 { text: 'Sim', value: 'true' },
                 { text: 'Não', value: 'false' },
             ],
-            onFilter: (value: boolean | React.Key, record: ICandidate) =>
-                record.candidate.is_disponivel === String(value),
+            onFilter: (value: string, record: ICandidate) =>
+                record.is_disponivel === value,
         },
         {
             title: 'Analisado',
@@ -217,8 +205,8 @@ export default function VacancyCandidatesPage() {
                 { text: 'Sim', value: true },
                 { text: 'Não', value: false },
             ],
-            onFilter: (value: boolean | React.Key, record: ICandidate) =>
-                record.candidate.is_analizado === (value as boolean),
+            onFilter: (value: boolean, record: ICandidate) =>
+                record.is_analizado === value,
         },
         {
             title: 'Currículo',
@@ -243,7 +231,7 @@ export default function VacancyCandidatesPage() {
         {
             title: 'Ações',
             key: 'actions',
-            render: (record: ICandidate) => (
+            render: (_: any, record: ICandidate) => (
                 <Button
                     type="primary"
                     onClick={() => showCandidateDetails(record)}
@@ -309,15 +297,8 @@ export default function VacancyCandidatesPage() {
                                         ) : candidates &&
                                           candidates.length > 0 ? (
                                             <Table
-                                                columns={
-                                                    columns as unknown as (
-                                                        | ColumnGroupType<CandidateWithAnalysis>
-                                                        | ColumnType<CandidateWithAnalysis>
-                                                    )[]
-                                                }
-                                                dataSource={
-                                                    candidates as unknown as CandidateWithAnalysis[]
-                                                }
+                                                columns={columns}
+                                                dataSource={candidates}
                                                 rowKey={(record) =>
                                                     record.candidate.id
                                                 }
@@ -481,15 +462,18 @@ export default function VacancyCandidatesPage() {
                                                     <p className="text-2xl text-primary">
                                                         Score:
                                                     </p>
-
-                                                    <p
-                                                        className={`text-2xl ${getScoreColor(selectedCandidate.analise.score)} font-bold`}
-                                                    >
-                                                        {
-                                                            selectedCandidate
-                                                                .analise.score
-                                                        }
-                                                    </p>
+                                                    {selectedCandidate.analise
+                                                        .score < 5 && (
+                                                        <p
+                                                            className={`text-2xl ${getScoreColor(selectedCandidate.analise.score)} font-bold`}
+                                                        >
+                                                            {
+                                                                selectedCandidate
+                                                                    .analise
+                                                                    .score
+                                                            }
+                                                        </p>
+                                                    )}
                                                 </div>
                                             )}
 

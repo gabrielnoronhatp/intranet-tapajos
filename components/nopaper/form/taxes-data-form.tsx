@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchCentrosCusto } from '@/hooks/slices/noPaper/noPaperSlice';
 import { RootState } from '@/hooks/store';
 import { NumericFormat } from 'react-number-format';
-import { OrderState, Item } from '@/types/noPaper/Order/OrderTypes';
+import { OrderState, Item } from '@/types/noPaper/Order/OrderState';
 interface TaxesDataProps {
     data: OrderData;
     onChange: (field: keyof OrderState, value: string | number) => void;

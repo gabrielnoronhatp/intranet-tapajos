@@ -26,7 +26,7 @@ import {
     IValorMeta,
     IProduct,
     ICampaign,
-} from '@/types/Trade/ITrade';
+} from '@/types/Trade/ICampaign';
 import { IFilial } from '@/types/noPaper/Supplier/SupplierType';
 
 const { Option } = Select;

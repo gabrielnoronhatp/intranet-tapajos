@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { RootState } from '@/hooks/store';
 import { Select } from 'antd';
 import { NumericFormat } from 'react-number-format';
-import { Item, OrderData, OrderState } from '@/types/noPaper/Order/OrderTypes';
+import { Item, OrderData, OrderState } from '@/types/noPaper/Order/OrderState';
 import { CentroCusto } from '@/types/noPaper/Order/CentroCustoType';
 interface CenterOfCoustProps {
     data: OrderData;

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Select, message } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@/hooks/store';
+import { AppDispatch, RootState } from '@/hooks/store';
 import {
     fetchServiceTypes,
     setCurrentContract,
@@ -23,7 +23,7 @@ export const ServiceTypeSelect = ({
     fieldValue,
     handleSelectChange,
 }: ServiceTypeSelectProps) => {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
     const { serviceTypes, loading, currentContract } = useSelector(
         (state: RootState) => state.contracts
     );
@@ -115,7 +115,7 @@ export const ServiceTypeSelect = ({
                 showSearch
                 placeholder="Selecione o tipo de serviço"
                 optionFilterProp="children"
-                value={fieldValue || currentContract.idtipo}
+                value={fieldValue ? String(fieldValue) : currentContract.idtipo ? String(currentContract.idtipo) : undefined}
                 onChange={handleChange}
                 loading={loading || isLoading}
                 options={options}

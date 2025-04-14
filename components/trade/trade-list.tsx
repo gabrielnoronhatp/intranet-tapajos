@@ -24,7 +24,7 @@ import { useRouter } from 'next/navigation';
 import useTokenRefresh from '@/hooks/useTokenRefresh';
 import dayjs from 'dayjs';
 import { MetaTableReadOnly } from './meta-table-readonly';
-import { ICampaign, IEscala} from '@/types/Trade/ITrade';
+import { ICampaign, IEscala} from '@/types/Trade/ICampaign';
 
 
 export function TableTrade() {

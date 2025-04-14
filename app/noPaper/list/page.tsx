@@ -10,7 +10,7 @@ import { useState, useEffect } from 'react';
 import { DatePicker } from 'antd';
 import dayjs  from 'dayjs';
 import { api } from '@/app/service/api';
-import { OrderState } from '@/types/noPaper/Order/OrderTypes';
+import { OrderState } from '@/types/noPaper/Order/OrderState';
 const { RangePicker } = DatePicker;
 
 export default function NoPaperList() {

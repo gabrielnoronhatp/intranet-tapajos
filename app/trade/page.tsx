@@ -16,7 +16,7 @@ import { AppDispatch, RootState } from '@/hooks/store';
 import { debounce } from 'lodash';
 import { MetaTable } from '@/components/trade/meta-table';
 import { formatDateUTC } from '@/lib/utils';
-import { Escala, IEscala, Operador } from '@/types/Trade/ITrade';
+import { Escala, IEscala, Operador } from '@/types/Trade/ICampaign';
 import { IFilial } from '@/types/noPaper/Supplier/SupplierType';
 
 const { Option } = Select;

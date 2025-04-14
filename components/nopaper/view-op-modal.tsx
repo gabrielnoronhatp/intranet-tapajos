@@ -7,7 +7,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { OrderState, Item, CentroCusto } from '@/types/noPaper/Order/OrderTypes';
+import { OrderState, Item, CentroCusto } from '@/types/noPaper/Order/OrderState';
 interface ViewOpModalProps {
     isOpen: boolean;
     onClose: () => void;

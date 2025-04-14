@@ -1,6 +1,12 @@
 import { apiInstance } from '@/app/service/apiInstance';
 import { IFilial } from '@/types/noPaper/Supplier/SupplierType';
-import { ICampaign, IEscala, IProduct, IParticipants, ICampaignItens } from '@/types/Trade/ITrade';
+import {
+    ICampaign,
+    IEscala,
+    IProduct,
+    IParticipants,
+    ICampaignItens,
+} from '@/types/Trade/ICampaign';
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 
 export const fetchCampaigns = createAsyncThunk(
@@ -113,7 +119,7 @@ export const updateCampaign = createAsyncThunk(
                                 (ci: ICampaignItens) => ci.iditem === i.iditem
                             )
                     )
-                        .map((item: ICampaignItens) => {
+                    .map((item: ICampaignItens) => {
                         return {
                             ...item,
                             iditem: item.iditem,
@@ -251,10 +257,12 @@ export const createCampaign = createAsyncThunk(
 
             if (escala && escala.length > 0) {
                 try {
-                    const escalaWithCampaignId = escala.map((item: IEscala) => ({
-                        ...item,
-                        id: parseInt(campaignId),
-                    }));
+                    const escalaWithCampaignId = escala.map(
+                        (item: IEscala) => ({
+                            ...item,
+                            id: parseInt(campaignId),
+                        })
+                    );
 
                     await dispatch(
                         sendMetaTable({
@@ -289,7 +297,6 @@ export const deleteCampaign = createAsyncThunk(
 
 type ProductName = string;
 type Type = 'produto' | 'marca';
-
 
 export const fetchProducts = createAsyncThunk(
     'trade/fetchProducts',
@@ -334,28 +341,25 @@ export const fetchOperators = createAsyncThunk(
     }
 );
 
-export const fetchFiliais = createAsyncThunk(
-    'trade/fetchFiliais',
-    async () => {
-        try {
-            const response = await apiInstance.get(`/filiais`);
+export const fetchFiliais = createAsyncThunk('trade/fetchFiliais', async () => {
+    try {
+        const response = await apiInstance.get(`/filiais`);
 
-            const data =
-                typeof response.data === 'string'
-                    ? JSON.parse(response.data)
-                    : response.data;
-            return data;
-        } catch (error: unknown) {
-            if (error.response && error.response.status === 404) {
-                return console.error(
-                    'Campanha não encontrada:',
-                    error.response.data
-                );
-            }
-            throw error;
+        const data =
+            typeof response.data === 'string'
+                ? JSON.parse(response.data)
+                : response.data;
+        return data;
+    } catch (error: unknown) {
+        if (error.response && error.response.status === 404) {
+            return console.error(
+                'Campanha não encontrada:',
+                error.response.data
+            );
         }
+        throw error;
     }
-);
+});
 
 export const deactivateCampaign = createAsyncThunk(
     'trade/deactivateCampaign',
@@ -454,10 +458,8 @@ export const deleteParticipant = createAsyncThunk(
     'trade/deleteParticipant',
     async (participantId: number, { rejectWithValue }) => {
         try {
-          await apiInstance.delete(
-                `/participantes/${participantId}`
-            );
-            
+            await apiInstance.delete(`/participantes/${participantId}`);
+
             return participantId;
         } catch (error: unknown) {
             console.error('Erro ao remover participante:', error);
@@ -547,7 +549,7 @@ const initialState: ICampaign = {
     operators: [],
     campaigns: [],
     currentCampaign: {} as ICampaign,
-    filiais: [] as IFilial[]    ,
+    filiais: [] as IFilial[],
     escala: [] as IEscala[],
 };
 
@@ -555,17 +557,26 @@ const tradeSlice = createSlice({
     name: 'trade',
     initialState,
     reducers: {
-        updateField: (state: ICampaign, action: PayloadAction<{ field: keyof ICampaign; value: string | number }>) => {
+        updateField: (
+            state: ICampaign,
+            action: PayloadAction<{
+                field: keyof ICampaign;
+                value: string | number;
+            }>
+        ) => {
             const { field, value } = action.payload;
             state[field] = value;
         },
         setUserLanc: (state: ICampaign, action: PayloadAction<string>) => {
             state.userlanc = action.payload;
         },
-        setCurrentCampaign: (state: ICampaign, action: PayloadAction<Partial<ICampaign>>) => {
+        setCurrentCampaign: (
+            state: ICampaign,
+            action: PayloadAction<Partial<ICampaign>>
+        ) => {
             state.currentCampaign = {
                 ...state.currentCampaign,
-                ...action.payload
+                ...action.payload,
             };
         },
     },
@@ -578,12 +589,11 @@ const tradeSlice = createSlice({
                 state.status = 'succeeded';
                 state.campaigns = action.payload;
             })
-            .addCase(fetchCampaigns.rejected, (state: ICampaign,) => {
+            .addCase(fetchCampaigns.rejected, (state: ICampaign) => {
                 state.status = 'failed';
-               
             })
             .addCase(updateCampaign.fulfilled, (state, action) => {
-                state.campaigns = state.campaigns.map((campaign: ICampaign  ) =>
+                state.campaigns = state.campaigns.map((campaign: ICampaign) =>
                     campaign.id === action.payload.id
                         ? action.payload
                         : campaign
@@ -606,7 +616,6 @@ const tradeSlice = createSlice({
             })
             .addCase(fetchProducts.rejected, (state: ICampaign) => {
                 state.status = 'failed';
-              
             })
             .addCase(fetchOperators.pending, (state) => {
                 state.status = 'loading';
@@ -617,7 +626,6 @@ const tradeSlice = createSlice({
             })
             .addCase(fetchOperators.rejected, (state: ICampaign) => {
                 state.status = 'failed';
-              
             })
             .addCase(fetchFiliais.fulfilled, (state, action) => {
                 state.filiais = action.payload;
@@ -632,7 +640,6 @@ const tradeSlice = createSlice({
             })
             .addCase(deactivateCampaign.rejected, (state: ICampaign) => {
                 state.status = 'failed';
-             ;
             })
             .addCase(fetchCampaignById.fulfilled, (state, action) => {
                 state.currentCampaign = action.payload;
@@ -650,22 +657,23 @@ const tradeSlice = createSlice({
             })
             .addCase(searchCampaigns.rejected, (state: ICampaign) => {
                 state.status = 'failed';
-              
             })
             .addCase(sendMetaTable.fulfilled, () => {})
             .addCase(sendMetaTable.rejected, (state: ICampaign) => {
                 state.status = 'failed';
-                
             })
-            .addCase(deleteParticipant.fulfilled, (state: ICampaign, action) => {
-                // Se estivermos editando uma campanha, atualize a lista de participantes
-                if (state.currentCampaign.participantes) {
-                    state.currentCampaign.participantes =
-                        state.currentCampaign.participantes.filter(
-                            (p: IParticipants) => p.id !== action.payload
-                        );
+            .addCase(
+                deleteParticipant.fulfilled,
+                (state: ICampaign, action) => {
+                    // Se estivermos editando uma campanha, atualize a lista de participantes
+                    if (state.currentCampaign.participantes) {
+                        state.currentCampaign.participantes =
+                            state.currentCampaign.participantes.filter(
+                                (p: IParticipants) => p.id !== action.payload
+                            );
+                    }
                 }
-            })
+            )
             .addCase(deleteParticipant.rejected, (state: ICampaign, action) => {
                 state.status = 'failed';
                 state.error = action.payload;
@@ -694,15 +702,18 @@ const tradeSlice = createSlice({
                     }
                 }
             )
-            .addCase(deleteItemFromCampaign.fulfilled, (state: ICampaign, action) => {
-                const { campaignId, id } = action.payload;
-                if (state.currentCampaign.id === campaignId) {
-                    state.currentCampaign.itens =
-                        state.currentCampaign.itens.filter(
-                            (i: IProduct) => i.id !== id
-                        );
+            .addCase(
+                deleteItemFromCampaign.fulfilled,
+                (state: ICampaign, action) => {
+                    const { campaignId, id } = action.payload;
+                    if (state.currentCampaign.id === campaignId) {
+                        state.currentCampaign.itens =
+                            state.currentCampaign.itens.filter(
+                                (i: IProduct) => i.id !== id
+                            );
+                    }
                 }
-            })
+            )
             .addCase(cloneCampaign.fulfilled, (state: ICampaign, action) => {
                 if (action.payload) {
                     state.campaigns = [...state.campaigns, action.payload];

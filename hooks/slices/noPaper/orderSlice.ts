@@ -2,11 +2,15 @@ import { createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import { api } from '@/app/service/api';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
-import { Item, OrderData, Parcela } from '@/types/noPaper/Order/OrderTypes';
+
 import { CentroCusto } from '@/types/noPaper/Order/CentroCustoType';
+import { OrderData } from '@/types/noPaper/Order/OrderData';
+import { Item } from '@/types/noPaper/Order/ItemOrder';
+import { Parcela } from '@/types/noPaper/Order/Parcela';
 
 
 const initialState: OrderData  = {
+    id: '',
     dtlanc: '',
     ramoOP: '',
     notaOP: '',
@@ -44,11 +48,11 @@ const initialState: OrderData  = {
             centrocusto: [] ,
         },
     ],
-    observacaoOP: null,
-    tipopixOP: null,
-    chavepixOP: null,
-    datapixOP: null,
-    opcaoLancOP: null,
+    observacaoOP: '',
+    tipopixOP: '',
+    chavepixOP: '',
+    datapixOP: '',
+    opcaoLancOP: '',
     ccustoOP: [
         {
             centrocusto: '',
@@ -75,9 +79,14 @@ export const submitOrder = createAsyncThunk(
                 toast.error('Erro ao enviar o pedido' + response.data.message);
                 return rejectWithValue('Erro ao enviar o pedido.');
             }
-        } catch (error: unknown) {
-            toast.error('Error: ' + error?.response.data.message);
-            return rejectWithValue(error?.response.data);
+        } catch (error) {
+            if (error instanceof Error) {
+                toast.error('Error: ' + error.message);
+                return rejectWithValue(error.message);
+            } else {
+                toast.error('Error: ' + String(error));
+                return rejectWithValue(String(error));
+            }
         }
     }
 );
@@ -91,9 +100,14 @@ export const cancelOrder = createAsyncThunk(
                 toast.success('Ordem de pagamento cancelada com sucesso!');
                 return response.data;
             }
-        } catch (error: unknown) {
-            toast.error('Erro ao cancelar ordem de pagamento.');
-            return rejectWithValue(error.response.data);
+        } catch (error) {
+            if (error instanceof Error) {
+                toast.error('Erro ao cancelar ordem de pagamento.');
+                return rejectWithValue(error.message);
+            } else {
+                toast.error('Erro ao cancelar ordem de pagamento.');
+                return rejectWithValue(String(error));
+            }
         }
     }
 );
@@ -121,6 +135,7 @@ const orderSlice = createSlice({
             });
 
             state = {
+                id: '',
                 dtlanc: format(rest.dtlanc, 'yyyy-MM-dd'),
                 ramoOP: rest.ramo || null,
                 notaOP: rest.notaFiscal || null,

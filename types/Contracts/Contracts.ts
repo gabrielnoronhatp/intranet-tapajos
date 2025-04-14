@@ -1,3 +1,5 @@
+import { IFile } from "./IFile";
+
 export interface IContract {
     id: number;
     idtipo: string | number;
@@ -37,24 +39,5 @@ export interface IContract {
 
 
 export type ContractFormState = Partial<IContract>;
-export type ServiceType = {
-    id: number;
-    nome: string;
-}
-export enum ServiceTypeEnum {
-    SERVICO1 = 'servico1',
-    SERVICO2 = 'servico2',
-}
 
-export enum IndiceType {
-    PCE = 'PCE',
-    IGPM = 'IGP-M',
-}
 
-export interface IFile {
-    filename: string;
-    file_url: string;
-    size: number;
-    last_modified: string;
-    contract_id: number;
-}

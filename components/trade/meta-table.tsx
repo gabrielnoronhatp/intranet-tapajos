@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { Input } from '../ui/input';
-import { Escala, IEscala } from '@/types/Trade/ITrade';
+import { Escala, IEscala } from '@/types/Trade/ICampaign';
 
 interface MetaTableProps {
     isEditing?: boolean;

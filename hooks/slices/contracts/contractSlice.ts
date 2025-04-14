@@ -2,7 +2,10 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { IContract } from '@/types/Contracts/Contracts';
 import { apiDev } from '@/app/service/api';
 import toast from 'react-hot-toast';
-import { ServiceType } from '@/types/Contracts/Contracts';
+import { ServiceType } from '@/types/Contracts/ServiceType';
+
+
+
 interface ContractState {
     contracts: IContract[];
     loading: boolean;
@@ -28,8 +31,12 @@ export const fetchContracts = createAsyncThunk(
                 : '';
             const response = await apiDev.get(`contracts?${query}`);
             return response.data;
-        } catch (error: unknown) {
-            toast.error('Erro ao buscar contratos: ' + error.message);
+        } catch (error) {
+            if (error instanceof Error) {
+                toast.error('Erro ao buscar contratos: ' + error.message);
+            } else {
+                toast.error('Erro ao buscar contratos: ' + String(error));
+            }
             throw error;
         }
     }
@@ -45,8 +52,12 @@ export const createContract = createAsyncThunk(
                 window.location.href = '/contracts/list';
             }, 1000);
             return response.data;
-        } catch (error: unknown) {
-            toast.error('Erro ao cadastrar contrato: ' + error.message);
+        } catch (error) {
+            if (error instanceof Error) {
+                toast.error('Erro ao cadastrar contrato: ' + error.message);
+            } else {
+                toast.error('Erro ao cadastrar contrato: ' + String(error));
+            }
             throw error;
         }
     }
@@ -65,8 +76,12 @@ export const fetchServiceTypes = createAsyncThunk(
                 {}
             );
             return serviceTypes;
-        } catch (error: unknown) {
-            toast.error('Erro ao buscar tipos de serviço: ' + error.message);
+        } catch (error) {
+            if (error instanceof Error) {
+                toast.error('Erro ao buscar tipos de serviço: ' + error.message);
+            } else {
+                toast.error('Erro ao buscar tipos de serviço: ' + String(error));
+            }
             throw error;
         }
     }
@@ -91,8 +106,12 @@ export const uploadContractFile = createAsyncThunk(
 
             toast.success('Arquivo enviado com sucesso!');
             return response.data;
-        } catch (error: unknown) {
-            toast.error('Erro ao enviar arquivo: ' + error.message);
+        } catch (error) {
+            if (error instanceof Error) {
+                toast.error('Erro ao enviar arquivo: ' + error.message);
+            } else {
+                toast.error('Erro ao enviar arquivo: ' + String(error));
+            }
             throw error;
         }
     }
@@ -112,10 +131,16 @@ export const fetchContractDetails = createAsyncThunk(
         try {
             const response = await apiDev.get(`contracts/${contractId}`);
             return response.data;
-        } catch (error: unknown) {
-            toast.error(
-                'Erro ao buscar detalhes do contrato: ' + error.message
-            );
+        } catch (error) {
+            if (error instanceof Error) {
+                toast.error(
+                    'Erro ao buscar detalhes do contrato: ' + error.message
+                );
+            } else {
+                toast.error(
+                    'Erro ao buscar detalhes do contrato: ' + String(error)
+                );
+            }
             throw error;
         }
     }
@@ -149,9 +174,13 @@ export const updateContract = createAsyncThunk(
             setTimeout(() => {
                 window.location.href = '/contracts/list';
             }, 1000);
-            return response.data;
-        } catch (error: unknown) {
-            toast.error('Erro ao atualizar contrato: ' + error.message);
+            return response.data;   
+        } catch (error) {
+            if (error instanceof Error) {
+                toast.error('Erro ao atualizar contrato: ' + error.message);
+            } else {
+                toast.error('Erro ao atualizar contrato: ' + String(error));
+            }
             throw error;
         }
     }
@@ -166,8 +195,12 @@ export const cancelContract = createAsyncThunk(
             });
             toast.success('Contrato cancelado com sucesso!');
             return response.data;
-        } catch (error: unknown) {
-            toast.error('Erro ao cancelar contrato: ' + error.message);
+        } catch (error) {
+            if (error instanceof Error) {
+                toast.error('Erro ao cancelar contrato: ' + error.message);
+            } else {
+                toast.error('Erro ao cancelar contrato: ' + String(error));
+            }
             throw error;
         }
     }

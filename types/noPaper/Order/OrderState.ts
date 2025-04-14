@@ -1,51 +1,10 @@
 import { CentroCusto } from './CentroCustoType';
+import { Item } from './ItemOrder';
+import { OrderData } from './OrderData';
+import { Parcela } from './Parcela';
 
-export interface OrderData {
-    id:string | number;
-    dtlanc: string;
-    ramoOP: string ;
-    notaOP: string ;
-    qtparcelasOP: number ;
-    contagerencialOP: string ;
-    fornecedorOP: string ;
-    lojaOP: string ;
-    serieOP: string ;
-    metodoOP: string ;
-    qtitensOP: number ;
-    valorimpostoOP: number;
-    dtavistaOP: string ;
-    bancoOP? : string ;
-    agenciaOP?: string ;
-    contaOP?: string ;
-    dtdepositoOP: string ;
-    parcelasOP: { 
-        banco:string,
-        agencia:string,
-        conta:string,
-        tipopix:string,
-        chavepix:string,
-        parcela: string 
-    }[] ;
-    produtosOP: Item[];
-    observacaoOP: string ;
-    tipopixOP: string ;
-    chavepixOP: string ;
-    datapixOP: string ;
-    opcaoLancOP: string ;
-    ccustoOP: CentroCusto[];
-    userOP: string;
-    files? : File[];
-    dataVencimentoOP: string ;
-}
 
-export interface Parcela {
-    parcela: string;
-    banco: string;
-    agencia: string;
-    conta: string;
-    tipopix: string;
-    chavepix: string;
-}
+
 export interface OrderState {
     dtlanc: string;
     id: number;
@@ -120,18 +79,3 @@ export interface UploadParams {
     files: File[];
 }
 
-export interface File {
-    name: string;
-    size: number;
-    type: string;
-    lastModified: number;
-}
-
-export interface Item {
-    produto: string;
-    quantidade: number;
-    valor: number;
-    valorUnitario: number;
-    valorTotal: number;
-    centrocusto: CentroCusto[];
-}

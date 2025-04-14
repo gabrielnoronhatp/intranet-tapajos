@@ -2,7 +2,6 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { Vacancy, CreateVacancyPayload } from '@/types/vacancy/IVacancy';
 
-
 interface Candidate {
     id: string;
     cpf: string;
@@ -73,8 +72,11 @@ export const fetchVacancies = createAsyncThunk(
             });
 
             return response.data;
-        } catch (error: unknown) {
-            return rejectWithValue(error.response?.data?.message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data?.message);
+            }
+            return rejectWithValue('Erro desconhecido ao buscar vagas');
         }
     }
 );
@@ -98,8 +100,11 @@ export const fetchVacancyById = createAsyncThunk(
             });
 
             return response.data;
-        } catch (error: unknown) {
-            return rejectWithValue(error.response?.data?.message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data?.message);
+            }
+            return rejectWithValue('Erro desconhecido ao buscar vaga');
         }
     }
 );
@@ -202,15 +207,12 @@ export const createVacancy = createAsyncThunk(
                 return response.data;
             }
         } catch (error: unknown) {
-            console.error(
-                'Erro ao criar vaga:',
-                error.response?.data || error.message
-            );
-            return rejectWithValue(
-                error.response?.data?.detail ||
-                    error.response?.data?.message ||
-                    'Erro ao criar vaga'
-            );
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(
+                    error.response?.data?.message || 'Erro ao criar vaga'
+                );
+            }
+            return rejectWithValue('Erro desconhecido ao criar vaga');
         }
     }
 );
@@ -264,15 +266,14 @@ export const updateVacancy = createAsyncThunk(
 
             return response.data;
         } catch (error: unknown) {
-            console.error(
-                'Erro ao atualizar vaga:',
-                error.response?.data || error.message
-            );
-            return rejectWithValue(
-                error.response?.data?.detail ||
-                    error.response?.data?.message ||
-                    'Erro ao atualizar vaga'
-            );
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(
+                    error.response?.data?.detail ||
+                        error.response?.data?.message ||
+                        'Erro ao atualizar vaga'
+                );
+            }
+            return rejectWithValue('Erro desconhecido ao atualizar vaga');
         }
     }
 );
@@ -297,9 +298,12 @@ export const deleteVacancy = createAsyncThunk(
 
             return id;
         } catch (error: unknown) {
-            return rejectWithValue(
-                error.response?.data?.message || 'Erro ao excluir vaga'
-            );
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(
+                    error.response?.data?.message || 'Erro ao excluir vaga'
+                );
+            }
+            return rejectWithValue('Erro desconhecido ao excluir vaga');
         }
     }
 );
@@ -328,11 +332,12 @@ export const fetchVacancyCandidates = createAsyncThunk(
 
             return response.data;
         } catch (error: unknown) {
-            console.error(
-                'Erro ao buscar candidatos:',
-                error.response?.data || error.message
-            );
-            return rejectWithValue(error.response?.data?.message);
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(
+                    error.response?.data?.message || 'Erro ao buscar candidatos'
+                );
+            }
+            return rejectWithValue('Erro desconhecido ao buscar candidatos');
         }
     }
 );
@@ -375,13 +380,14 @@ export const fetchDepartments = createAsyncThunk(
                 positions: positions,
             };
         } catch (error) {
-            console.error(
-                'Erro ao buscar departamentos e cargos:',
-                error.response?.data || error.message
-            );
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(
+                    error.response?.data?.message ||
+                        'Erro ao buscar departamentos e cargos'
+                );
+            }
             return rejectWithValue(
-                error.response?.data?.message ||
-                    'Erro ao buscar departamentos e cargos'
+                'Erro desconhecido ao buscar departamentos e cargos'
             );
         }
     }

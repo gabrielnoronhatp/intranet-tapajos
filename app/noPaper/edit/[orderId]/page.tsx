@@ -16,8 +16,9 @@ import { api } from '@/app/service/api';
 import { useParams, useRouter } from 'next/navigation';
 import { deleteFile } from '@/hooks/slices/noPaper/noPaperSlice';
 import { RootState, AppDispatch } from '@/hooks/store';
-import { OrderState } from '@/types/noPaper/Order/OrderTypes';
+import { OrderState } from '@/types/noPaper/Order/OrderState';
 import { UploadChangeParam } from 'antd/es/upload';
+import { CentroCusto } from '@/types/noPaper/Order/CentroCustoType';
 
 export default function EditOrderPage() {
     const dispatch = useDispatch<AppDispatch>();
@@ -103,7 +104,7 @@ export default function EditOrderPage() {
                 return false;
             }
 
-            return orderData.ccustoOP.every((center) => {
+            return orderData.ccustoOP.every((center: CentroCusto) => {
                 const centroCusto = center.centrocusto.toString();
                 return (
                     typeof centroCusto === 'string' && centroCusto.trim() !== ''

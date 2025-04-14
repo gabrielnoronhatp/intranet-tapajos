@@ -20,7 +20,7 @@ import {
     deleteFile,
 } from '@/hooks/slices/noPaper/noPaperSlice';
 import { useDispatch, } from 'react-redux';
-import { OrderState, Item } from '@/types/noPaper/Order/OrderTypes';
+import { OrderState, Item } from '@/types/noPaper/Order/OrderState';
 import { cancelOrder } from '@/hooks/slices/noPaper/orderSlice';
 import { ColumnType } from 'antd/es/table';
 import { CentroCusto } from '@/types/noPaper/Order/CentroCustoType';

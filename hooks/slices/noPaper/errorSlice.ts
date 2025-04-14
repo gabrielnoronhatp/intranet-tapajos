@@ -23,8 +23,8 @@ const errorSlice = createSlice({
     initialState,
     reducers: {
         setFieldError: (
-            state: ErrorState,
-            action: PayloadAction<{ field: string; message: string }>
+            state,
+            action
         ) => {
             state.formErrors[action.payload.field] = action.payload.message;
             state.hasErrors = true;

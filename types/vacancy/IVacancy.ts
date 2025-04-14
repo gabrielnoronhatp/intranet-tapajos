@@ -16,20 +16,6 @@ export type Vacancy =  {
     data_criacao: string;
 }
  
-export interface ICandidate {
-    id: string;
-    nome_completo: string;
-    analise: IAnalysis;
-    email: string;
-    cpf: string;
-    telefone: string;
-    is_primeiraexperiencia: boolean;
-    is_disponivel: string;
-    file_perfil: string;
-    file_cv: string;
-    is_analizado: boolean;
-    candidate: ICandidate;
-}
 
 
 export interface CreateVacancyPayload {
@@ -46,7 +32,4 @@ export interface CreateVacancyPayload {
     criado_por?: string | null;
 }
 
- export type IAnalysis = {
-    score: number;
-    cv_resumo: string;
- }
+

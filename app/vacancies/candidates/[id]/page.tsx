@@ -58,9 +58,7 @@ export default function VacancyCandidatesPage() {
             dispatch(fetchVacancyById(id as string));
             dispatch(fetchVacancyCandidates(id as string));
         }
-        // dispatch(fetchAllCandidates()).then((response) => {
-        //     setAllCandidates(response.payload);
-        // });
+       
     }, [dispatch, id]);
 
     const showCandidateDetails = (candidate: ICandidate) => {

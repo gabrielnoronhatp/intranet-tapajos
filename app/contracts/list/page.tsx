@@ -7,7 +7,7 @@ import { Navbar } from '@/components/layout/navbar';
 import { Sidebar } from '@/components/layout/sidebar';
 import { FloatingActionButton } from '@/components/nopaper/floating-action-button';
 import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
-import { IContract, IFile } from '@/types/Contracts/Contracts';
+import { IContract} from '@/types/Contracts/Contracts';
 import {
     fetchContracts,
     fetchServiceTypes,
@@ -19,6 +19,7 @@ import { Eye, Edit, FileWarning } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { debounce } from 'lodash';
 import '@/components/styles/table.css';
+import { IFile } from '@/types/Contracts/IFile';
 
 export default function ContractList() {
     const [searchParams, setSearchParams] = useState<Record<string, string>>(

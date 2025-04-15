@@ -30,14 +30,9 @@ export default function FinancialData() {
         (state: RootState) => state.contracts.currentContract
     );
 
-    const validateField = (field: string, value: string) => {
+    const validateField = (field: any, value: string) => {
         if (!value || (typeof value === 'string' && !value.trim())) {
-            dispatch(
-                setFieldError({
-                    field,
-                    message: `O campo ${field} é obrigatório`,
-                })
-            );
+            dispatch(setFieldError({ field, message: `O campo ${field} é obrigatório` } as any));
         } else {
             dispatch(clearFieldError(field));
         }

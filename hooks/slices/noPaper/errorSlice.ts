@@ -23,18 +23,18 @@ const errorSlice = createSlice({
     initialState,
     reducers: {
         setFieldError: (
-            state,
-            action
+            state:any,
+            action:any
         ) => {
             state.formErrors[action.payload.field] = action.payload.message;
             state.hasErrors = true;
         },
         // remove this any
-        clearFieldError: (state: ErrorState, action: PayloadAction<string>) => {
+        clearFieldError: (state: any, action: any) => {
             delete state.formErrors[action.payload];
             state.hasErrors = Object.keys(state.formErrors).length > 0;
         },
-        clearAllErrors: (state: ErrorState) => {
+        clearAllErrors: (state: any) => {
             state.formErrors = {};
             state.hasErrors = false;
         },

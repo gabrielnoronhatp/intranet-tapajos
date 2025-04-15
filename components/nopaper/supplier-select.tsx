@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchFornecedores } from '@/hooks/slices/noPaper/noPaperSlice';
 import { Select } from 'antd';
-import { RootState } from '@/hooks/store';
+import { AppDispatch, RootState } from '@/hooks/store';
 
 import { Label } from '@/components/ui/label';
 
@@ -18,7 +18,7 @@ export const FornecedorSelect = ({
     fieldValue,
     handleSelectChange,
 }: FornecedorSelectProps) => {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
 
     const searchQuery = useSelector(
         (state: RootState) => state.noPaper.searchQuery || ''

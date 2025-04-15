@@ -7,7 +7,9 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { OrderState, Item, CentroCusto } from '@/types/noPaper/Order/OrderState';
+import { OrderState } from '@/types/noPaper/Order/OrderState';
+import { Item } from '@/types/noPaper/Order/ItemOrder';
+import { CentroCusto } from '@/types/noPaper/Order/CentroCustoType';
 interface ViewOpModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -104,7 +106,7 @@ export function ViewOpModal({ isOpen, onClose, order }: ViewOpModalProps) {
                                             <span className="font-medium">
                                                 Centro:
                                             </span>{' '}
-                                            {centro.centroCusto}
+                                            {centro?.centrocusto}
                                         </p>
                                         <p className="text-sm">
                                             <span className="font-medium">

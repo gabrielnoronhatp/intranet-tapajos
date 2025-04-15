@@ -1,7 +1,8 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { Input } from '../ui/input';
-import { Escala, IEscala } from '@/types/Trade/ICampaign';
+import { Escala, IEscala } from '@/types/Trade/IEscala';
+
 
 interface MetaTableProps {
     isEditing?: boolean;
@@ -94,7 +95,7 @@ export const MetaTable: React.FC<MetaTableProps> = ({
         colIndex: number,
         value: string
     ) => {
-        const newMetas: number[][] = metas.map((row, r) => {
+        const newMetas: any = metas.map((row, r) => {
             if (r === rowIndex) {
                 return row.map((cell, c) => (c === colIndex ? value : cell));
             }

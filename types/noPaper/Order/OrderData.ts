@@ -4,6 +4,7 @@ import { Item } from "./ItemOrder";
 export interface OrderData {
     id:string | number;
     dtlanc: string;
+    dtavista: string;
     ramoOP: string ;
     notaOP: string ;
     qtparcelasOP: number ;

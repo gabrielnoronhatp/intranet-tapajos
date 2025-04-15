@@ -16,8 +16,9 @@ import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
 import { PlusOutlined } from '@ant-design/icons';
 import { api } from '@/app/service/api';
 import { AppDispatch, RootState } from '@/hooks/store';
-import { OrderData, OrderState } from '@/types/noPaper/Order/OrderState';
+import { OrderState } from '@/types/noPaper/Order/OrderState';
 import { CentroCusto } from '@/types/noPaper/Order/CentroCustoType';
+import { OrderData } from '@/types/noPaper/Order/OrderData';
 
 interface UploadResponse {
     message: string;

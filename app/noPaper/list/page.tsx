@@ -7,11 +7,11 @@ import { DataTableOrder } from '@/components/nopaper/data-table-order';
 import { FloatingActionButton } from '@/components/nopaper/floating-action-button';
 import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
 import { useState, useEffect } from 'react';
-import { DatePicker } from 'antd';
 import dayjs  from 'dayjs';
 import { api } from '@/app/service/api';
 import { OrderState } from '@/types/noPaper/Order/OrderState';
-const { RangePicker } = DatePicker;
+import dynamic from 'next/dynamic';
+import { DatePicker } from 'antd';
 
 export default function NoPaperList() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -133,7 +133,7 @@ export default function NoPaperList() {
                                         >
                                             Período
                                         </label>
-                                            <RangePicker
+                                            <DatePicker.RangePicker 
                                             onChange={handleDateRangeChange}
                                             placeholder={[
                                                 'Data de Início',

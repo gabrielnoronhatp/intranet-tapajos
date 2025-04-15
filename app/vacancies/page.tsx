@@ -640,9 +640,9 @@ export default function VacanciesPage() {
                                 <div>
                                     {/* TODO: Verify if this is correct */}
                                     <AntdTable
-                                        columns={talentsColumns}
+                                        columns={talentsColumns as any}
                                         dataSource={allTalents.data}
-                                        rowKey={(record) => record.candidate.id}
+                                        rowKey={(record: any) => record.candidate.id}
                                         loading={allTalents.loading}
                                         pagination={false}
                                     />

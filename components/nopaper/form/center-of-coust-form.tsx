@@ -8,8 +8,10 @@ import { Label } from '@/components/ui/label';
 import { RootState } from '@/hooks/store';
 import { Select } from 'antd';
 import { NumericFormat } from 'react-number-format';
-import { Item, OrderData, OrderState } from '@/types/noPaper/Order/OrderState';
+import { OrderState } from '@/types/noPaper/Order/OrderState';
 import { CentroCusto } from '@/types/noPaper/Order/CentroCustoType';
+import { Item } from '@/types/noPaper/Order/ItemOrder';
+import { OrderData } from '@/types/noPaper/Order/OrderData';
 interface CenterOfCoustProps {
     data: OrderData;
     onChange: (field: keyof OrderState, value: string | number) => void;
@@ -44,7 +46,7 @@ export default function CenterOfCoust({ data, onChange }: CenterOfCoustProps) {
             })
         );
 
-        onChange('ccustoOP', updatedCenters);
+        onChange('ccustoOP', updatedCenters as any);
     };
 
     useEffect(() => {
@@ -61,7 +63,7 @@ export default function CenterOfCoust({ data, onChange }: CenterOfCoustProps) {
         field: 'centrocusto' | 'valor',
         value: string | number
     ) => {
-        let updatedCenters = [...ccustoOP];
+        let updatedCenters:any = [...ccustoOP];
 
         if (field === 'valor') {
             const totalValue = calculateTotalValue();
@@ -92,7 +94,7 @@ export default function CenterOfCoust({ data, onChange }: CenterOfCoustProps) {
             );
         }
 
-        onChange('ccustoOP', updatedCenters);
+        onChange('ccustoOP', updatedCenters as any);
     };
 
     return (
@@ -123,7 +125,7 @@ export default function CenterOfCoust({ data, onChange }: CenterOfCoustProps) {
                             onChange={(value) =>
                                 handleCenterChange(index, 'centrocusto', value)
                             }
-                            options={centrosCustoOptions.map((option: CentroCusto) => ({
+                            options={centrosCustoOptions.map((option: any) => ({
                                 value: option.centrocusto,
                                 label: option.centrocusto,
                             }))}

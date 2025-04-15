@@ -23,7 +23,7 @@ import { formatDateUTC } from '@/lib/utils';
 import { IValorMeta, ICampaign } from '@/types/Trade/ICampaign';
 
 import { IFilial } from '@/types/noPaper/Supplier/SupplierType';
-import { IOperator } from '@/types/Trade/IOperator';
+import { Operador } from '@/types/Trade/IOperator';
 import { IProduct } from '@/types/Trade/IProduct';
 import { IParticipants } from '@/types/Trade/IParticipants';
 import { IEscala } from '@/types/Trade/IEscala';
@@ -114,7 +114,7 @@ export default function CampaignEdit() {
                 );
                 metaGeralRange = outrasLinhas
                     .map((item: IEscala) => item.linha)
-                    .filter((linha): linha is string => linha !== undefined);
+                    .filter((linha:any): linha is string => linha !== undefined);
 
                 valoresMeta = [];
                 outrasLinhas.forEach((linha: IEscala, idxLinha: number) => {
@@ -157,8 +157,8 @@ export default function CampaignEdit() {
         if (selectedOperador && meta_valor && premiacao) {
             const operatorFound =
                 tipoOperador === 'teleoperador'
-                    ? operators.find((op) => op.nome === selectedOperador)
-                    : operators.find((op) => op.nome === selectedOperador);
+                    ? operators.find((op:any) => op.nome === selectedOperador)
+                    : operators.find((op:any) => op.nome === selectedOperador);
 
             if (!operatorFound) {
                 message.error('Operador não encontrado!');
@@ -481,7 +481,7 @@ export default function CampaignEdit() {
                                     //     setSelectedOperador(option.label);
                                     // }}
                                     options={operators?.map(
-                                        (operator: IOperator) => ({
+                                        (operator: Operador) => ({
                                             value:
                                                 tipoOperador === 'teleoperador'
                                                     ? operator.matricula
@@ -625,13 +625,13 @@ export default function CampaignEdit() {
                                     ) => {
                                         handleAddMarcaProduto(
                                             option.label,
-                                            option.value,
+                                            String(option.value),
                                             option.label,
-                                            option.value,
-                                            option.value
+                                            Number(option.value),
+                                            Number(option.value)
                                         );
                                     }}
-                                    options={products?.map(
+                                    options={(products || []).map(
                                         (product: IProduct) => ({
                                             value:
                                                 tipoMarcaProduto === 'produto'
@@ -643,7 +643,7 @@ export default function CampaignEdit() {
                                                     : product.marca,
                                             codprod: product.codprod,
                                             descricao: product.descricao,
-                                        })
+                                        } as any)
                                     )}
                                 />
                             </div>

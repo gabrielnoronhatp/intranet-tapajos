@@ -4,9 +4,10 @@ import axios from 'axios';
 
 import { useDispatch } from 'react-redux';
 import { setToken } from './slices/token/tokenSlice';
+import { AppDispatch } from './store';
 
 const useTokenRefresh = () => {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
 
     const tokenCall = async () => {
         try {
@@ -15,7 +16,7 @@ const useTokenRefresh = () => {
                 password: '#$%23345',
             });
             const newToken = response.data.access_token;
-            dispatch(setToken({ token: newToken }));
+            dispatch(setToken(newToken as never));
             if (typeof window !== 'undefined') {
                 localStorage.setItem('auth_token', newToken);
             }

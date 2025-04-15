@@ -57,9 +57,9 @@ export default function CampaignRegistration() {
         if (selectedOperador && meta_valor && premiacao) {
             const idparticipante =
                 tipoOperador === 'teleoperador'
-                    ? operators.find((op) => op.nome === selectedOperador)
+                    ? operators.find((op:any) => op.nome === selectedOperador)
                           ?.matricula
-                    : operators.find((op) => op.nome === selectedOperador)
+                    : operators.find((op:any) => op.nome === selectedOperador)
                           ?.codusur;
 
             if (!idparticipante) {

@@ -20,10 +20,11 @@ import {
     deleteFile,
 } from '@/hooks/slices/noPaper/noPaperSlice';
 import { useDispatch, } from 'react-redux';
-import { OrderState, Item } from '@/types/noPaper/Order/OrderState';
+import { OrderState } from '@/types/noPaper/Order/OrderState';
 import { cancelOrder } from '@/hooks/slices/noPaper/orderSlice';
 import { ColumnType } from 'antd/es/table';
 import { CentroCusto } from '@/types/noPaper/Order/CentroCustoType';
+import { Item } from '@/types/noPaper/Order/ItemOrder';
 interface DataTableOrderProps {
     searchParams: Record<string, string>;
     // orders: OrderState[];
@@ -168,7 +169,7 @@ export function DataTableOrder({
 
     const handleCancelOrder = async (orderId: number) => {
         try {
-            dispatch(cancelOrder(orderId));
+            dispatch(cancelOrder(orderId) as any);
             fetchOrders();
         } catch (error) {
             console.error('Error canceling order:', error);
@@ -193,7 +194,7 @@ export function DataTableOrder({
                 content: 'Você tem certeza que deseja excluir este arquivo?',
                 onOk: async () => {
                     try {
-                        await dispatch(deleteFile(fileKey));
+                        await dispatch(deleteFile(fileKey) as any);
                         message.success('Arquivo excluído com sucesso');
 
                         // Atualizar a lista de arquivos
@@ -361,19 +362,19 @@ export function DataTableOrder({
                                     Detalhes do Item
                                 </h2>
                                 <p>ID: {selectedItem?.id}</p>
-                                <p>Fornecedor: {selectedItem?.fornecedor}</p>
+                                <p>Fornecedor: {selectedItem?.fornecedorOP}</p>
                                 <p>CNPJ: {selectedItem?.cnpj}</p>
-                                <p>Nota Fiscal: {selectedItem?.notafiscal}</p>
+                                <p>Nota Fiscal: {selectedItem?.notaFiscal}</p>
                                 <p>
-                                    Forma de Pagamento: {selectedItem?.formapag}
+                                    Forma de Pagamento: {selectedItem?.metodoOP}
                                 </p>
                                 <p>
                                     Conta Gerencial:{' '}
-                                    {selectedItem?.contagerencial}
+                                        {selectedItem?.contagerencialOP }
                                 </p>
-                                <p>Itens: {selectedItem?.itens}</p>
-                                <p>Parcelas: {selectedItem?.parcelas}</p>
-                                <p>Valor: {selectedItem?.valor}</p>
+                                <p>Itens: {selectedItem?.qtitensOP}</p>
+                                <p>Parcelas: {selectedItem?.qtparcelasOP}</p>
+                                <p>Valor: {selectedItem?.valorimpostoOP}</p>
                                 <p>
                                     Assinatura 1:{' '}
                                     {selectedItem?.assinatura1 ? 'Sim' : 'Não'}
@@ -494,7 +495,7 @@ export function DataTableOrder({
                 isOpen={isPinModalOpen}
                 onClose={handleClosePinModal}
                 onConfirm={handleConfirmPin}
-                orderId={selectedItem?.id}
+                orderId={selectedItem?.id || 0}
             />
         </div>
     );

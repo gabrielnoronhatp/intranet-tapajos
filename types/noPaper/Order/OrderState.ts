@@ -8,6 +8,7 @@ import { Parcela } from './Parcela';
 export interface OrderState {
     dtlanc: string;
     id: number;
+    cnpj: string;
     qtparcelasOP: number ;
     contagerencialOP: string ;
     fornecedorOP: string ;

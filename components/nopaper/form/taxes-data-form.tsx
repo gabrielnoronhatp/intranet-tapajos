@@ -9,7 +9,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchCentrosCusto } from '@/hooks/slices/noPaper/noPaperSlice';
 import { RootState } from '@/hooks/store';
 import { NumericFormat } from 'react-number-format';
-import { OrderState, Item } from '@/types/noPaper/Order/OrderState';
+import { OrderState } from '@/types/noPaper/Order/OrderState';
+
+import { OrderData } from '@/types/noPaper/Order/OrderData';
+import { Item } from '@/types/noPaper/Order/ItemOrder';
 interface TaxesDataProps {
     data: OrderData;
     onChange: (field: keyof OrderState, value: string | number) => void;
@@ -23,7 +26,7 @@ export default function TaxesData({ data, onChange }: TaxesDataProps) {
     const { searchQuery } = useSelector((state: RootState) => state.noPaper);
 
     useEffect(() => {
-        dispatch(fetchCentrosCusto(''));
+        dispatch(fetchCentrosCusto('') as any);
     }, [dispatch, searchQuery]);
 
     const handleItensChange = (
@@ -34,7 +37,7 @@ export default function TaxesData({ data, onChange }: TaxesDataProps) {
         const updatedItens = produtosOP.map((item: Item, i: number) =>
             i === index ? { ...item, [field]: value } : item
         );
-        onChange('produtosOP', updatedItens);
+        onChange('produtosOP', updatedItens as any);
     };
 
     const handleQuantidadeProdutosChange = (
@@ -43,12 +46,12 @@ export default function TaxesData({ data, onChange }: TaxesDataProps) {
         const quantidade = parseInt(e.target.value, 10);
         onChange('qtitensOP', quantidade);
 
-        const newItens = Array.from(
+        const newItens:any = Array.from(
             { length: quantidade },
             (index: number) =>
                 produtosOP[index] || { produto: '', valor: 0, centroCusto: [] }
         );
-        onChange('produtosOP', newItens);
+        onChange('produtosOP', newItens as any);
     };
 
 

@@ -11,7 +11,7 @@ import {
     message,
 } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@/hooks/store';
+import { AppDispatch, RootState } from '@/hooks/store';
 import {
     deactivateCampaign,
     fetchCampaignById,
@@ -24,13 +24,16 @@ import { useRouter } from 'next/navigation';
 import useTokenRefresh from '@/hooks/useTokenRefresh';
 import dayjs from 'dayjs';
 import { MetaTableReadOnly } from './meta-table-readonly';
-import { ICampaign, IEscala} from '@/types/Trade/ICampaign';
+import { ICampaign} from '@/types/Trade/ICampaign'; 
+import { IEscala } from '@/types/Trade/IEscala';
+import { IParticipants } from '@/types/Trade/IParticipants';
+import { IProduct } from '@/types/Trade/IProduct';
 
 
 export function TableTrade() {
     const [clientSideReady] = useState(false);
     const [searchForm] = Form.useForm();
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
     const router = useRouter();
     const refreshToken = useTokenRefresh();
 
@@ -44,7 +47,7 @@ export function TableTrade() {
     }, [dispatch, clientSideReady]);
 
     const handleSearch = (values: ICampaign) => {
-        const searchParams: ICampaign = {};
+        const searchParams: any = {};
 
         if (values.nome) {
             searchParams.nome = values.nome;
@@ -86,9 +89,9 @@ export function TableTrade() {
         dispatch(fetchCampaignById(id)).then(() => {
             const escalaData = currentCampaign?.escala || [];
 
-            let metaGeralRange: string[] = [];
-            let metaVendedorRange: string[] = [];
-            let valoresMeta: IEscala[] = [];
+            let metaGeralRange: any = [];
+            let metaVendedorRange: any = [];
+            let valoresMeta: any = [];
 
             if (escalaData.length > 0) {
                 const primeiraLinha = escalaData.find(
@@ -110,11 +113,11 @@ export function TableTrade() {
                 const outrasLinhas = escalaData.filter(
                     (item: IEscala) => item.linha !== ''
                 );
-                metaGeralRange = outrasLinhas.map((item: IEscala) => item.linha);
+                metaGeralRange = outrasLinhas.map((item: IEscala) => item.linha || '');
 
                 valoresMeta = [];
                 outrasLinhas.forEach((linha: IEscala, idxLinha: number) => {
-                    metaVendedorRange.forEach((_, idxCol: number) => {
+                    metaVendedorRange.forEach((_: any, idxCol: number) => {
                         const usesCol = Object.keys(linha).some(
                             (key) =>
                                 key.startsWith('col') &&
@@ -179,7 +182,7 @@ export function TableTrade() {
                                 Participantes
                             </h3>
                             {currentCampaign?.participantes?.map(
-                                (participante: Participante) => (
+                                (participante: IParticipants) => (
                                     <div
                                         key={participante.id}
                                         className="mb-3 pb-2 border-b"
@@ -223,7 +226,7 @@ export function TableTrade() {
                             <h3 className="text-lg font-bold text-green-600">
                                 Itens
                             </h3>
-                            {currentCampaign?.itens?.map((item: Item) => (
+                            {currentCampaign?.itens?.map((item: IProduct) => (
                                 <div key={item.id} className="mb-2">
                                     <p>
                                         <strong>Nome:</strong> {item.nome}
@@ -269,7 +272,7 @@ export function TableTrade() {
     };
 
     const showDeleteConfirm = (id: string) => {
-        const campaign = campaigns.find((c: Campaign) => c.id === id);
+            const campaign = campaigns.find((c: any) => c.id === id);
         if (campaign && campaign.status === 'false') {
             message.warning('Esta campanha já está desativada.');
             return;
@@ -320,7 +323,7 @@ export function TableTrade() {
         {
             title: 'Ações',
             key: 'acoes',
-            render: (record: Campaign) => (
+            render: (record: any) => (
                 <div className="flex items-center space-x-2">
                     {record.status !== false && (
                         <>

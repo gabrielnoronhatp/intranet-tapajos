@@ -38,7 +38,7 @@ import {
 } from '@ant-design/icons';
 import Link from 'next/link';
 import { message } from 'antd';
-import { ICandidate } from '@/types/vacancy/IVacancy';
+import { ICandidate } from '@/types/vacancy/ICandidate';
 
 const { TabPane } = Tabs;
 
@@ -295,7 +295,7 @@ export default function VacancyCandidatesPage() {
                                         ) : candidates &&
                                           candidates.length > 0 ? (
                                             <Table
-                                                columns={columns}
+                                                columns={columns as any}
                                                 dataSource={candidates}
                                                 rowKey={(record) =>
                                                     record.candidate.id

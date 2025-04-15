@@ -9,7 +9,7 @@ import { Item } from '@/types/noPaper/Order/ItemOrder';
 import { Parcela } from '@/types/noPaper/Order/Parcela';
 
 
-const initialState: OrderData  = {
+const initialState: any  = {
     id: '',
     dtlanc: '',
     ramoOP: '',

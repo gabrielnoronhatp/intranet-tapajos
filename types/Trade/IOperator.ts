@@ -1,4 +1,4 @@
-export type Operador = {
+export type  Operador = {
     modelo: string;
     nome: string;
     tipo: string;

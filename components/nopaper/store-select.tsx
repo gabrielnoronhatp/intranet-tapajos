@@ -3,7 +3,7 @@ import React from 'react';
 import { Label } from '@/components/ui/label';
 import { fetchFiliais } from '@/hooks/slices/noPaper/noPaperSlice';
 
-import { RootState } from '@/hooks/store';
+import { AppDispatch, RootState } from '@/hooks/store';
 import { Select } from 'antd';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -24,7 +24,7 @@ export const FilialSelect = ({
     const { currentContract } = useSelector(
         (state: RootState) => state.contracts
     );
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
     const [error] = useState('');
     const searchQuery = useSelector(
         (state: RootState) => state.noPaper.searchQuery || ''
@@ -58,7 +58,7 @@ export const FilialSelect = ({
                 onChange={handleChange}
                 onSearch={(value) => setLocalSearchQuery(value)}
                 placeholder="Selecione uma filial..."
-                filterOption={(input: string, option: string) =>
+                filterOption={(input: string, option: any) =>
                     (option?.children ?? '')
                         .toLowerCase()
                         .includes(input.toLowerCase())

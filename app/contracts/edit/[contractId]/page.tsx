@@ -16,7 +16,6 @@ import { fetchLojas } from '@/hooks/slices/noPaper/noPaperSlice';
 import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
 import { Navbar } from '@/components/layout/navbar';
 import { Sidebar } from '@/components/layout/sidebar';
-import { IContract } from '@/types/Contracts/Contracts';
 import FinancialData from '@/components/contracts/duplicated-components/financial-data-form';
 
 export default function EditContractPage() {
@@ -36,7 +35,7 @@ export default function EditContractPage() {
         if (contractId) {
             dispatch(fetchContractDetails(Number(contractId)));
         }
-        dispatch(fetchLojas('   '));
+        dispatch(fetchLojas(''));
     }, [contractId, selectedFile, dispatch]);
 
     const handleSetState = (
@@ -79,12 +78,6 @@ export default function EditContractPage() {
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <FormSection title="Informações do Serviço">
                                     <ServiceTypeSelect
-                                        handleSetState={(key, value) =>
-                                            handleSetState(
-                                                key as keyof IContract,
-                                                value
-                                            )
-                                        }
                                         fieldValue={currentContract.idtipo}
                                         handleSelectChange={(value) =>
                                             handleSetState(
@@ -102,12 +95,6 @@ export default function EditContractPage() {
                                         }
                                         fieldValue={
                                             currentContract.idfornecedor
-                                        }
-                                        handleSetState={(key, value) =>
-                                            handleSetState(
-                                                key as keyof IContract,
-                                                value
-                                            )
                                         }
                                     />
                                     <div className="text-sm font-medium text-[#11833B] uppercase">
@@ -299,6 +286,12 @@ export default function EditContractPage() {
                                                 placeholder="Vencimento"
                                                 value={
                                                     currentContract.data_venc_contrato
+                                                        ? new Date(
+                                                              currentContract.data_venc_contrato
+                                                          )
+                                                              .toISOString()
+                                                              .split('T')[0]
+                                                        : undefined
                                                 }
                                                 onChange={(e) =>
                                                     handleSetState(

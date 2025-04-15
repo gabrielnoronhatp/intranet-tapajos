@@ -1,12 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { Input } from '../ui/input';
-import { useDispatch } from 'react-redux';
-import { sendMetaTable } from '@/hooks/slices/trade/tradeSlice';
-
-interface Vendedor {
-    metas: number[];
-}
+import { Escala, IEscala } from '@/types/Trade/ICampaign';
 
 interface MetaTableProps {
     isEditing?: boolean;
@@ -19,12 +14,11 @@ interface MetaTableProps {
             idMetaVendedor: number;
             celValordaMeta: number;
         }[];
-    };
-    onEscalaSubmit: (formattedMetas: any[]) => void;
+    } | null;
+    onEscalaSubmit: (formattedMetas: IEscala[] | Escala[]) => void;
 }
 
 export const MetaTable: React.FC<MetaTableProps> = ({
-    isEditing = false,
     campaignId,
     escala,
     onEscalaSubmit,
@@ -37,16 +31,12 @@ export const MetaTable: React.FC<MetaTableProps> = ({
     const [metaVendedorRange, setMetaVendedorRange] = useState<string[]>(
         escala?.metaVendedorRange || defaultMetaVendedorRange
     );
-    const [vendedores, setVendedores] = useState<Vendedor[]>([
-        {
-            metas: [],
-        },
-    ]);
+  
 
     const [metas, setMetas] = useState<number[][]>([[]]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading] = useState(false);
 
-    const dispatch = useDispatch();
+  
 
     useEffect(() => {
         if (escala?.valoresMeta && escala.valoresMeta.length > 0) {
@@ -73,7 +63,7 @@ export const MetaTable: React.FC<MetaTableProps> = ({
         } else if (metaGeralRange.length > 0 && metaVendedorRange.length > 0) {
             const newMetas = Array(metaGeralRange.length)
                 .fill(null)
-                .map((_, i) => Array(metaVendedorRange.length).fill(0));
+                .map(() => Array(metaVendedorRange.length).fill(0));
             setMetas(newMetas);
         }
     }, [escala, metaGeralRange.length, metaVendedorRange.length]);
@@ -104,7 +94,7 @@ export const MetaTable: React.FC<MetaTableProps> = ({
         colIndex: number,
         value: string
     ) => {
-        const newMetas: any = metas.map((row, r) => {
+        const newMetas: number[][] = metas.map((row, r) => {
             if (r === rowIndex) {
                 return row.map((cell, c) => (c === colIndex ? value : cell));
             }
@@ -122,7 +112,7 @@ export const MetaTable: React.FC<MetaTableProps> = ({
             id: campaignIdNumber,
             linha: '',
             ...metaVendedorRange.reduce(
-                (acc: any, range: any, index: number) => {
+                    (acc: { [key: string]: string }, range: string, index: number) => {
                     acc[`coluna${index + 1}`] = range;
                     return acc;
                 },
@@ -130,11 +120,11 @@ export const MetaTable: React.FC<MetaTableProps> = ({
             ),
         });
 
-        metaGeralRange.forEach((rangeGeral: any, index: number) => {
+        metaGeralRange.forEach((rangeGeral: string, index: number) => {
             formattedMetas.push({
                 id: campaignIdNumber,
                 linha: rangeGeral,
-                ...metaVendedorRange.reduce((acc: any, _, colIndex: number) => {
+                ...metaVendedorRange.reduce((acc: { [key: string]: number }, _, colIndex: number) => {
                     acc[`coluna${colIndex + 1}`] =
                         metas[index]?.[colIndex] || 0;
                     return acc;

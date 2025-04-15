@@ -1,13 +1,11 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Navbar } from '@/components/layout/navbar';
 import { Sidebar } from '@/components/layout/sidebar';
 import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
-import axios from 'axios';
-import { useDispatch } from 'react-redux';
+
 
 export default function Home() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);

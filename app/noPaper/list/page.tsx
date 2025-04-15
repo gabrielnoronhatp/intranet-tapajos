@@ -8,9 +8,9 @@ import { FloatingActionButton } from '@/components/nopaper/floating-action-butto
 import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
 import { useState, useEffect } from 'react';
 import { DatePicker } from 'antd';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs  from 'dayjs';
 import { api } from '@/app/service/api';
-import { OrderState } from '@/types/noPaper/Order/OrderTypes';
+import { OrderState } from '@/types/noPaper/Order/OrderState';
 const { RangePicker } = DatePicker;
 
 export default function NoPaperList() {
@@ -23,7 +23,7 @@ export default function NoPaperList() {
         startDate: '',
         endDate: '',
     });
-    const [orders, setOrders] = useState<any>([]);
+    const [orders, setOrders] = useState<OrderState[]>([]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -34,7 +34,7 @@ export default function NoPaperList() {
     };
 
     const handleDateRangeChange = (
-        dates: [Dayjs, Dayjs] | null,
+        dates: any, // Can't remove  this type
         dateStrings: [string, string]
     ) => {
         if (dates && dates[0] && dates[1]) {
@@ -64,7 +64,7 @@ export default function NoPaperList() {
             }
         }
         fetchOrders();
-    }, [searchParams]);
+    }, [searchParams,orders ]);
 
     return (
         <AuthGuard>
@@ -133,11 +133,8 @@ export default function NoPaperList() {
                                         >
                                             Período
                                         </label>
-                                        {/* TODO: delete  any */}
-                                        <RangePicker
-                                            onChange={
-                                                handleDateRangeChange as any
-                                            }
+                                            <RangePicker
+                                            onChange={handleDateRangeChange}
                                             placeholder={[
                                                 'Data de Início',
                                                 'Data de Fim',
@@ -162,7 +159,7 @@ export default function NoPaperList() {
                             <div className="rounded-lg border bg-card">
                                 <DataTableOrder
                                     searchParams={searchParams}
-                                    ordersSearch={orders}
+                                    // orders={orders}
                                 />
                             </div>
 

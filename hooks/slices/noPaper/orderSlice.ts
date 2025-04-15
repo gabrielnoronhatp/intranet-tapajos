@@ -1,32 +1,36 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import { api } from '@/app/service/api';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
-import { Item, OrderData } from '@/types/noPaper/Order/OrderTypes';
+
 import { CentroCusto } from '@/types/noPaper/Order/CentroCustoType';
+import { OrderData } from '@/types/noPaper/Order/OrderData';
+import { Item } from '@/types/noPaper/Order/ItemOrder';
+import { Parcela } from '@/types/noPaper/Order/Parcela';
 
 
-const initialState = {
+const initialState: OrderData  = {
+    id: '',
     dtlanc: '',
-    ramoOP: null,
+    ramoOP: '',
     notaOP: '',
-    qtparcelasOP: null,
-    contagerencialOP: null,
+    qtparcelasOP: 0,
+    contagerencialOP: '',
     fornecedorOP: '',
     lojaOP: '',
     serieOP: '',
-    metodoOP: null,
+    metodoOP: '',
     qtitensOP: 0,
     valorimpostoOP: 0,
-    dtavistaOP: null,
+    dtavistaOP: '',
     dataVencimentoOP: '',
-    bancoOP: null,
-    agenciaOP: null,
-    contaOP: null,
+    bancoOP: '',
+    agenciaOP: '',
+    contaOP: '',
     dtdepositoOP: '',
     parcelasOP: [
         {
-            parcela: null,
+            parcela: '',
             banco: '',
             agencia: '',
             conta: '',
@@ -37,23 +41,27 @@ const initialState = {
     produtosOP: [
         {
             produto: '',
+            quantidade: 0,
+            valorUnitario: 0,
+            valorTotal: 0,
             valor: 0,
-            centroCusto: [],
+            centrocusto: [] ,
         },
     ],
-    observacaoOP: null,
-    tipopixOP: null,
-    chavepixOP: null,
-    datapixOP: null,
-    opcaoLancOP: null,
+    observacaoOP: '',
+    tipopixOP: '',
+    chavepixOP: '',
+    datapixOP: '',
+    opcaoLancOP: '',
     ccustoOP: [
         {
-            centrocusto: 0,
+            centrocusto: '',
             valor: 0,
         },
     ],
-    userOP: null,
+    userOP: '',
     canceled: false,
+    files: [],
 };
 
 export const submitOrder = createAsyncThunk(
@@ -71,9 +79,14 @@ export const submitOrder = createAsyncThunk(
                 toast.error('Erro ao enviar o pedido' + response.data.message);
                 return rejectWithValue('Erro ao enviar o pedido.');
             }
-        } catch (error: any) {
-            toast.error('Error: ' + error.response.data.message);
-            return rejectWithValue(error.response.data);
+        } catch (error) {
+            if (error instanceof Error) {
+                toast.error('Error: ' + error.message);
+                return rejectWithValue(error.message);
+            } else {
+                toast.error('Error: ' + String(error));
+                return rejectWithValue(String(error));
+            }
         }
     }
 );
@@ -87,9 +100,14 @@ export const cancelOrder = createAsyncThunk(
                 toast.success('Ordem de pagamento cancelada com sucesso!');
                 return response.data;
             }
-        } catch (error: any) {
-            toast.error('Erro ao cancelar ordem de pagamento.');
-            return rejectWithValue(error.response.data);
+        } catch (error) {
+            if (error instanceof Error) {
+                toast.error('Erro ao cancelar ordem de pagamento.');
+                return rejectWithValue(error.message);
+            } else {
+                toast.error('Erro ao cancelar ordem de pagamento.');
+                return rejectWithValue(String(error));
+            }
         }
     }
 );
@@ -104,7 +122,7 @@ const orderSlice = createSlice({
             const produtosOP = itens.map((item: Item) => {
                 const centroCustoFormatado = centrosCusto.map(
                     (cc: CentroCusto) => ({
-                        centrocusto: cc.centroCusto,
+                        centrocusto: cc.centrocusto,
                         valor: cc.valor,
                     })
                 );
@@ -117,6 +135,7 @@ const orderSlice = createSlice({
             });
 
             state = {
+                id: '',
                 dtlanc: format(rest.dtlanc, 'yyyy-MM-dd'),
                 ramoOP: rest.ramo || null,
                 notaOP: rest.notaFiscal || null,
@@ -135,28 +154,29 @@ const orderSlice = createSlice({
                 dtdepositoOP: rest.dtdeposito || null,
                 parcelasOP:
                     rest.parcelasOP?.length > 0
-                        ? rest.parcelasOP.map((parcela: any) => ({
+                        ? rest.parcelasOP.map((parcela: Parcela) => ({
                               parcela: parcela.parcela || null,
                               banco: parcela.banco || '',
                               agencia: parcela.agencia || '',
                               conta: parcela.conta || '',
-                              tipopixOP: parcela.tipopixOP || '',
-                              chavepixOP: parcela.chavepixOP || '',
+                              tipopix: parcela.tipopix || '',
+                              chavepix: parcela.chavepix || '',
                           }))
                         : [],
                 produtosOP: produtosOP,
                 observacaoOP: rest.observacao || null,
-                tipopixOP: rest.tipopixOP || null,
-                chavepixOP: rest.chavepixOP || null,
-                datapixOP: rest.datapixOP || null,
+                tipopixOP: rest.tipopix || null,
+                chavepixOP: rest.chavepix || null,
+                datapixOP: rest.datapix || null,
                 opcaoLancOP: rest.tipoLancamento || null,
                 ccustoOP: centrosCusto.map((centro: CentroCusto) => ({
-                    centrocusto: centro.centroCusto,
+                    centrocusto: centro.centrocusto,
                     valor: centro.valor,
                 })),
                 userOP: rest.user || null,
                 dataVencimentoOP: rest.dataVencimentoOP || null,
                 canceled: false,
+                files: rest.files || [],
             };
         },
         setOrderState: (state, action) => {
@@ -173,7 +193,7 @@ const orderSlice = createSlice({
         },
     },
     extraReducers: (builder) => {
-        builder.addCase(cancelOrder.fulfilled, (state, action) => {
+        builder.addCase(cancelOrder.fulfilled, (state) => {
             state.canceled = true;
         });
     },

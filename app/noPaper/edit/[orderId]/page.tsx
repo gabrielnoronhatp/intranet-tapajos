@@ -5,7 +5,7 @@ import { Navbar } from '@/components/layout/navbar';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Button } from '@/components/ui/button';
 import { setOrderState } from '@/hooks/slices/noPaper/orderSlice';
-import { message, Upload, Modal } from 'antd';
+import { message, Upload, Modal, UploadFile } from 'antd';
 import OriginData from '@/components/nopaper/form/origin-data-form';
 import FinancialData from '@/components/nopaper/form/financial-data-form';
 import TaxesData from '@/components/nopaper/form/taxes-data-form';
@@ -15,21 +15,25 @@ import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { api } from '@/app/service/api';
 import { useParams, useRouter } from 'next/navigation';
 import { deleteFile } from '@/hooks/slices/noPaper/noPaperSlice';
+import { RootState, AppDispatch } from '@/hooks/store';
+import { OrderState } from '@/types/noPaper/Order/OrderState';
+import { UploadChangeParam } from 'antd/es/upload';
+import { CentroCusto } from '@/types/noPaper/Order/CentroCustoType';
 
 export default function EditOrderPage() {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
     const params = useParams();
     const router = useRouter();
     const orderId = params?.orderId as string;
 
-    const orderData = useSelector((state: any) => state.order);
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const orderData = useSelector((state: RootState) => state.order);
+    const [selectedFile, setSelectedFile] = useState<File>();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
     const [existingFiles, setExistingFiles] = useState<
         Array<{ url: string; name: string }>
     >([]);
-    const [fileList, setFileList] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [fileList, setFileList] = useState<UploadFile<any>[]>([]);
 
     useEffect(() => {
         const fetchOrderData = async () => {
@@ -83,9 +87,12 @@ export default function EditOrderPage() {
         if (orderId) {
             fetchOrderData();
         }
-    }, [orderId, dispatch, router]);
+    }, [orderId, dispatch, router, fileList, isLoading]);
 
-    const handleSetState = (field: keyof typeof orderData, value: any) => {
+    const handleSetState = (
+        field: keyof OrderState,
+        value: OrderState[keyof OrderState]
+    ) => {
         dispatch(setOrderState({ [field]: value }));
     };
 
@@ -94,14 +101,15 @@ export default function EditOrderPage() {
 
         const validateCenters = () => {
             if (!orderData.ccustoOP || orderData.ccustoOP.length === 0) {
-                return false; // Se a lista estiver vazia, retorna falso
+                return false;
             }
 
-            return orderData.ccustoOP.every(
-                (center: any) =>
-                    typeof center.centrocusto === 'string' &&
-                    center.centrocusto.trim() !== ''
-            );
+            return orderData.ccustoOP.every((center: CentroCusto) => {
+                const centroCusto = center.centrocusto.toString();
+                return (
+                    typeof centroCusto === 'string' && centroCusto.trim() !== ''
+                );
+            });
         };
 
         if (!validateCenters()) {
@@ -148,15 +156,15 @@ export default function EditOrderPage() {
         }
     };
 
-    const handleUploadChange = (info: any) => {
+
+
+    const handleUploadChange = (info: UploadChangeParam<UploadFile<any>>) => {
         if (info.file.status === 'done') {
             message.success(`${info.file.name} foi enviado com sucesso!`);
             setSelectedFile(info.file.originFileObj);
         } else if (info.file.status === 'error') {
             message.error(`Falha ao enviar ${info.file.name}.`);
         }
-
-        // Update fileList state
         setFileList(info.fileList);
     };
 
@@ -176,7 +184,7 @@ export default function EditOrderPage() {
                 content: 'Você tem certeza que deseja excluir este arquivo?',
                 onOk: async () => {
                     try {
-                        await dispatch(deleteFile(fileKey) as any);
+                        await dispatch(deleteFile(fileKey));
                         message.success('Arquivo excluído com sucesso');
 
                         const updatedFiles = existingFiles.filter(
@@ -201,6 +209,15 @@ export default function EditOrderPage() {
         }
     };
 
+    const handleOnChange = (
+        field: keyof OrderState,
+        value: OrderState[keyof OrderState]
+    ) => {
+        handleSetState(field, value);
+    };
+
+    
+
     return (
         <AuthGuard>
             <div className="min-h-screen bg-background">
@@ -221,7 +238,7 @@ export default function EditOrderPage() {
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <OriginData
                                     data={orderData}
-                                    onChange={handleSetState}
+                                    onChange={handleOnChange}
                                 />
                                 <FinancialData
                                     data={orderData}
@@ -229,11 +246,11 @@ export default function EditOrderPage() {
                                 />
                                 <TaxesData
                                     data={orderData}
-                                    onChange={handleSetState}
+                                    onChange={handleOnChange}
                                 />
                                 <CenterOfCoust
                                     data={orderData}
-                                    onChange={handleSetState}
+                                    onChange={handleOnChange}
                                 />
 
                                 <div className="mt-6">
@@ -259,7 +276,9 @@ export default function EditOrderPage() {
                                                   ]
                                                 : []
                                         }
-                                        onRemove={() => setSelectedFile(null)}
+                                        onRemove={() =>
+                                            setSelectedFile(undefined)
+                                        }
                                         customRequest={async ({
                                             file,
                                             onSuccess,
@@ -342,7 +361,7 @@ export default function EditOrderPage() {
                                                     'Falha ao enviar o arquivo. Tente novamente.',
                                                     3
                                                 );
-                                                onError?.(error as any);
+                                                onError?.(error as Error);
                                             }
                                         }}
                                     >

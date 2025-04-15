@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Select, message } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@/hooks/store';
+import { AppDispatch, RootState } from '@/hooks/store';
 import {
     fetchServiceTypes,
     setCurrentContract,
@@ -13,17 +13,17 @@ import { PlusOutlined } from '@ant-design/icons';
 import { Button, Divider, Input, Space } from 'antd';
 
 interface ServiceTypeSelectProps {
-    handleSetState: (key: string, value: string) => void;
-    fieldValue: string;
+    fieldValue: string | number;
     handleSelectChange: (value: string) => void;
 }
 
+
 export const ServiceTypeSelect = ({
-    handleSetState,
+
     fieldValue,
     handleSelectChange,
 }: ServiceTypeSelectProps) => {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
     const { serviceTypes, loading, currentContract } = useSelector(
         (state: RootState) => state.contracts
     );
@@ -32,7 +32,7 @@ export const ServiceTypeSelect = ({
 
     useEffect(() => {
         // TODO: FOUND A WAY TO DELETE THIS ANY
-        dispatch(fetchServiceTypes() as any);
+        dispatch(fetchServiceTypes());
     }, [dispatch]);
 
     const handleChange = (value: string) => {
@@ -51,7 +51,7 @@ export const ServiceTypeSelect = ({
         setIsLoading(true);
         try {
             const result = await dispatch(
-                createServiceType(newTypeName) as any
+                createServiceType(newTypeName)
             ).unwrap();
             handleSelectChange(result.id.toString());
             dispatch(
@@ -63,6 +63,7 @@ export const ServiceTypeSelect = ({
             setNewTypeName('');
             message.success('Tipo de serviço criado com sucesso!');
         } catch (error) {
+            console.log(error);
             message.error('Erro ao criar tipo de serviço');
         } finally {
             setIsLoading(false);
@@ -114,7 +115,7 @@ export const ServiceTypeSelect = ({
                 showSearch
                 placeholder="Selecione o tipo de serviço"
                 optionFilterProp="children"
-                value={fieldValue || currentContract.idtipo}
+                value={fieldValue ? String(fieldValue) : currentContract.idtipo ? String(currentContract.idtipo) : undefined}
                 onChange={handleChange}
                 loading={loading || isLoading}
                 options={options}

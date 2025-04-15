@@ -1,6 +1,11 @@
 import { apiInstance } from '@/app/service/apiInstance';
-import { ICampaign, IEscala } from '@/types/Trade/ITrade';
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { IFilial } from '@/types/noPaper/Supplier/SupplierType';
+import { IEscala } from '@/types/Trade/IEscala';
+import { IProduct } from '@/types/Trade/IProduct';
+import { IParticipants } from '@/types/Trade/IParticipants';
+import { ICampaign } from '@/types/Trade/ICampaign';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import axios from 'axios';
 
 export const fetchCampaigns = createAsyncThunk(
     'trade/fetchCampaigns',
@@ -21,7 +26,7 @@ export const fetchCampaignById = createAsyncThunk(
 export const updateCampaign = createAsyncThunk(
     'trade/updateCampaign',
     async (
-        { id, data }: { id: string; data: any },
+        { id, data }: { id: string; data: ICampaign },
         { dispatch, rejectWithValue }
     ) => {
         try {
@@ -49,7 +54,7 @@ export const updateCampaign = createAsyncThunk(
             if (data.escala) {
                 try {
                     const escalaWithCampaignId = data.escala.map(
-                        (item: any) => ({
+                        (item: IEscala) => ({
                             ...item,
                             id: parseInt(id),
                         })
@@ -69,13 +74,13 @@ export const updateCampaign = createAsyncThunk(
             if (data.participantes && data.participantes.length > 0) {
                 const newParticipants = data.participantes
                     .filter(
-                        (p: any) =>
+                        (p: IParticipants) =>
                             !currentCampaign.participantes.some(
-                                (cp: any) =>
+                                (cp: IParticipants) =>
                                     cp.idparticipante === p.idparticipante
                             )
                     )
-                    .map((participant: any) => {
+                    .map((participant: IParticipants) => {
                         return {
                             ...participant,
                             nome: participant.nome,
@@ -107,12 +112,12 @@ export const updateCampaign = createAsyncThunk(
             if (data.itens && data.itens.length > 0) {
                 const newItems = data.itens
                     .filter(
-                        (i: any) =>
+                        (i: IProduct) =>
                             !currentCampaign.itens.some(
-                                (ci: any) => ci.iditem === i.iditem
+                                (ci: IProduct) => ci.iditem === i.iditem
                             )
                     )
-                    .map((item: any) => {
+                    .map((item: IProduct) => {
                         return {
                             ...item,
                             iditem: item.iditem,
@@ -139,9 +144,10 @@ export const updateCampaign = createAsyncThunk(
             }, 1000);
 
             return response.data;
-        } catch (error: any) {
-            console.error('Erro ao atualizar campanha:', error);
-            return rejectWithValue(error.response?.data || error.message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data || error.message);
+            }
         }
     }
 );
@@ -152,7 +158,7 @@ export const createCampaignParticipants = createAsyncThunk(
         {
             campaignId,
             participants,
-        }: { campaignId: string; participants: any[] },
+        }: { campaignId: string; participants: IParticipants[] },
         { rejectWithValue }
     ) => {
         try {
@@ -174,9 +180,10 @@ export const createCampaignParticipants = createAsyncThunk(
             }
 
             return results;
-        } catch (error: any) {
-            console.error('Erro ao criar participantes:', error);
-            return rejectWithValue(error.response?.data || error.message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data || error.message);
+            }
         }
     }
 );
@@ -184,13 +191,12 @@ export const createCampaignParticipants = createAsyncThunk(
 export const createCampaignItems = createAsyncThunk(
     'trade/createCampaignItems',
     async (
-        { campaignId, items }: { campaignId: string; items: any[] },
+        { campaignId, items }: { campaignId: string; items: IParticipants[] },
         { rejectWithValue }
     ) => {
         try {
             const results = [];
 
-            // Para cada item, fazer uma requisição separada
             for (const item of items) {
                 const itemWithCampaignId = {
                     ...item,
@@ -206,16 +212,17 @@ export const createCampaignItems = createAsyncThunk(
             }
 
             return results;
-        } catch (error: any) {
-            console.error('Erro ao criar itens:', error);
-            return rejectWithValue(error.response?.data || error.message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data || error.message);
+            }
         }
     }
 );
 
 export const createCampaign = createAsyncThunk(
     'trade/createCampaign',
-    async (data: any, { dispatch, rejectWithValue }) => {
+    async (data: ICampaign, { dispatch, rejectWithValue }) => {
         try {
             const { escala, ...campaignData } = data;
 
@@ -250,10 +257,12 @@ export const createCampaign = createAsyncThunk(
 
             if (escala && escala.length > 0) {
                 try {
-                    const escalaWithCampaignId = escala.map((item: any) => ({
-                        ...item,
-                        id: parseInt(campaignId),
-                    }));
+                    const escalaWithCampaignId = escala.map(
+                        (item: IEscala) => ({
+                            ...item,
+                            id: parseInt(campaignId),
+                        })
+                    );
 
                     await dispatch(
                         sendMetaTable({
@@ -271,9 +280,10 @@ export const createCampaign = createAsyncThunk(
             }, 1000);
 
             return response.data;
-        } catch (error: any) {
-            console.error('Erro ao criar campanha:', error);
-            return rejectWithValue(error.response?.data || error.message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data || error.message);
+            }
         }
     }
 );
@@ -286,9 +296,12 @@ export const deleteCampaign = createAsyncThunk(
     }
 );
 
+type ProductName = string;
+type Type = 'produto' | 'marca';
+
 export const fetchProducts = createAsyncThunk(
     'trade/fetchProducts',
-    async ({ productName, type }: { productName?: any; type: any }) => {
+    async ({ productName, type }: { productName: ProductName; type: Type }) => {
         try {
             const url = productName
                 ? `/api/products?name=${encodeURIComponent(productName)}&type=${type}`
@@ -299,7 +312,7 @@ export const fetchProducts = createAsyncThunk(
             }
             const data = await response.json();
             return data;
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error fetching products:', error);
             throw error;
         }
@@ -329,28 +342,21 @@ export const fetchOperators = createAsyncThunk(
     }
 );
 
-export const fetchFiliais = createAsyncThunk(
-    'trade/fetchFiliais',
-    async (filter: string) => {
-        try {
-            const response = await apiInstance.get(`/filiais`);
+export const fetchFiliais = createAsyncThunk('trade/fetchFiliais', async () => {
+    try {
+        const response = await apiInstance.get(`/filiais`);
 
-            const data =
-                typeof response.data === 'string'
-                    ? JSON.parse(response.data)
-                    : response.data;
-            return data;
-        } catch (error: any) {
-            if (error.response && error.response.status === 404) {
-                return console.error(
-                    'Campanha não encontrada:',
-                    error.response.data
-                );
-            }
+        const data =
+            typeof response.data === 'string'
+                ? JSON.parse(response.data)
+                : response.data;
+        return data;
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
             throw error;
         }
     }
-);
+});
 
 export const deactivateCampaign = createAsyncThunk(
     'trade/deactivateCampaign',
@@ -358,11 +364,11 @@ export const deactivateCampaign = createAsyncThunk(
         try {
             const response = await apiInstance.delete(`/campanhas/${id}`);
             return response.data;
-        } catch (error: any) {
-            if (error.response && error.response.status === 404) {
-                console.error('Campanha não encontrada:', error.response.data);
-                return rejectWithValue(error.response.data);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data || error.message);
             }
+
             throw error;
         }
     }
@@ -378,11 +384,9 @@ export const fetchProductsByType = createAsyncThunk(
             const endpoint =
                 type === 'produto' ? '/busca_produtos' : '/busca_marcas';
             const response = await apiInstance.post(endpoint, { busca });
-            const data =
-                typeof response.data === 'string'
-                    ? JSON.parse(response.data)
-                    : response.data;
+            const data = JSON.parse(response.data);
 
+            console.log('data produtos', data);
             return data;
         } catch (error) {
             console.error(`Error fetching ${type}s:`, error);
@@ -404,7 +408,7 @@ export const searchCampaigns = createAsyncThunk(
                 searchParams
             );
             return response.data;
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error searching campaigns:', error);
             throw error;
         }
@@ -415,7 +419,7 @@ export const sendMetaTable = createAsyncThunk(
     'trade/sendMetaTable',
     async (
         metaData: {
-            formattedMetas: any[];
+            formattedMetas: IEscala[];
             campaignId?: string;
             isEditing?: boolean;
         },
@@ -438,9 +442,11 @@ export const sendMetaTable = createAsyncThunk(
             }
 
             return response.data;
-        } catch (error: any) {
-            console.error('Error sending meta table:', error);
-            return rejectWithValue(error.response?.data || error.message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data || error.message);
+            }
+            throw error;
         }
     }
 );
@@ -449,14 +455,14 @@ export const deleteParticipant = createAsyncThunk(
     'trade/deleteParticipant',
     async (participantId: number, { rejectWithValue }) => {
         try {
-            const response = await apiInstance.delete(
-                `/participantes/${participantId}`
-            );
+            await apiInstance.delete(`/participantes/${participantId}`);
 
             return participantId;
-        } catch (error: any) {
-            console.error('Erro ao remover participante:', error);
-            return rejectWithValue(error.response?.data || error.message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data || error.message);
+            }
+            throw error;
         }
     }
 );
@@ -468,9 +474,11 @@ export const deleteItem = createAsyncThunk(
             const response = await apiInstance.delete(`/itens/${itemId}`);
             console.log('', response.data);
             return itemId;
-        } catch (error: any) {
-            console.error('Erro ao remover item:', error);
-            return rejectWithValue(error.response?.data || error.message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data || error.message);
+            }
+            throw error;
         }
     }
 );
@@ -491,9 +499,11 @@ export const deleteParticipantFromCampaign = createAsyncThunk(
             console.log('', response.data);
 
             return { campaignId, participantId };
-        } catch (error: any) {
-            console.error('Erro ao remover participante:', error);
-            return rejectWithValue(error.response?.data || error.message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data || error.message);
+            }
+            throw error;
         }
     }
 );
@@ -510,9 +520,11 @@ export const deleteItemFromCampaign = createAsyncThunk(
             );
             console.log('', response.data);
             return { campaignId, id };
-        } catch (error: any) {
-            console.error('Erro ao remover item:', error);
-            return rejectWithValue(error.response?.data || error.message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data || error.message);
+            }
+            throw error;
         }
     }
 );
@@ -523,9 +535,11 @@ export const cloneCampaign = createAsyncThunk(
         try {
             const response = await apiInstance.get(`/campanhas_clone/${id}`);
             return response.data;
-        } catch (error: any) {
-            console.error('Erro ao duplicar campanha:', error);
-            return rejectWithValue(error.response?.data || error.message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data || error.message);
+            }
+            throw error;
         }
     }
 );
@@ -542,7 +556,7 @@ const initialState: ICampaign = {
     operators: [],
     campaigns: [],
     currentCampaign: {} as ICampaign,
-    filiais: [] as any,
+    filiais: [] as IFilial[],
     escala: [] as IEscala[],
 };
 
@@ -550,14 +564,23 @@ const tradeSlice = createSlice({
     name: 'trade',
     initialState,
     reducers: {
-        updateField: (state: any, action: any) => {
+        updateField: (
+            state: ICampaign,
+            action: PayloadAction<{
+                field: keyof ICampaign;
+                value: string | number;
+            }>
+        ) => {
             const { field, value } = action.payload;
             state[field] = value;
         },
-        setUserLanc: (state, action) => {
+        setUserLanc: (state: ICampaign, action: PayloadAction<string>) => {
             state.userlanc = action.payload;
         },
-        setCurrentCampaign: (state, action) => {
+        setCurrentCampaign: (
+            state: ICampaign,
+            action: PayloadAction<Partial<ICampaign>>
+        ) => {
             state.currentCampaign = {
                 ...state.currentCampaign,
                 ...action.payload,
@@ -573,23 +596,22 @@ const tradeSlice = createSlice({
                 state.status = 'succeeded';
                 state.campaigns = action.payload;
             })
-            .addCase(fetchCampaigns.rejected, (state: any, action) => {
+            .addCase(fetchCampaigns.rejected, (state: ICampaign) => {
                 state.status = 'failed';
-                state.error = action.error.message;
             })
             .addCase(updateCampaign.fulfilled, (state, action) => {
-                state.campaigns = state.campaigns.map((campaign: any) =>
+                state.campaigns = state.campaigns.map((campaign: ICampaign) =>
                     campaign.id === action.payload.id
                         ? action.payload
                         : campaign
                 );
             })
-            .addCase(createCampaign.fulfilled, (state: any, action) => {
+            .addCase(createCampaign.fulfilled, (state: ICampaign, action) => {
                 state.campaigns.push(action.payload);
             })
-            .addCase(deleteCampaign.fulfilled, (state: any, action) => {
+            .addCase(deleteCampaign.fulfilled, (state: ICampaign, action) => {
                 state.campaigns = state.campaigns.filter(
-                    (campaign: any) => campaign.id !== action.payload
+                    (campaign: ICampaign) => campaign.id !== action.payload
                 );
             })
             .addCase(fetchProducts.pending, (state) => {
@@ -599,9 +621,8 @@ const tradeSlice = createSlice({
                 state.status = 'succeeded';
                 state.products = action.payload;
             })
-            .addCase(fetchProducts.rejected, (state: any, action) => {
+            .addCase(fetchProducts.rejected, (state: ICampaign) => {
                 state.status = 'failed';
-                state.error = action.payload;
             })
             .addCase(fetchOperators.pending, (state) => {
                 state.status = 'loading';
@@ -610,24 +631,22 @@ const tradeSlice = createSlice({
                 state.status = 'succeeded';
                 state.operators = action.payload;
             })
-            .addCase(fetchOperators.rejected, (state: any, action) => {
+            .addCase(fetchOperators.rejected, (state: ICampaign) => {
                 state.status = 'failed';
-                state.error = action.payload;
             })
             .addCase(fetchFiliais.fulfilled, (state, action) => {
                 state.filiais = action.payload;
             })
             .addCase(deactivateCampaign.fulfilled, (state, action) => {
                 const index = state.campaigns.findIndex(
-                    (campaign: any) => campaign.id === action.payload.id
+                    (campaign: ICampaign) => campaign.id === action.payload.id
                 );
                 if (index !== -1) {
                     state.campaigns[index].status = 'desativado';
                 }
             })
-            .addCase(deactivateCampaign.rejected, (state: any, action) => {
+            .addCase(deactivateCampaign.rejected, (state: ICampaign) => {
                 state.status = 'failed';
-                state.error = action.payload;
             })
             .addCase(fetchCampaignById.fulfilled, (state, action) => {
                 state.currentCampaign = action.payload;
@@ -643,25 +662,26 @@ const tradeSlice = createSlice({
                 state.status = 'succeeded';
                 state.campaigns = action.payload;
             })
-            .addCase(searchCampaigns.rejected, (state: any, action) => {
+            .addCase(searchCampaigns.rejected, (state: ICampaign) => {
                 state.status = 'failed';
-                state.error = action.error.message;
             })
-            .addCase(sendMetaTable.fulfilled, (state, action) => {})
-            .addCase(sendMetaTable.rejected, (state: any, action) => {
+            .addCase(sendMetaTable.fulfilled, () => {})
+            .addCase(sendMetaTable.rejected, (state: ICampaign) => {
                 state.status = 'failed';
-                state.error = action.payload;
             })
-            .addCase(deleteParticipant.fulfilled, (state, action) => {
-                // Se estivermos editando uma campanha, atualize a lista de participantes
-                if (state.currentCampaign.participantes) {
-                    state.currentCampaign.participantes =
-                        state.currentCampaign.participantes.filter(
-                            (p: any) => p.id !== action.payload
-                        );
+            .addCase(
+                deleteParticipant.fulfilled,
+                (state: ICampaign, action) => {
+                    // Se estivermos editando uma campanha, atualize a lista de participantes
+                    if (state.currentCampaign.participantes) {
+                        state.currentCampaign.participantes =
+                            state.currentCampaign.participantes.filter(
+                                (p: IParticipants) => p.id !== action.payload
+                            );
+                    }
                 }
-            })
-            .addCase(deleteParticipant.rejected, (state: any, action) => {
+            )
+            .addCase(deleteParticipant.rejected, (state: ICampaign, action) => {
                 state.status = 'failed';
                 state.error = action.payload;
             })
@@ -669,36 +689,39 @@ const tradeSlice = createSlice({
                 if (state.currentCampaign.itens) {
                     state.currentCampaign.itens =
                         state.currentCampaign.itens.filter(
-                            (i: any) => i.id !== action.payload
+                            (i: IProduct) => i.id !== action.payload
                         );
                 }
             })
-            .addCase(deleteItem.rejected, (state: any, action) => {
+            .addCase(deleteItem.rejected, (state: ICampaign, action) => {
                 state.status = 'failed';
                 state.error = action.payload;
             })
             .addCase(
                 deleteParticipantFromCampaign.fulfilled,
-                (state, action) => {
+                (state: ICampaign, action) => {
                     const { campaignId, participantId } = action.payload;
                     if (state.currentCampaign.id === campaignId) {
                         state.currentCampaign.participantes =
                             state.currentCampaign.participantes.filter(
-                                (p: any) => p.id !== participantId
+                                (p: IParticipants) => p.id !== participantId
                             );
                     }
                 }
             )
-            .addCase(deleteItemFromCampaign.fulfilled, (state, action) => {
-                const { campaignId, id } = action.payload;
-                if (state.currentCampaign.id === campaignId) {
-                    state.currentCampaign.itens =
-                        state.currentCampaign.itens.filter(
-                            (i: any) => i.id !== id
-                        );
+            .addCase(
+                deleteItemFromCampaign.fulfilled,
+                (state: ICampaign, action) => {
+                    const { campaignId, id } = action.payload;
+                    if (state.currentCampaign.id === campaignId) {
+                        state.currentCampaign.itens =
+                            state.currentCampaign.itens.filter(
+                                (i: IProduct) => i.id !== id
+                            );
+                    }
                 }
-            })
-            .addCase(cloneCampaign.fulfilled, (state, action) => {
+            )
+            .addCase(cloneCampaign.fulfilled, (state: ICampaign, action) => {
                 if (action.payload) {
                     state.campaigns = [...state.campaigns, action.payload];
                 }

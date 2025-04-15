@@ -21,6 +21,8 @@ import { fetchLojas } from '@/hooks/slices/noPaper/noPaperSlice';
 import { toast } from 'react-hot-toast';
 import { NumericFormat } from 'react-number-format';
 import { IContract } from '@/types/Contracts/Contracts';
+
+
 export default function ContractForm() {
     const dispatch = useDispatch<AppDispatch>();
     const { currentContract } = useSelector(
@@ -97,7 +99,6 @@ export default function ContractForm() {
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <FormSection title="Informações do Serviço">
                                     <ServiceTypeSelect
-                                        handleSetState={handleSetState}
                                         fieldValue={currentContract.idtipo}
                                         handleSelectChange={(value) =>
                                             handleSetState(
@@ -113,7 +114,6 @@ export default function ContractForm() {
                                         fieldValue={
                                             currentContract.idfornecedor
                                         }
-                                        handleSetState={handleSetState}
                                     />
                                     <div className="text-sm font-medium text-[#11833B] uppercase">
                                         SELECIONE A FILIAL
@@ -128,18 +128,14 @@ export default function ContractForm() {
                                             setLocalSearchQuery(value)
                                         }
                                         showSearch
-                                        filterOption={(
-                                            input: string,
-                                            option: any
-                                        ) =>
-                                            (option?.label ?? '')
-                                                .toLowerCase()
-                                                .includes(input.toLowerCase())
-                                        }
+                                        // find way to remove this any
                                         options={lojas.map((filial) => ({
                                             value: filial.loja,
                                             label: filial.loja,
                                         }))}
+                                        filterOption={(input: string, option) =>
+                                            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                                        }
                                         className="w-full mb-4"
                                     />
                                 </FormSection>

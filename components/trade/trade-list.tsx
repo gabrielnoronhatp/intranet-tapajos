@@ -24,9 +24,11 @@ import { useRouter } from 'next/navigation';
 import useTokenRefresh from '@/hooks/useTokenRefresh';
 import dayjs from 'dayjs';
 import { MetaTableReadOnly } from './meta-table-readonly';
+import { ICampaign, IEscala} from '@/types/Trade/ICampaign';
+
 
 export function TableTrade() {
-    const [clientSideReady, setClientSideReady] = useState(false);
+    const [clientSideReady] = useState(false);
     const [searchForm] = Form.useForm();
     const dispatch = useDispatch();
     const router = useRouter();
@@ -35,14 +37,14 @@ export function TableTrade() {
     useEffect(() => {
         const initializeData = async () => {
             await refreshToken();
-            dispatch(fetchCampaigns() as any);
+            dispatch(fetchCampaigns());
         };
 
         initializeData();
     }, [dispatch, clientSideReady]);
 
-    const handleSearch = (values: any) => {
-        const searchParams: any = {};
+    const handleSearch = (values: ICampaign) => {
+        const searchParams: ICampaign = {};
 
         if (values.nome) {
             searchParams.nome = values.nome;
@@ -60,12 +62,12 @@ export function TableTrade() {
             );
         }
 
-        dispatch(searchCampaigns(searchParams) as any);
+        dispatch(searchCampaigns(searchParams));
     };
 
     const handleReset = () => {
         searchForm.resetFields();
-        dispatch(fetchCampaigns() as any);
+        dispatch(fetchCampaigns());
     };
 
     const handleEditCampaign = (id: string) => {
@@ -75,22 +77,22 @@ export function TableTrade() {
         (state: RootState) => state.trade || {}
     );
 
-    const sortedCampaigns = campaigns?.slice().sort((a: any, b: any) => {
+    const sortedCampaigns = campaigns?.slice().sort((a: ICampaign, b: ICampaign) => {
         //order by id descending
         return b.id - a.id;
     });
 
     const handleViewCampaign = (id: string) => {
-        dispatch(fetchCampaignById(id) as any).then(() => {
+        dispatch(fetchCampaignById(id)).then(() => {
             const escalaData = currentCampaign?.escala || [];
 
             let metaGeralRange: string[] = [];
             let metaVendedorRange: string[] = [];
-            let valoresMeta: any[] = [];
+            let valoresMeta: IEscala[] = [];
 
             if (escalaData.length > 0) {
                 const primeiraLinha = escalaData.find(
-                    (item: any) => item.linha === ''
+                    (item: IEscala) => item.linha === ''
                 );
 
                 if (primeiraLinha) {
@@ -106,12 +108,12 @@ export function TableTrade() {
                 }
 
                 const outrasLinhas = escalaData.filter(
-                    (item: any) => item.linha !== ''
+                    (item: IEscala) => item.linha !== ''
                 );
-                metaGeralRange = outrasLinhas.map((item: any) => item.linha);
+                metaGeralRange = outrasLinhas.map((item: IEscala) => item.linha);
 
                 valoresMeta = [];
-                outrasLinhas.forEach((linha: any, idxLinha: number) => {
+                outrasLinhas.forEach((linha: IEscala, idxLinha: number) => {
                     metaVendedorRange.forEach((_, idxCol: number) => {
                         const usesCol = Object.keys(linha).some(
                             (key) =>
@@ -177,7 +179,7 @@ export function TableTrade() {
                                 Participantes
                             </h3>
                             {currentCampaign?.participantes?.map(
-                                (participante: any) => (
+                                (participante: Participante) => (
                                     <div
                                         key={participante.id}
                                         className="mb-3 pb-2 border-b"
@@ -221,7 +223,7 @@ export function TableTrade() {
                             <h3 className="text-lg font-bold text-green-600">
                                 Itens
                             </h3>
-                            {currentCampaign?.itens?.map((item: any) => (
+                            {currentCampaign?.itens?.map((item: Item) => (
                                 <div key={item.id} className="mb-2">
                                     <p>
                                         <strong>Nome:</strong> {item.nome}
@@ -267,7 +269,7 @@ export function TableTrade() {
     };
 
     const showDeleteConfirm = (id: string) => {
-        const campaign = campaigns.find((c: any) => c.id === id);
+        const campaign = campaigns.find((c: Campaign) => c.id === id);
         if (campaign && campaign.status === 'false') {
             message.warning('Esta campanha já está desativada.');
             return;
@@ -280,9 +282,9 @@ export function TableTrade() {
             okType: 'danger',
             cancelText: 'Não',
             onOk() {
-                dispatch(deactivateCampaign(id) as any).then(() => {
+                dispatch(deactivateCampaign(id)).then(() => {
                     message.success('Campanha desativada com sucesso!');
-                    dispatch(fetchCampaigns() as any);
+                    dispatch(fetchCampaigns());
                 });
             },
             onCancel() {
@@ -293,9 +295,9 @@ export function TableTrade() {
 
     const handleCloneCampaign = async (id: string) => {
         try {
-            await dispatch(cloneCampaign(id) as any).unwrap();
+            await dispatch(cloneCampaign(id)).unwrap();
             message.success('Campanha duplicada com sucesso!');
-            dispatch(fetchCampaigns() as any);
+            dispatch(fetchCampaigns());
         } catch (error) {
             message.error('Erro ao duplicar campanha');
             console.error('Erro:', error);
@@ -318,7 +320,7 @@ export function TableTrade() {
         {
             title: 'Ações',
             key: 'acoes',
-            render: (record: any) => (
+            render: (record: Campaign) => (
                 <div className="flex items-center space-x-2">
                     {record.status !== false && (
                         <>

@@ -14,7 +14,6 @@ import { setCurrentContract } from '@/hooks/slices/contracts/contractSlice';
 
 export default function FinancialData() {
     const dispatch = useDispatch();
-    const user = useSelector((state: any) => state.auth.user);
 
     const handleSetState = (field: string, value: string) => {
         if (field === 'idfilial') {
@@ -25,20 +24,11 @@ export default function FinancialData() {
         validateField(field as string, value);
     };
 
-    const [installmentDates, setInstallmentDates] = useState<string[]>([]);
-    const [dtavista, setDtavista] = useState<string>('');
-    const [qtparcelas, setQtparcelas] = useState<number>(0);
+    const [dtavista] = useState<string>('');
 
-    const {
-        forma_pag,
-        banco,
-        agencia,
-        dtdeposito,
-        tipopix,
-        chavepix,
-        datapix,
-        conta,
-    } = useSelector((state: RootState) => state.contracts.currentContract);
+    const { forma_pag, banco, agencia, tipopix, chavepix, conta } = useSelector(
+        (state: RootState) => state.contracts.currentContract
+    );
 
     const validateField = (field: string, value: string) => {
         if (!value || (typeof value === 'string' && !value.trim())) {
@@ -57,37 +47,12 @@ export default function FinancialData() {
         handleSetState('forma_pag', value);
     };
 
-    const handleInstallmentsChange = (
-        e: React.ChangeEvent<HTMLInputElement>
-    ) => {
-        const numInstallments = parseInt(e.target.value, 10);
-    };
-
-    const handleInstallmentDateChange = (index: number, date: string) => {
-        const newDates = [...installmentDates];
-        newDates[index] = date;
-    };
-
-    const handleSubmit = () => {
-        const currentContract = useSelector(
-            (state: RootState) => state.contracts.currentContract
-        );
-        const updatedContract = {
-            ...currentContract,
-            telefone2: currentContract.telefone2 || currentContract.telefone1,
-            email2: currentContract.email2 || currentContract.email1,
-            endereco2: currentContract.endereco2 || currentContract.endereco1,
-            userlanc: user.username,
-        };
-        dispatch(setCurrentContract(updatedContract));
-    };
-
     return (
         <FormSection title="Dados Financeiros">
             <div className="space-y-2">
                 <SelectField
                     label="Escolha a Forma de Pagamento"
-                    value={forma_pag}
+                    value={forma_pag !== undefined ? String(forma_pag) : ''}
                     onChange={handleFormaPagamentoChange}
                     options={[
                         { value: 'boleto    ', label: 'Boleto' },
@@ -156,7 +121,7 @@ export default function FinancialData() {
                             Tipo de Chave PIX
                         </Label>
                         <SelectField
-                            value={tipopix}
+                            value={tipopix || ''}
                             onChange={(value: string) =>
                                 handleSetState('tipo_chave_pix', value)
                             }
@@ -187,4 +152,3 @@ export default function FinancialData() {
     );
 }
 
-//

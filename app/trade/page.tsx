@@ -8,7 +8,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
     createCampaign,
     setCurrentCampaign,
-    fetchProducts,
     fetchFiliais,
     fetchOperators,
     fetchProductsByType,
@@ -17,19 +16,24 @@ import { AppDispatch, RootState } from '@/hooks/store';
 import { debounce } from 'lodash';
 import { MetaTable } from '@/components/trade/meta-table';
 import { formatDateUTC } from '@/lib/utils';
-import { Escala, IProduct, Operador } from '@/types/Trade/ITrade';
+
 import { IFilial } from '@/types/noPaper/Supplier/SupplierType';
+import { Operador } from '@/types/Trade/IOperator';
+import { Escala, IEscala } from '@/types/Trade/IEscala';
+import { ICampaign } from '@/types/Trade/ICampaign';
+
 
 const { Option } = Select;
 
 export default function CampaignRegistration() {
     const dispatch = useDispatch<AppDispatch>();
 
-    const { currentCampaign, products, operators, filiais } = useSelector(
+    const { currentCampaign, operators, filiais, products } = useSelector(
         (state: RootState) => state.trade
     );
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [operadores, setOperadores] = useState<Operador[]>([]);
+
     const [marcaProdutos, setMarcaProdutos] = useState<
         Array<{ nome: string; codprod: string; descricao: string }>
     >([]);
@@ -37,7 +41,6 @@ export default function CampaignRegistration() {
     const [tipoMarcaProduto, setTipoMarcaProduto] = useState('marca');
     const [productName, setProductName] = useState('');
     const [selectedOperador, setSelectedOperador] = useState('');
-    const [meta, setMeta] = useState('');
     const [premiacao, setPremiacao] = useState('');
     const [campaignName, setCampaignName] = useState('');
     const [idempresa, setIdempresa] = useState('');
@@ -47,8 +50,8 @@ export default function CampaignRegistration() {
     const [escalaData, setEscalaData] = useState<Escala[]>([]);
 
     useEffect(() => {
-        dispatch(fetchFiliais(''));
-    }, []);
+        dispatch(fetchFiliais());
+    }, [productName]);
 
     const handleAddOperador = () => {
         if (selectedOperador && meta_valor && premiacao) {
@@ -101,7 +104,7 @@ export default function CampaignRegistration() {
     ) => {
         if (nome) {
             setMarcaProdutos([...marcaProdutos, { nome, codprod, descricao }]);
-            setProductName('');
+            setProductName(nome || '');
         } else {
             message.error('Preencha o nome antes de adicionar!');
         }
@@ -133,9 +136,9 @@ export default function CampaignRegistration() {
             message.error('Digite o nome para buscar!');
         }
     };
-
     const handleSearchProduto = useCallback(
         debounce((searchTerm: string) => {
+            console.log('searchTerm', searchTerm);
             if (searchTerm) {
                 const type =
                     tipoMarcaProduto === 'produto' ? 'produto' : 'marca';
@@ -148,15 +151,15 @@ export default function CampaignRegistration() {
     );
 
     const handleEscalaSubmit = (formattedMetas: Escala[]) => {
-        setEscalaData(formattedMetas);
+        setEscalaData(formattedMetas as unknown as Escala[]);
     };
 
     const handleSaveCampaign = async () => {
         const campaignData = {
             nome: campaignName,
             idempresa,
-            datainicial: formatDateUTC(currentCampaign?.datainicial),
-            datafinal: formatDateUTC(currentCampaign?.datafinal),
+            datainicial: formatDateUTC(currentCampaign?.datainicial || ''),
+            datafinal: formatDateUTC(currentCampaign?.datafinal || ''),
             valor_total: currentCampaign?.valor_total,
             userlanc: user?.username,
             datalanc: formatDate(new Date().toISOString()),
@@ -189,7 +192,9 @@ export default function CampaignRegistration() {
         }
 
         try {
-            await dispatch(createCampaign(campaignData));
+            await dispatch(
+                createCampaign(campaignData as unknown as ICampaign)
+            );
             message.success('Campanha criada com sucesso!');
         } catch (error) {
             console.error('Erro ao criar campanha:', error);
@@ -209,8 +214,8 @@ export default function CampaignRegistration() {
         dispatch(setCurrentCampaign({ [field]: value }));
     };
 
-    const handleSearchFilial = (value: string) => {
-        dispatch(fetchFiliais(value));
+    const handleSearchFilial = () => {
+        dispatch(fetchFiliais());
     };
 
     return (
@@ -319,8 +324,8 @@ export default function CampaignRegistration() {
                                     defaultActiveFirstOption={false}
                                     filterOption={false}
                                     onSearch={handleSearchOperador}
-                                    onSelect={(option: string) => {
-                                        setSelectedOperador(option);
+                                    onSelect={(_, option) => {
+                                        setSelectedOperador(option.nome);
                                     }}
                                     options={(operators || []).map(
                                         (operator: Operador) => ({
@@ -350,10 +355,8 @@ export default function CampaignRegistration() {
                                     value={meta_valor}
                                     onChange={(e) => {
                                         const inputValue = e.target.value;
-                                        const formattedValue = inputValue
-                                            .replace(/[^0-9,\.]/g, '')
-                                            .replace(',', '.');
-                                        setMetaValor(formattedValue);
+
+                                        setMetaValor(inputValue);
                                     }}
                                 />
                                 <Input
@@ -362,10 +365,8 @@ export default function CampaignRegistration() {
                                     value={premiacao}
                                     onChange={(e) => {
                                         const inputValue = e.target.value;
-                                        const formattedValue = inputValue
-                                            .replace(/[^0-9,\.]/g, '')
-                                            .replace(',', '.');
-                                        setPremiacao(formattedValue);
+
+                                        setPremiacao(inputValue);
                                     }}
                                 />
                                 <Button
@@ -464,27 +465,17 @@ export default function CampaignRegistration() {
                                     defaultActiveFirstOption={false}
                                     filterOption={false}
                                     onSearch={handleSearchProduto}
-                                    //TODO  delete any
-                                    onSelect={(option: any) => {
+                                    onSelect={(_, option) => {
                                         handleAddMarcaProduto(
-                                            option.label,
-                                            option.value,
-                                            option.label
+                                            option.label as string,
+                                            option.value as string,
+                                            option.label as string
                                         );
                                     }}
-                                    options={(products || []).map(
-                                        (product: IProduct) => ({
-                                            value:
-                                                tipoMarcaProduto === 'produto'
-                                                    ? product.codprod
-                                                    : product.codmarca,
-                                            label:
-                                                tipoMarcaProduto === 'produto'
-                                                    ? product.descricao
-                                                    : product.marca,
-                                            nome: product.nome,
-                                        })
-                                    )}
+                                    options={(products || []).map((product: any) => ({
+                                        value: tipoMarcaProduto === 'produto' ? product.codprod : product.codmarca,
+                                        label: tipoMarcaProduto === 'produto' ? product.descricao : product.marca,
+                                    }))}
                                 />
                             </div>
                             <Table
@@ -561,13 +552,8 @@ export default function CampaignRegistration() {
                                 value={currentCampaign?.valor_total}
                                 onChange={(e) => {
                                     const inputValue = e.target.value;
-                                    const formattedValue = inputValue
-                                        .replace(/[^0-9,\.]/g, '')
-                                        .replace(',', '.');
-                                    handleSetState(
-                                        'valor_total',
-                                        formattedValue
-                                    );
+
+                                    handleSetState('valor_total', inputValue);
                                 }}
                             />
                         </div>
@@ -576,9 +562,15 @@ export default function CampaignRegistration() {
                             <h2 className="text-lg font-bold text-green-600">
                                 Escala
                             </h2>
-                            <MetaTable onEscalaSubmit={handleEscalaSubmit} />
+                            <MetaTable
+                                onEscalaSubmit={(formattedMetas: IEscala[]) => {
+                                    handleEscalaSubmit(
+                                        formattedMetas as unknown as Escala[]
+                                    );
+                                }}
+                            />
                         </div>
-                        {/* Submit Button */}
+
                         <div className="flex justify-end">
                             <Button
                                 className="bg-green-500 hover:bg-green-600"

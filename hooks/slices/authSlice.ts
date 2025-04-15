@@ -2,15 +2,15 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface AuthState {
     isAuthenticated: boolean;
-    user: null | {
+    user: {
         nome: string;
         email: string;
         username: string;
-        profilePicture: any;
+        profilePicture: string;
         accessToken: string;
     };
     accessToken: string | null;
-    profilePicture: any;
+    profilePicture: string;
     tokenTrade: string | null;
 }
 
@@ -23,9 +23,15 @@ const loadInitialState = (): AuthState => {
     }
     return {
         isAuthenticated: false,
-        user: null,
+        user: {
+            nome: '',
+            email: '',
+            username: '',
+            profilePicture: '',
+            accessToken: '',
+        },
         accessToken: null,
-        profilePicture: null,
+        profilePicture: '',
         tokenTrade: null,
     };
 };
@@ -43,7 +49,7 @@ const authSlice = createSlice({
                 email: string;
                 username: string;
                 accessToken: string;
-                profilePicture: any;
+                profilePicture: string;
             }>
         ) {
             state.isAuthenticated = true;
@@ -63,9 +69,15 @@ const authSlice = createSlice({
         },
         logout(state) {
             state.isAuthenticated = false;
-            state.user = null;
+            state.user = {
+                nome: '',
+                email: '',
+                username: '',
+                profilePicture: '',
+                accessToken: '',
+            };
             state.accessToken = null;
-            state.profilePicture = null;
+            state.profilePicture = '';
             console.log('logout');
             localStorage.removeItem('auth');
 
@@ -76,9 +88,15 @@ const authSlice = createSlice({
         setAuthenticated(state, action: PayloadAction<boolean>) {
             state.isAuthenticated = action.payload;
             if (!action.payload) {
-                state.user = null;
+                state.user = {
+                    nome: '',
+                    email: '',
+                    username: '',
+                    profilePicture: '',
+                    accessToken: '',
+                };
                 state.accessToken = null;
-                state.profilePicture = null;
+                state.profilePicture = '';
                 if (typeof window !== 'undefined') {
                     localStorage.removeItem('auth');
                 }
@@ -90,7 +108,7 @@ const authSlice = createSlice({
                 nome: string;
                 email: string;
                 username: string;
-                profilePicture: any;
+                profilePicture: string;
                 accessToken: string;
             }>
         ) {

@@ -16,8 +16,9 @@ import {
     Tag,
     Image,
     Tabs,
+    Pagination,
 } from 'antd';
-import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
+
 import { Upload as AntdUpload } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/hooks/store';
@@ -27,6 +28,7 @@ import {
     updateVacancy,
     deleteVacancy,
     fetchDepartments,
+    fetchAllTalents,
 } from '@/hooks/slices/vacancySlice';
 import dayjs from 'dayjs';
 import { Vacancy, CreateVacancyPayload } from '@/types/vacancy/IVacancy';
@@ -34,18 +36,26 @@ import {
     EyeOutlined,
     EditOutlined,
     DeleteOutlined,
-    UserOutlined,
+    SearchOutlined,
 } from '@ant-design/icons';
-import { CustomTagRender } from '@/components/employees/tags';
 import { useRouter } from 'next/navigation';
 import { Users } from 'lucide-react';
+import { CustomTagRender } from '@/components/employees/tags';
+import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
+import { ICandidate } from '@/types/vacancy/ICandidate';
 
 const { TabPane } = Tabs;
 
 export default function VacanciesPage() {
     const dispatch = useDispatch<AppDispatch>();
-    const { vacancies, loading, error, departments, departmentsLoading } =
-        useSelector((state: RootState) => state.vacancy);
+    const {
+        vacancies,
+        loading,
+        error,
+        departments,
+        departmentsLoading,
+        allTalents,
+    } = useSelector((state: RootState) => state.vacancy);
     const router = useRouter();
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -57,11 +67,14 @@ export default function VacanciesPage() {
     const [form] = Form.useForm();
     const [fileList, setFileList] = useState<any[]>([]);
     const [editingId, setEditingId] = useState<string | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
 
     useEffect(() => {
         dispatch(fetchVacancies());
         dispatch(fetchDepartments());
-    }, [dispatch]);
+        dispatch(fetchAllTalents({ page: currentPage, limit: pageSize }));
+    }, [dispatch, currentPage, pageSize]);
 
     useEffect(() => {
         if (error) {
@@ -308,6 +321,154 @@ export default function VacanciesPage() {
         router.push(`/vacancies/candidates/${vacancyId}`);
     };
 
+    const formatCpf = (cpf: string) => {
+        if (!cpf) return '-';
+        return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    };
+
+    const handleTableChange = (page: number, pageSize?: number) => {
+        setCurrentPage(page);
+        if (pageSize) setPageSize(pageSize);
+    };
+
+    const talentsColumns = [
+        {
+            title: 'Nome',
+            dataIndex: ['candidate', 'nome_completo'],
+            key: 'nome_completo',
+            sorter: (a: ICandidate, b: ICandidate) =>
+                a.candidate?.nome_completo?.localeCompare(
+                    b.candidate?.nome_completo
+                ),
+        },
+        {
+            title: 'CPF',
+            dataIndex: ['candidate', 'cpf'],
+            key: 'cpf',
+            render: (text: string) => formatCpf(text),
+        },
+        {
+            title: 'Email',
+            dataIndex: ['candidate', 'email'],
+            key: 'email',
+        },
+        {
+            title: 'Telefone',
+            dataIndex: ['candidate', 'telefone'],
+            key: 'telefone',
+        },
+        {
+            title: 'Primeira Experiência',
+            dataIndex: ['candidate', 'is_primeiraexperiencia'],
+            key: 'is_primeiraexperiencia',
+            render: (value: boolean) => (
+                <Tag color={value ? 'blue' : 'green'}>
+                    {value ? 'Sim' : 'Não'}
+                </Tag>
+            ),
+            filters: [
+                { text: 'Sim', value: true },
+                { text: 'Não', value: false },
+            ],
+            onFilter: (value: boolean, record: ICandidate) =>
+                record.candidate.is_primeiraexperiencia === value,
+        },
+        {
+            title: 'Disponível',
+            dataIndex: ['candidate', 'is_disponivel'],
+            key: 'is_disponivel',
+            render: (value: string) => (
+                <Tag color={value === 'sim' ? 'green' : 'red'}>
+                    {value === 'sim' ? 'Sim' : 'Não'}
+                </Tag>
+            ),
+            filters: [
+                { text: 'Sim', value: 'sim' },
+                { text: 'Não', value: 'não' },
+            ],
+            onFilter: (value: string, record: ICandidate) =>
+                record.candidate.is_disponivel === value,
+        },
+        {
+            title: 'Analisado',
+            dataIndex: ['candidate', 'is_analizado'],
+            key: 'is_analizado',
+            render: (value: boolean) => (
+                <Tag color={value ? 'green' : 'orange'}>
+                    {value ? 'Sim' : 'Não'}
+                </Tag>
+            ),
+            filters: [
+                { text: 'Sim', value: true },
+                { text: 'Não', value: false },
+            ],
+            onFilter: (value: boolean, record: ICandidate) =>
+                record.candidate.is_analizado === value,
+        },
+        {
+            title: 'Score',
+            dataIndex: ['analise', 'score'],
+            key: 'score',
+            render: (score: number | string) => {
+                let color = 'green';
+                const numScore =
+                    typeof score === 'string' ? parseFloat(score) : score || 0;
+
+                if (numScore < 5) color = 'red';
+                else if (numScore < 7) color = 'orange';
+
+                return <Tag color={color}>{score || 'N/A'}</Tag>;
+            },
+            sorter: (a: any, b: any) => {
+                const scoreA = a.analise?.score
+                    ? typeof a.analise.score === 'string'
+                        ? parseFloat(a.analise.score)
+                        : a.analise.score
+                    : 0;
+                const scoreB = b.analise?.score
+                    ? typeof b.analise.score === 'string'
+                        ? parseFloat(b.analise.score)
+                        : b.analise.score
+                    : 0;
+                return scoreA - scoreB;
+            },
+        },
+        {
+            title: 'Ações',
+            key: 'actions',
+            render: (_: any, record: any) => (
+                <div className="flex space-x-2">
+                    <Button
+                        type="primary"
+                        icon={<EyeOutlined />}
+                        onClick={() => {
+                            // Implementar visualização detalhada do candidato
+                            message.info(
+                                `Visualizando candidato: ${record.candidate.nome_completo}`
+                            );
+                        }}
+                        className="bg-[#11833b] hover:bg-[#11833b]"
+                        size="small"
+                    />
+                    <Button
+                        type="primary"
+                        icon={<SearchOutlined />}
+                        onClick={() => {
+                            // Implementar visualização do currículo
+                            if (record.candidate.file_cv) {
+                                window.open(record.candidate.file_cv, '_blank');
+                            } else {
+                                message.warning('Currículo não disponível');
+                            }
+                        }}
+                        className="bg-[#11833b] hover:bg-[#11833b]"
+                        size="small"
+                    />
+                </div>
+            ),
+        },
+    ];
+
     const columns = [
         {
             title: 'Vaga',
@@ -355,7 +516,7 @@ export default function VacanciesPage() {
         {
             title: 'Status',
             key: 'status',
-            render: ( record: Vacancy) => {
+            render: (record: Vacancy) => {
                 const today = dayjs().format('YYYY-MM-DD');
                 const isActive =
                     record.data_inicial <= today &&
@@ -477,14 +638,26 @@ export default function VacanciesPage() {
 
                             <TabPane tab="Todos os Candidatos" key="new-tab">
                                 <div>
-                                    <h2 className="text-xl font-bold">
-                                        Conteúdo da Nova Aba
-                                    </h2>
-                                    <p>
-                                        Aqui você pode adicionar qualquer
-                                        conteúdo ou funcionalidade específica
-                                        para esta aba.
-                                    </p>
+                                    {/* TODO: Verify if this is correct */}
+                                    <AntdTable
+                                        columns={talentsColumns}
+                                        dataSource={allTalents.data}
+                                        rowKey={(record) => record.candidate.id}
+                                        loading={allTalents.loading}
+                                        pagination={false}
+                                    />
+                                    <div className="mt-4 flex justify-end">
+                                        <Pagination
+                                            current={currentPage}
+                                            pageSize={pageSize}
+                                            total={allTalents.total}
+                                            onChange={handleTableChange}
+                                            showSizeChanger
+                                            showTotal={(total) =>
+                                                `Total de ${total} candidatos`
+                                            }
+                                        />
+                                    </div>
                                 </div>
                             </TabPane>
                         </Tabs>
@@ -801,7 +974,6 @@ export default function VacanciesPage() {
                                 {fileList.length < 1 && 'Upload'}
                             </AntdUpload>
                         </Form.Item>
-                        
                     </Form>
                 </Modal>
             </div>

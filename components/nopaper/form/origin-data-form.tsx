@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch  } from 'react-redux';
 import { Select, Input } from 'antd';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { FilialSelect } from '@/components/nopaper/store-select';
@@ -9,13 +9,13 @@ import { FornecedorSelect } from '@/components/nopaper/supplier-select';
 import { Label } from '@/components/ui/label';
 import { FormSection } from '../form-section';
 import { setOrderState } from '@/hooks/slices/noPaper/orderSlice';
-
+import { OrderData, OrderState } from '@/types/noPaper/Order/OrderState';
 interface OriginDataProps {
-    data: any;
-    onChange: (field: keyof any, value: any) => void;
+    data: OrderData; // Alterado para OrderData
+    onChange: (field: keyof OrderState, value: string | number) => void; // Alterado para OrderData
 }
 
-const OriginData: React.FC<OriginDataProps> = ({ data, onChange }) => {
+const OriginData: React.FC<OriginDataProps> = ({ data  }) => {
     const {
         ramoOP,
         opcaoLancOP,
@@ -29,15 +29,19 @@ const OriginData: React.FC<OriginDataProps> = ({ data, onChange }) => {
     const dispatch = useDispatch();
     const [documentType, setDocumentType] = useState('nota');
 
+    const [isUserInteracting, setIsUserInteracting] = useState(false);
     useEffect(() => {
-        if (documentType === 'nota' && notaOP) {
-            setDocumentType('nota');
-        } else if (documentType === 'fatura' && !notaOP && !serieOP) {
-            setDocumentType('fatura');
+        if (!isUserInteracting) {
+            if (notaOP && !serieOP) {
+                setDocumentType('fatura');
+            } else if (notaOP && serieOP) {
+                setDocumentType('nota');
+            }
         }
-    }, [notaOP, serieOP, documentType]);
+    }, [notaOP, serieOP, isUserInteracting]);
 
     const handleFieldChange = (field: string, value: string) => {
+        setIsUserInteracting(true);
         dispatch(setOrderState({ [field]: value }));
     };
 
@@ -99,7 +103,7 @@ const OriginData: React.FC<OriginDataProps> = ({ data, onChange }) => {
                             RAMO
                         </Label>
                         <Select
-                            onChange={(value: any) =>
+                            onChange={(value: string) =>
                                 handleFieldChange('ramoOP', value)
                             }
                             placeholder="Selecione o Ramo"
@@ -181,7 +185,7 @@ const OriginData: React.FC<OriginDataProps> = ({ data, onChange }) => {
                         handleSelectChange={handleSelectFilialChange}
                     />
                     <FornecedorSelect
-                        handleSetState={(value: any) =>
+                        handleSetState={(value: string) =>
                             handleFieldChange(fornecedorOP, value)
                         }
                         fieldValue={fornecedorOP}

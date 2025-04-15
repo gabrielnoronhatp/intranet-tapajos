@@ -47,7 +47,7 @@ export const MetaTableReadOnly: React.FC<MetaTableReadOnlyProps> = ({
         } else if (metaGeralRange.length > 0 && metaVendedorRange.length > 0) {
             const newMetas = Array(metaGeralRange.length)
                 .fill(null)
-                .map((_, i) => Array(metaVendedorRange.length).fill(0));
+                .map(() => Array(metaVendedorRange.length).fill(0));
             setMetas(newMetas);
         }
     }, [escala, metaGeralRange.length, metaVendedorRange.length]);

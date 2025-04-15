@@ -15,7 +15,9 @@ import CenterOfCoust from '@/components/nopaper/form/center-of-coust-form';
 import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
 import { PlusOutlined } from '@ant-design/icons';
 import { api } from '@/app/service/api';
-import { AppDispatch } from '@/hooks/store';
+import { AppDispatch, RootState } from '@/hooks/store';
+import { OrderData, OrderState } from '@/types/noPaper/Order/OrderState';
+import { CentroCusto } from '@/types/noPaper/Order/CentroCustoType';
 
 interface UploadResponse {
     message: string;
@@ -25,13 +27,13 @@ interface UploadResponse {
 
 export default function NoPaper() {
     const dispatch = useDispatch<AppDispatch>();
-    const orderData = useSelector((state: any) => state.order);
-    const user = useSelector((state: any) => state.auth.user);
+    const orderData = useSelector((state: RootState) => state.order);
+    const user = useSelector((state: RootState) => state.auth.user);
     const [fileList, setFileList] = useState<UploadFile[]>([]);
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [isViewOpen, setIsViewOpen] = useState(false);
+    const [isSidebarOpen] = useState(false);
+    const [isViewOpen] = useState(false);
 
-    const handleSetState = (field: keyof typeof orderData, value: any) => {
+    const handleSetState = (field: keyof OrderState, value: OrderState[keyof OrderState]) => {
         if ((field === 'lojaOP' || field === 'fornecedorOP') && !value) {
             console.error(`${field} não pode ser vazio.`);
             return;
@@ -46,11 +48,11 @@ export default function NoPaper() {
 
         const validateCenters = () => {
             if (!orderData.ccustoOP || orderData.ccustoOP.length === 0) {
-                return false; // Se a lista estiver vazia, retorna falso
+                return false;
             }
 
             return orderData.ccustoOP.every(
-                (center: any) =>
+                (center: CentroCusto) =>
                     typeof center.centrocusto === 'string' &&
                     center.centrocusto.trim() !== ''
             );
@@ -69,9 +71,9 @@ export default function NoPaper() {
         }
 
         try {
-            const orderWithUser = {
+            const orderWithUser: OrderData = {
                 ...orderData,
-                userOP: user?.username,
+                userOP: user.username,
             };
 
             const response = await dispatch(submitOrder(orderWithUser));
@@ -193,27 +195,43 @@ export default function NoPaper() {
 
                                 <div className="mt-6">
                                     <Upload
-                                        name="files"
-                                        fileList={fileList}
-                                        beforeUpload={beforeUpload}
+                                        listType="picture-card"
+                                        showUploadList={true}
                                         accept=".xls,.xlsx,.pdf,.jpg,.jpeg,.png"
-                                        onChange={({
-                                            fileList: newFileList,
-                                        }) => {
+                                        beforeUpload={beforeUpload}
+                                        fileList={fileList}
+                                        onChange={({ fileList: newFileList }) => {
                                             setFileList(newFileList);
                                         }}
-                                        multiple
+                                        customRequest={async ({ file, onSuccess, }) => {
+                                            try {
+                                                const formData = new FormData();
+                                                formData.append('files', file as File);
+
+                                                const response = await api.post(`upload/${orderData?.id}`, formData, {
+                                                    headers: { 'Content-Type': 'multipart/form-data' },
+                                                });
+
+                                                if (response.status !== 200) {
+                                                    throw new Error('Upload failed');
+                                                }
+
+                                                message.success('Arquivo enviado com sucesso!', 3);
+                                                onSuccess?.(response.data);
+                                            } catch (error: unknown) {
+                                                console.error('Upload error:', error);
+                                                message.error('Falha ao enviar o arquivo. Tente novamente.', 3);
+                                            
+                                            }
+                                        }}
                                     >
                                         <div>
                                             <PlusOutlined />
-                                            <div style={{ marginTop: 8 }}>
-                                                Upload
-                                            </div>
+                                            <div style={{ marginTop: 8 }}>Upload</div>
                                         </div>
                                     </Upload>
                                     <div className="text-sm text-gray-500 mt-2">
-                                        Você pode anexar múltiplos arquivos
-                                        (Excel, PDF, JPG ou PNG)
+                                        Você pode anexar múltiplos arquivos (Excel, PDF, JPG ou PNG)
                                     </div>
                                 </div>
 

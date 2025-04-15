@@ -1,4 +1,5 @@
 export interface CentroCusto {
-    centroCusto: string;
+    centrocusto: string;
     valor: number;
+    
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/hooks/store';
 import {
@@ -38,6 +38,7 @@ import {
 } from '@ant-design/icons';
 import Link from 'next/link';
 import { message } from 'antd';
+import { ICandidate } from '@/types/vacancy/IVacancy';
 
 const { TabPane } = Tabs;
 
@@ -47,30 +48,27 @@ export default function VacancyCandidatesPage() {
     const { currentVacancy, candidates, candidatesLoading, loading } =
         useSelector((state: RootState) => state.vacancy);
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-    const [selectedCandidate, setSelectedCandidate] = useState<any>(null);
+    const [selectedCandidate, setSelectedCandidate] = useState<ICandidate>();
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
     const [previewVisible, setPreviewVisible] = useState(false);
-    const [allCandidates, setAllCandidates] = useState<any[]>([]);
 
     useEffect(() => {
         if (id) {
             dispatch(fetchVacancyById(id as string));
             dispatch(fetchVacancyCandidates(id as string));
         }
-        // dispatch(fetchAllCandidates()).then((response) => {
-        //     setAllCandidates(response.payload);
-        // });
+       
     }, [dispatch, id]);
 
-    const showCandidateDetails = (candidate: any) => {
+    const showCandidateDetails = (candidate: ICandidate) => {
         setSelectedCandidate(candidate);
         setIsModalVisible(true);
     };
 
     const handleModalClose = () => {
         setIsModalVisible(false);
-        setSelectedCandidate(null);
+        setSelectedCandidate(undefined);
     };
 
     const getProfileImageUrl = (file_perfil: string) => {
@@ -91,7 +89,7 @@ export default function VacancyCandidatesPage() {
         return `https://api.rh.grupotapajos.com.br/candidato/cv/${fileName}`;
     };
 
-    const getCvViewUrl = (file_cv: any) => {
+    const getCvViewUrl = (file_cv: string) => {
         if (!file_cv) return null;
 
         const fileName = file_cv.split('/').pop();
@@ -100,7 +98,7 @@ export default function VacancyCandidatesPage() {
         return `https://api.rh.grupotapajos.com.br/candidato/cv/uploads/cv/${fileName}`;
     };
 
-    const downloadCv = (candidate: any) => {
+    const downloadCv = (candidate: ICandidate) => {
         if (!candidate || !candidate.file_cv) {
             message.error('Currículo não disponível');
             return;
@@ -147,10 +145,8 @@ export default function VacancyCandidatesPage() {
             title: 'Nome',
             dataIndex: ['candidate', 'nome_completo'],
             key: 'nome_completo',
-            sorter: (a: any, b: any) =>
-                a.candidate.nome_completo.localeCompare(
-                    b.candidate.nome_completo
-                ),
+            sorter: (a: ICandidate, b: ICandidate) =>
+                a.nome_completo.localeCompare(b.nome_completo),
         },
         {
             title: 'Email',
@@ -175,8 +171,8 @@ export default function VacancyCandidatesPage() {
                 { text: 'Sim', value: true },
                 { text: 'Não', value: false },
             ],
-            onFilter: (value: boolean, record: any) =>
-                record.candidate.is_primeiraexperiencia === value,
+            onFilter: (value: boolean, record: ICandidate) =>
+                record.is_primeiraexperiencia === value,
         },
         {
             title: 'Disponível',
@@ -191,8 +187,8 @@ export default function VacancyCandidatesPage() {
                 { text: 'Sim', value: 'true' },
                 { text: 'Não', value: 'false' },
             ],
-            onFilter: (value: string, record: any) =>
-                record.candidate.is_disponivel === value,
+            onFilter: (value: string, record: ICandidate) =>
+                record.is_disponivel === value,
         },
         {
             title: 'Analisado',
@@ -207,14 +203,14 @@ export default function VacancyCandidatesPage() {
                 { text: 'Sim', value: true },
                 { text: 'Não', value: false },
             ],
-            onFilter: (value: boolean, record: any) =>
-                record.candidate.is_analizado === value,
+            onFilter: (value: boolean, record: ICandidate) =>
+                record.is_analizado === value,
         },
         {
             title: 'Currículo',
             dataIndex: ['candidate', 'file_cv'],
             key: 'file_cv',
-            render: (file_cv: string, record: any) =>
+            render: (file_cv: string, record: ICandidate) =>
                 file_cv ? (
                     <Tooltip title="Baixar Currículo">
                         <Button
@@ -233,7 +229,7 @@ export default function VacancyCandidatesPage() {
         {
             title: 'Ações',
             key: 'actions',
-            render: (_: any, record: any) => (
+            render: (_: any, record: ICandidate) => (
                 <Button
                     type="primary"
                     onClick={() => showCandidateDetails(record)}
@@ -242,26 +238,6 @@ export default function VacancyCandidatesPage() {
                     Ver Detalhes
                 </Button>
             ),
-        },
-    ];
-
-    const allCandidatesColumns = [
-        {
-            title: 'Nome',
-            dataIndex: 'nome_completo',
-            key: 'nome_completo',
-            sorter: (a: any, b: any) =>
-                a.nome_completo.localeCompare(b.nome_completo),
-        },
-        {
-            title: 'Email',
-            dataIndex: 'email',
-            key: 'email',
-        },
-        {
-            title: 'Telefone',
-            dataIndex: 'telefone',
-            key: 'telefone',
         },
     ];
 
@@ -319,7 +295,7 @@ export default function VacancyCandidatesPage() {
                                         ) : candidates &&
                                           candidates.length > 0 ? (
                                             <Table
-                                                columns={columns as any}
+                                                columns={columns}
                                                 dataSource={candidates}
                                                 rowKey={(record) =>
                                                     record.candidate.id
@@ -509,7 +485,6 @@ export default function VacancyCandidatesPage() {
                                                         <ReactMarkdown
                                                             components={{
                                                                 h2: ({
-                                                                    node,
                                                                     ...props
                                                                 }) => (
                                                                     <h3
@@ -518,7 +493,6 @@ export default function VacancyCandidatesPage() {
                                                                     />
                                                                 ),
                                                                 h3: ({
-                                                                    node,
                                                                     ...props
                                                                 }) => (
                                                                     <h4
@@ -527,7 +501,6 @@ export default function VacancyCandidatesPage() {
                                                                     />
                                                                 ),
                                                                 strong: ({
-                                                                    node,
                                                                     ...props
                                                                 }) => (
                                                                     <strong
@@ -536,7 +509,6 @@ export default function VacancyCandidatesPage() {
                                                                     />
                                                                 ),
                                                                 ul: ({
-                                                                    node,
                                                                     ...props
                                                                 }) => (
                                                                     <ul
@@ -545,7 +517,6 @@ export default function VacancyCandidatesPage() {
                                                                     />
                                                                 ),
                                                                 li: ({
-                                                                    node,
                                                                     ...props
                                                                 }) => (
                                                                     <li
@@ -554,7 +525,6 @@ export default function VacancyCandidatesPage() {
                                                                     />
                                                                 ),
                                                                 p: ({
-                                                                    node,
                                                                     ...props
                                                                 }) => (
                                                                     <p

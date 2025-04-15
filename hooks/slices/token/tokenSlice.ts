@@ -12,7 +12,7 @@ const tokenSlice = createSlice({
     name: 'token',
     initialState,
     reducers: {
-        setToken: (state, action: PayloadAction<any>) => {
+        setToken: (state, action: PayloadAction<string>) => {
             state.token = action.payload;
             localStorage.setItem('tokenTrade', action.payload); // Armazena no localStorage
         },

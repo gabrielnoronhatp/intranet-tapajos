@@ -1,6 +1,7 @@
-import { Form, Select, Tag } from 'antd';
+import { Tag } from 'antd';
+import { ReactNode } from 'react';
 
-const tagColors = [
+export const tagColors = [
   'magenta',
   'red',
   'volcano',
@@ -14,14 +15,20 @@ const tagColors = [
   'purple',
 ];
 
-export const CustomTagRender = (props: any) => {
-  const { label, value, closable, onClose } = props;
-  const colorIndex = value?.charCodeAt(0) % tagColors.length;
-  const color = tagColors[colorIndex];
+interface CustomTagRenderProps {
+  label: ReactNode;
+  value: string;
+  closable: boolean;
+  onClose: () => void;
+}
 
+export const CustomTagRender = (props: CustomTagRenderProps) => {
+  const { label, closable, onClose } = props;
+  const labelStr = label ? String(label) : '';
+  
   return (
-    <Tag color={color} closable={closable} onClose={onClose} style={{ marginRight: 3 }}>
-      {label}
+    <Tag closable={closable} onClose={onClose} style={{ marginRight: 3 }}>
+      {labelStr}
     </Tag>
   );
 };

@@ -14,42 +14,39 @@ import {
     deleteParticipantFromCampaign,
     deleteItemFromCampaign,
 } from '@/hooks/slices/trade/tradeSlice';
-import { RootState } from '@/hooks/store';
+import { RootState, AppDispatch } from '@/hooks/store';
 import { debounce } from 'lodash';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { MetaTable } from '@/components/trade/meta-table';
-import moment from 'moment';
 import { formatDate } from '@/lib/utils';
 import { formatDateUTC } from '@/lib/utils';
+import { IValorMeta, ICampaign } from '@/types/Trade/ICampaign';
+
+import { IFilial } from '@/types/noPaper/Supplier/SupplierType';
+import { IOperator } from '@/types/Trade/IOperator';
+import { IProduct } from '@/types/Trade/IProduct';
+import { IParticipants } from '@/types/Trade/IParticipants';
+import { IEscala } from '@/types/Trade/IEscala';
+
 const { Option } = Select;
 
 export default function CampaignEdit() {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
     const { currentCampaign, products, operators, filiais } = useSelector(
         (state: RootState) => state.trade
     );
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [operadores, setOperadores] = useState<any>([]);
-    const [marcaProdutos, setMarcaProdutos] = useState<
-        Array<{
-            nome: string;
-            codprod: string;
-            descricao: string;
-            iditem: number;
-            codmarca: number;
-            metrica: string;
-        }>
-    >([]);
+    const [operadores, setOperadores] = useState<IParticipants[]>([]);
+    const [marcaProdutos, setMarcaProdutos] = useState<IProduct[]>([]);
     const [tipoOperador, setTipoOperador] = useState('teleoperador');
     const [tipoMarcaProduto, setTipoMarcaProduto] = useState('marca');
     const [productName, setProductName] = useState('');
     const [selectedOperador, setSelectedOperador] = useState('');
-    const [meta, setMeta] = useState('');
     const [premiacao, setPremiacao] = useState('');
     const [campaignName, setCampaignName] = useState('');
-    const [idempresa, setIdempresa] = useState('');
+    const [idempresa, setIdempresa] = useState<number | string>('');
     const [tipoMeta, setTipoMeta] = useState('VALOR');
-    const [meta_valor, setMetaValor] = useState('');
+    const [meta_valor, setMetaValor] = useState<number | string>('');
     const user = useSelector((state: RootState) => state.auth.user);
     const params = useParams();
     const campaignId = params?.campaignId as string;
@@ -57,30 +54,33 @@ export default function CampaignEdit() {
     const [datafinal, setDatafinal] = useState('');
     const [valorTotal, setValorTotal] = useState<number | string>(0);
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [participantToDelete, setParticipantToDelete] = useState<any>(null);
+    const [participantToDelete, setParticipantToDelete] =
+        useState<IParticipants | null>(null);
     const [isItemModalVisible, setIsItemModalVisible] = useState(false);
     const [itemToDelete, setItemToDelete] = useState<number | null>(null);
-    const [escalaProcessada, setEscalaProcessada] = useState<any>(null);
-    const [escalaData, setEscalaData] = useState<any[]>([]);
+    const [escalaProcessada, setEscalaProcessada] = useState<IEscala | null>(
+        null
+    );
+    const [escalaData, setEscalaData] = useState<IEscala[]>([]);
 
     useEffect(() => {
         if (campaignId) {
-            dispatch(fetchCampaignById(campaignId) as any);
-            dispatch(fetchFiliais('') as any);
+            dispatch(fetchCampaignById(campaignId));
+            dispatch(fetchFiliais());
         }
     }, [dispatch, campaignId]);
 
     useEffect(() => {
         if (currentCampaign) {
             setCampaignName(currentCampaign.campanha?.nome || '');
-            setIdempresa(currentCampaign.campanha?.idempresa || '');
+            setIdempresa(currentCampaign.campanha?.idempresa);
             setDatainicial(currentCampaign.campanha?.datainicial || '');
             setDatafinal(currentCampaign.campanha?.datafinal || '');
             setValorTotal(currentCampaign.campanha?.valor_total || 0);
             setOperadores(currentCampaign.participantes);
             setMetaValor(currentCampaign.campanha?.meta_valor);
             setMarcaProdutos(currentCampaign.itens);
-            setTipoMeta(currentCampaign.campanha?.tipoMeta);
+            setTipoMeta(currentCampaign.campanha?.tipo_meta);
 
             if (currentCampaign.escala && currentCampaign.escala.length > 0) {
                 console.log(
@@ -91,10 +91,10 @@ export default function CampaignEdit() {
                 const escalaData = currentCampaign.escala;
                 let metaGeralRange: string[] = [];
                 let metaVendedorRange: string[] = [];
-                let valoresMeta: any[] = [];
+                let valoresMeta: IValorMeta[] = [];
 
                 const primeiraLinha = escalaData.find(
-                    (item: any) => item.linha === ''
+                    (item: IEscala) => item.linha === ''
                 );
                 if (primeiraLinha) {
                     const usesCol = Object.keys(primeiraLinha).some(
@@ -109,12 +109,15 @@ export default function CampaignEdit() {
                 }
 
                 const outrasLinhas = escalaData.filter(
-                    (item: any) => item.linha !== ''
+                    (item: IEscala) =>
+                        item.linha !== '' && item.linha !== undefined
                 );
-                metaGeralRange = outrasLinhas.map((item: any) => item.linha);
+                metaGeralRange = outrasLinhas
+                    .map((item: IEscala) => item.linha)
+                    .filter((linha): linha is string => linha !== undefined);
 
                 valoresMeta = [];
-                outrasLinhas.forEach((linha: any, idxLinha: number) => {
+                outrasLinhas.forEach((linha: IEscala, idxLinha: number) => {
                     metaVendedorRange.forEach((_, idxCol: number) => {
                         const usesCol = Object.keys(linha).some(
                             (key) =>
@@ -152,34 +155,43 @@ export default function CampaignEdit() {
         }
 
         if (selectedOperador && meta_valor && premiacao) {
-            const idparticipante =
+            const operatorFound =
                 tipoOperador === 'teleoperador'
                     ? operators.find((op) => op.nome === selectedOperador)
-                          ?.matricula
-                    : operators.find((op) => op.nome === selectedOperador)
-                          ?.codusur;
+                    : operators.find((op) => op.nome === selectedOperador);
 
-            if (!idparticipante) {
+            if (!operatorFound) {
                 message.error('Operador não encontrado!');
                 return;
             }
 
-            const participante = {
+            const idparticipante =
+                tipoOperador === 'teleoperador'
+                    ? Number(operatorFound.matricula)
+                    : Number(operatorFound.codusur);
+
+            const participante: Partial<IParticipants> = {
                 modelo:
                     tipoOperador === 'teleoperador' ? 'teleoperador' : 'RCA',
                 meta: tipoMeta,
                 idparticipante,
-                meta_valor: tipoMeta === 'VALOR' ? parseFloat(meta_valor) : 0,
+                meta_valor:
+                    tipoMeta === 'VALOR' ? parseFloat(String(meta_valor)) : 0,
                 meta_quantidade:
-                    tipoMeta === 'QUANTIDADE' ? parseFloat(meta_valor) : 0,
+                    tipoMeta === 'QUANTIDADE'
+                        ? parseFloat(String(meta_valor))
+                        : 0,
                 premiacao,
                 tipo_meta: tipoMeta,
+                nome: selectedOperador,
+                tipo: tipoOperador,
+                id: 0,
+                label: selectedOperador,
+                idcampanha_distribuicao: 0,
+                metrica: tipoMeta,
             };
 
-            setOperadores([
-                ...operadores,
-                { ...participante, nome: selectedOperador, tipo: tipoOperador },
-            ]);
+            setOperadores([...operadores, participante as IParticipants]);
             setSelectedOperador('');
             setMetaValor('');
             setPremiacao('');
@@ -196,17 +208,20 @@ export default function CampaignEdit() {
         codmarca: number
     ) => {
         if (nome) {
-            setMarcaProdutos([
-                ...marcaProdutos,
-                {
-                    nome,
-                    codprod,
-                    descricao,
-                    iditem,
-                    codmarca,
-                    metrica: tipoMarcaProduto,
-                },
-            ]);
+            const newProduct: IProduct = {
+                iditem: iditem,
+                nome,
+                codprod,
+                descricao,
+                id: iditem,
+                codmarca: String(codmarca),
+                metrica: tipoMarcaProduto,
+                label: nome,
+                value: codprod,
+                marca: nome,
+            };
+
+            setMarcaProdutos([...marcaProdutos, newProduct]);
             setProductName('');
         } else {
             message.error('Preencha o nome antes de adicionar!');
@@ -217,7 +232,7 @@ export default function CampaignEdit() {
         if (searchTerm) {
             const type =
                 tipoOperador === 'teleoperador' ? 'operador' : 'vendedor';
-            dispatch(fetchOperators({ busca: searchTerm, type }) as any);
+            dispatch(fetchOperators({ busca: searchTerm, type }));
         } else {
             message.error('Digite o nome para buscar!');
         }
@@ -229,25 +244,35 @@ export default function CampaignEdit() {
                 fetchProductsByType({
                     busca: searchTerm,
                     type: tipoMarcaProduto as 'produto' | 'marca',
-                }) as any
+                })
             );
         }, 300),
         [dispatch, tipoMarcaProduto]
     );
 
     const handleUpdateCampaign = async () => {
-        const campaignData = {
+        const campaignData: Partial<ICampaign> = {
             nome: campaignName,
-            idempresa: idempresa,
+            idempresa: Number(idempresa),
             datainicial: formatDateUTC(datainicial),
             datafinal: formatDateUTC(datafinal),
-            valor_total: valorTotal,
-            userlanc: user?.username,
+            valor_total: Number(valorTotal),
+            meta_valor: Number(meta_valor),
+            tipo_meta: tipoMeta,
+            userlanc: user?.username || '',
             datalanc: formatDate(new Date().toISOString()),
-            status: true,
+            status: 'active',
             participantes: operadores,
             itens: marcaProdutos,
             escala: escalaData,
+            id: Number(campaignId),
+            idcampanha_distribuicao:
+                currentCampaign?.campanha?.idcampanha_distribuicao || 0,
+            operators: [],
+            campaigns: [],
+            products: [],
+            filiais: [],
+            campanha: {} as ICampaign,
         };
 
         if (
@@ -265,8 +290,8 @@ export default function CampaignEdit() {
             await dispatch(
                 updateCampaign({
                     id: campaignId,
-                    data: campaignData,
-                }) as any
+                    data: campaignData as ICampaign,
+                })
             );
             message.success('Campanha atualizada com sucesso!');
         } catch (error) {
@@ -275,11 +300,11 @@ export default function CampaignEdit() {
         }
     };
 
-    const handleSearchFilial = (value: string) => {
-        dispatch(fetchFiliais(value) as any);
+    const handleSearchFilial = () => {
+        dispatch(fetchFiliais());
     };
 
-    const showDeleteConfirm = (participant: any) => {
+    const showDeleteConfirm = (participant: IParticipants) => {
         setParticipantToDelete(participant);
         setIsModalVisible(true);
     };
@@ -290,11 +315,11 @@ export default function CampaignEdit() {
                 deleteParticipantFromCampaign({
                     campaignId,
                     participantId: participantToDelete.idparticipante,
-                }) as any
+                })
             );
             setOperadores(
                 operadores.filter(
-                    (op: any) =>
+                    (op: IParticipants) =>
                         op.idparticipante !== participantToDelete.idparticipante
                 )
             );
@@ -314,18 +339,18 @@ export default function CampaignEdit() {
                 deleteItemFromCampaign({
                     campaignId,
                     id: itemToDelete,
-                }) as any
+                })
             )
                 .then(() => {
                     setMarcaProdutos(
                         marcaProdutos.filter(
-                            (item: any) => item.id !== itemToDelete
+                            (item: IProduct) => item.id !== itemToDelete
                         )
                     );
                     setIsItemModalVisible(false);
                     setItemToDelete(null);
                 })
-                .catch((error: any) => {
+                .catch((error: unknown) => {
                     console.error('Erro ao remover item:', error);
                     message.error('Erro ao remover item');
                 });
@@ -342,7 +367,7 @@ export default function CampaignEdit() {
         setItemToDelete(null);
     };
 
-    const handleEscalaSubmit = (formattedMetas: any[]) => {
+    const handleEscalaSubmit = (formattedMetas: IEscala[]) => {
         setEscalaData(formattedMetas);
     };
 
@@ -381,7 +406,7 @@ export default function CampaignEdit() {
                                 onSearch={handleSearchFilial}
                                 filterOption={false}
                             >
-                                {filiais.map((filial: any) => (
+                                {filiais.map((filial: IFilial) => (
                                     <Option
                                         key={filial.fantasia}
                                         value={filial.fantasia}
@@ -452,11 +477,11 @@ export default function CampaignEdit() {
                                     defaultActiveFirstOption={false}
                                     filterOption={false}
                                     onSearch={handleSearchOperador}
-                                    onSelect={(value: string, option: any) => {
-                                        setSelectedOperador(option.label);
-                                    }}
+                                    // onSelect={(value: string, option: any) => {
+                                    //     setSelectedOperador(option.label);
+                                    // }}
                                     options={operators?.map(
-                                        (operator: any) => ({
+                                        (operator: IOperator) => ({
                                             value:
                                                 tipoOperador === 'teleoperador'
                                                     ? operator.matricula
@@ -516,14 +541,14 @@ export default function CampaignEdit() {
                                     {
                                         title: 'Meta',
                                         key: 'meta',
-                                        render: (record: any) => {
+                                        render: (record: IParticipants) => {
                                             const value =
                                                 record.tipo_meta && record.meta
                                                     ? record.meta_valor
                                                     : record.meta_quantidade;
-                                            return parseFloat(
-                                                value
-                                            ).toLocaleString('pt-BR');
+                                            return value.toLocaleString(
+                                                'pt-BR'
+                                            );
                                         },
                                     },
                                     {
@@ -594,7 +619,10 @@ export default function CampaignEdit() {
                                     defaultActiveFirstOption={false}
                                     filterOption={false}
                                     onSearch={handleSearchProduto}
-                                    onSelect={(value: string, option: any) => {
+                                    onSelect={(
+                                        value: string,
+                                        option: IProduct
+                                    ) => {
                                         handleAddMarcaProduto(
                                             option.label,
                                             option.value,
@@ -603,18 +631,20 @@ export default function CampaignEdit() {
                                             option.value
                                         );
                                     }}
-                                    options={products?.map((product: any) => ({
-                                        value:
-                                            tipoMarcaProduto === 'produto'
-                                                ? product.codprod
-                                                : product.codmarca,
-                                        label:
-                                            tipoMarcaProduto === 'produto'
-                                                ? product.descricao
-                                                : product.marca,
-                                        codprod: product.codprod,
-                                        descricao: product.descricao,
-                                    }))}
+                                    options={products?.map(
+                                        (product: IProduct) => ({
+                                            value:
+                                                tipoMarcaProduto === 'produto'
+                                                    ? product.codprod
+                                                    : product.codmarca,
+                                            label:
+                                                tipoMarcaProduto === 'produto'
+                                                    ? product.descricao
+                                                    : product.marca,
+                                            codprod: product.codprod,
+                                            descricao: product.descricao,
+                                        })
+                                    )}
                                 />
                             </div>
                             <Table
@@ -633,7 +663,7 @@ export default function CampaignEdit() {
                                     {
                                         title: 'Ação',
                                         key: 'acao',
-                                        render: (_, record: any) => (
+                                        render: (_, record: IProduct) => (
                                             <Button
                                                 className="bg-red-500 hover:bg-red-600"
                                                 onClick={() =>
@@ -686,10 +716,8 @@ export default function CampaignEdit() {
                                 value={valorTotal}
                                 onChange={(e) => {
                                     const inputValue = e.target.value;
-                                    const formattedValue = inputValue
-                                        .replace(/[^0-9,\.]/g, '')
-                                        .replace(',', '.');
-                                    setValorTotal(formattedValue);
+
+                                    setValorTotal(Number(inputValue));
                                 }}
                             />
                         </div>
@@ -701,7 +729,18 @@ export default function CampaignEdit() {
                             <MetaTable
                                 isEditing={true}
                                 campaignId={campaignId}
-                                escala={escalaProcessada}
+                                escala={
+                                    escalaProcessada && {
+                                        metaGeralRange:
+                                            escalaProcessada.metaGeralRange ||
+                                            [],
+                                        metaVendedorRange:
+                                            escalaProcessada.metaVendedorRange ||
+                                            [],
+                                        valoresMeta:
+                                            escalaProcessada.valoresMeta || [],
+                                    }
+                                }
                                 onEscalaSubmit={handleEscalaSubmit}
                             />
                         </div>

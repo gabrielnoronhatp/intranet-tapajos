@@ -1,6 +1,8 @@
+import { IFile } from "./IFile";
+
 export interface IContract {
     id: number;
-    idtipo: any;
+    idtipo: string | number;
     idfilial: string;
     idfornecedor: string;
     nome: string;
@@ -10,10 +12,9 @@ export interface IContract {
     endereco2?: string;
     email1?: string;
     email2?: string;
-    //todo remove this any
-    data_venc_contrato?: any;
+    data_venc_contrato?: string | Date  ;
     indice?: string;
-    forma_pag?: any; // TODO: find a way to handle this any
+    forma_pag?: string | number  ; // TODO: find a way to handle this any
     agencia?: string;
     conta?: string;
     tipo_chave_pix?: string;
@@ -27,7 +28,7 @@ export interface IContract {
     userlanc?: string;
     cancelado?: boolean;
     dtdeposito?: string;
-    tipopix?: any; // TODO: find a way to handle this any
+    tipopix?: string;
     chavepix?: string;
     datapix?: string;
     opcao_lanc?: string;
@@ -36,21 +37,7 @@ export interface IContract {
     banco?: string;
 }
 
+
 export type ContractFormState = Partial<IContract>;
-export enum TipoServico {
-    SERVICO1 = 'servico1',
-    SERVICO2 = 'servico2',
-}
 
-export enum IndiceType {
-    PCE = 'PCE',
-    IGPM = 'IGP-M',
-}
 
-export interface IFile {
-    filename: string;
-    file_url: string;
-    size: number;
-    last_modified: string;
-    contract_id: number;
-}

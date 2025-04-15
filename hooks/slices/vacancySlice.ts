@@ -2,7 +2,6 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { Vacancy, CreateVacancyPayload } from '@/types/vacancy/IVacancy';
 
-// Interfaces para candidatos
 interface Candidate {
     id: string;
     cpf: string;
@@ -26,6 +25,22 @@ export interface CandidateWithAnalysis {
     analise: CandidateAnalysis;
 }
 
+// Interface para todos os talentos
+export interface AllTalent {
+    id: string;
+    cpf: string;
+    nome_completo: string;
+    email: string;
+    telefone: string;
+    is_primeiraexperiencia: boolean;
+    is_disponivel: string;
+    file_perfil: string;
+    file_cv?: string;
+    is_analizado: boolean;
+    created_at?: string;
+    updated_at?: string;
+}
+
 interface VacancyState {
     vacancies: Vacancy[];
     loading: boolean;
@@ -37,6 +52,14 @@ interface VacancyState {
     departmentsLoading: boolean;
     positions: string[];
     positionsLoading: boolean;
+    allTalents: {
+        data: AllTalent[];
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+        loading: boolean;
+    };
 }
 
 const initialState: VacancyState = {
@@ -50,6 +73,14 @@ const initialState: VacancyState = {
     departmentsLoading: false,
     positions: [],
     positionsLoading: false,
+    allTalents: {
+        data: [],
+        total: 0,
+        page: 1,
+        limit: 10,
+        totalPages: 0,
+        loading: false,
+    },
 };
 
 const API_URL = 'https://api.rh.grupotapajos.com.br';
@@ -73,10 +104,11 @@ export const fetchVacancies = createAsyncThunk(
             });
 
             return response.data;
-        } catch (error: any) {
-            return rejectWithValue(
-                error.response?.data?.message 
-            );
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data?.message);
+            }
+            return rejectWithValue('Erro desconhecido ao buscar vagas');
         }
     }
 );
@@ -100,10 +132,11 @@ export const fetchVacancyById = createAsyncThunk(
             });
 
             return response.data;
-        } catch (error: any) {
-            return rejectWithValue(
-                error.response?.data?.message 
-            );
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data?.message);
+            }
+            return rejectWithValue('Erro desconhecido ao buscar vaga');
         }
     }
 );
@@ -170,7 +203,11 @@ export const createVacancy = createAsyncThunk(
                     if (!formData.has(field)) {
                         formData.append(
                             field,
-                            String(dataWithCreator[field as keyof typeof dataWithCreator] || '')
+                            String(
+                                dataWithCreator[
+                                    field as keyof typeof dataWithCreator
+                                ] || ''
+                            )
                         );
                     }
                 });
@@ -201,16 +238,13 @@ export const createVacancy = createAsyncThunk(
 
                 return response.data;
             }
-        } catch (error: any) {
-            console.error(
-                'Erro ao criar vaga:',
-                error.response?.data || error.message
-            );
-            return rejectWithValue(
-                error.response?.data?.detail ||
-                    error.response?.data?.message ||
-                    'Erro ao criar vaga'
-            );
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(
+                    error.response?.data?.message || 'Erro ao criar vaga'
+                );
+            }
+            return rejectWithValue('Erro desconhecido ao criar vaga');
         }
     }
 );
@@ -263,16 +297,15 @@ export const updateVacancy = createAsyncThunk(
             );
 
             return response.data;
-        } catch (error: any) {
-            console.error(
-                'Erro ao atualizar vaga:',
-                error.response?.data || error.message
-            );
-            return rejectWithValue(
-                error.response?.data?.detail ||
-                    error.response?.data?.message ||
-                    'Erro ao atualizar vaga'
-            );
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(
+                    error.response?.data?.detail ||
+                        error.response?.data?.message ||
+                        'Erro ao atualizar vaga'
+                );
+            }
+            return rejectWithValue('Erro desconhecido ao atualizar vaga');
         }
     }
 );
@@ -296,10 +329,13 @@ export const deleteVacancy = createAsyncThunk(
             });
 
             return id;
-        } catch (error: any) {
-            return rejectWithValue(
-                error.response?.data?.message || 'Erro ao excluir vaga'
-            );
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(
+                    error.response?.data?.message || 'Erro ao excluir vaga'
+                );
+            }
+            return rejectWithValue('Erro desconhecido ao excluir vaga');
         }
     }
 );
@@ -317,18 +353,23 @@ export const fetchVacancyCandidates = createAsyncThunk(
                 return rejectWithValue('Token de autenticação não encontrado');
             }
 
-            const response = await axios.get(`${API_URL}/candidatos/${vacancyId}`, {
-                headers: {
-                    Authorization: `Bearer ${auth.accessToken}`,
-                },
-            });
+            const response = await axios.get(
+                `${API_URL}/candidatos/${vacancyId}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${auth.accessToken}`,
+                    },
+                }
+            );
 
             return response.data;
-        } catch (error: any) {
-            console.error('Erro ao buscar candidatos:', error.response?.data || error.message);
-            return rejectWithValue(
-                error.response?.data?.message 
-            );
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(
+                    error.response?.data?.message || 'Erro ao buscar candidatos'
+                );
+            }
+            return rejectWithValue('Erro desconhecido ao buscar candidatos');
         }
     }
 );
@@ -353,20 +394,90 @@ export const fetchDepartments = createAsyncThunk(
 
             // Aqui estamos assumindo que a API retorna uma lista de strings (cargos)
             // Vamos usar uma lista de departamentos padrão, já que a API não fornece departamentos
-            const defaultDepartments = ["TI", "RH", "Financeiro", "Comercial", "Marketing", "Logística", "Jurídico"];
-            
+            const defaultDepartments = [
+                'TI',
+                'RH',
+                'Financeiro',
+                'Comercial',
+                'Marketing',
+                'Logística',
+                'Jurídico',
+            ];
+
             // Armazenar os cargos para uso futuro
             const positions = response.data;
-            
+
             return {
                 departments: defaultDepartments,
-                positions: positions
+                positions: positions,
             };
-        } catch (error: any) {
-            console.error('Erro ao buscar departamentos e cargos:', error.response?.data || error.message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(
+                    error.response?.data?.message ||
+                        'Erro ao buscar departamentos e cargos'
+                );
+            }
             return rejectWithValue(
-                error.response?.data?.message || 'Erro ao buscar departamentos e cargos'
+                'Erro desconhecido ao buscar departamentos e cargos'
             );
+        }
+    }
+);
+
+
+export const fetchAllTalents = createAsyncThunk(
+    'vacancy/fetchAllTalents',
+    async ({ page, limit }: { page: number; limit: number }, { getState, rejectWithValue }) => {
+        try {
+            const { auth } = getState() as {
+                auth: { accessToken: string | null };
+            };
+
+            if (!auth.accessToken) {
+                return rejectWithValue('Token de autenticação não encontrado');
+            }
+
+            const response = await axios.get(
+                `${API_URL}/talentos/all/${page}/${limit}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${auth.accessToken}`,
+                    },
+                }
+            );
+
+            // Mapear cada candidato para o formato esperado de CandidateWithAnalysis
+            const mappedItems = response.data.map((talent: AllTalent) => ({
+                candidate: {
+                    id: talent.id,
+                    cpf: talent.cpf,
+                    nome_completo: talent.nome_completo,
+                    email: talent.email,
+                    telefone: talent.telefone,
+                    is_primeiraexperiencia: talent.is_primeiraexperiencia,
+                    is_disponivel: talent.is_disponivel,
+                    file_perfil: talent.file_perfil,
+                    file_cv: talent.file_cv,
+                    is_analizado: talent.is_analizado
+                },
+                analise: {
+                    score: 0,
+                    cv_resumo: "Análise não disponível" 
+                }
+            }));
+            console.log(mappedItems)
+            return {
+                ...response.data,
+                items: mappedItems
+            };
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(
+                    error.response?.data?.message || 'Erro ao buscar todos os talentos'
+                );
+            }
+            return rejectWithValue('Erro desconhecido ao buscar todos os talentos');
         }
     }
 );
@@ -499,6 +610,24 @@ const vacancySlice = createSlice({
         builder.addCase(fetchDepartments.rejected, (state, action) => {
             state.departmentsLoading = false;
             state.positionsLoading = false;
+            state.error = action.payload as string;
+        });
+
+        // Fetch all talents
+        builder.addCase(fetchAllTalents.pending, (state) => {
+            state.allTalents.loading = true;
+            state.error = null;
+        });
+        builder.addCase(fetchAllTalents.fulfilled, (state, action) => {
+            state.allTalents.loading = false;
+            state.allTalents.data = action.payload.items;
+            state.allTalents.total = action.payload.total;
+            state.allTalents.page = action.payload.page;
+            state.allTalents.limit = action.payload.limit;
+            state.allTalents.totalPages = action.payload.totalPages;
+        });
+        builder.addCase(fetchAllTalents.rejected, (state, action) => {
+            state.allTalents.loading = false;
             state.error = action.payload as string;
         });
     },

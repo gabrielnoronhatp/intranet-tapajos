@@ -4,7 +4,6 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Menu, LogOut } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { tpLogo } from '@/app/assets';
 import { useState, useEffect } from 'react';
@@ -17,7 +16,7 @@ interface NavbarProps {
 }
 
 export function Navbar({ onToggleSidebar }: NavbarProps) {
-    const pathname = usePathname();
+  
     const dispatch = useDispatch();
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
     const user = useSelector((state: RootState) => state.auth.user);

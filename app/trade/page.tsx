@@ -21,7 +21,7 @@ import { IFilial } from '@/types/noPaper/Supplier/SupplierType';
 import { Operador } from '@/types/Trade/IOperator';
 import { Escala, IEscala } from '@/types/Trade/IEscala';
 import { ICampaign } from '@/types/Trade/ICampaign';
-import { IProduct } from '@/types/Trade/IProduct';
+
 
 const { Option } = Select;
 
@@ -33,7 +33,7 @@ export default function CampaignRegistration() {
     );
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [operadores, setOperadores] = useState<Operador[]>([]);
-    
+
     const [marcaProdutos, setMarcaProdutos] = useState<
         Array<{ nome: string; codprod: string; descricao: string }>
     >([]);
@@ -143,7 +143,6 @@ export default function CampaignRegistration() {
                 const type =
                     tipoMarcaProduto === 'produto' ? 'produto' : 'marca';
                 dispatch(fetchProductsByType({ busca: searchTerm, type }));
-                
             } else {
                 message.error('Digite o nome para buscar!');
             }
@@ -473,15 +472,10 @@ export default function CampaignRegistration() {
                                             option.label as string
                                         );
                                     }}
-                                    options={(products || []).map(
-                                        
-                                        (product: any) => (
-                                            console.log('teste',products),
-                                            {
-                                            value: product.codmarca,
-                                            label: product.marca,
-                                        })
-                                    )}
+                                    options={(products || []).map((product: any) => ({
+                                        value: tipoMarcaProduto === 'produto' ? product.codprod : product.codmarca,
+                                        label: tipoMarcaProduto === 'produto' ? product.descricao : product.marca,
+                                    }))}
                                 />
                             </div>
                             <Table

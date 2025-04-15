@@ -68,12 +68,12 @@ export default function CampaignEdit() {
             dispatch(fetchCampaignById(campaignId));
             dispatch(fetchFiliais());
         }
-    }, [dispatch, campaignId, productName]);
+    }, [dispatch, campaignId]);
 
     useEffect(() => {
         if (currentCampaign) {
             setCampaignName(currentCampaign.campanha?.nome || '');
-            setIdempresa(currentCampaign.campanha.idempresa);
+            setIdempresa(currentCampaign.campanha?.idempresa);
             setDatainicial(currentCampaign.campanha?.datainicial || '');
             setDatafinal(currentCampaign.campanha?.datafinal || '');
             setValorTotal(currentCampaign.campanha?.valor_total || 0);
@@ -209,6 +209,7 @@ export default function CampaignEdit() {
     ) => {
         if (nome) {
             const newProduct: IProduct = {
+                iditem: iditem,
                 nome,
                 codprod,
                 descricao,

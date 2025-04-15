@@ -11,6 +11,7 @@ export interface IParticipants {
     premiacao: string;
     nome: string;
     tipo: string;
+    iditem: number;
     matricula: string;
     codusur: string;
     tipo_meta: string | null;

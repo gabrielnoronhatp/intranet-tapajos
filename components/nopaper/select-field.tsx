@@ -6,8 +6,10 @@ import {
     SelectItem,
     SelectTrigger,
     SelectValue,
+    SelectGroup,
+    SelectLabel,
 } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
+
 
 interface SelectFieldProps {
     label: string;
@@ -26,21 +28,23 @@ export function SelectField({
 }: SelectFieldProps) {
     return (
         <div className={className}>
-            <Label className="text-xs font-semibold text-primary uppercase mb-1">
-                {label}
-            </Label>
-            <Select value={value} onValueChange={onChange}>
-                <SelectTrigger className="w-full">
-                    <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                    {options.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                        </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
+            <SelectGroup>
+                <SelectLabel className="text-xs font-semibold text-primary uppercase mb-1">
+                    {label}
+                </SelectLabel>
+                <Select value={value} onValueChange={onChange}>
+                    <SelectTrigger className="w-full">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {options.map((option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                                {option.label}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </SelectGroup>
         </div>
     );
 }

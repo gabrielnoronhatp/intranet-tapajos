@@ -22,7 +22,6 @@ const store = configureStore({
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
             serializableCheck: {
-                // Ignorar ações não serializáveis para upload de arquivos
                 ignoredActions: ['vacancy/createVacancy/pending', 'vacancy/updateVacancy/pending'],
                 ignoredPaths: ['vacancy.fileUpload'],
             },

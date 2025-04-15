@@ -61,7 +61,7 @@ export const fetchFiliais = createAsyncThunk(
 
 export const fetchContasGerenciais = createAsyncThunk(
     'noPaper/fetchContasGerenciais',
-    async (query: string = '') => {
+    async () => {
         const response = await api.get(`dadoscontager`);
         return response.data;
     }
@@ -165,13 +165,13 @@ const noPaperSlice = createSlice({
             .addCase(fetchLojas.fulfilled, (state, action) => {
                 state.lojas = action.payload;
             })
-            .addCase(createServiceType.fulfilled, (state, action) => {
+            .addCase(createServiceType.fulfilled, (state) => {
                 state.loading = false;
             })
             .addCase(deleteFile.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(deleteFile.fulfilled, (state, action) => {
+            .addCase(deleteFile.fulfilled, (state) => {
                 state.loading = false;
             })
             .addCase(deleteFile.rejected, (state, action) => {

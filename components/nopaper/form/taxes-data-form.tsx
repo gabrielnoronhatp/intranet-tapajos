@@ -1,7 +1,6 @@
 'use client';
 
-import React from 'react';
-import { setOrderState } from '@/hooks/slices/noPaper/orderSlice';
+import React from 'react'
 import { FormSection } from '../form-section';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,23 +8,22 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCentrosCusto } from '@/hooks/slices/noPaper/noPaperSlice';
 import { RootState } from '@/hooks/store';
-import CurrencyInput from 'react-currency-input-field';
 import { NumericFormat } from 'react-number-format';
-
+import { OrderState, Item } from '@/types/noPaper/Order/OrderState';
 interface TaxesDataProps {
-    data: any;
-    onChange: (field: keyof any, value: any) => void;
+    data: OrderData;
+    onChange: (field: keyof OrderState, value: string | number) => void;
 }
 
 export default function TaxesData({ data, onChange }: TaxesDataProps) {
     const dispatch = useDispatch();
 
-    const { qtitensOP, valorimpostoOP, produtosOP, ccustoOP } = data;
+    const { qtitensOP, valorimpostoOP, produtosOP } = data;
 
     const { searchQuery } = useSelector((state: RootState) => state.noPaper);
 
     useEffect(() => {
-        dispatch(fetchCentrosCusto('') as any);
+        dispatch(fetchCentrosCusto(''));
     }, [dispatch, searchQuery]);
 
     const handleItensChange = (
@@ -33,7 +31,7 @@ export default function TaxesData({ data, onChange }: TaxesDataProps) {
         field: 'produto' | 'valor' | 'centroCusto',
         value: string | number
     ) => {
-        const updatedItens = produtosOP.map((item: any, i: number) =>
+        const updatedItens = produtosOP.map((item: Item, i: number) =>
             i === index ? { ...item, [field]: value } : item
         );
         onChange('produtosOP', updatedItens);
@@ -47,56 +45,12 @@ export default function TaxesData({ data, onChange }: TaxesDataProps) {
 
         const newItens = Array.from(
             { length: quantidade },
-            (_, index) =>
+            (index: number) =>
                 produtosOP[index] || { produto: '', valor: 0, centroCusto: [] }
         );
         onChange('produtosOP', newItens);
     };
 
-    const handleCCustoChange = (
-        index: number,
-        field: 'centrocusto' | 'valor',
-        value: string | number
-    ) => {
-        let updatedCCusto = [...ccustoOP];
-
-        if (field === 'valor') {
-            const totalValue = calculateTotalValue();
-            const remaining = totalValue - Number(value);
-            const otherCenters = ccustoOP.length - 1;
-
-            if (otherCenters > 0) {
-                const valueForOthers = remaining / otherCenters;
-
-                updatedCCusto = updatedCCusto.map((center: any, i: number) => {
-                    if (i === index) {
-                        return {
-                            ...center,
-                            valor: Number(value),
-                        };
-                    }
-                    return {
-                        ...center,
-                        valor: valueForOthers,
-                    };
-                });
-            }
-        } else {
-            updatedCCusto = updatedCCusto.map((center: any, i: number) =>
-                i === index ? { ...center, [field]: value } : center
-            );
-        }
-
-        onChange('ccustoOP', updatedCCusto);
-    };
-
-    const calculateTotalValue = () => {
-        const totalProdutos = produtosOP.reduce(
-            (sum: number, product: any) => sum + (Number(product.valor) || 0),
-            0
-        );
-        return totalProdutos - (Number(valorimpostoOP) || 0);
-    };
 
     return (
         <FormSection title="Dados de Itens e Impostos">
@@ -117,7 +71,7 @@ export default function TaxesData({ data, onChange }: TaxesDataProps) {
                     </p>
                 )}
 
-                {produtosOP.map((item: any, index: number) => (
+                {produtosOP.map((item: Item, index: number) => (
                     <div key={index} className="space-y-1">
                         <Label className="text-xs font-semibold text-primary uppercase">
                             Item {index + 1}: Descrição e Valor

@@ -1,22 +1,22 @@
 'use client';
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import {  useSelector } from 'react-redux';
 import { useState, useEffect } from 'react';
-import { setOrderState } from '@/hooks/slices/noPaper/orderSlice';
 import { FormSection } from '../form-section';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RootState } from '@/hooks/store';
 import { Select } from 'antd';
 import { NumericFormat } from 'react-number-format';
-
+import { Item, OrderData, OrderState } from '@/types/noPaper/Order/OrderState';
+import { CentroCusto } from '@/types/noPaper/Order/CentroCustoType';
 interface CenterOfCoustProps {
-    data: any;
-    onChange: (field: keyof any, value: any) => void;
+    data: OrderData;
+    onChange: (field: keyof OrderState, value: string | number) => void;
 }
 
 export default function CenterOfCoust({ data, onChange }: CenterOfCoustProps) {
-    const dispatch = useDispatch();
+    
     const { ccustoOP, produtosOP, valorimpostoOP } = data;
     const { centrosCustoOptions } = useSelector(
         (state: RootState) => state.noPaper
@@ -26,7 +26,7 @@ export default function CenterOfCoust({ data, onChange }: CenterOfCoustProps) {
 
     const calculateTotalValue = () => {
         const totalProdutos = produtosOP.reduce(
-            (sum: number, product: any) => sum + (Number(product.valor) || 0),
+            (sum: number, product: Item) => sum + (Number(product.valor) || 0),
             0
         );
         return totalProdutos - (Number(valorimpostoOP) || 0);
@@ -49,7 +49,6 @@ export default function CenterOfCoust({ data, onChange }: CenterOfCoustProps) {
 
     useEffect(() => {
         updateCenterValues();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [numCenters, produtosOP, valorimpostoOP]);
 
     const handleNumCentersChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,7 +59,7 @@ export default function CenterOfCoust({ data, onChange }: CenterOfCoustProps) {
     const handleCenterChange = (
         index: number,
         field: 'centrocusto' | 'valor',
-        value: any
+        value: string | number
     ) => {
         let updatedCenters = [...ccustoOP];
 
@@ -73,7 +72,7 @@ export default function CenterOfCoust({ data, onChange }: CenterOfCoustProps) {
                 const valueForOthers = remaining / otherCenters;
 
                 updatedCenters = updatedCenters.map(
-                    (center: any, i: number) => {
+                    (center: CentroCusto, i: number) => {
                         if (i === index) {
                             return {
                                 ...center,
@@ -88,7 +87,7 @@ export default function CenterOfCoust({ data, onChange }: CenterOfCoustProps) {
                 );
             }
         } else {
-            updatedCenters = updatedCenters.map((center: any, i: number) =>
+            updatedCenters = updatedCenters.map((center: CentroCusto, i: number) =>
                 i === index ? { ...center, [field]: value } : center
             );
         }
@@ -124,7 +123,7 @@ export default function CenterOfCoust({ data, onChange }: CenterOfCoustProps) {
                             onChange={(value) =>
                                 handleCenterChange(index, 'centrocusto', value)
                             }
-                            options={centrosCustoOptions.map((option: any) => ({
+                            options={centrosCustoOptions.map((option: CentroCusto) => ({
                                 value: option.centrocusto,
                                 label: option.centrocusto,
                             }))}

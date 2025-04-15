@@ -3,19 +3,12 @@
 import React from 'react';
 import { Navbar } from '@/components/layout/navbar';
 import { Sidebar } from '@/components/layout/sidebar';
-import { DataTableOrder } from '@/components/nopaper/data-table-order';
 import { FloatingActionButton } from '@/components/nopaper/floating-action-button';
 import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
-import { useState, useEffect } from 'react';
-import { DatePicker } from 'antd';
-import dayjs, { Dayjs } from 'dayjs';
-import { api } from '@/app/service/api';
-import { OrderState } from '@/types/noPaper/Order/OrderTypes';
+import { useState,  } from 'react';
 import { TableTrade } from '@/components/trade/trade-list';
-import axios from 'axios';
-import { Button } from '@/components/ui/button';
-import { MetaTable } from '@/components/trade/meta-table';
-const { RangePicker } = DatePicker;
+
+
 
 export default function TradeList() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);

@@ -9,9 +9,8 @@ import {
     Trash2,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { Image, Upload, UploadFile, message, Modal } from 'antd';
+import {   message, Modal } from 'antd';
 import { api } from '@/app/service/api';
-import { UploadChangeParam } from 'antd/es/upload';
 import './data-table-order-styles.css';
 import { Table as AntdTable } from 'antd';
 import { PinModal } from './pin-modal';
@@ -20,31 +19,31 @@ import {
     setSignatureNumber,
     deleteFile,
 } from '@/hooks/slices/noPaper/noPaperSlice';
-import { useDispatch, useSelector } from 'react-redux';
-import { OrderState } from '@/types/noPaper/Order/OrderTypes';
-import { useRouter } from 'next/navigation';
+import { useDispatch, } from 'react-redux';
+import { OrderState, Item } from '@/types/noPaper/Order/OrderState';
 import { cancelOrder } from '@/hooks/slices/noPaper/orderSlice';
-
+import { ColumnType } from 'antd/es/table';
+import { CentroCusto } from '@/types/noPaper/Order/CentroCustoType';
 interface DataTableOrderProps {
     searchParams: Record<string, string>;
-    ordersSearch: Record<string, string>;
+    // orders: OrderState[];
 }
 
 export function DataTableOrder({
     searchParams,
-    ordersSearch,
+    // orders,
 }: DataTableOrderProps) {
     const dispatch = useDispatch();
-    const router = useRouter();
+
     const [orders, setOrders] = useState<Array<OrderState>>([]);
     const [isViewOpen, setIsViewOpen] = useState(false);
-    const [selectedItem, setSelectedItem]: any = useState(null);
+    const [selectedItem, setSelectedItem] = useState<OrderState | null>(null);
     const [fileUrls, setFileUrls] = useState<
         Array<{ url: string; name: string }>
     >([]);
-    const [fileList, setFileList] = useState<any[]>([]);
+    
     const [isPinModalOpen, setIsPinModalOpen] = useState(false);
-    const [orderDetails, setOrderDetails] = useState<any>(null);
+    const [orderDetails, setOrderDetails] = useState<OrderState | null>(null);
 
     const fetchOrders = async (
         params: Record<string, string> = searchParams
@@ -71,7 +70,7 @@ export function DataTableOrder({
         }
     };
 
-    const toggleView = async (item: any) => {
+    const toggleView = async (item: OrderState) => {
         setSelectedItem(item);
         setIsViewOpen(!isViewOpen);
         await fetchOrderDetails(item.id);
@@ -114,22 +113,8 @@ export function DataTableOrder({
         fetchOrders();
     };
 
-    const beforeUpload = (file: File) => {
-        return true;
-    };
 
-    const handleUploadChange = (info: UploadChangeParam<UploadFile<any>>) => {
-        if (info.file.status === 'done') {
-            message.success(`${info.file.name} uploaded successfully`);
-            // Refresh file list after successful upload
-            toggleView(selectedItem);
-        } else if (info.file.status === 'error') {
-            message.error(`${info.file.name} upload failed.`);
-        }
 
-        // Update fileList state
-        setFileList(info.fileList);
-    };
 
     const checkUserPermission = async (
         signerName: string,
@@ -149,7 +134,7 @@ export function DataTableOrder({
     };
 
     const handleSignatureClick = async (
-        record: any,
+        record: OrderState,
         signatureNumber: number
     ) => {
         const auth = localStorage.getItem('auth');
@@ -183,7 +168,7 @@ export function DataTableOrder({
 
     const handleCancelOrder = async (orderId: number) => {
         try {
-            dispatch(cancelOrder(orderId) as any);
+            dispatch(cancelOrder(orderId));
             fetchOrders();
         } catch (error) {
             console.error('Error canceling order:', error);
@@ -208,14 +193,11 @@ export function DataTableOrder({
                 content: 'Você tem certeza que deseja excluir este arquivo?',
                 onOk: async () => {
                     try {
-                        await dispatch(deleteFile(fileKey) as any);
+                        await dispatch(deleteFile(fileKey));
                         message.success('Arquivo excluído com sucesso');
 
                         // Atualizar a lista de arquivos
-                        const updatedFileUrls = fileUrls.filter(
-                            (file) => file.url !== fileUrl
-                        );
-                        // setFileUrls(updatedFileUrls);
+                       
                     } catch (error) {
                         console.error('Erro ao excluir arquivo:', error);
                         message.error('Erro ao excluir arquivo');
@@ -258,7 +240,7 @@ export function DataTableOrder({
             dataIndex: 'assinatura1',
             key: 'assinatura1',
             align: 'center',
-            render: (text: string, record: any) => (
+            render: (text: string, record: OrderState) => (
                 <span
                     onClick={() => handleSignatureClick(record, 1)}
                     style={{ cursor: 'pointer' }}
@@ -276,7 +258,7 @@ export function DataTableOrder({
             dataIndex: 'assinatura2',
             key: 'assinatura2',
             align: 'center',
-            render: (text: string, record: any) => (
+            render: (text: string, record: OrderState) => (
                 <span
                     onClick={() => handleSignatureClick(record, 2)}
                     style={{ cursor: 'pointer' }}
@@ -294,7 +276,7 @@ export function DataTableOrder({
             dataIndex: 'assinatura3',
             key: 'assinatura3',
             align: 'center',
-            render: (text: string, record: any) => (
+            render: (text: string, record: OrderState) => (
                 <span
                     onClick={() => handleSignatureClick(record, 3)}
                     style={{ cursor: 'pointer' }}
@@ -311,7 +293,7 @@ export function DataTableOrder({
             title: 'Ações',
             key: 'acoes',
             align: 'center',
-            render: (record: any) => {
+            render: (record: OrderState) => {
                 const hasSignature =
                     record.assinatura1 ||
                     record.assinatura2 ||
@@ -364,7 +346,7 @@ export function DataTableOrder({
     return (
         <div className="rounded-md border">
             <AntdTable
-                columns={columns as any}
+                columns={columns as ColumnType<OrderState>[]}
                 dataSource={orders}
                 rowKey="id"
                 pagination={false}
@@ -412,7 +394,7 @@ export function DataTableOrder({
                                         </h3>
                                         <ul>
                                             {orderDetails?.produtosOP?.map(
-                                                (item: any, index: number) => (
+                                                (item: Item, index: number) => (
                                                     <li key={index}>
                                                         {item.produto} -{' '}
                                                         {item.valor}
@@ -426,7 +408,7 @@ export function DataTableOrder({
                                         <ul>
                                             {orderDetails?.ccustoOP?.map(
                                                 (
-                                                    centro: any,
+                                                    centro: CentroCusto,
                                                     index: number
                                                 ) => (
                                                     <li key={index}>

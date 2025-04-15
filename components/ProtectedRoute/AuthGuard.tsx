@@ -23,7 +23,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
     }, [isAuthenticated, router]);
 
     if (!isAuthenticated) {
-        return null; // ou algum componente de carregamento
+        return null;  
     }
 
     return <>{children}</>;

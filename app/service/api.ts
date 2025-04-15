@@ -1,7 +1,7 @@
 import axios from 'axios';
 const baseUrl = 'http://10.2.10.17:3001/api/';
 const devUrl = 'http://10.2.10.17:3002/api/';
-const localUrl = 'http://localhost:3002/api/';
+
 
 const api = axios.create({
     baseURL: baseUrl,

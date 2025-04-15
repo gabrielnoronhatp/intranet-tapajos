@@ -26,11 +26,11 @@ const initialData: Employee[] = [
         primeiraExperiencia: false,
         idade: 30,
     },
-    // Adicione mais dados conforme necessário
+   
 ];
 
 export function EmployeeList() {
-    const [data, setData] = useState<Employee[]>(initialData);
+    const [data] = useState<Employee[]>(initialData);
     const [filters, setFilters] = useState({
         nome: '',
         vaga: '',
@@ -63,7 +63,8 @@ export function EmployeeList() {
         },
         { title: 'Idade', dataIndex: 'idade', key: 'idade' },
     ];
-
+   
+    
     return (
         <div className="rounded-md border bg-card p-4">
             <div className="mb-4 grid grid-cols-3 gap-4">

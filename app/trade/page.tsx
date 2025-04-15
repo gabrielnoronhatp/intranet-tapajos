@@ -16,19 +16,24 @@ import { AppDispatch, RootState } from '@/hooks/store';
 import { debounce } from 'lodash';
 import { MetaTable } from '@/components/trade/meta-table';
 import { formatDateUTC } from '@/lib/utils';
-import { Escala, IEscala, Operador } from '@/types/Trade/ICampaign';
+
 import { IFilial } from '@/types/noPaper/Supplier/SupplierType';
+import { Operador } from '@/types/Trade/IOperator';
+import { Escala, IEscala } from '@/types/Trade/IEscala';
+import { ICampaign } from '@/types/Trade/ICampaign';
+import { IProduct } from '@/types/Trade/IProduct';
 
 const { Option } = Select;
 
 export default function CampaignRegistration() {
     const dispatch = useDispatch<AppDispatch>();
 
-    const { currentCampaign, operators, filiais } = useSelector(
+    const { currentCampaign, operators, filiais, products } = useSelector(
         (state: RootState) => state.trade
     );
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [operadores, setOperadores] = useState<Operador[]>([]);
+    
     const [marcaProdutos, setMarcaProdutos] = useState<
         Array<{ nome: string; codprod: string; descricao: string }>
     >([]);
@@ -99,7 +104,7 @@ export default function CampaignRegistration() {
     ) => {
         if (nome) {
             setMarcaProdutos([...marcaProdutos, { nome, codprod, descricao }]);
-            setProductName('');
+            setProductName(nome || '');
         } else {
             message.error('Preencha o nome antes de adicionar!');
         }
@@ -131,13 +136,14 @@ export default function CampaignRegistration() {
             message.error('Digite o nome para buscar!');
         }
     };
-
     const handleSearchProduto = useCallback(
         debounce((searchTerm: string) => {
+            console.log('searchTerm', searchTerm);
             if (searchTerm) {
                 const type =
                     tipoMarcaProduto === 'produto' ? 'produto' : 'marca';
                 dispatch(fetchProductsByType({ busca: searchTerm, type }));
+                
             } else {
                 message.error('Digite o nome para buscar!');
             }
@@ -187,7 +193,9 @@ export default function CampaignRegistration() {
         }
 
         try {
-            await dispatch(createCampaign(campaignData as any));
+            await dispatch(
+                createCampaign(campaignData as unknown as ICampaign)
+            );
             message.success('Campanha criada com sucesso!');
         } catch (error) {
             console.error('Erro ao criar campanha:', error);
@@ -317,8 +325,8 @@ export default function CampaignRegistration() {
                                     defaultActiveFirstOption={false}
                                     filterOption={false}
                                     onSearch={handleSearchOperador}
-                                    onSelect={(option: string) => {
-                                        setSelectedOperador(option);
+                                    onSelect={(_, option) => {
+                                        setSelectedOperador(option.nome);
                                     }}
                                     options={(operators || []).map(
                                         (operator: Operador) => ({
@@ -458,30 +466,22 @@ export default function CampaignRegistration() {
                                     defaultActiveFirstOption={false}
                                     filterOption={false}
                                     onSearch={handleSearchProduto}
-                                    //TODO  delete any
-                                    onSelect={(option: {
-                                        label: string;
-                                        value: string;
-                                        nome: string;
-                                    }) => {
+                                    onSelect={(_, option) => {
                                         handleAddMarcaProduto(
-                                            option.label,
-                                            option.value,
-                                            option.label
+                                            option.label as string,
+                                            option.value as string,
+                                            option.label as string
                                         );
                                     }}
-                                    // options={(products || []).map(
-                                    //     (product: IProduct) => ({
-                                    //         value:
-                                    //             tipoMarcaProduto === 'produto'
-                                    //                 ? product.codprod
-                                    //                 : product.codmarca,
-                                    //         label:
-                                    //             tipoMarcaProduto === 'produto'
-                                    //                 ? product.descricao
-                                    //                 : product.marca,
-                                    //         nome: product.nome,
-                                    // )}
+                                    options={(products || []).map(
+                                        
+                                        (product: any) => (
+                                            console.log('teste',products),
+                                            {
+                                            value: product.codmarca,
+                                            label: product.marca,
+                                        })
+                                    )}
                                 />
                             </div>
                             <Table
@@ -576,7 +576,7 @@ export default function CampaignRegistration() {
                                 }}
                             />
                         </div>
-                        {/* Submit Button */}
+
                         <div className="flex justify-end">
                             <Button
                                 className="bg-green-500 hover:bg-green-600"

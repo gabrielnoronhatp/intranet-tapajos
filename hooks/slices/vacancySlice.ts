@@ -25,6 +25,22 @@ export interface CandidateWithAnalysis {
     analise: CandidateAnalysis;
 }
 
+// Interface para todos os talentos
+export interface AllTalent {
+    id: string;
+    cpf: string;
+    nome_completo: string;
+    email: string;
+    telefone: string;
+    is_primeiraexperiencia: boolean;
+    is_disponivel: string;
+    file_perfil: string;
+    file_cv?: string;
+    is_analizado: boolean;
+    created_at?: string;
+    updated_at?: string;
+}
+
 interface VacancyState {
     vacancies: Vacancy[];
     loading: boolean;
@@ -36,6 +52,14 @@ interface VacancyState {
     departmentsLoading: boolean;
     positions: string[];
     positionsLoading: boolean;
+    allTalents: {
+        data: AllTalent[];
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
+        loading: boolean;
+    };
 }
 
 const initialState: VacancyState = {
@@ -49,6 +73,14 @@ const initialState: VacancyState = {
     departmentsLoading: false,
     positions: [],
     positionsLoading: false,
+    allTalents: {
+        data: [],
+        total: 0,
+        page: 1,
+        limit: 10,
+        totalPages: 0,
+        loading: false,
+    },
 };
 
 const API_URL = 'https://api.rh.grupotapajos.com.br';
@@ -393,6 +425,63 @@ export const fetchDepartments = createAsyncThunk(
     }
 );
 
+
+export const fetchAllTalents = createAsyncThunk(
+    'vacancy/fetchAllTalents',
+    async ({ page, limit }: { page: number; limit: number }, { getState, rejectWithValue }) => {
+        try {
+            const { auth } = getState() as {
+                auth: { accessToken: string | null };
+            };
+
+            if (!auth.accessToken) {
+                return rejectWithValue('Token de autenticação não encontrado');
+            }
+
+            const response = await axios.get(
+                `${API_URL}/talentos/all/${page}/${limit}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${auth.accessToken}`,
+                    },
+                }
+            );
+
+            // Mapear cada candidato para o formato esperado de CandidateWithAnalysis
+            const mappedItems = response.data.map((talent: AllTalent) => ({
+                candidate: {
+                    id: talent.id,
+                    cpf: talent.cpf,
+                    nome_completo: talent.nome_completo,
+                    email: talent.email,
+                    telefone: talent.telefone,
+                    is_primeiraexperiencia: talent.is_primeiraexperiencia,
+                    is_disponivel: talent.is_disponivel,
+                    file_perfil: talent.file_perfil,
+                    file_cv: talent.file_cv,
+                    is_analizado: talent.is_analizado
+                },
+                analise: {
+                    score: 0,
+                    cv_resumo: "Análise não disponível" 
+                }
+            }));
+            console.log(mappedItems)
+            return {
+                ...response.data,
+                items: mappedItems
+            };
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(
+                    error.response?.data?.message || 'Erro ao buscar todos os talentos'
+                );
+            }
+            return rejectWithValue('Erro desconhecido ao buscar todos os talentos');
+        }
+    }
+);
+
 const vacancySlice = createSlice({
     name: 'vacancy',
     initialState,
@@ -521,6 +610,24 @@ const vacancySlice = createSlice({
         builder.addCase(fetchDepartments.rejected, (state, action) => {
             state.departmentsLoading = false;
             state.positionsLoading = false;
+            state.error = action.payload as string;
+        });
+
+        // Fetch all talents
+        builder.addCase(fetchAllTalents.pending, (state) => {
+            state.allTalents.loading = true;
+            state.error = null;
+        });
+        builder.addCase(fetchAllTalents.fulfilled, (state, action) => {
+            state.allTalents.loading = false;
+            state.allTalents.data = action.payload.items;
+            state.allTalents.total = action.payload.total;
+            state.allTalents.page = action.payload.page;
+            state.allTalents.limit = action.payload.limit;
+            state.allTalents.totalPages = action.payload.totalPages;
+        });
+        builder.addCase(fetchAllTalents.rejected, (state, action) => {
+            state.allTalents.loading = false;
             state.error = action.payload as string;
         });
     },

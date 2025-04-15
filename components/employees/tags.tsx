@@ -1,4 +1,5 @@
-import {  Tag } from 'antd';
+import { Tag } from 'antd';
+import { ReactNode } from 'react';
 
 export const tagColors = [
   'magenta',
@@ -15,14 +16,14 @@ export const tagColors = [
 ];
 
 interface CustomTagRenderProps {
-  label: string;
+  label: ReactNode;
   value: string;
   closable: boolean;
   onClose: () => void;
 }
 
-export  const CustomTagRender = (props: CustomTagRenderProps) => {
-  const { label,  closable, onClose } = props;
+export const CustomTagRender = (props: CustomTagRenderProps) => {
+  const { label, closable, onClose } = props;
   const labelStr = label ? String(label) : '';
   
   return (

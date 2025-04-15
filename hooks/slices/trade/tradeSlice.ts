@@ -1,13 +1,11 @@
 import { apiInstance } from '@/app/service/apiInstance';
 import { IFilial } from '@/types/noPaper/Supplier/SupplierType';
-import {
-    ICampaign,
-    IEscala,
-    IProduct,
-    IParticipants,
-    ICampaignItens,
-} from '@/types/Trade/ICampaign';
+import { IEscala } from '@/types/Trade/IEscala';
+import { IProduct } from '@/types/Trade/IProduct';
+import { IParticipants } from '@/types/Trade/IParticipants';
+import { ICampaign } from '@/types/Trade/ICampaign';
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import axios from 'axios';
 
 export const fetchCampaigns = createAsyncThunk(
     'trade/fetchCampaigns',
@@ -114,12 +112,12 @@ export const updateCampaign = createAsyncThunk(
             if (data.itens && data.itens.length > 0) {
                 const newItems = data.itens
                     .filter(
-                        (i: ICampaignItens) =>
+                        (i: IProduct) =>
                             !currentCampaign.itens.some(
-                                (ci: ICampaignItens) => ci.iditem === i.iditem
+                                (ci: IProduct) => ci.iditem === i.iditem
                             )
                     )
-                    .map((item: ICampaignItens) => {
+                    .map((item: IProduct) => {
                         return {
                             ...item,
                             iditem: item.iditem,
@@ -146,9 +144,10 @@ export const updateCampaign = createAsyncThunk(
             }, 1000);
 
             return response.data;
-        } catch (error: unknown) {
-            console.error('Erro ao atualizar campanha:', error);
-            return rejectWithValue(error.response?.data || error.message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data || error.message);
+            }
         }
     }
 );
@@ -181,9 +180,10 @@ export const createCampaignParticipants = createAsyncThunk(
             }
 
             return results;
-        } catch (error: unknown) {
-            console.error('Erro ao criar participantes:', error);
-            return rejectWithValue(error.response?.data || error.message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data || error.message);
+            }
         }
     }
 );
@@ -197,7 +197,6 @@ export const createCampaignItems = createAsyncThunk(
         try {
             const results = [];
 
-            // Para cada item, fazer uma requisição separada
             for (const item of items) {
                 const itemWithCampaignId = {
                     ...item,
@@ -213,9 +212,10 @@ export const createCampaignItems = createAsyncThunk(
             }
 
             return results;
-        } catch (error: unknown) {
-            console.error('Erro ao criar itens:', error);
-            return rejectWithValue(error.response?.data || error.message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data || error.message);
+            }
         }
     }
 );
@@ -280,9 +280,10 @@ export const createCampaign = createAsyncThunk(
             }, 1000);
 
             return response.data;
-        } catch (error: unknown) {
-            console.error('Erro ao criar campanha:', error);
-            return rejectWithValue(error.response?.data || error.message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data || error.message);
+            }
         }
     }
 );
@@ -350,14 +351,10 @@ export const fetchFiliais = createAsyncThunk('trade/fetchFiliais', async () => {
                 ? JSON.parse(response.data)
                 : response.data;
         return data;
-    } catch (error: unknown) {
-        if (error.response && error.response.status === 404) {
-            return console.error(
-                'Campanha não encontrada:',
-                error.response.data
-            );
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            throw error;
         }
-        throw error;
     }
 });
 
@@ -367,11 +364,11 @@ export const deactivateCampaign = createAsyncThunk(
         try {
             const response = await apiInstance.delete(`/campanhas/${id}`);
             return response.data;
-        } catch (error: unknown) {
-            if (error.response && error.response.status === 404) {
-                console.error('Campanha não encontrada:', error.response.data);
-                return rejectWithValue(error.response.data);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data || error.message);
             }
+
             throw error;
         }
     }
@@ -387,11 +384,9 @@ export const fetchProductsByType = createAsyncThunk(
             const endpoint =
                 type === 'produto' ? '/busca_produtos' : '/busca_marcas';
             const response = await apiInstance.post(endpoint, { busca });
-            const data =
-                typeof response.data === 'string'
-                    ? JSON.parse(response.data)
-                    : response.data;
+            const data = JSON.parse(response.data);
 
+            console.log('data produtos', data);
             return data;
         } catch (error) {
             console.error(`Error fetching ${type}s:`, error);
@@ -447,9 +442,11 @@ export const sendMetaTable = createAsyncThunk(
             }
 
             return response.data;
-        } catch (error: unknown) {
-            console.error('Error sending meta table:', error);
-            return rejectWithValue(error.response?.data || error.message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data || error.message);
+            }
+            throw error;
         }
     }
 );
@@ -461,9 +458,11 @@ export const deleteParticipant = createAsyncThunk(
             await apiInstance.delete(`/participantes/${participantId}`);
 
             return participantId;
-        } catch (error: unknown) {
-            console.error('Erro ao remover participante:', error);
-            return rejectWithValue(error.response?.data || error.message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data || error.message);
+            }
+            throw error;
         }
     }
 );
@@ -475,9 +474,11 @@ export const deleteItem = createAsyncThunk(
             const response = await apiInstance.delete(`/itens/${itemId}`);
             console.log('', response.data);
             return itemId;
-        } catch (error: unknown) {
-            console.error('Erro ao remover item:', error);
-            return rejectWithValue(error.response?.data || error.message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data || error.message);
+            }
+            throw error;
         }
     }
 );
@@ -498,9 +499,11 @@ export const deleteParticipantFromCampaign = createAsyncThunk(
             console.log('', response.data);
 
             return { campaignId, participantId };
-        } catch (error: unknown) {
-            console.error('Erro ao remover participante:', error);
-            return rejectWithValue(error.response?.data || error.message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data || error.message);
+            }
+            throw error;
         }
     }
 );
@@ -517,9 +520,11 @@ export const deleteItemFromCampaign = createAsyncThunk(
             );
             console.log('', response.data);
             return { campaignId, id };
-        } catch (error: unknown) {
-            console.error('Erro ao remover item:', error);
-            return rejectWithValue(error.response?.data || error.message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data || error.message);
+            }
+            throw error;
         }
     }
 );
@@ -530,9 +535,11 @@ export const cloneCampaign = createAsyncThunk(
         try {
             const response = await apiInstance.get(`/campanhas_clone/${id}`);
             return response.data;
-        } catch (error: unknown) {
-            console.error('Erro ao duplicar campanha:', error);
-            return rejectWithValue(error.response?.data || error.message);
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data || error.message);
+            }
+            throw error;
         }
     }
 );

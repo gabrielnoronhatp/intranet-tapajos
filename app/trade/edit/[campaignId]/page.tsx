@@ -20,14 +20,13 @@ import { useParams } from 'next/navigation';
 import { MetaTable } from '@/components/trade/meta-table';
 import { formatDate } from '@/lib/utils';
 import { formatDateUTC } from '@/lib/utils';
-import {
-    IParticipants,
-    IEscala,
-    IValorMeta,
-    IProduct,
-    ICampaign,
-} from '@/types/Trade/ICampaign';
+import { IValorMeta, ICampaign } from '@/types/Trade/ICampaign';
+
 import { IFilial } from '@/types/noPaper/Supplier/SupplierType';
+import { IOperator } from '@/types/Trade/IOperator';
+import { IProduct } from '@/types/Trade/IProduct';
+import { IParticipants } from '@/types/Trade/IParticipants';
+import { IEscala } from '@/types/Trade/IEscala';
 
 const { Option } = Select;
 
@@ -110,7 +109,8 @@ export default function CampaignEdit() {
                 }
 
                 const outrasLinhas = escalaData.filter(
-                    (item: IEscala) => item.linha !== '' && item.linha !== undefined
+                    (item: IEscala) =>
+                        item.linha !== '' && item.linha !== undefined
                 );
                 metaGeralRange = outrasLinhas
                     .map((item: IEscala) => item.linha)
@@ -618,7 +618,10 @@ export default function CampaignEdit() {
                                     defaultActiveFirstOption={false}
                                     filterOption={false}
                                     onSearch={handleSearchProduto}
-                                    onSelect={(value: string, option: any) => {
+                                    onSelect={(
+                                        value: string,
+                                        option: IProduct
+                                    ) => {
                                         handleAddMarcaProduto(
                                             option.label,
                                             option.value,
@@ -725,11 +728,18 @@ export default function CampaignEdit() {
                             <MetaTable
                                 isEditing={true}
                                 campaignId={campaignId}
-                                escala={escalaProcessada && {
-                                    metaGeralRange: escalaProcessada.metaGeralRange || [],
-                                    metaVendedorRange: escalaProcessada.metaVendedorRange || [],
-                                    valoresMeta: escalaProcessada.valoresMeta || []
-                                }}
+                                escala={
+                                    escalaProcessada && {
+                                        metaGeralRange:
+                                            escalaProcessada.metaGeralRange ||
+                                            [],
+                                        metaVendedorRange:
+                                            escalaProcessada.metaVendedorRange ||
+                                            [],
+                                        valoresMeta:
+                                            escalaProcessada.valoresMeta || [],
+                                    }
+                                }
                                 onEscalaSubmit={handleEscalaSubmit}
                             />
                         </div>

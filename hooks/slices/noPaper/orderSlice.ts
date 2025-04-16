@@ -2,16 +2,14 @@ import { createSlice, createAsyncThunk} from '@reduxjs/toolkit';
 import { api } from '@/app/service/api';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
-
 import { CentroCusto } from '@/types/noPaper/Order/CentroCustoType';
 import { OrderData } from '@/types/noPaper/Order/OrderData';
 import { Item } from '@/types/noPaper/Order/ItemOrder';
 import { Parcela } from '@/types/noPaper/Order/Parcela';
 
-
-const initialState: any  = {
+const initialState  = {
     id: '',
-    dtlanc: '',
+    dtlanc: null as string | null ,
     ramoOP: '',
     notaOP: '',
     qtparcelasOP: 0,
@@ -22,20 +20,20 @@ const initialState: any  = {
     metodoOP: '',
     qtitensOP: 0,
     valorimpostoOP: 0,
-    dtavistaOP: '',
-    dataVencimentoOP: '',
+    dtavistaOP: null,
+    dataVencimentoOP: null,
     bancoOP: '',
     agenciaOP: '',
     contaOP: '',
-    dtdepositoOP: '',
+    dtdepositoOP: null,
     parcelasOP: [
         {
-            parcela: '',
+            parcela: null,
             banco: '',
             agencia: '',
             conta: '',
-            tipopix: '',
-            chavepix: '',
+            tipopix: null,
+            chavepix: null,
         },
     ],
     produtosOP: [
@@ -48,10 +46,10 @@ const initialState: any  = {
             centrocusto: [] ,
         },
     ],
-    observacaoOP: '',
-    tipopixOP: '',
-    chavepixOP: '',
-    datapixOP: '',
+    observacaoOP: null,
+    tipopixOP: null,
+    chavepixOP: null,
+    datapixOP: null,
     opcaoLancOP: '',
     ccustoOP: [
         {
@@ -117,67 +115,58 @@ const orderSlice = createSlice({
     initialState,
     reducers: {
         prepareOrderData: (state, action) => {
-            const { itens, centrosCusto, valorImposto, ...rest } =
-                action.payload;
-            const produtosOP = itens.map((item: Item) => {
-                const centroCustoFormatado = centrosCusto.map(
-                    (cc: CentroCusto) => ({
-                        centrocusto: cc.centrocusto,
-                        valor: cc.valor,
-                    })
-                );
-
-                return {
-                    produto: item.produto,
-                    valor: item.valor,
-                    centroCusto: centroCustoFormatado,
-                };
-            });
-
-            state = {
-                id: '',
-                dtlanc: format(rest.dtlanc, 'yyyy-MM-dd'),
-                ramoOP: rest.ramo || null,
-                notaOP: rest.notaFiscal || null,
-                qtparcelasOP: rest.installments || null,
-                contagerencialOP: rest.contaOP || null,
-                fornecedorOP: rest.fornecedorOP || null,
-                lojaOP: rest.lojaOP || null,
-                serieOP: rest.serie || null,
-                metodoOP: rest.formaPagamento || null,
-                qtitensOP: rest.quantidadeProdutos || null,
-                valorimpostoOP: valorImposto || 0,
-                dtavistaOP: rest.dtavista || null,
-                bancoOP: rest.banco || null,
-                agenciaOP: rest.agencia || null,
-                contaOP: rest.conta || null,
-                dtdepositoOP: rest.dtdeposito || null,
-                parcelasOP:
-                    rest.parcelasOP?.length > 0
-                        ? rest.parcelasOP.map((parcela: Parcela) => ({
-                              parcela: parcela.parcela || null,
-                              banco: parcela.banco || '',
-                              agencia: parcela.agencia || '',
-                              conta: parcela.conta || '',
-                              tipopix: parcela.tipopix || '',
-                              chavepix: parcela.chavepix || '',
-                          }))
-                        : [],
-                produtosOP: produtosOP,
-                observacaoOP: rest.observacao || null,
-                tipopixOP: rest.tipopix || null,
-                chavepixOP: rest.chavepix || null,
-                datapixOP: rest.datapix || null,
-                opcaoLancOP: rest.tipoLancamento || null,
-                ccustoOP: centrosCusto.map((centro: CentroCusto) => ({
-                    centrocusto: centro.centrocusto,
-                    valor: centro.valor,
+            const { itens, centrosCusto, valorImposto, ...rest } = action.payload;
+            const produtosOP = itens.map((item: Item) => ({
+                produto: item.produto,
+                valor: item.valor,
+                centroCusto: centrosCusto.map((cc: CentroCusto) => ({
+                    centrocusto: cc.centrocusto,
+                    valor: cc.valor,
                 })),
-                userOP: rest.user || null,
-                dataVencimentoOP: rest.dataVencimentoOP || null,
-                canceled: false,
-                files: rest.files || [],
-            };
+            }));
+
+            state.id = '';
+            state.dtlanc = rest.dtlanc ? format(rest.dtlanc, 'yyyy-MM-dd') : null;
+            state.ramoOP = rest.ramo || null;
+            state.notaOP = rest.notaFiscal || null;
+            state.qtparcelasOP = rest.installments || null;
+            state.contagerencialOP = rest.contaOP || null;
+            state.fornecedorOP = rest.fornecedorOP || null;
+            state.lojaOP = rest.lojaOP || null;
+            state.serieOP = rest.serie || null;
+            state.metodoOP = rest.formaPagamento || null;
+            state.qtitensOP = rest.quantidadeProdutos || null;
+            state.valorimpostoOP = valorImposto || 0;
+            state.dtavistaOP = rest.dtavista || null;
+            state.bancoOP = rest.banco || null;
+            state.agenciaOP = rest.agencia || null;
+            state.contaOP = rest.conta || null;
+            state.dtdepositoOP = rest.dtdeposito || null;
+            state.parcelasOP =
+                rest.parcelasOP?.length > 0
+                    ? rest.parcelasOP.map((parcela: Parcela) => ({
+                          parcela: parcela.parcela || null,
+                          banco: parcela.banco || null,
+                          agencia: parcela.agencia || null,
+                          conta: parcela.conta || null,
+                          tipopix: parcela.tipopix || null,
+                          chavepix: parcela.chavepix || null,
+                      }))
+                    : [];
+            state.produtosOP = produtosOP;
+            state.observacaoOP = rest.observacao || null;
+            state.tipopixOP = rest.tipopix || null;
+            state.chavepixOP = rest.chavepix || null;
+            state.datapixOP = rest.datapix || null;
+            state.opcaoLancOP = rest.tipoLancamento || null;
+            state.ccustoOP = centrosCusto.map((centro: CentroCusto) => ({
+                centrocusto: centro.centrocusto,
+                valor: centro.valor,
+            }));
+            state.userOP = rest.user || null;
+            state.dataVencimentoOP = rest.dataVencimentoOP || null;
+            state.canceled = false;
+            state.files = rest.files || [];
         },
         setOrderState: (state, action) => {
             const { ccustoOP, produtosOP, ...otherFields } = action.payload;

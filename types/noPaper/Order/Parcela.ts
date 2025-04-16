@@ -1,8 +1,8 @@
 export interface Parcela {
-    parcela: string;
-    banco: string;
-    agencia: string;
-    conta: string;
-    tipopix: string;
-    chavepix: string;
+    parcela: string | null;
+    banco: string | null;
+    agencia: string | null;
+    conta: string | null;
+    tipopix: string | null;
+    chavepix: string | null;
 }

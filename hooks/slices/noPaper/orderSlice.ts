@@ -11,7 +11,7 @@ import { Parcela } from '@/types/noPaper/Order/Parcela';
 
 const initialState: any  = {
     id: '',
-    dtlanc: '',
+    dtlanc: null,
     ramoOP: '',
     notaOP: '',
     qtparcelasOP: 0,
@@ -22,20 +22,20 @@ const initialState: any  = {
     metodoOP: '',
     qtitensOP: 0,
     valorimpostoOP: 0,
-    dtavistaOP: '',
-    dataVencimentoOP: '',
+    dtavistaOP: null,
+    dataVencimentoOP: null,
     bancoOP: '',
     agenciaOP: '',
     contaOP: '',
-    dtdepositoOP: '',
+    dtdepositoOP: null,
     parcelasOP: [
         {
-            parcela: '',
+            parcela: null,
             banco: '',
             agencia: '',
             conta: '',
-            tipopix: '',
-            chavepix: '',
+            tipopix: null,
+            chavepix: null,
         },
     ],
     produtosOP: [
@@ -48,10 +48,10 @@ const initialState: any  = {
             centrocusto: [] ,
         },
     ],
-    observacaoOP: '',
-    tipopixOP: '',
-    chavepixOP: '',
-    datapixOP: '',
+    observacaoOP: null,
+    tipopixOP: null,
+    chavepixOP: null,
+    datapixOP: null,
     opcaoLancOP: '',
     ccustoOP: [
         {
@@ -136,7 +136,7 @@ const orderSlice = createSlice({
 
             state = {
                 id: '',
-                dtlanc: format(rest.dtlanc, 'yyyy-MM-dd'),
+                dtlanc: rest.dtlanc ? format(rest.dtlanc, 'yyyy-MM-dd') : null,
                 ramoOP: rest.ramo || null,
                 notaOP: rest.notaFiscal || null,
                 qtparcelasOP: rest.installments || null,
@@ -156,11 +156,11 @@ const orderSlice = createSlice({
                     rest.parcelasOP?.length > 0
                         ? rest.parcelasOP.map((parcela: Parcela) => ({
                               parcela: parcela.parcela || null,
-                              banco: parcela.banco || '',
-                              agencia: parcela.agencia || '',
-                              conta: parcela.conta || '',
-                              tipopix: parcela.tipopix || '',
-                              chavepix: parcela.chavepix || '',
+                              banco: parcela.banco || null,
+                              agencia: parcela.agencia || null,
+                              conta: parcela.conta || null,
+                              tipopix: parcela.tipopix || null,
+                              chavepix: parcela.chavepix || null,
                           }))
                         : [],
                 produtosOP: produtosOP,

@@ -115,7 +115,7 @@ export default function CenterOfCoust({ data, onChange }: CenterOfCoustProps) {
                         .filter(
                             (_, idx) => idx !== index && idx !== numCenters - 1
                         )
-                        .reduce((sum, _) => sum + valorPorOutro, 0);
+                        .reduce((sum) => sum + valorPorOutro, 0);
                     return {
                         ...centro,
                         valor: Number(

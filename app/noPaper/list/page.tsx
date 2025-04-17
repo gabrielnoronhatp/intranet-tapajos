@@ -33,7 +33,7 @@ export default function NoPaperList() {
     };
 
     const handleDateRangeChange = (
-        dates: any, // Can't remove  this type
+        dates: any, 
         dateStrings: [string, string]
     ) => {
         if (dates && dates[0] && dates[1]) {

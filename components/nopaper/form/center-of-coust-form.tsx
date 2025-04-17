@@ -1,7 +1,6 @@
 'use client';
-import React from 'react';
-import {  useSelector } from 'react-redux';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import { FormSection } from '../form-section';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,22 +8,28 @@ import { RootState } from '@/hooks/store';
 import { Select } from 'antd';
 import { NumericFormat } from 'react-number-format';
 import { OrderState } from '@/types/noPaper/Order/OrderState';
-import { CentroCusto } from '@/types/noPaper/Order/CentroCustoType';
 import { Item } from '@/types/noPaper/Order/ItemOrder';
 import { OrderData } from '@/types/noPaper/Order/OrderData';
+
 interface CenterOfCoustProps {
     data: OrderData;
-    onChange: (field: keyof OrderState, value: string | number) => void;
+    onChange: (
+        field: keyof OrderState,
+        value: OrderState[keyof OrderState]
+    ) => void;
 }
 
 export default function CenterOfCoust({ data, onChange }: CenterOfCoustProps) {
-    
     const { ccustoOP, produtosOP, valorimpostoOP } = data;
     const { centrosCustoOptions } = useSelector(
         (state: RootState) => state.noPaper
     );
 
-    const [numCenters, setNumCenters] = useState(ccustoOP.length || 1);
+    const [numCenters, setNumCenters] = useState(() => {
+        return Array.isArray(ccustoOP) && ccustoOP.length > 0
+            ? ccustoOP.length
+            : 1;
+    });
 
     const calculateTotalValue = () => {
         const totalProdutos = produtosOP.reduce(
@@ -34,27 +39,40 @@ export default function CenterOfCoust({ data, onChange }: CenterOfCoustProps) {
         return totalProdutos - (Number(valorimpostoOP) || 0);
     };
 
-    const updateCenterValues = () => {
+    const distributeValues = () => {
         const totalValue = calculateTotalValue();
-        const valuePerCenter = totalValue / numCenters;
+        const valorPorCenter = Number((totalValue / numCenters).toFixed(2));
 
-        const updatedCenters = Array.from(
+        const newCenters = Array.from(
             { length: numCenters },
-            (_, index) => ({
-                centrocusto: ccustoOP[index]?.centrocusto || '',
-                valor: valuePerCenter,
-            })
+            (_, index): { centrocusto: string; valor: number } => {
+                const centroExistente =
+                    index < ccustoOP.length ? ccustoOP[index] : null;
+
+                if (index === numCenters - 1) {
+                    const somaAnteriores = valorPorCenter * (numCenters - 1);
+                    const valorUltimo = Number(
+                        (totalValue - somaAnteriores).toFixed(2)
+                    );
+                    return {
+                        centrocusto: centroExistente?.centrocusto || '',
+                        valor: valorUltimo,
+                    };
+                }
+
+                return {
+                    centrocusto: centroExistente?.centrocusto || '',
+                    valor: valorPorCenter,
+                };
+            }
         );
 
-        onChange('ccustoOP', updatedCenters);
+        onChange('ccustoOP', newCenters);
     };
-
-    useEffect(() => {
-        updateCenterValues();
-    }, [numCenters, produtosOP, valorimpostoOP]);
 
     const handleNumCentersChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newNumCenters = Math.max(1, parseInt(e.target.value) || 1);
+
         setNumCenters(newNumCenters);
     };
 
@@ -63,39 +81,81 @@ export default function CenterOfCoust({ data, onChange }: CenterOfCoustProps) {
         field: 'centrocusto' | 'valor',
         value: string | number
     ) => {
-        let updatedCenters:any = [...ccustoOP];
+        const updatedCenters = Array.isArray(ccustoOP) ? [...ccustoOP] : [];
 
-        if (field === 'valor') {
-            const totalValue = calculateTotalValue();
-            const remaining = totalValue - Number(value);
-            const otherCenters = numCenters - 1;
-
-            if (otherCenters > 0) {
-                const valueForOthers = remaining / otherCenters;
-
-                updatedCenters = updatedCenters.map(
-                    (center: CentroCusto, i: number) => {
-                        if (i === index) {
-                            return {
-                                ...center,
-                                valor: Number(value),
-                            };
-                        }
-                        return {
-                            ...center,
-                            valor: valueForOthers,
-                        };
-                    }
-                );
-            }
-        } else {
-            updatedCenters = updatedCenters.map((center: CentroCusto, i: number) =>
-                i === index ? { ...center, [field]: value } : center
-            );
+        while (updatedCenters.length < numCenters) {
+            updatedCenters.push({ centrocusto: '', valor: 0 });
         }
 
-        onChange('ccustoOP', updatedCenters as any);
+        if (field === 'valor') {
+            const novoValor = Number(value);
+            const totalValue = calculateTotalValue();
+
+            if (numCenters === 1) {
+                updatedCenters[0] = {
+                    ...updatedCenters[0],
+                    valor: totalValue,
+                };
+                onChange('ccustoOP', updatedCenters);
+                return;
+            }
+
+            const valorRestante = totalValue - novoValor;
+            const valorPorOutro = Number(
+                (valorRestante / (numCenters - 1)).toFixed(2)
+            );
+
+            const newCenters = updatedCenters.map((centro, i) => {
+                if (i === index) {
+                    return { ...centro, valor: novoValor };
+                }
+
+                if (i === numCenters - 1 && i !== index) {
+                    const somaOutros = updatedCenters
+                        .filter(
+                            (_, idx) => idx !== index && idx !== numCenters - 1
+                        )
+                        .reduce((sum, _) => sum + valorPorOutro, 0);
+                    return {
+                        ...centro,
+                        valor: Number(
+                            (totalValue - novoValor - somaOutros).toFixed(2)
+                        ),
+                    };
+                }
+
+                return { ...centro, valor: valorPorOutro };
+            });
+
+            onChange('ccustoOP', newCenters);
+        } else {
+            updatedCenters[index] = {
+                ...updatedCenters[index],
+                centrocusto: String(value),
+            };
+            onChange('ccustoOP', updatedCenters);
+        }
     };
+
+    useEffect(() => {
+        distributeValues();
+    }, [numCenters]);
+
+    useEffect(() => {
+        if (produtosOP && produtosOP.length > 0) {
+            distributeValues();
+        }
+    }, [produtosOP, valorimpostoOP]);
+
+    useEffect(() => {
+        if (
+            Array.isArray(ccustoOP) &&
+            ccustoOP.length > 0 &&
+            ccustoOP.length !== numCenters
+        ) {
+            setNumCenters(ccustoOP.length);
+        }
+    }, [data]);
 
     return (
         <FormSection title="Centro de Custo">
@@ -120,12 +180,12 @@ export default function CenterOfCoust({ data, onChange }: CenterOfCoustProps) {
                         </Label>
                         <Select
                             showSearch
-                            className={`w-full ${!ccustoOP[index]?.centrocusto ? 'border-red-500' : ''}`}
-                            value={ccustoOP[index]?.centrocusto || undefined}
+                            className={`w-full ${!ccustoOP?.[index]?.centrocusto ? 'border-red-500' : ''}`}
+                            value={ccustoOP?.[index]?.centrocusto || ''}
                             onChange={(value) =>
                                 handleCenterChange(index, 'centrocusto', value)
                             }
-                            options={centrosCustoOptions.map((option: any) => ({
+                            options={centrosCustoOptions.map((option) => ({
                                 value: option.centrocusto,
                                 label: option.centrocusto,
                             }))}
@@ -133,18 +193,18 @@ export default function CenterOfCoust({ data, onChange }: CenterOfCoustProps) {
 
                         <Input
                             type="number"
-                            value={ccustoOP[index]?.valor || 0}
-                            onChange={(e) => {
+                            value={ccustoOP?.[index]?.valor || 0}
+                            onChange={(e) =>
                                 handleCenterChange(
                                     index,
                                     'valor',
                                     e.target.value
-                                );
-                            }}
+                                )
+                            }
                             className="form-control w-full p-2 border rounded"
                             prefix="R$ "
                         />
-                        {ccustoOP[index]?.valor < 0 && (
+                        {ccustoOP?.[index]?.valor < 0 && (
                             <p className="text-red-500 text-xs">
                                 Valor não pode ser negativo.
                             </p>

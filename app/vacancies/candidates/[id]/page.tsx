@@ -58,7 +58,6 @@ export default function VacancyCandidatesPage() {
             dispatch(fetchVacancyById(id as string));
             dispatch(fetchVacancyCandidates(id as string));
         }
-       
     }, [dispatch, id]);
 
     const showCandidateDetails = (candidate: ICandidate) => {
@@ -295,7 +294,7 @@ export default function VacancyCandidatesPage() {
                                         ) : candidates &&
                                           candidates.length > 0 ? (
                                             <Table
-                                            //TODO REMOVE THIS ANY 
+                                                //TODO REMOVE THIS ANY
                                                 columns={columns as any}
                                                 dataSource={candidates}
                                                 rowKey={(record) =>

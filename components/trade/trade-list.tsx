@@ -73,8 +73,10 @@ export function TableTrade() {
         dispatch(fetchCampaigns());
     };
 
-    const handleEditCampaign = (id: string) => {
-        router.push(`/trade/edit/${id}`);
+    const handleEditCampaign = (id: string | undefined) => {
+        if (id) {
+            router.push(`/trade/edit/${id}`);
+        }
     };
     const { campaigns, currentCampaign } = useSelector(
         (state: RootState) => state.trade || {}
@@ -272,7 +274,7 @@ export function TableTrade() {
     };
 
     const showDeleteConfirm = (id: string) => {
-            const campaign = campaigns.find((c: any) => c.id === id);
+        const campaign = campaigns?.find((c: ICampaign) => c.id === id);
         if (campaign && campaign.status === 'false') {
             message.warning('Esta campanha já está desativada.');
             return;
@@ -323,13 +325,13 @@ export function TableTrade() {
         {
             title: 'Ações',
             key: 'acoes',
-            render: (record: any) => (
+            render: (record: ICampaign) => (
                 <div className="flex items-center space-x-2">
-                    {record.status !== false && (
+                    {record?.status !== false && (
                         <>
                             <Eye
                                 color="green"
-                                onClick={() => handleViewCampaign(record.id)}
+                                onClick={() => handleViewCampaign(record?.id)}
                                 className="cursor-pointer hover:scale-110 transition-transform"
                             />
                             <Edit

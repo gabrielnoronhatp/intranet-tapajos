@@ -2,15 +2,12 @@
 import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useDispatch, useSelector } from 'react-redux';
-import {
-    setFieldError,
-    clearFieldError,
-} from '@/hooks/slices/noPaper/errorSlice';
 import { RootState } from '@/hooks/store';
 import { SelectField } from '@/components/nopaper/select-field';
 import { FormSection } from '@/components/nopaper/form-section';
 import { setCurrentContract } from '@/hooks/slices/contracts/contractSlice';
+import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 export default function FinancialData() {
     const dispatch = useDispatch();
@@ -21,7 +18,7 @@ export default function FinancialData() {
         } else {
             dispatch(setCurrentContract({ [field]: value }));
         }
-        validateField(field as string, value);
+      
     };
 
     const [dtavista] = useState<string>('');
@@ -30,13 +27,7 @@ export default function FinancialData() {
         (state: RootState) => state.contracts.currentContract
     );
 
-    const validateField = (field: any, value: string) => {
-        if (!value || (typeof value === 'string' && !value.trim())) {
-            dispatch(setFieldError({ field, message: `O campo ${field} é obrigatório` } as any));
-        } else {
-            dispatch(clearFieldError(field));
-        }
-    };
+   
 
     const handleFormaPagamentoChange = (value: string) => {
         handleSetState('forma_pag', value);

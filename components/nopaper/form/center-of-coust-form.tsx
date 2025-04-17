@@ -46,7 +46,7 @@ export default function CenterOfCoust({ data, onChange }: CenterOfCoustProps) {
             })
         );
 
-        onChange('ccustoOP', updatedCenters as any);
+        onChange('ccustoOP', updatedCenters);
     };
 
     useEffect(() => {

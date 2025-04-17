@@ -5,27 +5,27 @@ import { IParticipants } from './IParticipants';
 import { IProduct } from './IProduct';
 
 export interface ICampaign {
-    id: number;
-    idcampanha_distribuicao: number; 
-    idempresa: number;
-    nome: string;
-    datainicial: string;
-    datafinal: string;
-    valor_total: number;
-    meta_valor: number;
-    userlanc: string;
-    tipo_meta: string;
-    datalanc: string;
-    status: string;
-    operators: Operador[];
-    campaigns: ICampaign[];
-    products: IProduct[];
+    id?: number | string | undefined ;
+    idcampanha_distribuicao?: number; 
+    idempresa?: number;
+    nome?: string;
+    datainicial?: string;
+    datafinal?: string;
+    valor_total?: number;
+    meta_valor?: number;
+    userlanc?: string;
+    tipo_meta?: string;
+    datalanc?: string;
+    status?: string | boolean;
+    operators?: Operador[];
+    campaigns?: Array<ICampaign> | null;
+    products?: IProduct[];
     currentCampaign?: ICampaign;
-    campanha: ICampaign;
-    filiais: IFilial[];
-    participantes: IParticipants[];
-    escala: IEscala[];
-    itens: IProduct[] ;
+    campanha?: ICampaign;
+    filiais?: IFilial[];
+    participantes?: IParticipants[];
+    escala?: IEscala[];
+    itens?: IProduct[] ;
 }
 
 

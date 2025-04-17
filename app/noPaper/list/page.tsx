@@ -10,7 +10,6 @@ import { useState, useEffect } from 'react';
 import dayjs  from 'dayjs';
 import { api } from '@/app/service/api';
 import { OrderState } from '@/types/noPaper/Order/OrderState';
-import dynamic from 'next/dynamic';
 import { DatePicker } from 'antd';
 
 export default function NoPaperList() {

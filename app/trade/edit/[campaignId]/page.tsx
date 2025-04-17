@@ -114,7 +114,7 @@ export default function CampaignEdit() {
                 );
                 metaGeralRange = outrasLinhas
                     .map((item: IEscala) => item.linha)
-                    .filter((linha:any): linha is string => linha !== undefined);
+                    .filter((linha: string): linha is string => linha !== undefined);
 
                 valoresMeta = [];
                 outrasLinhas.forEach((linha: IEscala, idxLinha: number) => {
@@ -157,8 +157,8 @@ export default function CampaignEdit() {
         if (selectedOperador && meta_valor && premiacao) {
             const operatorFound =
                 tipoOperador === 'teleoperador'
-                    ? operators.find((op:any) => op.nome === selectedOperador)
-                    : operators.find((op:any) => op.nome === selectedOperador);
+                    ? operators.find((op: Operador) => op.nome === selectedOperador)
+                    : operators.find((op: Operador) => op.nome === selectedOperador);
 
             if (!operatorFound) {
                 message.error('Operador não encontrado!');
@@ -477,9 +477,6 @@ export default function CampaignEdit() {
                                     defaultActiveFirstOption={false}
                                     filterOption={false}
                                     onSearch={handleSearchOperador}
-                                    // onSelect={(value: string, option: any) => {
-                                    //     setSelectedOperador(option.label);
-                                    // }}
                                     options={operators?.map(
                                         (operator: Operador) => ({
                                             value:
@@ -643,7 +640,7 @@ export default function CampaignEdit() {
                                                     : product.marca,
                                             codprod: product.codprod,
                                             descricao: product.descricao,
-                                        } as any)
+                                        } as IProduct)
                                     )}
                                 />
                             </div>

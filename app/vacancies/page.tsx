@@ -17,6 +17,7 @@ import {
     Image,
     Tabs,
     Pagination,
+    UploadFile,
 } from 'antd';
 
 import { Upload as AntdUpload } from 'antd';
@@ -42,7 +43,30 @@ import { useRouter } from 'next/navigation';
 import { Users } from 'lucide-react';
 import { CustomTagRender } from '@/components/employees/tags';
 import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
-import { ICandidate } from '@/types/vacancy/ICandidate';
+
+interface TalentCandidate {
+    id: string;
+    cpf: string;
+    nome_completo: string;
+    email: string;
+    telefone: string;
+    is_primeiraexperiencia: boolean;
+    is_disponivel: string;
+    file_perfil: string;
+    file_cv?: string;
+    is_analizado: boolean;
+}
+
+
+interface TalentAnalysis {
+    score: number | string;
+    cv_resumo: string;
+}
+
+interface TalentData {
+    candidate: TalentCandidate;
+    analise: TalentAnalysis;
+}
 
 const { TabPane } = Tabs;
 
@@ -65,10 +89,12 @@ export default function VacanciesPage() {
         null
     );
     const [form] = Form.useForm();
-    const [fileList, setFileList] = useState<any[]>([]);
+    const [fileList, setFileList] = useState<UploadFile<unknown>[]>([]);
     const [editingId, setEditingId] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const [searchText, setSearchText] = useState('');
+    const [filteredTalents, setFilteredTalents] = useState<TalentData[]>([]);
 
     useEffect(() => {
         dispatch(fetchVacancies());
@@ -81,6 +107,24 @@ export default function VacanciesPage() {
             message.error(error);
         }
     }, [error]);
+
+    useEffect(() => {
+        if (allTalents.data.length > 0) {
+            const filtered = allTalents.data.filter((talent: TalentData) => {
+                const nome = talent.candidate?.nome_completo?.toLowerCase() || '';
+                const email = talent.candidate?.email?.toLowerCase() || '';
+                const cpf = talent.candidate?.cpf?.toLowerCase() || '';
+                const searchLower = searchText.toLowerCase();
+                
+                return nome.includes(searchLower) || 
+                       email.includes(searchLower) || 
+                       cpf.includes(searchLower);
+            });
+            setFilteredTalents(filtered);
+        } else {
+            setFilteredTalents([]);
+        }
+    }, [allTalents.data, searchText]);
 
     const showViewModal = (record: Vacancy) => {
         setSelectedVacancy(record);
@@ -331,14 +375,18 @@ export default function VacanciesPage() {
         if (pageSize) setPageSize(pageSize);
     };
 
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchText(e.target.value);
+    };
+
     const talentsColumns = [
         {
             title: 'Nome',
             dataIndex: ['candidate', 'nome_completo'],
             key: 'nome_completo',
-            sorter: (a: ICandidate, b: ICandidate) =>
-                a.candidate?.nome_completo?.localeCompare(
-                    b.candidate?.nome_completo
+            sorter: (a: TalentData, b: TalentData) =>
+                (a.candidate?.nome_completo || '').localeCompare(
+                    b.candidate?.nome_completo || ''
                 ),
         },
         {
@@ -370,8 +418,8 @@ export default function VacanciesPage() {
                 { text: 'Sim', value: true },
                 { text: 'Não', value: false },
             ],
-            onFilter: (value: boolean, record: ICandidate) =>
-                record.candidate.is_primeiraexperiencia === value,
+            onFilter: (value: boolean, record: TalentData) =>
+                record.candidate?.is_primeiraexperiencia === value,
         },
         {
             title: 'Disponível',
@@ -386,8 +434,8 @@ export default function VacanciesPage() {
                 { text: 'Sim', value: 'sim' },
                 { text: 'Não', value: 'não' },
             ],
-            onFilter: (value: string, record: ICandidate) =>
-                record.candidate.is_disponivel === value,
+            onFilter: (value: string, record: TalentData) =>
+                record.candidate?.is_disponivel === value,
         },
         {
             title: 'Analisado',
@@ -402,8 +450,8 @@ export default function VacanciesPage() {
                 { text: 'Sim', value: true },
                 { text: 'Não', value: false },
             ],
-            onFilter: (value: boolean, record: ICandidate) =>
-                record.candidate.is_analizado === value,
+            onFilter: (value: boolean, record: TalentData) =>
+                record.candidate?.is_analizado === value,
         },
         {
             title: 'Score',
@@ -419,7 +467,7 @@ export default function VacanciesPage() {
 
                 return <Tag color={color}>{score || 'N/A'}</Tag>;
             },
-            sorter: (a: any, b: any) => {
+            sorter: (a: TalentData, b: TalentData) => {
                 const scoreA = a.analise?.score
                     ? typeof a.analise.score === 'string'
                         ? parseFloat(a.analise.score)
@@ -436,16 +484,18 @@ export default function VacanciesPage() {
         {
             title: 'Ações',
             key: 'actions',
-            render: (_: any, record: any) => (
+            render: (_: TalentData, record: TalentData) => (
                 <div className="flex space-x-2">
                     <Button
                         type="primary"
                         icon={<EyeOutlined />}
                         onClick={() => {
                             // Implementar visualização detalhada do candidato
-                            message.info(
-                                `Visualizando candidato: ${record.candidate.nome_completo}`
-                            );
+                            if (record.candidate) {
+                                message.info(
+                                    `Visualizando candidato: ${record.candidate.nome_completo}`
+                                );
+                            }
                         }}
                         className="bg-[#11833b] hover:bg-[#11833b]"
                         size="small"
@@ -455,7 +505,7 @@ export default function VacanciesPage() {
                         icon={<SearchOutlined />}
                         onClick={() => {
                             // Implementar visualização do currículo
-                            if (record.candidate.file_cv) {
+                            if (record.candidate?.file_cv) {
                                 window.open(record.candidate.file_cv, '_blank');
                             } else {
                                 message.warning('Currículo não disponível');
@@ -563,7 +613,7 @@ export default function VacanciesPage() {
         {
             title: 'Ações',
             key: 'actions',
-            render: (_: any, record: Vacancy) => (
+            render: (_: Vacancy, record: Vacancy) => (
                 <div className="flex space-x-2">
                     <Button
                         type="primary"
@@ -638,11 +688,19 @@ export default function VacanciesPage() {
 
                             <TabPane tab="Todos os Candidatos" key="new-tab">
                                 <div>
-                                    {/* TODO: Verify if this is correct */}
+                                    <div className="mb-4">
+                                        <Input
+                                            placeholder="Pesquisar por nome, email ou CPF"
+                                            value={searchText}
+                                            onChange={handleSearch}
+                                            prefix={<SearchOutlined />}
+                                            allowClear
+                                        />
+                                    </div>
                                     <AntdTable
-                                        columns={talentsColumns as any}
-                                        dataSource={allTalents.data}
-                                        rowKey={(record: any) => record.candidate.id}
+                                        columns={talentsColumns}
+                                        dataSource={filteredTalents}
+                                        rowKey={(record: TalentData) => record.candidate?.id || ''}
                                         loading={allTalents.loading}
                                         pagination={false}
                                     />

@@ -25,6 +25,7 @@ import { cancelOrder } from '@/hooks/slices/noPaper/orderSlice';
 import { ColumnType } from 'antd/es/table';
 import { CentroCusto } from '@/types/noPaper/Order/CentroCustoType';
 import { Item } from '@/types/noPaper/Order/ItemOrder';
+import { AppDispatch } from '@/hooks/store';
 interface DataTableOrderProps {
     searchParams: Record<string, string>;
     // orders: OrderState[];
@@ -34,7 +35,7 @@ export function DataTableOrder({
     searchParams,
     // orders,
 }: DataTableOrderProps) {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
 
     const [orders, setOrders] = useState<Array<OrderState>>([]);
     const [isViewOpen, setIsViewOpen] = useState(false);
@@ -169,7 +170,7 @@ export function DataTableOrder({
 
     const handleCancelOrder = async (orderId: number) => {
         try {
-            dispatch(cancelOrder(orderId) as any);
+            dispatch(cancelOrder(orderId));
             fetchOrders();
         } catch (error) {
             console.error('Error canceling order:', error);
@@ -194,7 +195,7 @@ export function DataTableOrder({
                 content: 'Você tem certeza que deseja excluir este arquivo?',
                 onOk: async () => {
                     try {
-                        await dispatch(deleteFile(fileKey) as any);
+                        await dispatch(deleteFile(fileKey))
                         message.success('Arquivo excluído com sucesso');
 
                         // Atualizar a lista de arquivos

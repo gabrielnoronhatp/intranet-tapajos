@@ -21,6 +21,7 @@ import { IFilial } from '@/types/noPaper/Supplier/SupplierType';
 import { Operador } from '@/types/Trade/IOperator';
 import { Escala, IEscala } from '@/types/Trade/IEscala';
 import { ICampaign } from '@/types/Trade/ICampaign';
+import { IProduct } from '@/types/Trade/IProduct';
 
 
 const { Option } = Select;
@@ -57,9 +58,9 @@ export default function CampaignRegistration() {
         if (selectedOperador && meta_valor && premiacao) {
             const idparticipante =
                 tipoOperador === 'teleoperador'
-                    ? operators.find((op:any) => op.nome === selectedOperador)
+                    ? operators?.find((op: Operador) => op.nome === selectedOperador)
                           ?.matricula
-                    : operators.find((op:any) => op.nome === selectedOperador)
+                    : operators?.find((op: Operador) => op.nome === selectedOperador)
                           ?.codusur;
 
             if (!idparticipante) {
@@ -138,7 +139,6 @@ export default function CampaignRegistration() {
     };
     const handleSearchProduto = useCallback(
         debounce((searchTerm: string) => {
-            console.log('searchTerm', searchTerm);
             if (searchTerm) {
                 const type =
                     tipoMarcaProduto === 'produto' ? 'produto' : 'marca';
@@ -253,7 +253,7 @@ export default function CampaignRegistration() {
                                 onSearch={handleSearchFilial}
                                 filterOption={false}
                             >
-                                {filiais.map((filial: IFilial) => (
+                                {filiais?.map((filial: IFilial) => (
                                     <Option
                                         key={filial.fantasia}
                                         value={filial.fantasia}
@@ -472,7 +472,7 @@ export default function CampaignRegistration() {
                                             option.label as string
                                         );
                                     }}
-                                    options={(products || []).map((product: any) => ({
+                                    options={(products || []).map((product: IProduct) => ({
                                         value: tipoMarcaProduto === 'produto' ? product.codprod : product.codmarca,
                                         label: tipoMarcaProduto === 'produto' ? product.descricao : product.marca,
                                     }))}

@@ -7,10 +7,7 @@ import { Label } from '@/components/ui/label';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchContasGerenciais } from '@/hooks/slices/noPaper/noPaperSlice';
-import {
-    setFieldError,
-    clearFieldError,
-} from '@/hooks/slices/noPaper/errorSlice';
+
 import { Select } from 'antd';
 import { RootState } from '@/hooks/store';
 import { OrderState  } from '@/types/noPaper/Order/OrderState';  
@@ -22,10 +19,6 @@ import { Parcela } from '@/types/noPaper/Order/Parcela';
     onChange: (field: keyof OrderState, value: string | number) => void;
 }
 
-interface ContaGerencial {
-    conta: string;
-    descricao: string;
-}   
 
 export default function FinancialData({ data, onChange }: FinancialDataProps) {
     const dispatch = useDispatch();
@@ -47,15 +40,9 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
     const { contasGerenciais } = useSelector(
         (state: RootState) => state.noPaper
     );
-    const { formErrors } = useSelector((state: RootState) => state.error);
+    
 
-    const validateField = (field: any, value: any) => {
-        if (!value || (typeof value === 'string' && !value.trim())) {
-            dispatch(setFieldError({ field, message: `O campo ${field} é obrigatório` } as any));
-        } else {
-            dispatch(clearFieldError(field));
-        }
-    };
+ 
 
     useEffect(() => {
         dispatch(fetchContasGerenciais() as any );
@@ -71,7 +58,7 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
 
     const handleFormaPagamentoChange = (value: string) => {
         onChange('metodoOP', value);
-        validateField('metodoOP', value);
+      
 
         let newParcelasOP: any = [];
 

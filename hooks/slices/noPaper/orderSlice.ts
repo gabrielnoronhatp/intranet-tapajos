@@ -6,8 +6,9 @@ import { CentroCusto } from '@/types/noPaper/Order/CentroCustoType';
 import { OrderData } from '@/types/noPaper/Order/OrderData';
 import { Item } from '@/types/noPaper/Order/ItemOrder';
 import { Parcela } from '@/types/noPaper/Order/Parcela';
+import { OrderState } from '@/types/noPaper/Order/OrderState';
 
-const initialState  = {
+const initialState:OrderState = {
     id: '',
     dtlanc: null as string | null ,
     ramoOP: '',

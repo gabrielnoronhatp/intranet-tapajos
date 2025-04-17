@@ -27,18 +27,22 @@ export interface CandidateWithAnalysis {
 
 // Interface para todos os talentos
 export interface AllTalent {
-    id: string;
-    cpf: string;
-    nome_completo: string;
-    email: string;
-    telefone: string;
-    is_primeiraexperiencia: boolean;
-    is_disponivel: string;
-    file_perfil: string;
-    file_cv?: string;
-    is_analizado: boolean;
-    created_at?: string;
-    updated_at?: string;
+    candidate: {
+        id: string;
+        cpf: string;
+        nome_completo: string;
+        email: string;
+        telefone: string;
+        is_primeiraexperiencia: boolean;
+        is_disponivel: string;
+        file_perfil: string;
+        file_cv?: string;
+        is_analizado: boolean;
+    };
+    analise: {
+        score: string | number;
+        cv_resumo: string;
+    };
 }
 
 interface VacancyState {
@@ -425,7 +429,6 @@ export const fetchDepartments = createAsyncThunk(
     }
 );
 
-
 export const fetchAllTalents = createAsyncThunk(
     'vacancy/fetchAllTalents',
     async ({ page, limit }: { page: number; limit: number }, { getState, rejectWithValue }) => {
@@ -447,29 +450,13 @@ export const fetchAllTalents = createAsyncThunk(
                 }
             );
 
-            // Mapear cada candidato para o formato esperado de CandidateWithAnalysis
-            const mappedItems = response.data.map((talent: AllTalent) => ({
-                candidate: {
-                    id: talent.id,
-                    cpf: talent.cpf,
-                    nome_completo: talent.nome_completo,
-                    email: talent.email,
-                    telefone: talent.telefone,
-                    is_primeiraexperiencia: talent.is_primeiraexperiencia,
-                    is_disponivel: talent.is_disponivel,
-                    file_perfil: talent.file_perfil,
-                    file_cv: talent.file_cv,
-                    is_analizado: talent.is_analizado
-                },
-                analise: {
-                    score: 0,
-                    cv_resumo: "Análise não disponível" 
-                }
-            }));
-            console.log(mappedItems)
+            // A API já retorna no formato correto, não precisamos mapear
             return {
-                ...response.data,
-                items: mappedItems
+                items: response.data, // Aqui estão os candidatos no formato correto
+                total: response.data.length, 
+                page: page,
+                limit: limit,
+                totalPages: Math.ceil(response.data.length / limit)
             };
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {

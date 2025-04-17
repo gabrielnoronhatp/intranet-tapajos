@@ -12,5 +12,5 @@ export interface ICandidate {
     file_perfil: string;
     file_cv: string;
     is_analizado: boolean;
-    candidate: ICandidate;
+    candidate?: ICandidate;
 }

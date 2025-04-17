@@ -33,7 +33,7 @@ export default function EditOrderPage() {
         Array<{ url: string; name: string }>
     >([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [fileList, setFileList] = useState<UploadFile<any>[]>([]);
+    const [fileList, setFileList] = useState<UploadFile<unknown>[]>([]);
 
     useEffect(() => {
         const fetchOrderData = async () => {
@@ -158,7 +158,7 @@ export default function EditOrderPage() {
 
 
 
-    const handleUploadChange = (info: UploadChangeParam<UploadFile<any>>) => {
+    const handleUploadChange = (info: UploadChangeParam<UploadFile<unknown>>) => {
         if (info.file.status === 'done') {
             message.success(`${info.file.name} foi enviado com sucesso!`);
             setSelectedFile(info.file.originFileObj);

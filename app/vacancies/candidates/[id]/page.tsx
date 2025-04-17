@@ -229,7 +229,7 @@ export default function VacancyCandidatesPage() {
         {
             title: 'Ações',
             key: 'actions',
-            render: (_: any, record: ICandidate) => (
+            render: (_: ICandidate, record: ICandidate) => (
                 <Button
                     type="primary"
                     onClick={() => showCandidateDetails(record)}
@@ -295,6 +295,7 @@ export default function VacancyCandidatesPage() {
                                         ) : candidates &&
                                           candidates.length > 0 ? (
                                             <Table
+                                            //TODO REMOVE THIS ANY 
                                                 columns={columns as any}
                                                 dataSource={candidates}
                                                 rowKey={(record) =>

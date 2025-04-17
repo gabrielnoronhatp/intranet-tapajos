@@ -72,7 +72,9 @@ export function Sidebar({ isOpen }: SidebarProps) {
             mode="inline"
             selectedKeys={[pathname]}
             items={menuItems}
-            className="h-full [&_.ant-menu-submenu-arrow]:hidden [&_.ant-menu-item]:flex [&_.ant-menu-item]:items-center  "
+            className={`h-full [&_.ant-menu-item]:flex [&_.ant-menu-item]:items-center ${
+                !isOpen ? '[&_.ant-menu-submenu-arrow]:mt-4' : ''
+            }`}
 
         />
     </aside>

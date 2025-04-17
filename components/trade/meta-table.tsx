@@ -54,8 +54,7 @@ export const MetaTable: React.FC<MetaTableProps> = ({
             const newMetas = Array(maxMetaGeral)
                 .fill(null)
                 .map(() => Array(maxMetaVendedor).fill(''));
-            
-            // Preencher a matriz com os valores originais
+
             escala.valoresMeta.forEach((meta) => {
                 const rowIndex = meta.idMetaGeral - 1;
                 const colIndex = meta.idMetaVendedor - 1;
@@ -64,7 +63,7 @@ export const MetaTable: React.FC<MetaTableProps> = ({
                         meta.celValordaMeta.toString();
                 }
             });
-            
+
             setMetas(newMetas);
             setLastLoadedId(campaignId);
         } else if (
@@ -75,39 +74,37 @@ export const MetaTable: React.FC<MetaTableProps> = ({
             metaGeralRange.length > 0 &&
             metaVendedorRange.length > 0
         ) {
-            // Caso não haja valores de meta, inicializar uma matriz vazia
             const newMetas = Array(metaGeralRange.length)
                 .fill(null)
                 .map(() => Array(metaVendedorRange.length).fill(''));
             setMetas(newMetas);
             setLastLoadedId(campaignId);
         }
-    }, [campaignId, escala, lastLoadedId, metaGeralRange.length, metaVendedorRange.length]);
-    const validateRangeFormat = (value: string) => {
-        const rangePattern = /^\d{2}-\d{2}$/;
-        return rangePattern.test(value);
-    };
+    }, [
+        campaignId,
+        escala,
+        lastLoadedId,
+        metaGeralRange.length,
+        metaVendedorRange.length,
+    ]);
+    // const validateRangeFormat = (value: string) => {
+    //     const rangePattern = /^\d{2}-\d{2}$/;
+    //     return rangePattern.test(value);
+    // };
 
     const handleMetaGeralRangeChange = (index: number, value: string) => {
-        if (validateRangeFormat(value) || value === '') {
-            const newMetaGeralRange = [...metaGeralRange];
-            newMetaGeralRange[index] = value;
-            setMetaGeralRange(newMetaGeralRange);
-
-            // Atualizar o componente pai
-            updateParent(metas, newMetaGeralRange, metaVendedorRange);
-        }
+        // Permite qualquer valor durante a digitação
+        const newMetaGeralRange = [...metaGeralRange];
+        newMetaGeralRange[index] = value;
+        setMetaGeralRange(newMetaGeralRange);
+        updateParent(metas, newMetaGeralRange, metaVendedorRange);
     };
 
     const handleMetaVendedorRangeChange = (index: number, value: string) => {
-        if (validateRangeFormat(value) || value === '') {
-            const newMetaVendedorRange = [...metaVendedorRange];
-            newMetaVendedorRange[index] = value;
-            setMetaVendedorRange(newMetaVendedorRange);
-
-            // Atualizar o componente pai
-            updateParent(metas, metaGeralRange, newMetaVendedorRange);
-        }
+        const newMetaVendedorRange = [...metaVendedorRange];
+        newMetaVendedorRange[index] = value;
+        setMetaVendedorRange(newMetaVendedorRange);
+        updateParent(metas, metaGeralRange, newMetaVendedorRange);
     };
 
     const handleMetaVendedorChange = (
@@ -124,12 +121,9 @@ export const MetaTable: React.FC<MetaTableProps> = ({
         newMetas[rowIndex][colIndex] = value || '';
 
         setMetas(newMetas);
-
-        // Atualizar o componente pai
         updateParent(newMetas, metaGeralRange, metaVendedorRange);
     };
 
-    // Função para atualizar o componente pai
     const updateParent = (
         currentMetas: string[][],
         currentMetaGeralRange: string[],
@@ -152,7 +146,6 @@ export const MetaTable: React.FC<MetaTableProps> = ({
         const formattedMetas = [];
         const campaignIdNumber = campaignId ? parseInt(campaignId) : 1;
 
-        // Primeira linha com os ranges do vendedor
         formattedMetas.push({
             id: campaignIdNumber,
             linha: '',
@@ -169,16 +162,14 @@ export const MetaTable: React.FC<MetaTableProps> = ({
             ),
         });
 
-        // Obter os valores originais do escala para usar quando não houver alterações
         const originalValues: Record<string, number> = {};
         if (escala?.valoresMeta && escala.valoresMeta.length > 0) {
-            escala.valoresMeta.forEach(meta => {
+            escala.valoresMeta.forEach((meta) => {
                 const key = `${meta.idMetaGeral}_${meta.idMetaVendedor}`;
                 originalValues[key] = meta.celValordaMeta;
             });
         }
 
-        // Linhas seguintes com os valores
         currentMetaGeralRange.forEach(
             (rangeGeral: string, rowIndex: number) => {
                 const row = {
@@ -187,26 +178,23 @@ export const MetaTable: React.FC<MetaTableProps> = ({
                 } as Record<string, string | number>;
 
                 currentMetaVendedorRange.forEach((_, colIndex) => {
-                    // Obter o valor da célula atual
                     const cellValue = currentMetas[rowIndex]?.[colIndex] || '';
-                    
-                    // Chave para buscar o valor original
+
                     const originalKey = `${rowIndex + 1}_${colIndex + 1}`;
-                    
+
                     if (cellValue !== '') {
-                        // Se há um valor na célula, converte para número
                         const normalizedValue = cellValue.replace(',', '.');
                         const numValue = parseFloat(normalizedValue);
-                        
+
                         if (!isNaN(numValue)) {
                             row[`coluna${colIndex + 1}`] = numValue;
                         } else {
-                            // Se não for um número válido, usa o valor original ou 0
-                            row[`coluna${colIndex + 1}`] = originalValues[originalKey] || 0;
+                            row[`coluna${colIndex + 1}`] =
+                                originalValues[originalKey] || 0;
                         }
                     } else {
-                        // Se a célula estiver vazia, usa o valor original ou 0
-                        row[`coluna${colIndex + 1}`] = originalValues[originalKey] || 0;
+                        row[`coluna${colIndex + 1}`] =
+                            originalValues[originalKey] || 0;
                     }
                 });
 
@@ -218,7 +206,6 @@ export const MetaTable: React.FC<MetaTableProps> = ({
         return formattedMetas;
     };
 
-    // Inicializar o componente pai com os dados quando o componente montar
     useEffect(() => {
         if (metas.length > 0) {
             updateParent(metas, metaGeralRange, metaVendedorRange);

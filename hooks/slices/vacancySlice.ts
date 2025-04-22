@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { Vacancy, CreateVacancyPayload } from '@/types/vacancy/IVacancy';
+import { EmailAprovado, EmailEntrevista, EmailRecusado } from '@/types/vacancy/IEmail';
 
 interface Candidate {
     id: string;
@@ -45,26 +46,31 @@ export interface AllTalent {
     };
 }
 
-interface VacancyState {
-    vacancies: Vacancy[];
-    loading: boolean;
-    error: string | null;
-    currentVacancy: Vacancy | null;
-    candidates: CandidateWithAnalysis[];
-    candidatesLoading: boolean;
-    departments: string[];
-    departmentsLoading: boolean;
-    positions: string[];
-    positionsLoading: boolean;
-    allTalents: {
-        data: AllTalent[];
-        total: number;
-        page: number;
-        limit: number;
-        totalPages: number;
+    interface VacancyState {
+        vacancies: Vacancy[];
         loading: boolean;
-    };
-}
+        error: string | null;
+        currentVacancy: Vacancy | null;
+        candidates: CandidateWithAnalysis[];
+        candidatesLoading: boolean;
+        departments: string[];
+        departmentsLoading: boolean;
+        positions: string[];
+        positionsLoading: boolean;
+        allTalents: {
+            data: AllTalent[];
+            total: number;
+            page: number;
+            limit: number;
+            totalPages: number; 
+            loading: boolean;
+        };
+        emailStatus: {
+            loading: boolean;
+            success: boolean;
+            error: string | null;
+        };
+    }
 
 const initialState: VacancyState = {
     vacancies: [],
@@ -84,6 +90,11 @@ const initialState: VacancyState = {
         limit: 10,
         totalPages: 0,
         loading: false,
+    },
+    emailStatus: {
+        loading: false,
+        success: false,
+        error: null,
     },
 };
 
@@ -134,7 +145,7 @@ export const fetchVacancyById = createAsyncThunk(
                     Authorization: `Bearer ${auth.accessToken}`,
                 },
             });
-
+     
             return response.data;
         } catch (error) {
             if (axios.isAxiosError(error)) {
@@ -469,15 +480,134 @@ export const fetchAllTalents = createAsyncThunk(
     }
 );
 
+export const sendEmailAprovado = createAsyncThunk(
+    'vacancy/sendEmailAprovado',
+    async (emailData: EmailAprovado, { getState, rejectWithValue }) => {
+        try {
+            const { auth } = getState() as {
+                auth: { accessToken: string | null };
+            };
+
+            if (!auth.accessToken) {
+                return rejectWithValue('Token de autenticação não encontrado');
+            }
+
+            console.log('Enviando email de aprovação:', emailData);
+            const response = await axios.post(
+                `${API_URL}/email/aprovado`,
+                emailData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${auth.accessToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+            console.log('Resposta do email de aprovação:', response.data);
+
+            return response.data;
+        } catch (error: unknown) {
+            console.error('Erro ao enviar email de aprovação:', error);
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(
+                    error.response?.data?.message || 'Erro ao enviar e-mail'
+                );
+            }
+            return rejectWithValue('Erro desconhecido ao enviar e-mail');
+        }
+    }
+);
+
+export const sendEmailRecusado = createAsyncThunk(
+    'vacancy/sendEmailRecusado',
+    async (emailData: EmailRecusado, { getState, rejectWithValue }) => {
+        try {
+            const { auth } = getState() as {
+                auth: { accessToken: string | null };
+            };
+
+            if (!auth.accessToken) {
+                return rejectWithValue('Token de autenticação não encontrado');
+            }
+
+            console.log('Enviando email de recusa:', emailData);
+            const response = await axios.post(
+                `${API_URL}/email/recusado`,
+                emailData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${auth.accessToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+            console.log('Resposta do email de recusa:', response.data);
+
+            return response.data;
+        } catch (error: unknown) {
+            console.error('Erro ao enviar email de recusa:', error);
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(
+                    error.response?.data?.message || 'Erro ao enviar e-mail'
+                );
+            }
+            return rejectWithValue('Erro desconhecido ao enviar e-mail');
+        }
+    }
+);
+
+export const sendEmailEntrevista = createAsyncThunk(
+    'vacancy/sendEmailEntrevista',
+    async (emailData: EmailEntrevista, { getState, rejectWithValue }) => {
+        try {
+            const { auth } = getState() as {
+                auth: { accessToken: string | null };
+            };
+
+            if (!auth.accessToken) {
+                return rejectWithValue('Token de autenticação não encontrado');
+            }
+
+            console.log('Enviando email de entrevista:', emailData);
+            const response = await axios.post(
+                `${API_URL}/email/entrevista`,
+                emailData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${auth.accessToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+            console.log('Resposta do email de entrevista:', response.data);
+
+            return response.data;
+        } catch (error: unknown) {
+            console.error('Erro ao enviar email de entrevista:', error);
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(
+                    error.response?.data?.message || 'Erro ao enviar e-mail'
+                );
+            }
+            return rejectWithValue('Erro desconhecido ao enviar e-mail');
+        }
+    }
+);
+
 const vacancySlice = createSlice({
     name: 'vacancy',
     initialState,
     reducers: {
-        clearCurrentVacancy(state) {
-            state.currentVacancy = null;
-        },
+       
         setError(state, action: PayloadAction<string | null>) {
             state.error = action.payload;
+        },
+        resetEmailStatus(state) {
+            state.emailStatus = {
+                loading: false,
+                success: false,
+                error: null,
+            };
         },
     },
     extraReducers: (builder) => {
@@ -617,8 +747,56 @@ const vacancySlice = createSlice({
             state.allTalents.loading = false;
             state.error = action.payload as string;
         });
+
+        // Email de aprovado
+        builder.addCase(sendEmailAprovado.pending, (state) => {
+            state.emailStatus.loading = true;
+            state.emailStatus.success = false;
+            state.emailStatus.error = null;
+        });
+        builder.addCase(sendEmailAprovado.fulfilled, (state) => {
+            state.emailStatus.loading = false;
+            state.emailStatus.success = true;
+        });
+        builder.addCase(sendEmailAprovado.rejected, (state, action) => {
+            state.emailStatus.loading = false;
+            state.emailStatus.error = action.payload as string;
+        });
+
+        // Email de recusado
+        builder.addCase(sendEmailRecusado.pending, (state) => {
+            state.emailStatus.loading = true;
+            state.emailStatus.success = false;
+            state.emailStatus.error = null;
+        });
+        builder.addCase(sendEmailRecusado.fulfilled, (state) => {
+            state.emailStatus.loading = false;
+            state.emailStatus.success = true;
+        });
+        builder.addCase(sendEmailRecusado.rejected, (state, action) => {
+            state.emailStatus.loading = false;
+            state.emailStatus.error = action.payload as string;
+        });
+
+        // Email de entrevista
+        builder.addCase(sendEmailEntrevista.pending, (state) => {
+            state.emailStatus.loading = true;
+            state.emailStatus.success = false;
+            state.emailStatus.error = null;
+        });
+        builder.addCase(sendEmailEntrevista.fulfilled, (state) => {
+            state.emailStatus.loading = false;
+            state.emailStatus.success = true;
+        });
+        builder.addCase(sendEmailEntrevista.rejected, (state, action) => {
+            state.emailStatus.loading = false;
+            state.emailStatus.error = action.payload as string;
+        });
+
+        //case to add current vacancy
+      
     },
 });
 
-export const { clearCurrentVacancy, setError } = vacancySlice.actions;
+export const { setError, resetEmailStatus } = vacancySlice.actions;
 export default vacancySlice.reducer;

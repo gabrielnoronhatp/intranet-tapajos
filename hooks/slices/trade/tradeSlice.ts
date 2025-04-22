@@ -140,9 +140,9 @@ export const updateCampaign = createAsyncThunk(
                     }
                 }
             }
-            // setTimeout(() => {
-            //     window.location.href = '/trade/list';
-            // }, 1000);
+            setTimeout(() => {
+                window.location.href = '/trade/list';
+            }, 1000);
 
             return response.data;
         } catch (error) {
@@ -276,9 +276,9 @@ export const createCampaign = createAsyncThunk(
                 }
             }
 
-            // setTimeout(() => {
-            //     window.location.href = '/trade/list';
-            // }, 1000);
+            setTimeout(() => {
+                window.location.href = '/trade/list';
+            }, 1000);
 
             return response.data;
         } catch (error) {

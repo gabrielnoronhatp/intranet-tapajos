@@ -14,7 +14,7 @@ export interface IContract {
     email2?: string;
     data_venc_contrato?: string | Date  ;
     indice?: string;
-    forma_pag?: string | number  ; // TODO: find a way to handle this any
+    forma_pag?: string | number  ; 
     agencia?: string;
     conta?: string;
     tipo_chave_pix?: string;

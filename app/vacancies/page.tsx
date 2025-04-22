@@ -700,8 +700,8 @@ export default function VacanciesPage() {
                                             allowClear
                                         />
                                     </div>
-                                    <AntdTable
-                                        columns={talentsColumns}
+                                    <AntdTable 
+                                        columns={talentsColumns as any}
                                         dataSource={filteredTalents}
                                         rowKey={(record: TalentData) =>
                                             record.candidate?.id || ''

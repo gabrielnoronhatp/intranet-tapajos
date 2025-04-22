@@ -44,13 +44,19 @@ import EmailModal from '@/components/modals/EmailModal';
 
 const { TabPane } = Tabs;
 
+export interface PageProps {
+    name?: string;
+    params?: any;
+    searchParams?: any;
+}
+
 interface VacancyCandidatesPageProps {
     name: string;
 }
 
 export default function VacancyCandidatesPage({
     name,
-}: VacancyCandidatesPageProps) {
+}: any) {
     const { id } = useParams();
     const dispatch = useDispatch<AppDispatch>();
     const { currentVacancy, candidates, candidatesLoading, loading } =
@@ -370,14 +376,14 @@ export default function VacancyCandidatesPage({
                                             </div>
                                         ) : candidates &&
                                           candidates.filter(
-                                              (c) =>
+                                              (c:any) =>
                                                   c.analise?.status ===
                                                   'aprovado'
                                           ).length > 0 ? (
                                             <Table
                                                 columns={columns as any}
                                                 dataSource={candidates.filter(
-                                                    (c) =>
+                                                    (c:any) =>
                                                         c.analise?.status ===
                                                         'aprovado'
                                                 )}
@@ -409,14 +415,14 @@ export default function VacancyCandidatesPage({
                                             </div>
                                         ) : candidates &&
                                           candidates.filter(
-                                              (c) =>
+                                              (c:any) =>
                                                   c.analise?.status ===
                                                   'entrevista'
                                           ).length > 0 ? (
                                             <Table
                                                 columns={columns as any}
                                                 dataSource={candidates.filter(
-                                                    (c) =>
+                                                    (c:any) =>
                                                         c.analise?.status ===
                                                         'entrevista'
                                                 )}
@@ -448,14 +454,14 @@ export default function VacancyCandidatesPage({
                                             </div>
                                         ) : candidates &&
                                           candidates.filter(
-                                              (c) =>
+                                              (c:any) =>
                                                   c.analise?.status ===
                                                   'recusado'
                                           ).length > 0 ? (
                                             <Table
                                                 columns={columns as any}
                                                 dataSource={candidates.filter(
-                                                    (c) =>
+                                                    (c:any      ) =>
                                                         c.analise?.status ===
                                                         'recusado'
                                                 )}

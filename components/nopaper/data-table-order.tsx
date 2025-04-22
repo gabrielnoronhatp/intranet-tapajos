@@ -75,7 +75,7 @@ export function DataTableOrder({
     const toggleView = async (item: OrderState) => {
         setSelectedItem(item);
         setIsViewOpen(!isViewOpen);
-        await fetchOrderDetails(item.id);
+        await fetchOrderDetails(item.id as number);
 
         if (!isViewOpen) {
             try {
@@ -147,7 +147,7 @@ export function DataTableOrder({
             signatureNumber
         );
         if (hasPermission) {
-            dispatch(setOrderId(record.id));
+            dispatch(setOrderId(record.id as number));
             dispatch(setSignatureNumber(signatureNumber));
             setIsPinModalOpen(true);
         } else {
@@ -316,7 +316,7 @@ export function DataTableOrder({
                                 color={hasSignature ? 'gray' : 'green'}
                                 onClick={() =>
                                     !hasSignature &&
-                                    navigateToEditPage(record.id)
+                                    navigateToEditPage(record.id as number)
                                 }
                                 style={{
                                     cursor: hasSignature
@@ -330,7 +330,7 @@ export function DataTableOrder({
                             <FileWarning
                                 type="link"
                                 onClick={() =>
-                                    handleCancelOrderModal(record.id)
+                                    handleCancelOrderModal(record.id as number)
                                 }
                                 style={{ color: 'green' }}
                             />
@@ -496,7 +496,7 @@ export function DataTableOrder({
                 isOpen={isPinModalOpen}
                 onClose={handleClosePinModal}
                 onConfirm={handleConfirmPin}
-                orderId={selectedItem?.id || 0}
+                orderId={selectedItem?.id as number}
             />
         </div>
     );

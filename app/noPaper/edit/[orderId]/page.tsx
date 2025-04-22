@@ -19,6 +19,7 @@ import { RootState, AppDispatch } from '@/hooks/store';
 import { OrderState } from '@/types/noPaper/Order/OrderState';
 import { UploadChangeParam } from 'antd/es/upload';
 import { CentroCusto } from '@/types/noPaper/Order/CentroCustoType';
+import { OrderData } from '@/types/noPaper/Order/OrderData';
 
 export default function EditOrderPage() {
     const dispatch = useDispatch<AppDispatch>();
@@ -237,19 +238,19 @@ export default function EditOrderPage() {
                         <div className="max-w-3xl mx-auto">
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <OriginData
-                                    data={orderData}
+                                    data={orderData as OrderData}
                                     onChange={handleOnChange}
                                 />
                                 <FinancialData
-                                    data={orderData}
+                                    data={orderData as OrderData}
                                     onChange={handleSetState}
                                 />
                                 <TaxesData
-                                    data={orderData}
+                                    data={orderData as OrderData}
                                     onChange={handleOnChange}
                                 />
                                 <CenterOfCoust
-                                    data={orderData}
+                                    data={orderData as OrderData}
                                     onChange={handleOnChange}
                                 />
 

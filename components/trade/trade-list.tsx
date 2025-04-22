@@ -84,7 +84,7 @@ export function TableTrade() {
 
     const sortedCampaigns = campaigns?.slice().sort((a: ICampaign, b: ICampaign) => {
         //order by id descending
-        return b.id - a.id;
+        return (b.id as number) - (a.id as number);
     });
 
     const handleViewCampaign = (id: string) => {
@@ -331,24 +331,24 @@ export function TableTrade() {
                         <>
                             <Eye
                                 color="green"
-                                onClick={() => handleViewCampaign(record?.id)}
+                                onClick={() => handleViewCampaign(record?.id as string)}
                                 className="cursor-pointer hover:scale-110 transition-transform"
                             />
                             <Edit
                                 color="green"
-                                onClick={() => handleEditCampaign(record.id)}
+                                onClick={() => handleEditCampaign(record.id as string)}
                                 className="cursor-pointer hover:scale-110 transition-transform"
                             />
                             <Copy
                                 color="#4CAF50"
-                                onClick={() => handleCloneCampaign(record.id)}
+                                onClick={() => handleCloneCampaign(record.id as string)}
                                 className="cursor-pointer hover:scale-110 transition-transform"
                             />
                         </>
                     )}
                     <FileWarning
                         color="green"
-                        onClick={() => showDeleteConfirm(record.id)}
+                        onClick={() => showDeleteConfirm(record.id as string)}
                         className="cursor-pointer hover:scale-110 transition-transform"
                     />
                 </div>

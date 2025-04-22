@@ -72,7 +72,7 @@ export default function NoPaper() {
         }
 
         try {
-            const orderWithUser: OrderData = {
+            const orderWithUser: any= {
                 ...orderData,
                 userOP: user.username,
             };
@@ -175,22 +175,22 @@ export default function NoPaper() {
                         <div className="max-w-3xl mx-auto">
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <OriginData
-                                    data={orderData}
+                                    data={orderData as OrderData}
                                     onChange={handleSetState}
                                 />
 
                                 <FinancialData
-                                    data={orderData}
+                                    data={orderData as OrderData}
                                     onChange={handleSetState}
                                 />
 
                                 <TaxesData
-                                    data={orderData}
+                                    data={orderData as OrderData}
                                     onChange={handleSetState}
                                 />
 
                                 <CenterOfCoust
-                                    data={orderData}
+                                    data={orderData as OrderData}
                                     onChange={handleSetState}
                                 />
 

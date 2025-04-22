@@ -30,6 +30,7 @@ import {
     deleteVacancy,
     fetchDepartments,
     fetchAllTalents,
+    fetchVacancyById,
 } from '@/hooks/slices/vacancySlice';
 import dayjs from 'dayjs';
 import { Vacancy, CreateVacancyPayload } from '@/types/vacancy/IVacancy';
@@ -43,6 +44,7 @@ import { useRouter } from 'next/navigation';
 import { Users } from 'lucide-react';
 import { CustomTagRender } from '@/components/employees/tags';
 import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
+import VacancyCandidatesPage from './candidates/[id]/page';
 
 interface TalentCandidate {
     id: string;
@@ -56,7 +58,6 @@ interface TalentCandidate {
     file_cv?: string;
     is_analizado: boolean;
 }
-
 
 interface TalentAnalysis {
     score: number | string;
@@ -111,14 +112,17 @@ export default function VacanciesPage() {
     useEffect(() => {
         if (allTalents.data.length > 0) {
             const filtered = allTalents.data.filter((talent: TalentData) => {
-                const nome = talent.candidate?.nome_completo?.toLowerCase() || '';
+                const nome =
+                    talent.candidate?.nome_completo?.toLowerCase() || '';
                 const email = talent.candidate?.email?.toLowerCase() || '';
                 const cpf = talent.candidate?.cpf?.toLowerCase() || '';
                 const searchLower = searchText.toLowerCase();
-                
-                return nome.includes(searchLower) || 
-                       email.includes(searchLower) || 
-                       cpf.includes(searchLower);
+
+                return (
+                    nome.includes(searchLower) ||
+                    email.includes(searchLower) ||
+                    cpf.includes(searchLower)
+                );
             });
             setFilteredTalents(filtered);
         } else {
@@ -361,8 +365,9 @@ export default function VacanciesPage() {
         return dayjs(dateString).format('DD/MM/YYYY');
     };
 
-    const viewCandidates = (vacancyId: string) => {
-        router.push(`/vacancies/candidates/${vacancyId}`);
+    const viewCandidates = (vacancyId: string,vacancyName: string) => {
+        router.push(`/vacancies/candidates/${vacancyId}?vacancyName=${vacancyName}`);
+        
     };
 
     const formatCpf = (cpf: string) => {
@@ -490,7 +495,6 @@ export default function VacanciesPage() {
                         type="primary"
                         icon={<EyeOutlined />}
                         onClick={() => {
-                            // Implementar visualização detalhada do candidato
                             if (record.candidate) {
                                 message.info(
                                     `Visualizando candidato: ${record.candidate.nome_completo}`
@@ -504,7 +508,6 @@ export default function VacanciesPage() {
                         type="primary"
                         icon={<SearchOutlined />}
                         onClick={() => {
-                            // Implementar visualização do currículo
                             if (record.candidate?.file_cv) {
                                 window.open(record.candidate.file_cv, '_blank');
                             } else {
@@ -639,7 +642,7 @@ export default function VacanciesPage() {
                     <Button
                         type="primary"
                         icon={<Users />}
-                        onClick={() => viewCandidates(record.id)}
+                        onClick={() => viewCandidates(record.id,record.nome_vaga)}
                         className="bg-[#11833b] hover:bg-[#11833b]"
                         size="small"
                     ></Button>
@@ -686,7 +689,7 @@ export default function VacanciesPage() {
                                 />
                             </TabPane>
 
-                            <TabPane tab="Todos os Candidatos" key="new-tab">
+                            <TabPane tab="Banco de Talentos" key="new-tab">
                                 <div>
                                     <div className="mb-4">
                                         <Input
@@ -700,7 +703,9 @@ export default function VacanciesPage() {
                                     <AntdTable
                                         columns={talentsColumns}
                                         dataSource={filteredTalents}
-                                        rowKey={(record: TalentData) => record.candidate?.id || ''}
+                                        rowKey={(record: TalentData) =>
+                                            record.candidate?.id || ''
+                                        }
                                         loading={allTalents.loading}
                                         pagination={false}
                                     />

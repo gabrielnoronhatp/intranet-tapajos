@@ -9,4 +9,6 @@ export type  Operador = {
     meta_quantidade: number;
     premiacao: number | string;
     tipo_meta: string;
+    label?: string;
+    value?: string;
 };

@@ -563,6 +563,7 @@ export default function CampaignRegistration() {
                                 Escala
                             </h2>
                             <MetaTable
+                                isEditing={true}
                                 onEscalaSubmit={(formattedMetas: IEscala[]) => {
                                     handleEscalaSubmit(
                                         formattedMetas as unknown as Escala[]

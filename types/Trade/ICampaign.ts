@@ -7,7 +7,7 @@ import { IProduct } from './IProduct';
 export interface ICampaign {
     id?: number | string | undefined ;
     idcampanha_distribuicao?: number; 
-    idempresa?: number;
+    idempresa?: number | string | undefined ;
     nome?: string;
     datainicial?: string;
     datafinal?: string;

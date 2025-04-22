@@ -6,6 +6,7 @@ import { IParticipants } from '@/types/Trade/IParticipants';
 import { ICampaign } from '@/types/Trade/ICampaign';
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { RootState } from '@/hooks/store';
 
 export const fetchCampaigns = createAsyncThunk(
     'trade/fetchCampaigns',
@@ -421,13 +422,49 @@ export const sendMetaTable = createAsyncThunk(
             campaignId?: string;
             isEditing?: boolean;
         },
-        { rejectWithValue }
+        { rejectWithValue, getState }
     ) => {
         try {
-            const formattedData = metaData.formattedMetas;
+            const state = getState() as RootState;
+            const currentCampaign = state.trade.currentCampaign;
+            
+            // Processar os dados formatados para preservar valores originais quando possível
+            const formattedData = metaData.formattedMetas.map(meta => {
+                const newMeta: Record<string, any> = { ...meta };
+                
+                // Se estamos editando e temos uma campanha atual com dados de escala
+                if (metaData.isEditing && 
+                    currentCampaign?.escala && 
+                    currentCampaign.escala.length > 0 && 
+                    meta.linha) {
+                    
+                    // Encontrar a linha correspondente na escala original
+                    const originalRow = currentCampaign.escala.find(
+                        row => row.linha === meta.linha
+                    );
+                    
+                    if (originalRow) {
+                        // Para cada coluna na meta atual
+                        Object.keys(newMeta).forEach(key => {
+                            // Se a propriedade começa com "coluna" e o valor é 0, verificar se existe um valor original
+                            if (key.startsWith('coluna') && 
+                                (newMeta[key] === 0 || newMeta[key] === null || newMeta[key] === undefined)) {
+                                
+                                // Se o valor original existe e não é 0, usar o valor original
+                                if (originalRow[key] !== undefined && originalRow[key] !== null && originalRow[key] !== 0) {
+                                    newMeta[key] = originalRow[key];
+                                }
+                            }
+                        });
+                    }
+                }
+                
+                return newMeta;
+            });
 
             let response;
             if (metaData.isEditing) {
+                console.log('Enviando dados para atualização:', formattedData);
                 response = await apiInstance.put(
                     `/campanha_distribuicao_escala/${formattedData[0].id}`,
                     formattedData

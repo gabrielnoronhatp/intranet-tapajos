@@ -1,11 +1,8 @@
 name: Build
-
 on:
   push:
     branches:
       - main
-
-
 jobs:
   build:
     name: Build and analyze

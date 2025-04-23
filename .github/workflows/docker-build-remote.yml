@@ -1,0 +1,31 @@
+name: Build and Push Docker Image on Remote Server
+
+on:
+  push:
+    branches:
+      - main  # Escuta apenas a branch "main"
+
+jobs:
+  build:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout do código
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Configurar o SSH
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      # Step 3: Conectar ao servidor remoto e executar comandos
+      - name: Build and Push Docker Image on Remote Server
+        run: |
+          ssh -o StrictHostKeyChecking=no dev_tapajos@10.2.10.17 << 'EOF'
+          cd /home/dev_tapajos/intranet-tapajos/intranet-tapajos
+          docker build -t dev_tapajos/intranet-tapajos:latest .
+          docker push dev_tapajos/intranet-tapajos:latest
+          EOF

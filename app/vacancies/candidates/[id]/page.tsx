@@ -207,16 +207,7 @@ export default function VacancyCandidatesPage({
             title: 'Disponível',
             dataIndex: ['candidate', 'is_disponivel'],
             key: 'is_disponivel',
-            render: (is_disponivel: string) => (
-                <Tag color={is_disponivel === 'true' ? 'green' : 'red'}>
-                    {is_disponivel === 'true' ? 'Sim' : 'Não'}
-                </Tag>
-            ),
-            filters: [
-                { text: 'Sim', value: 'true' },
-                { text: 'Não', value: 'false' },
-            ],
-            onFilter: (value: string, record: ICandidate) =>
+              onFilter: (value: string, record: ICandidate) =>
                 record.is_disponivel === value,
         },
         {
@@ -599,19 +590,8 @@ export default function VacancyCandidatesPage({
                                             </Tag>
                                         </Descriptions.Item>
                                         <Descriptions.Item label="Disponível">
-                                            <Tag
-                                                color={
-                                                    selectedCandidate.candidate
-                                                        ?.is_disponivel ===
-                                                    'true'
-                                                        ? 'green'
-                                                        : 'red'
-                                                }
-                                            >
-                                                {selectedCandidate.candidate
-                                                    ?.is_disponivel === 'true'
-                                                    ? 'Sim'
-                                                    : 'Não'}
+                                            <Tag >
+                                                {selectedCandidate.candidate?.is_disponivel}
                                             </Tag>
                                         </Descriptions.Item>
                                         <Descriptions.Item label="Analisado">

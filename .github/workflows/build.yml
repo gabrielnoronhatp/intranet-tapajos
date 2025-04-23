@@ -17,7 +17,7 @@ jobs:
 
       # Step 2: Testar a URL do Cloudflare Tunnel
       - name: Test SonarQube Connection
-        run: curl -v https://<random-id>.trycloudflare.com/api/system/status
+        run: curl -v https://05fbcf06-5068-4ba8-91fa-bd9e9dd7d867.trycloudflare.com/api/system/status
 
       # Step 3: Executar o SonarQube Scan
       - name: Run SonarQube Scan

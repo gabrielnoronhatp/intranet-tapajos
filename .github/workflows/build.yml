@@ -24,4 +24,4 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@v5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: https://alternatively-tournaments-merchant-passenger.trycloudflare.com/
+          SONAR_HOST_URL:  https://advertisers-travelling-needed-perception.trycloudflare.com  

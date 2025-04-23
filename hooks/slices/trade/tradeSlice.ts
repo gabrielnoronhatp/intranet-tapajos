@@ -574,6 +574,35 @@ export const cloneCampaign = createAsyncThunk(
     }
 );
 
+export const updateParticipant = createAsyncThunk(
+    'trade/updateParticipant',
+    async (
+        {
+            campaignId,
+            participantId,
+            participantData,
+        }: { 
+            campaignId: string; 
+            participantId: number; 
+            participantData: Partial<IParticipants> 
+        },
+        { rejectWithValue }
+    ) => {
+        try {
+            const response = await apiInstance.put(
+                `/participantes/${campaignId}/${participantId}`,
+                participantData
+            );
+            return response.data;
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                return rejectWithValue(error.response?.data || error.message);
+            }
+            throw error;
+        }
+    }
+);
+
 const initialState: ICampaign = {
     nome: '',
     datainicial: '',
@@ -741,6 +770,19 @@ const tradeSlice = createSlice({
                     }
                 }
             )
+            .addCase(
+                updateParticipant.fulfilled,
+                (state: ICampaign, action) => {
+                    if (state.currentCampaign?.participantes) {
+                        state.currentCampaign.participantes = state.currentCampaign.participantes.map(
+                            (p: IParticipants) => p.id === action.payload.id ? action.payload : p
+                        );
+                    }
+                }
+            )
+            .addCase(updateParticipant.rejected, (state: ICampaign) => {
+                state.status = 'failed';
+            })
             .addCase(deleteItemFromCampaign.fulfilled, (state:  ICampaign, action) => {
                 const { campaignId, id } = action.payload;
                 if (state?.currentCampaign?.id === campaignId) {

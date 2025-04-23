@@ -80,6 +80,7 @@ export default function VacanciesPage() {
         departments,
         departmentsLoading,
         allTalents,
+        positions,
     } = useSelector((state: RootState) => state.vacancy);
     const router = useRouter();
 
@@ -129,6 +130,23 @@ export default function VacanciesPage() {
             setFilteredTalents([]);
         }
     }, [allTalents.data, searchText]);
+
+    useEffect(() => {
+        // Monitora mudanças no tipo de seleção
+        form.getFieldValue('isInternalSelection') !== undefined && 
+        form.validateFields(['isInternalSelection']).then(() => {
+            const isInternal = form.getFieldValue('isInternalSelection');
+            const currentName = form.getFieldValue('nome_vaga');
+            
+            if (currentName) {
+                if (isInternal && !currentName.includes('- INTERNA')) {
+                    form.setFieldsValue({ nome_vaga: `${currentName} - INTERNA` });
+                } else if (!isInternal && currentName.includes('- INTERNA')) {
+                    form.setFieldsValue({ nome_vaga: currentName.replace(' - INTERNA', '') });
+                }
+            }
+        }).catch(() => {/* ignora erros de validação */});
+    }, [form.getFieldValue('isInternalSelection')]);
 
     const showViewModal = (record: Vacancy) => {
         setSelectedVacancy(record);
@@ -263,11 +281,6 @@ export default function VacanciesPage() {
                 if (fileList.length > 0 && fileList[0].originFileObj) {
                     changedFields.imagem_capa = fileList[0].originFileObj;
                 }
-                if (Object.keys(changedFields).length === 0) {
-                    message.info('Nenhuma alteração detectada');
-                    setIsModalVisible(false);
-                    return;
-                }
 
                 if (
                     !changedFields.departamento_vaga &&
@@ -298,6 +311,18 @@ export default function VacanciesPage() {
                     changedFields.nome_vaga = currentVacancy.nome_vaga;
                 }
 
+                if (
+                    values.isInternalSelection !== currentVacancy.isInternalSelection
+                ) {
+                    if (values.isInternalSelection) {
+                        if (!values.nome_vaga.includes("- INTERNA")) {
+                            changedFields.nome_vaga = `${values.nome_vaga} - INTERNA`;
+                        }
+                    } else {
+                        changedFields.nome_vaga = values.nome_vaga.replace(" - INTERNA", "");
+                    }
+                }
+
                 console.log('Campos alterados:', changedFields);
 
                 await dispatch(
@@ -307,8 +332,14 @@ export default function VacanciesPage() {
 
                 refreshVacancies();
             } else {
+                let nome_vaga = values.nome_vaga;
+                
+                if (values.isInternalSelection && !nome_vaga.includes("- INTERNA")) {
+                    nome_vaga = `${nome_vaga} - INTERNA`;
+                }
+                
                 const vacancyData: CreateVacancyPayload = {
-                    nome_vaga: values.nome_vaga,
+                    nome_vaga: nome_vaga,
                     departamento_vaga: values.departamento_vaga,
                     requisitos: values.requisitos.join(','),
                     diferencial: values.diferencial.join(','),
@@ -430,11 +461,7 @@ export default function VacanciesPage() {
             title: 'Disponível',
             dataIndex: ['candidate', 'is_disponivel'],
             key: 'is_disponivel',
-            render: (value: string) => (
-                <Tag color={value === 'sim' ? 'green' : 'red'}>
-                    {value === 'sim' ? 'Sim' : 'Não'}
-                </Tag>
-            ),
+          
             filters: [
                 { text: 'Sim', value: 'sim' },
                 { text: 'Não', value: 'não' },
@@ -529,6 +556,7 @@ export default function VacanciesPage() {
             key: 'nome_vaga',
             sorter: (a: Vacancy, b: Vacancy) =>
                 a.nome_vaga.localeCompare(b.nome_vaga),
+          
         },
         {
             title: 'Departamento',
@@ -570,10 +598,8 @@ export default function VacanciesPage() {
             title: 'Status',
             key: 'status',
             render: (record: Vacancy) => {
-                const today = dayjs().format('YYYY-MM-DD');
-                const isActive =
-                    record.data_inicial <= today &&
-                    (!record.data_final || record.data_final >= today);
+                
+                const isActive = record.is_ativo
 
                 return (
                     <Tag color={isActive ? 'green' : 'red'}>
@@ -874,12 +900,26 @@ export default function VacanciesPage() {
                                 rules={[
                                     {
                                         required: true,
-                                        message:
-                                            'Por favor, informe o nome da vaga',
+                                        message: 'Por favor, selecione o cargo para a vaga',
                                     },
                                 ]}
                             >
-                                <Input />
+                                <Select
+                                    showSearch
+                                    placeholder="Selecione um cargo"
+                                    optionFilterProp="children"
+                                    filterOption={(input, option) =>
+                                        (option?.children as unknown as string)
+                                            .toLowerCase()
+                                            .includes(input.toLowerCase())
+                                    }
+                                >
+                                    {positions.map((cargo: string) => (
+                                        <Select.Option key={cargo} value={cargo}>
+                                            {cargo}
+                                        </Select.Option>
+                                    ))}
+                                </Select>
                             </Form.Item>
 
                             <Form.Item

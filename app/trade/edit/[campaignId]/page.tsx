@@ -13,6 +13,7 @@ import {
     fetchOperators,
     deleteParticipantFromCampaign,
     deleteItemFromCampaign,
+    updateParticipant,
 } from '@/hooks/slices/trade/tradeSlice';
 import { RootState, AppDispatch } from '@/hooks/store';
 import { debounce } from 'lodash';
@@ -62,6 +63,8 @@ export default function CampaignEdit() {
         null
     );
     const [escalaData, setEscalaData] = useState<IEscala[]>([]);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editingParticipant, setEditingParticipant] = useState<IParticipants | null>(null);
    
     useEffect(() => {
         if (campaignId) {
@@ -149,6 +152,53 @@ export default function CampaignEdit() {
             message.error(
                 'Por favor, selecione uma métrica antes de adicionar um operador.'
             );
+            return;
+        }
+
+        if (isEditing && editingParticipant) {
+            const metaValorNumber = parseFloat(String(meta_valor));
+            
+            const updatedParticipant: Partial<IParticipants> = {
+                meta: tipoMeta,
+                meta_valor: tipoMeta === 'VALOR' ? metaValorNumber : 0,
+                meta_quantidade: tipoMeta === 'QUANTIDADE' ? metaValorNumber : 0,
+                premiacao: String(premiacao),
+                tipo_meta: tipoMeta,
+                idcampanha_distribuicao: Number(campaignId),
+                modelo: editingParticipant.modelo,
+                idparticipante: editingParticipant.idparticipante,
+                nome: editingParticipant.nome,
+                tipo: editingParticipant.tipo,
+                label: editingParticipant.label,
+                metrica: tipoMeta
+            };
+
+            // Log para debug
+            console.log('Atualizando participante:', {
+                campaignId,
+                participantId: editingParticipant.idparticipante,
+                participantData: updatedParticipant
+            });
+
+            dispatch(
+                updateParticipant({
+                    campaignId,
+                    participantId: editingParticipant.idparticipante,
+                    participantData: updatedParticipant,
+                })
+            )
+                .unwrap()
+                .then(() => {
+                    message.success('Participante atualizado com sucesso!');
+                    setSelectedOperador('');
+                    setMetaValor('');
+                    setPremiacao('');
+                    setIsEditing(false);
+                    setEditingParticipant(null);
+                })
+                .catch((error) => {
+                    message.error(`Erro ao atualizar participante: ${error.message}`);
+                });
             return;
         }
 
@@ -379,6 +429,24 @@ export default function CampaignEdit() {
         setEscalaData(formattedMetas);
     };
 
+    const handleEditParticipant = (participant: IParticipants) => {
+        setIsEditing(true);
+        setEditingParticipant(participant);
+        setSelectedOperador(participant.nome);
+        setTipoOperador(participant.modelo === 'teleoperador' ? 'teleoperador' : 'vendedor');
+        setTipoMeta(participant.tipo_meta || 'VALOR');
+        setMetaValor(participant.tipo_meta === 'VALOR' ? participant.meta_valor : participant.meta_quantidade);
+        setPremiacao(participant.premiacao);
+    };
+
+    const handleCancelEdit = () => {
+        setIsEditing(false);
+        setEditingParticipant(null);
+        setSelectedOperador('');
+        setMetaValor('');
+        setPremiacao('');
+    };
+
     useEffect(() => {
         if (filiais && filiais.length > 0) {
             console.log('Filiais carregadas:', filiais);
@@ -545,8 +613,16 @@ export default function CampaignEdit() {
                                     className="bg-green-500 hover:bg-green-600"
                                     onClick={handleAddOperador}
                                 >
-                                    Adicionar
+                                    {isEditing ? 'Atualizar' : 'Adicionar'}
                                 </Button>
+                                {isEditing && (
+                                    <Button
+                                        className="bg-gray-400 hover:bg-gray-500"
+                                        onClick={handleCancelEdit}
+                                    >
+                                        Cancelar
+                                    </Button>
+                                )}
                             </div>
                             <Table
                                 dataSource={operadores}
@@ -583,14 +659,24 @@ export default function CampaignEdit() {
                                         title: 'Ação',
                                         key: 'acao',
                                         render: (_, record) => (
-                                            <Button
-                                                className="bg-red-500 hover:bg-red-600"
-                                                onClick={() =>
-                                                    showDeleteConfirm(record)
-                                                }
-                                            >
-                                                Remover
-                                            </Button>
+                                            <div className="flex space-x-2">
+                                                <Button
+                                                    className="bg-blue-500 hover:bg-blue-600 p-1"
+                                                    onClick={() => handleEditParticipant(record)}
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                                                    </svg>
+                                                </Button>
+                                                <Button
+                                                    className="bg-red-500 hover:bg-red-600"
+                                                    onClick={() =>
+                                                        showDeleteConfirm(record)
+                                                    }
+                                                >
+                                                    Remover
+                                                </Button>
+                                            </div>
                                         ),
                                     },
                                 ]}

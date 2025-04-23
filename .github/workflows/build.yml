@@ -23,5 +23,5 @@ jobs:
       # following lines. This would typically be used to fail a deployment.
       # - uses: SonarSource/sonarqube-quality-gate-action@v1
       #   timeout-minutes: 5
-      #   env:e
+      #   env:env
       #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

@@ -23,7 +23,6 @@ import { Escala, IEscala } from '@/types/Trade/IEscala';
 import { ICampaign } from '@/types/Trade/ICampaign';
 import { IProduct } from '@/types/Trade/IProduct';
 
-
 const { Option } = Select;
 
 export default function CampaignRegistration() {
@@ -58,10 +57,12 @@ export default function CampaignRegistration() {
         if (selectedOperador && meta_valor && premiacao) {
             const idparticipante =
                 tipoOperador === 'teleoperador'
-                    ? operators?.find((op: Operador) => op.nome === selectedOperador)
-                          ?.matricula
-                    : operators?.find((op: Operador) => op.nome === selectedOperador)
-                          ?.codusur;
+                    ? operators?.find(
+                          (op: Operador) => op.nome === selectedOperador
+                      )?.matricula
+                    : operators?.find(
+                          (op: Operador) => op.nome === selectedOperador
+                      )?.codusur;
 
             if (!idparticipante) {
                 message.error('Operador não encontrado!');
@@ -472,10 +473,18 @@ export default function CampaignRegistration() {
                                             option.label as string
                                         );
                                     }}
-                                    options={(products || []).map((product: IProduct) => ({
-                                        value: tipoMarcaProduto === 'produto' ? product.codprod : product.codmarca,
-                                        label: tipoMarcaProduto === 'produto' ? product.descricao : product.marca,
-                                    }))}
+                                    options={(products || []).map(
+                                        (product: IProduct) => ({
+                                            value:
+                                                tipoMarcaProduto === 'produto'
+                                                    ? product.codprod
+                                                    : product.codmarca,
+                                            label:
+                                                tipoMarcaProduto === 'produto'
+                                                    ? product.descricao
+                                                    : product.marca,
+                                        })
+                                    )}
                                 />
                             </div>
                             <Table

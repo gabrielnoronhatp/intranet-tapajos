@@ -1,7 +1,7 @@
 export interface IProduct {
     iditem: number;
     id: number;
-    label: string  ;
+    label: string;
     value: string | number;
     codprod: string;
     descricao: string;

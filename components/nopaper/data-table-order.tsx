@@ -9,7 +9,7 @@ import {
     Trash2,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import {   message, Modal } from 'antd';
+import { message, Modal } from 'antd';
 import { api } from '@/app/service/api';
 import './data-table-order-styles.css';
 import { Table as AntdTable } from 'antd';
@@ -19,22 +19,16 @@ import {
     setSignatureNumber,
     deleteFile,
 } from '@/hooks/slices/noPaper/noPaperSlice';
-import { useDispatch, } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { OrderState } from '@/types/noPaper/Order/OrderState';
 import { cancelOrder } from '@/hooks/slices/noPaper/orderSlice';
 import { ColumnType } from 'antd/es/table';
-import { CentroCusto } from '@/types/noPaper/Order/CentroCustoType';
-import { Item } from '@/types/noPaper/Order/ItemOrder';
 import { AppDispatch } from '@/hooks/store';
 interface DataTableOrderProps {
     searchParams: Record<string, string>;
-    // orders: OrderState[];
 }
 
-export function DataTableOrder({
-    searchParams,
-    // orders,
-}: DataTableOrderProps) {
+export function DataTableOrder({ searchParams }: DataTableOrderProps) {
     const dispatch = useDispatch<AppDispatch>();
 
     const [orders, setOrders] = useState<Array<OrderState>>([]);
@@ -43,7 +37,7 @@ export function DataTableOrder({
     const [fileUrls, setFileUrls] = useState<
         Array<{ url: string; name: string }>
     >([]);
-    
+
     const [isPinModalOpen, setIsPinModalOpen] = useState(false);
     const [orderDetails, setOrderDetails] = useState<OrderState | null>(null);
 
@@ -115,9 +109,6 @@ export function DataTableOrder({
         fetchOrders();
     };
 
-
-
-
     const checkUserPermission = async (
         signerName: string,
         signatureNumber: number
@@ -179,7 +170,6 @@ export function DataTableOrder({
 
     const handleDeleteFile = async (fileUrl: string) => {
         try {
-            // Para URLs no formato "https://intranet-tapajos.s3.us-east-1.amazonaws.com/578/1742492011990-NFSE 2133.pdf"
             const match = fileUrl.match(/amazonaws\.com\/(.+)$/);
 
             if (!match || !match[1]) {
@@ -187,7 +177,6 @@ export function DataTableOrder({
                 return;
             }
 
-            // Extrai a parte após "amazonaws.com/" (ex: "578/1742492011990-NFSE 2133.pdf")
             const fileKey = match[1];
 
             Modal.confirm({
@@ -195,11 +184,8 @@ export function DataTableOrder({
                 content: 'Você tem certeza que deseja excluir este arquivo?',
                 onOk: async () => {
                     try {
-                        await dispatch(deleteFile(fileKey))
+                        await dispatch(deleteFile(fileKey));
                         message.success('Arquivo excluído com sucesso');
-
-                        // Atualizar a lista de arquivos
-                       
                     } catch (error) {
                         console.error('Erro ao excluir arquivo:', error);
                         message.error('Erro ao excluir arquivo');
@@ -357,71 +343,214 @@ export function DataTableOrder({
             {isViewOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
                     <div className="bg-white p-5 rounded-lg shadow-lg w-[700px] max-h-[80vh] overflow-y-auto mt-20">
-                        <div className="grid  gap-6">
+                        <div className="grid gap-6">
                             <div>
                                 <h2 className="text-lg font-bold">
                                     Detalhes do Item
                                 </h2>
                                 <p>ID: {selectedItem?.id}</p>
-                                <p>Fornecedor: {selectedItem?.fornecedorOP}</p>
-                                <p>CNPJ: {selectedItem?.cnpj}</p>
-                                <p>Nota Fiscal: {selectedItem?.notaFiscal}</p>
                                 <p>
-                                    Forma de Pagamento: {selectedItem?.metodoOP}
+                                    Data de Lançamento:{' '}
+                                    {orderDetails?.dtlanc
+                                        ? new Date(
+                                              orderDetails.dtlanc
+                                          ).toLocaleDateString('pt-BR')
+                                        : '-'}
                                 </p>
+                                <p>
+                                    Fornecedor:{' '}
+                                    {orderDetails?.fornecedorOP || '-'}
+                                </p>
+                                <p>CNPJ: {selectedItem?.cnpj || '-'}</p>
+                                <p>
+                                    Nota Fiscal: {orderDetails?.notaOP || '-'}
+                                </p>
+                                <p>Série: {orderDetails?.serieOP || '-'}</p>
+                                <p>
+                                    Forma de Pagamento:{' '}
+                                    {orderDetails?.metodoOP || '-'}
+                                </p>
+                                <p>Ramo: {orderDetails?.ramoOP || '-'}</p>
+                                <p>
+                                    Opção de Lançamento:{' '}
+                                    {orderDetails?.opcaoLancOP || '-'}
+                                </p>
+                                <p>Loja: {orderDetails?.lojaOP || '-'}</p>
                                 <p>
                                     Conta Gerencial:{' '}
-                                        {selectedItem?.contagerencialOP }
+                                    {orderDetails?.contagerencialOP || '-'}
                                 </p>
-                                <p>Itens: {selectedItem?.qtitensOP}</p>
-                                <p>Parcelas: {selectedItem?.qtparcelasOP}</p>
-                                <p>Valor: {selectedItem?.valorimpostoOP}</p>
+                                <p>Itens: {orderDetails?.qtitensOP || '-'}</p>
                                 <p>
-                                    Assinatura 1:{' '}
-                                    {selectedItem?.assinatura1 ? 'Sim' : 'Não'}
+                                    Parcelas:{' '}
+                                    {orderDetails?.qtparcelasOP || '-'}
                                 </p>
                                 <p>
-                                    Assinatura 2:{' '}
-                                    {selectedItem?.assinatura2 ? 'Sim' : 'Não'}
+                                    Valor: {orderDetails?.valorimpostoOP || '-'}
                                 </p>
-                                <p>
-                                    Assinatura 3:{' '}
-                                    {selectedItem?.assinatura3 ? 'Sim' : 'Não'}
-                                </p>
+                                <p>Usuário: {orderDetails?.userOP || '-'}</p>
 
-                                {orderDetails && (
-                                    <>
-                                        <h3 className="text-md font-bold mt-2">
-                                            Itens Contratados:
-                                        </h3>
-                                        <ul>
-                                            {orderDetails?.produtosOP?.map(
-                                                (item: Item, index: number) => (
-                                                    <li key={index}>
-                                                        {item.produto} -{' '}
-                                                        {item.valor}
-                                                    </li>
-                                                )
-                                            )}
-                                        </ul>
-                                        <h3 className="text-md font-bold mt-2">
-                                            Centros de Custo:
-                                        </h3>
-                                        <ul>
-                                            {orderDetails?.ccustoOP?.map(
-                                                (
-                                                    centro: CentroCusto,
-                                                    index: number
-                                                ) => (
-                                                    <li key={index}>
-                                                        {centro.centrocusto} -{' '}
-                                                        {centro.valor}
-                                                    </li>
-                                                )
-                                            )}
-                                        </ul>
-                                    </>
+                                {orderDetails?.observacaoOP && (
+                                    <p>
+                                        Observação: {orderDetails.observacaoOP}
+                                    </p>
                                 )}
+
+                                {orderDetails &&
+                                    orderDetails.parcelasOP &&
+                                    orderDetails.parcelasOP.length > 0 && (
+                                        <>
+                                            <h3 className="text-md font-bold mt-4">
+                                                Parcelas:
+                                            </h3>
+                                            <div className="bg-gray-50 p-3 rounded border">
+                                                {orderDetails.parcelasOP.map(
+                                                    (parcela, index) => (
+                                                        <div
+                                                            key={index}
+                                                            className="mb-2 pb-2 border-b border-gray-200 last:border-b-0"
+                                                        >
+                                                            <p>
+                                                                Data:{' '}
+                                                                {parcela.parcela
+                                                                    ? new Date(
+                                                                          parcela.parcela
+                                                                      ).toLocaleDateString(
+                                                                          'pt-BR'
+                                                                      )
+                                                                    : '-'}
+                                                            </p>
+                                                            {parcela.banco && (
+                                                                <p>
+                                                                    Banco:{' '}
+                                                                    {
+                                                                        parcela.banco
+                                                                    }
+                                                                </p>
+                                                            )}
+                                                            {parcela.agencia && (
+                                                                <p>
+                                                                    Agência:{' '}
+                                                                    {
+                                                                        parcela.agencia
+                                                                    }
+                                                                </p>
+                                                            )}
+                                                            {parcela.conta && (
+                                                                <p>
+                                                                    Conta:{' '}
+                                                                    {
+                                                                        parcela.conta
+                                                                    }
+                                                                </p>
+                                                            )}
+                                                            {parcela.tipopix && (
+                                                                <p>
+                                                                    Tipo PIX:{' '}
+                                                                    {
+                                                                        parcela.tipopix
+                                                                    }
+                                                                </p>
+                                                            )}
+                                                            {parcela.chavepix && (
+                                                                <p>
+                                                                    Chave PIX:{' '}
+                                                                    {
+                                                                        parcela.chavepix
+                                                                    }
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    )
+                                                )}
+                                            </div>
+                                        </>
+                                    )}
+
+                                {orderDetails &&
+                                    orderDetails.produtosOP &&
+                                    orderDetails.produtosOP.length > 0 && (
+                                        <>
+                                            <h3 className="text-md font-bold mt-4">
+                                                Itens Contratados:
+                                            </h3>
+                                            <div className="bg-gray-50 p-4 rounded border">
+                                                {orderDetails.produtosOP.map(
+                                                    (item, index) => (
+                                                        <div
+                                                            key={index}
+                                                            className="mb-2 pb-2 border-b border-gray-200 last:border-b-0"
+                                                        >
+                                                            <p>
+                                                                <strong>
+                                                                    Produto:
+                                                                </strong>{' '}
+                                                                {item.produto}
+                                                            </p>
+                                                            <p>
+                                                                <strong>
+                                                                    Valor:
+                                                                </strong>{' '}
+                                                                R${' '}
+                                                                {parseFloat(
+                                                                    item.valor
+                                                                ).toLocaleString(
+                                                                    'pt-BR',
+                                                                    {
+                                                                        minimumFractionDigits: 2,
+                                                                    }
+                                                                )}
+                                                            </p>
+                                                        </div>
+                                                    )
+                                                )}
+                                            </div>
+                                        </>
+                                    )}
+
+                                {orderDetails &&
+                                    orderDetails.ccustoOP &&
+                                    orderDetails.ccustoOP.length > 0 && (
+                                        <>
+                                            <h3 className="text-md font-bold mt-4">
+                                                Centros de Custo:
+                                            </h3>
+                                            <div className="bg-gray-50 p-4 rounded border">
+                                                {orderDetails.ccustoOP.map(
+                                                    (centro, index) => (
+                                                        <div
+                                                            key={index}
+                                                            className="mb-2 pb-2 border-b border-gray-200 last:border-b-0"
+                                                        >
+                                                            <p>
+                                                                <strong>
+                                                                    Centro de
+                                                                    Custo:
+                                                                </strong>{' '}
+                                                                {
+                                                                    centro.centrocusto
+                                                                }
+                                                            </p>
+                                                            <p>
+                                                                <strong>
+                                                                    Valor:
+                                                                </strong>{' '}
+                                                                R${' '}
+                                                                {parseFloat(
+                                                                    centro.valor
+                                                                ).toLocaleString(
+                                                                    'pt-BR',
+                                                                    {
+                                                                        minimumFractionDigits: 2,
+                                                                    }
+                                                                )}
+                                                            </p>
+                                                        </div>
+                                                    )
+                                                )}
+                                            </div>
+                                        </>
+                                    )}
 
                                 {fileUrls.length > 0 && (
                                     <div className="mt-4">
@@ -484,7 +613,7 @@ export function DataTableOrder({
                                 setIsViewOpen(false);
                                 setOrderDetails(null);
                             }}
-                            className="mt-1 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
+                            className="mt-4 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
                         >
                             Fechar
                         </button>

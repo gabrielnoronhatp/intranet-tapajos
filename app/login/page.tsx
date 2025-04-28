@@ -12,7 +12,6 @@ import { setUserLanc } from '@/hooks/slices/trade/tradeSlice';
 
 export default function LoginPage() {
     const [isAuthenticated] = useState(false);
-
     const accessToken = useSelector(
         (state: RootState) => state.auth.accessToken
     );

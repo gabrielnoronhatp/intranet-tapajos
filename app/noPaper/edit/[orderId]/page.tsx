@@ -157,9 +157,9 @@ export default function EditOrderPage() {
         }
     };
 
-
-
-    const handleUploadChange = (info: UploadChangeParam<UploadFile<unknown>>) => {
+    const handleUploadChange = (
+        info: UploadChangeParam<UploadFile<unknown>>
+    ) => {
         if (info.file.status === 'done') {
             message.success(`${info.file.name} foi enviado com sucesso!`);
             setSelectedFile(info.file.originFileObj);
@@ -216,8 +216,6 @@ export default function EditOrderPage() {
     ) => {
         handleSetState(field, value);
     };
-
-    
 
     return (
         <AuthGuard>

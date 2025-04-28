@@ -18,7 +18,6 @@ export default function FinancialData() {
         } else {
             dispatch(setCurrentContract({ [field]: value }));
         }
-      
     };
 
     const [dtavista] = useState<string>('');
@@ -26,8 +25,6 @@ export default function FinancialData() {
     const { forma_pag, banco, agencia, tipopix, chavepix, conta } = useSelector(
         (state: RootState) => state.contracts.currentContract
     );
-
-   
 
     const handleFormaPagamentoChange = (value: string) => {
         handleSetState('forma_pag', value);
@@ -137,4 +134,3 @@ export default function FinancialData() {
         </FormSection>
     );
 }
-

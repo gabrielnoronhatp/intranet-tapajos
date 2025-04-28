@@ -14,7 +14,6 @@ interface FornecedorSelectProps {
 }
 
 export const FornecedorSelect = ({
-    
     fieldValue,
     handleSelectChange,
 }: FornecedorSelectProps) => {

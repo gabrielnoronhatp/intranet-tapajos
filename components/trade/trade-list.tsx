@@ -24,11 +24,10 @@ import { useRouter } from 'next/navigation';
 import useTokenRefresh from '@/hooks/useTokenRefresh';
 import dayjs from 'dayjs';
 import { MetaTableReadOnly } from './meta-table-readonly';
-import { ICampaign} from '@/types/Trade/ICampaign'; 
+import { ICampaign } from '@/types/Trade/ICampaign';
 import { IEscala } from '@/types/Trade/IEscala';
 import { IParticipants } from '@/types/Trade/IParticipants';
 import { IProduct } from '@/types/Trade/IProduct';
-
 
 export function TableTrade() {
     const [clientSideReady] = useState(false);
@@ -82,10 +81,12 @@ export function TableTrade() {
         (state: RootState) => state.trade || {}
     );
 
-    const sortedCampaigns = campaigns?.slice().sort((a: ICampaign, b: ICampaign) => {
-        //order by id descending
-        return (b.id as number) - (a.id as number);
-    });
+    const sortedCampaigns = campaigns
+        ?.slice()
+        .sort((a: ICampaign, b: ICampaign) => {
+            //order by id descending
+            return (b.id as number) - (a.id as number);
+        });
 
     const handleViewCampaign = (id: string) => {
         dispatch(fetchCampaignById(id)).then(() => {
@@ -115,7 +116,9 @@ export function TableTrade() {
                 const outrasLinhas = escalaData.filter(
                     (item: IEscala) => item.linha !== ''
                 );
-                metaGeralRange = outrasLinhas.map((item: IEscala) => item.linha || '');
+                metaGeralRange = outrasLinhas.map(
+                    (item: IEscala) => item.linha || ''
+                );
 
                 valoresMeta = [];
                 outrasLinhas.forEach((linha: IEscala, idxLinha: number) => {
@@ -331,17 +334,23 @@ export function TableTrade() {
                         <>
                             <Eye
                                 color="green"
-                                onClick={() => handleViewCampaign(record?.id as string)}
+                                onClick={() =>
+                                    handleViewCampaign(record?.id as string)
+                                }
                                 className="cursor-pointer hover:scale-110 transition-transform"
                             />
                             <Edit
                                 color="green"
-                                onClick={() => handleEditCampaign(record.id as string)}
+                                onClick={() =>
+                                    handleEditCampaign(record.id as string)
+                                }
                                 className="cursor-pointer hover:scale-110 transition-transform"
                             />
                             <Copy
                                 color="#4CAF50"
-                                onClick={() => handleCloneCampaign(record.id as string)}
+                                onClick={() =>
+                                    handleCloneCampaign(record.id as string)
+                                }
                                 className="cursor-pointer hover:scale-110 transition-transform"
                             />
                         </>

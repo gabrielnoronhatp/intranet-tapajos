@@ -16,7 +16,6 @@ interface NavbarProps {
 }
 
 export function Navbar({ onToggleSidebar }: NavbarProps) {
-  
     const dispatch = useDispatch();
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
     const user = useSelector((state: RootState) => state.auth.user);

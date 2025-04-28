@@ -18,6 +18,7 @@ import {
     Tabs,
     Pagination,
     UploadFile,
+    AutoComplete,
 } from 'antd';
 
 import { Upload as AntdUpload } from 'antd';
@@ -30,7 +31,6 @@ import {
     deleteVacancy,
     fetchDepartments,
     fetchAllTalents,
-    fetchVacancyById,
 } from '@/hooks/slices/vacancySlice';
 import dayjs from 'dayjs';
 import { Vacancy, CreateVacancyPayload } from '@/types/vacancy/IVacancy';
@@ -44,7 +44,7 @@ import { useRouter } from 'next/navigation';
 import { Users } from 'lucide-react';
 import { CustomTagRender } from '@/components/employees/tags';
 import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
-import VacancyCandidatesPage from './candidates/[id]/page';
+import { talentsColumns } from '@/components/employees/talent-columns';
 
 interface TalentCandidate {
     id: string;
@@ -132,21 +132,37 @@ export default function VacanciesPage() {
     }, [allTalents.data, searchText]);
 
     useEffect(() => {
-        // Monitora mudanças no tipo de seleção
-        form.getFieldValue('isInternalSelection') !== undefined && 
-        form.validateFields(['isInternalSelection']).then(() => {
-            const isInternal = form.getFieldValue('isInternalSelection');
-            const currentName = form.getFieldValue('nome_vaga');
-            
-            if (currentName) {
-                if (isInternal && !currentName.includes('- INTERNA')) {
-                    form.setFieldsValue({ nome_vaga: `${currentName} - INTERNA` });
-                } else if (!isInternal && currentName.includes('- INTERNA')) {
-                    form.setFieldsValue({ nome_vaga: currentName.replace(' - INTERNA', '') });
-                }
-            }
-        }).catch(() => {/* ignora erros de validação */});
-    }, [form.getFieldValue('isInternalSelection')]);
+        if (form.getFieldValue('isInternalSelection') !== undefined) {
+            form.validateFields(['isInternalSelection'])
+                .then(() => {
+                    const isInternal = form.getFieldValue(
+                        'isInternalSelection'
+                    );
+                    const currentName = form.getFieldValue('nome_vaga');
+
+                    if (currentName) {
+                        if (isInternal && !currentName.includes('- INTERNA')) {
+                            form.setFieldsValue({
+                                nome_vaga: `${currentName} - INTERNA`,
+                            });
+                        } else if (
+                            !isInternal &&
+                            currentName.includes('- INTERNA')
+                        ) {
+                            form.setFieldsValue({
+                                nome_vaga: currentName.replace(
+                                    ' - INTERNA',
+                                    ''
+                                ),
+                            });
+                        }
+                    }
+                })
+                .catch(() => {
+                    /* ignora erros de validação */
+                });
+        }
+    }, [form]);
 
     const showViewModal = (record: Vacancy) => {
         setSelectedVacancy(record);
@@ -312,18 +328,25 @@ export default function VacanciesPage() {
                 }
 
                 if (
-                    values.isInternalSelection !== currentVacancy.isInternalSelection
+                    values.isInternalSelection !==
+                    currentVacancy.isInternalSelection
                 ) {
                     if (values.isInternalSelection) {
-                        if (!values.nome_vaga.includes("- INTERNA")) {
+                        if (!values.nome_vaga.includes('- INTERNA')) {
                             changedFields.nome_vaga = `${values.nome_vaga} - INTERNA`;
                         }
                     } else {
-                        changedFields.nome_vaga = values.nome_vaga.replace(" - INTERNA", "");
+                        changedFields.nome_vaga = values.nome_vaga.replace(
+                            ' - INTERNA',
+                            ''
+                        );
                     }
                 }
 
-                console.log('Campos alterados:', changedFields);
+                if (!('limit_candidatos' in changedFields)) {
+                    changedFields.limit_candidatos =
+                        currentVacancy.limit_candidatos;
+                }
 
                 await dispatch(
                     updateVacancy({ id: editingId, data: changedFields })
@@ -333,16 +356,23 @@ export default function VacanciesPage() {
                 refreshVacancies();
             } else {
                 let nome_vaga = values.nome_vaga;
-                
-                if (values.isInternalSelection && !nome_vaga.includes("- INTERNA")) {
+
+                if (
+                    values.isInternalSelection &&
+                    !nome_vaga.includes('- INTERNA')
+                ) {
                     nome_vaga = `${nome_vaga} - INTERNA`;
                 }
-                
+
                 const vacancyData: CreateVacancyPayload = {
                     nome_vaga: nome_vaga,
                     departamento_vaga: values.departamento_vaga,
-                    requisitos: values.requisitos.join(','),
-                    diferencial: values.diferencial.join(','),
+                    requisitos: Array.isArray(values.requisitos)
+                        ? values.requisitos.join(',')
+                        : values.requisitos,
+                    diferencial: Array.isArray(values.diferencial)
+                        ? values.diferencial.join(',')
+                        : values.diferencial,
                     limit_candidatos: Number(values.limit_candidatos),
                     isInternalSelection: values.isInternalSelection,
                     url_link: values.url_link || null,
@@ -396,14 +426,10 @@ export default function VacanciesPage() {
         return dayjs(dateString).format('DD/MM/YYYY');
     };
 
-    const viewCandidates = (vacancyId: string,vacancyName: string) => {
-        router.push(`/vacancies/candidates/${vacancyId}?vacancyName=${vacancyName}`);
-        
-    };
-
-    const formatCpf = (cpf: string) => {
-        if (!cpf) return '-';
-        return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    const viewCandidates = (vacancyId: string, vacancyName: string) => {
+        router.push(
+            `/vacancies/candidates/${vacancyId}?vacancyName=${vacancyName}`
+        );
     };
 
     const handleTableChange = (page: number, pageSize?: number) => {
@@ -415,140 +441,6 @@ export default function VacanciesPage() {
         setSearchText(e.target.value);
     };
 
-    const talentsColumns = [
-        {
-            title: 'Nome',
-            dataIndex: ['candidate', 'nome_completo'],
-            key: 'nome_completo',
-            sorter: (a: TalentData, b: TalentData) =>
-                (a.candidate?.nome_completo || '').localeCompare(
-                    b.candidate?.nome_completo || ''
-                ),
-        },
-        {
-            title: 'CPF',
-            dataIndex: ['candidate', 'cpf'],
-            key: 'cpf',
-            render: (text: string) => formatCpf(text),
-        },
-        {
-            title: 'Email',
-            dataIndex: ['candidate', 'email'],
-            key: 'email',
-        },
-        {
-            title: 'Telefone',
-            dataIndex: ['candidate', 'telefone'],
-            key: 'telefone',
-        },
-        {
-            title: 'Primeira Experiência',
-            dataIndex: ['candidate', 'is_primeiraexperiencia'],
-            key: 'is_primeiraexperiencia',
-            render: (value: boolean) => (
-                <Tag color={value ? 'blue' : 'green'}>
-                    {value ? 'Sim' : 'Não'}
-                </Tag>
-            ),
-            filters: [
-                { text: 'Sim', value: true },
-                { text: 'Não', value: false },
-            ],
-            onFilter: (value: boolean, record: TalentData) =>
-                record.candidate?.is_primeiraexperiencia === value,
-        },
-        {
-            title: 'Disponível',
-            dataIndex: ['candidate', 'is_disponivel'],
-            key: 'is_disponivel',
-          
-            filters: [
-                { text: 'Sim', value: 'sim' },
-                { text: 'Não', value: 'não' },
-            ],
-            onFilter: (value: string, record: TalentData) =>
-                record.candidate?.is_disponivel === value,
-        },
-        {
-            title: 'Analisado',
-            dataIndex: ['candidate', 'is_analizado'],
-            key: 'is_analizado',
-            render: (value: boolean) => (
-                <Tag color={value ? 'green' : 'orange'}>
-                    {value ? 'Sim' : 'Não'}
-                </Tag>
-            ),
-            filters: [
-                { text: 'Sim', value: true },
-                { text: 'Não', value: false },
-            ],
-            onFilter: (value: boolean, record: TalentData) =>
-                record.candidate?.is_analizado === value,
-        },
-        {
-            title: 'Score',
-            dataIndex: ['analise', 'score'],
-            key: 'score',
-            render: (score: number | string) => {
-                let color = 'green';
-                const numScore =
-                    typeof score === 'string' ? parseFloat(score) : score || 0;
-
-                if (numScore < 5) color = 'red';
-                else if (numScore < 7) color = 'orange';
-
-                return <Tag color={color}>{score || 'N/A'}</Tag>;
-            },
-            sorter: (a: TalentData, b: TalentData) => {
-                const scoreA = a.analise?.score
-                    ? typeof a.analise.score === 'string'
-                        ? parseFloat(a.analise.score)
-                        : a.analise.score
-                    : 0;
-                const scoreB = b.analise?.score
-                    ? typeof b.analise.score === 'string'
-                        ? parseFloat(b.analise.score)
-                        : b.analise.score
-                    : 0;
-                return scoreA - scoreB;
-            },
-        },
-        {
-            title: 'Ações',
-            key: 'actions',
-            render: (_: TalentData, record: TalentData) => (
-                <div className="flex space-x-2">
-                    <Button
-                        type="primary"
-                        icon={<EyeOutlined />}
-                        onClick={() => {
-                            if (record.candidate) {
-                                message.info(
-                                    `Visualizando candidato: ${record.candidate.nome_completo}`
-                                );
-                            }
-                        }}
-                        className="bg-[#11833b] hover:bg-[#11833b]"
-                        size="small"
-                    />
-                    <Button
-                        type="primary"
-                        icon={<SearchOutlined />}
-                        onClick={() => {
-                            if (record.candidate?.file_cv) {
-                                window.open(record.candidate.file_cv, '_blank');
-                            } else {
-                                message.warning('Currículo não disponível');
-                            }
-                        }}
-                        className="bg-[#11833b] hover:bg-[#11833b]"
-                        size="small"
-                    />
-                </div>
-            ),
-        },
-    ];
-
     const columns = [
         {
             title: 'Vaga',
@@ -556,7 +448,6 @@ export default function VacanciesPage() {
             key: 'nome_vaga',
             sorter: (a: Vacancy, b: Vacancy) =>
                 a.nome_vaga.localeCompare(b.nome_vaga),
-          
         },
         {
             title: 'Departamento',
@@ -598,8 +489,7 @@ export default function VacanciesPage() {
             title: 'Status',
             key: 'status',
             render: (record: Vacancy) => {
-                
-                const isActive = record.is_ativo
+                const isActive = record.is_ativo;
 
                 return (
                     <Tag color={isActive ? 'green' : 'red'}>
@@ -668,7 +558,9 @@ export default function VacanciesPage() {
                     <Button
                         type="primary"
                         icon={<Users />}
-                        onClick={() => viewCandidates(record.id,record.nome_vaga)}
+                        onClick={() =>
+                            viewCandidates(record.id, record.nome_vaga)
+                        }
                         className="bg-[#11833b] hover:bg-[#11833b]"
                         size="small"
                     ></Button>
@@ -726,7 +618,7 @@ export default function VacanciesPage() {
                                             allowClear
                                         />
                                     </div>
-                                    <AntdTable 
+                                    <AntdTable
                                         columns={talentsColumns as any}
                                         dataSource={filteredTalents}
                                         rowKey={(record: TalentData) =>
@@ -900,26 +792,48 @@ export default function VacanciesPage() {
                                 rules={[
                                     {
                                         required: true,
-                                        message: 'Por favor, selecione o cargo para a vaga',
+                                        message:
+                                            'Por favor, selecione o cargo para a vaga',
                                     },
                                 ]}
                             >
-                                <Select
-                                    showSearch
-                                    placeholder="Selecione um cargo"
-                                    optionFilterProp="children"
-                                    filterOption={(input, option) =>
-                                        (option?.children as unknown as string)
+                                <AutoComplete
+                                    placeholder="Selecione ou digite um cargo"
+                                    style={{ width: '100%' }}
+                                    options={positions.map((cargo: string) => ({
+                                        value: cargo,
+                                        label: cargo,
+                                    }))}
+                                    filterOption={(inputValue, option) =>
+                                        option!.value
                                             .toLowerCase()
-                                            .includes(input.toLowerCase())
+                                            .indexOf(
+                                                inputValue.toLowerCase()
+                                            ) !== -1
                                     }
-                                >
-                                    {positions.map((cargo: string) => (
-                                        <Select.Option key={cargo} value={cargo}>
-                                            {cargo}
-                                        </Select.Option>
-                                    ))}
-                                </Select>
+                                    onChange={(value) => {
+                                        form.setFieldsValue({
+                                            nome_vaga: value,
+                                        });
+                                    }}
+                                    onSelect={(value) => {
+                                        form.setFieldsValue({
+                                            nome_vaga: value,
+                                        });
+                                    }}
+                                    onBlur={(e) => {
+                                        const value = e.target.value;
+                                        if (
+                                            value &&
+                                            !positions.includes(value)
+                                        ) {
+                                            dispatch({
+                                                type: 'vacancy/setPositions',
+                                                payload: [...positions, value],
+                                            });
+                                        }
+                                    }}
+                                />
                             </Form.Item>
 
                             <Form.Item
@@ -933,36 +847,7 @@ export default function VacanciesPage() {
                                     },
                                 ]}
                             >
-                                <Select loading={departmentsLoading}>
-                                    {departments && departments.length > 0 ? (
-                                        departments.map((dept) => (
-                                            <Select.Option
-                                                key={dept}
-                                                value={dept}
-                                            >
-                                                {dept}
-                                            </Select.Option>
-                                        ))
-                                    ) : (
-                                        <>
-                                            <Select.Option value="TI">
-                                                TI
-                                            </Select.Option>
-                                            <Select.Option value="RH">
-                                                RH
-                                            </Select.Option>
-                                            <Select.Option value="Financeiro">
-                                                Financeiro
-                                            </Select.Option>
-                                            <Select.Option value="Comercial">
-                                                Comercial
-                                            </Select.Option>
-                                            <Select.Option value="Marketing">
-                                                Marketing
-                                            </Select.Option>
-                                        </>
-                                    )}
-                                </Select>
+                                <Input />
                             </Form.Item>
 
                             <Form.Item
@@ -1027,12 +912,26 @@ export default function VacanciesPage() {
                                 },
                             ]}
                         >
-                            <Select
-                                mode="tags"
-                                style={{ width: '100%' }}
+                            <Input
                                 placeholder="Digite um requisito e pressione Enter"
-                                tokenSeparators={[',', ';']}
-                                tagRender={CustomTagRender}
+                                value={form.getFieldValue('requisitos')}
+                                onChange={(e) => {
+                                    form.setFieldsValue({
+                                        requisitos: e.target.value,
+                                    });
+                                }}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        const currentValue =
+                                            form.getFieldValue('requisitos');
+                                        if (currentValue) {
+                                            form.setFieldsValue({
+                                                requisitos: currentValue + ',',
+                                            });
+                                        }
+                                    }
+                                }}
                             />
                         </Form.Item>
                         <Form.Item
@@ -1046,12 +945,26 @@ export default function VacanciesPage() {
                                 },
                             ]}
                         >
-                            <Select
-                                mode="tags"
-                                style={{ width: '100%' }}
+                            <Input
                                 placeholder="Digite um diferencial e pressione Enter"
-                                tokenSeparators={[',', ';']}
-                                tagRender={CustomTagRender}
+                                value={form.getFieldValue('diferencial')}
+                                onChange={(e) => {
+                                    form.setFieldsValue({
+                                        diferencial: e.target.value,
+                                    });
+                                }}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        const currentValue =
+                                            form.getFieldValue('diferencial');
+                                        if (currentValue) {
+                                            form.setFieldsValue({
+                                                diferencial: currentValue + ',',
+                                            });
+                                        }
+                                    }
+                                }}
                             />
                         </Form.Item>
                         <Form.Item
@@ -1066,12 +979,22 @@ export default function VacanciesPage() {
                             ]}
                         >
                             <AntdUpload
+                                accept="image/*"
                                 listType="picture-card"
                                 fileList={fileList}
                                 onChange={({ fileList }) =>
                                     setFileList(fileList)
                                 }
-                                beforeUpload={() => false}
+                                beforeUpload={(file) => {
+                                    const isImage =
+                                        file.type.startsWith('image/');
+                                    if (!isImage) {
+                                        message.error(
+                                            'Você só pode fazer upload de imagens!'
+                                        );
+                                    }
+                                    return false;
+                                }}
                                 maxCount={1}
                             >
                                 {fileList.length < 1 && 'Upload'}

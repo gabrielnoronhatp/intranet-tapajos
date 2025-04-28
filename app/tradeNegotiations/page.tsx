@@ -5,13 +5,17 @@ import { Sidebar } from '@/components/layout/sidebar';
 import { Button } from '@/components/ui/button';
 import { Input, Select, Table } from 'antd';
 
-
-
 export default function NegotiationsRegistration() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [tables, setTables] = useState([1]);
-    const [contacts, setContacts] = useState<{ nome: string; email: string; celular: string; key: number }[]>([]);
-    const [contactInput, setContactInput] = useState({ nome: '', email: '', celular: '' });
+    const [contacts, setContacts] = useState<
+        { nome: string; email: string; celular: string; key: number }[]
+    >([]);
+    const [contactInput, setContactInput] = useState({
+        nome: '',
+        email: '',
+        celular: '',
+    });
 
     const addTable = () => {
         setTables([...tables, tables.length + 1]);
@@ -54,7 +58,10 @@ export default function NegotiationsRegistration() {
                         </div>
 
                         {tables.map((tableNumber) => (
-                            <div key={tableNumber} className="bg-white p-4 rounded shadow">
+                            <div
+                                key={tableNumber}
+                                className="bg-white p-4 rounded shadow"
+                            >
                                 <h2 className="text-lg font-bold text-green-600">
                                     Objeto da Campanha #{tableNumber}
                                 </h2>
@@ -73,10 +80,22 @@ export default function NegotiationsRegistration() {
                                 <Table
                                     dataSource={[]}
                                     columns={[
-                                        { title: 'Nome', dataIndex: 'nome', key: 'nome' },
+                                        {
+                                            title: 'Nome',
+                                            dataIndex: 'nome',
+                                            key: 'nome',
+                                        },
                                         { title: 'Meta', key: 'meta' },
-                                        { title: 'Premiação', dataIndex: 'premiacao', key: 'premiacao' },
-                                        { title: 'Tipo', dataIndex: 'tipo', key: 'tipo' },
+                                        {
+                                            title: 'Premiação',
+                                            dataIndex: 'premiacao',
+                                            key: 'premiacao',
+                                        },
+                                        {
+                                            title: 'Tipo',
+                                            dataIndex: 'tipo',
+                                            key: 'tipo',
+                                        },
                                         { title: 'Ação', key: 'acao' },
                                     ]}
                                     rowKey="idparticipante"
@@ -84,7 +103,10 @@ export default function NegotiationsRegistration() {
                                 />
                             </div>
                         ))}
-                        <Button onClick={addTable} className="bg-blue-500 hover:bg-blue-600 mt-4">
+                        <Button
+                            onClick={addTable}
+                            className="bg-blue-500 hover:bg-blue-600 mt-4"
+                        >
                             Adicionar Nova Tabela
                         </Button>
 
@@ -97,31 +119,61 @@ export default function NegotiationsRegistration() {
                                 <Input
                                     placeholder="Nome"
                                     value={contactInput.nome}
-                                    onChange={(e) => setContactInput({ ...contactInput, nome: e.target.value })}
+                                    onChange={(e) =>
+                                        setContactInput({
+                                            ...contactInput,
+                                            nome: e.target.value,
+                                        })
+                                    }
                                     className="flex-1"
                                 />
                                 <Input
                                     placeholder="Email"
                                     value={contactInput.email}
-                                    onChange={(e) => setContactInput({ ...contactInput, email: e.target.value })}
+                                    onChange={(e) =>
+                                        setContactInput({
+                                            ...contactInput,
+                                            email: e.target.value,
+                                        })
+                                    }
                                     className="flex-1"
                                 />
                                 <Input
                                     placeholder="Número de Celular"
                                     value={contactInput.celular}
-                                    onChange={(e) => setContactInput({ ...contactInput, celular: e.target.value })}
+                                    onChange={(e) =>
+                                        setContactInput({
+                                            ...contactInput,
+                                            celular: e.target.value,
+                                        })
+                                    }
                                     className="flex-1"
                                 />
-                                <Button onClick={addContact} className="bg-green-500 hover:bg-green-600">
+                                <Button
+                                    onClick={addContact}
+                                    className="bg-green-500 hover:bg-green-600"
+                                >
                                     Adicionar Contato
                                 </Button>
                             </div>
                             <Table
                                 dataSource={contacts}
                                 columns={[
-                                    { title: 'Nome', dataIndex: 'nome', key: 'nome' },
-                                    { title: 'Email', dataIndex: 'email', key: 'email' },
-                                    { title: 'Número de Celular', dataIndex: 'celular', key: 'celular' },
+                                    {
+                                        title: 'Nome',
+                                        dataIndex: 'nome',
+                                        key: 'nome',
+                                    },
+                                    {
+                                        title: 'Email',
+                                        dataIndex: 'email',
+                                        key: 'email',
+                                    },
+                                    {
+                                        title: 'Número de Celular',
+                                        dataIndex: 'celular',
+                                        key: 'celular',
+                                    },
                                 ]}
                                 rowKey="key"
                                 pagination={false}

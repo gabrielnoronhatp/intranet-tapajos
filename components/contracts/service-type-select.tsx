@@ -17,9 +17,7 @@ interface ServiceTypeSelectProps {
     handleSelectChange: (value: string) => void;
 }
 
-
 export const ServiceTypeSelect = ({
-
     fieldValue,
     handleSelectChange,
 }: ServiceTypeSelectProps) => {
@@ -115,7 +113,13 @@ export const ServiceTypeSelect = ({
                 showSearch
                 placeholder="Selecione o tipo de serviço"
                 optionFilterProp="children"
-                value={fieldValue ? String(fieldValue) : currentContract.idtipo ? String(currentContract.idtipo) : undefined}
+                value={
+                    fieldValue
+                        ? String(fieldValue)
+                        : currentContract.idtipo
+                          ? String(currentContract.idtipo)
+                          : undefined
+                }
                 onChange={handleChange}
                 loading={loading || isLoading}
                 options={options}

@@ -1,4 +1,4 @@
-import { IFile } from "./IFile";
+import { IFile } from './IFile';
 
 export interface IContract {
     id: number;
@@ -12,9 +12,9 @@ export interface IContract {
     endereco2?: string;
     email1?: string;
     email2?: string;
-    data_venc_contrato?: string | Date  ;
+    data_venc_contrato?: string | Date;
     indice?: string;
-    forma_pag?: string | number  ; 
+    forma_pag?: string | number;
     agencia?: string;
     conta?: string;
     tipo_chave_pix?: string;
@@ -37,7 +37,4 @@ export interface IContract {
     banco?: string;
 }
 
-
 export type ContractFormState = Partial<IContract>;
-
-

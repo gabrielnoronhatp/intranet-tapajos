@@ -5,9 +5,9 @@ import { IParticipants } from './IParticipants';
 import { IProduct } from './IProduct';
 
 export interface ICampaign {
-    id?: number | string | undefined ;
-    idcampanha_distribuicao?: number; 
-    idempresa?: number | string | undefined ;
+    id?: number | string | undefined;
+    idcampanha_distribuicao?: number;
+    idempresa?: number | string | undefined;
     nome?: string;
     datainicial?: string;
     datafinal?: string;
@@ -25,9 +25,8 @@ export interface ICampaign {
     filiais?: IFilial[];
     participantes?: IParticipants[];
     escala?: IEscala[];
-    itens?: IProduct[] ;
+    itens?: IProduct[];
 }
-
 
 export interface IValorMeta {
     idMetaGeral: number;

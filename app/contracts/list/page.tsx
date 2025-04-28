@@ -7,7 +7,7 @@ import { Navbar } from '@/components/layout/navbar';
 import { Sidebar } from '@/components/layout/sidebar';
 import { FloatingActionButton } from '@/components/nopaper/floating-action-button';
 import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
-import { IContract} from '@/types/Contracts/Contracts';
+import { IContract } from '@/types/Contracts/Contracts';
 import {
     fetchContracts,
     fetchServiceTypes,

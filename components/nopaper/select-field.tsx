@@ -10,7 +10,6 @@ import {
     SelectLabel,
 } from '@/components/ui/select';
 
-
 interface SelectFieldProps {
     label: string;
     options: { value: string; label: string }[];

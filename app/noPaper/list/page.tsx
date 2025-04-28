@@ -7,7 +7,7 @@ import { DataTableOrder } from '@/components/nopaper/data-table-order';
 import { FloatingActionButton } from '@/components/nopaper/floating-action-button';
 import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
 import { useState, useEffect } from 'react';
-import dayjs  from 'dayjs';
+import dayjs from 'dayjs';
 import { api } from '@/app/service/api';
 import { OrderState } from '@/types/noPaper/Order/OrderState';
 import { DatePicker } from 'antd';
@@ -33,7 +33,7 @@ export default function NoPaperList() {
     };
 
     const handleDateRangeChange = (
-        dates: any, 
+        dates: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null,
         dateStrings: [string, string]
     ) => {
         if (dates && dates[0] && dates[1]) {
@@ -63,7 +63,7 @@ export default function NoPaperList() {
             }
         }
         fetchOrders();
-    }, [searchParams,orders ]);
+    }, [searchParams, orders]);
 
     return (
         <AuthGuard>
@@ -132,7 +132,7 @@ export default function NoPaperList() {
                                         >
                                             Período
                                         </label>
-                                            <DatePicker.RangePicker 
+                                        <DatePicker.RangePicker
                                             onChange={handleDateRangeChange}
                                             placeholder={[
                                                 'Data de Início',

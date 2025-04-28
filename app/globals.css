@@ -1,4 +1,4 @@
- @tailwind base;
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -57,9 +57,7 @@
     }
 }
 
-
 .iconsidebar {
     margin-left: 12px !important;
     padding: 0px !important;
-    
 }

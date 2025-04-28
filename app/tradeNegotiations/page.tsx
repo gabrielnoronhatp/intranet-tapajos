@@ -3,13 +3,15 @@ import React, { useState, useEffect } from 'react';
 import { Navbar } from '@/components/layout/navbar';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Button } from '@/components/ui/button';
-import { Input, Select, Table, message } from 'antd';
+import { Input, Select, Table, message, Tabs } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/hooks/store';
 import {
     createNegotiationCampaign,
     fetchNegotiationCampaigns,
 } from '@/hooks/slices/trade/tradeNegotiations';
+
+const { TabPane } = Tabs;
 
 export default function NegotiationsRegistration() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -22,6 +24,9 @@ export default function NegotiationsRegistration() {
         email: '',
         celular: '',
     });
+
+    // Estado para armazenar a aba ativa para cada tabela
+    const [activeTabKeys, setActiveTabKeys] = useState<Record<number, string>>({});
 
     const [descricao, setDescricao] = useState('');
     const [dataInicial, setDataInicial] = useState('');
@@ -45,7 +50,21 @@ export default function NegotiationsRegistration() {
     }, [error]);
 
     const addTable = () => {
-        setTables([...tables, tables.length + 1]);
+        const newTableNumber = tables.length + 1;
+        setTables([...tables, newTableNumber]);
+        // Define a aba padrão para a nova tabela como 'loja'
+        setActiveTabKeys(prev => ({
+            ...prev,
+            [newTableNumber]: 'loja'
+        }));
+    };
+
+    // Função para alterar a aba ativa de uma tabela específica
+    const handleTabChange = (tabNumber: number, activeKey: string) => {
+        setActiveTabKeys(prev => ({
+            ...prev,
+            [tabNumber]: activeKey
+        }));
     };
 
     const addContact = () => {
@@ -68,7 +87,6 @@ export default function NegotiationsRegistration() {
         try {
             setIsLoading(true);
 
-            // Formatando as datas para o formato correto
             const dataInicialFormatted = dataInicial.includes('T')
                 ? dataInicial.split('T')[0]
                 : dataInicial;
@@ -151,45 +169,104 @@ export default function NegotiationsRegistration() {
                                 key={tableNumber}
                                 className="bg-white p-4 rounded shadow"
                             >
-                                <h2 className="text-lg font-bold text-green-600">
+                                <h2 className="text-lg font-bold text-green-600 mb-3">
                                     Objeto da Campanha #{tableNumber}
                                 </h2>
-                                <div className="flex gap-2 mb-2">
-                                    <Select
-                                        showSearch
-                                        className="flex-1"
-                                        placeholder="Buscar operador..."
-                                    >
-                                        {/* Options would be populated here */}
-                                    </Select>
-                                </div>
-                                <Button className="bg-green-500 hover:bg-green-600">
-                                    Adicionar
-                                </Button>
-                                <Table
-                                    dataSource={[]}
-                                    columns={[
-                                        {
-                                            title: 'Nome',
-                                            dataIndex: 'nome',
-                                            key: 'nome',
-                                        },
-                                        { title: 'Meta', key: 'meta' },
-                                        {
-                                            title: 'Premiação',
-                                            dataIndex: 'premiacao',
-                                            key: 'premiacao',
-                                        },
-                                        {
-                                            title: 'Tipo',
-                                            dataIndex: 'tipo',
-                                            key: 'tipo',
-                                        },
-                                        { title: 'Ação', key: 'acao' },
-                                    ]}
-                                    rowKey="idparticipante"
-                                    pagination={false}
-                                />
+                                
+                                <Tabs 
+                                    activeKey={activeTabKeys[tableNumber] || 'loja'}
+                                    onChange={(key) => handleTabChange(tableNumber, key)}
+                                    className="mb-3"
+                                >
+                                    <TabPane tab="Loja" key="loja">
+                                        <div className="flex gap-2 mb-2">
+                                            <Select
+                                                showSearch
+                                                className="flex-1"
+                                                placeholder="Buscar loja..."
+                                            >
+                                            </Select>
+                                            <Button className="bg-green-500 hover:bg-green-600">
+                                                Adicionar
+                                            </Button>
+                                        </div>
+                                        <Table
+                                            dataSource={[]}
+                                            columns={[
+                                                {
+                                                    title: 'Nome da Loja',
+                                                    dataIndex: 'nome',
+                                                    key: 'nome',
+                                                },
+                                                { 
+                                                    title: 'Código', 
+                                                    dataIndex: 'codigo',
+                                                    key: 'codigo' 
+                                                },
+                                                {
+                                                    title: 'Meta',
+                                                    dataIndex: 'meta',
+                                                    key: 'meta',
+                                                },
+                                                {
+                                                    title: 'Premiação',
+                                                    dataIndex: 'premiacao',
+                                                    key: 'premiacao',
+                                                },
+                                                { 
+                                                    title: 'Ação', 
+                                                    key: 'acao' 
+                                                },
+                                            ]}
+                                            rowKey="id"
+                                            pagination={false}
+                                        />
+                                    </TabPane>
+                                    <TabPane tab="Produtos" key="produtos">
+                                        <div className="flex gap-2 mb-2">
+                                            <Select
+                                                showSearch
+                                                className="flex-1"
+                                                placeholder="Buscar produto..."
+                                            >
+                                            </Select>
+                                            <Button className="bg-green-500 hover:bg-green-600">
+                                                Adicionar
+                                            </Button>
+                                        </div>
+                                        <Table
+                                            dataSource={[]}
+                                            columns={[
+                                                {
+                                                    title: 'Produto',
+                                                    dataIndex: 'nome',
+                                                    key: 'nome',
+                                                },
+                                                { 
+                                                    title: 'Código', 
+                                                    dataIndex: 'codigo',
+                                                    key: 'codigo' 
+                                                },
+                                                {
+                                                    title: 'Quantidade',
+                                                    dataIndex: 'quantidade',
+                                                    key: 'quantidade',
+                                                },
+                                                {
+                                                    title: 'Valor',
+                                                    dataIndex: 'valor',
+                                                    key: 'valor',
+                                                },
+                                                { 
+                                                    title: 'Ação', 
+                                                    key: 'acao' 
+                                                },
+                                            ]}
+                                            rowKey="id"
+                                            pagination={false}
+                                        />
+                                    </TabPane>
+                                </Tabs>
                             </div>
                         ))}
                         <Button

@@ -822,7 +822,7 @@ export default function VacanciesPage() {
                                         });
                                     }}
                                     onBlur={(e) => {
-                                        const value = e.target.value;
+                                        const value = (e.target as HTMLInputElement).value;
                                         if (
                                             value &&
                                             !positions.includes(value)

@@ -1,9 +1,15 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navbar } from '@/components/layout/navbar';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Button } from '@/components/ui/button';
-import { Input, Select, Table } from 'antd';
+import { Input, Select, Table, message } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/hooks/store';
+import {
+    createNegotiationCampaign,
+    fetchNegotiationCampaigns,
+} from '@/hooks/slices/trade/tradeNegotiations';
 
 export default function NegotiationsRegistration() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -17,13 +23,80 @@ export default function NegotiationsRegistration() {
         celular: '',
     });
 
+    const [descricao, setDescricao] = useState('');
+    const [dataInicial, setDataInicial] = useState('');
+    const [dataFinal, setDataFinal] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+
+    const dispatch = useDispatch<AppDispatch>();
+    const { user } = useSelector((state: RootState) => state.auth);
+    const { error } = useSelector(
+        (state: RootState) => state.tradeNegotiations
+    );
+
+    useEffect(() => {
+        dispatch(fetchNegotiationCampaigns());
+    }, [dispatch]);
+
+    useEffect(() => {
+        if (error) {
+            message.error(`Erro: ${error}`);
+        }
+    }, [error]);
+
     const addTable = () => {
         setTables([...tables, tables.length + 1]);
     };
 
     const addContact = () => {
+        if (!contactInput.nome) {
+            message.error('Nome é obrigatório para adicionar um contato');
+            return;
+        }
+
         setContacts([...contacts, { ...contactInput, key: contacts.length }]);
         setContactInput({ nome: '', email: '', celular: '' });
+    };
+
+    // Função para salvar a negociação
+    const handleSubmit = async () => {
+        if (!descricao || !dataInicial || !dataFinal) {
+            message.error('Por favor, preencha todos os campos obrigatórios');
+            return;
+        }
+
+        try {
+            setIsLoading(true);
+
+            // Formatando as datas para o formato correto
+            const dataInicialFormatted = dataInicial.includes('T')
+                ? dataInicial.split('T')[0]
+                : dataInicial;
+
+            const dataFinalFormatted = dataFinal.includes('T')
+                ? dataFinal.split('T')[0]
+                : dataFinal;
+
+            const negociationData = {
+                descricao: descricao,
+                data_inicial: dataInicialFormatted,
+                data_final: dataFinalFormatted,
+                usuario: user?.username || 'Usuário',
+            };
+
+            await dispatch(createNegotiationCampaign(negociationData)).unwrap();
+            message.success('Negociação cadastrada com sucesso!');
+
+            // Limpar os campos após salvar
+            setDescricao('');
+            setDataInicial('');
+            setDataFinal('');
+        } catch (error) {
+            console.error('Erro ao salvar negociação:', error);
+            message.error('Erro ao cadastrar negociação. Tente novamente.');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -45,14 +118,30 @@ export default function NegotiationsRegistration() {
                             <Input
                                 placeholder="Nome da Negociação"
                                 className="mb-2"
+                                value={descricao}
+                                onChange={(e) => setDescricao(e.target.value)}
                             />
                             <div className="">
                                 <h2 className="text-lg font-bold text-green-600">
                                     Período da Negociação
                                 </h2>
                                 <div className="flex gap-2">
-                                    <Input type="date" className="flex-1" />
-                                    <Input type="date" className="flex-1" />
+                                    <Input
+                                        type="date"
+                                        className="flex-1"
+                                        value={dataInicial}
+                                        onChange={(e) =>
+                                            setDataInicial(e.target.value)
+                                        }
+                                    />
+                                    <Input
+                                        type="date"
+                                        className="flex-1"
+                                        value={dataFinal}
+                                        onChange={(e) =>
+                                            setDataFinal(e.target.value)
+                                        }
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -181,8 +270,14 @@ export default function NegotiationsRegistration() {
                         </div>
 
                         <div className="flex justify-end">
-                            <Button className="  bg-green-500 hover:bg-green-600">
-                                Gerar
+                            <Button
+                                className="bg-green-500 hover:bg-green-600"
+                                onClick={handleSubmit}
+                                disabled={isLoading}
+                            >
+                                {isLoading
+                                    ? 'Salvando...'
+                                    : 'Salvar Negociação'}
                             </Button>
                         </div>
                     </div>

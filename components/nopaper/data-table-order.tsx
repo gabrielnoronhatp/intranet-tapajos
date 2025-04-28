@@ -493,7 +493,7 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
                                                                 </strong>{' '}
                                                                 R${' '}
                                                                 {parseFloat(
-                                                                    item.valor
+                                                                    item.valor.toString()
                                                                 ).toLocaleString(
                                                                     'pt-BR',
                                                                     {
@@ -537,7 +537,7 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
                                                                 </strong>{' '}
                                                                 R${' '}
                                                                 {parseFloat(
-                                                                    centro.valor
+                                                                    centro.valor.toString()
                                                                 ).toLocaleString(
                                                                     'pt-BR',
                                                                     {

@@ -22,7 +22,6 @@ import { toast } from 'react-hot-toast';
 import { NumericFormat } from 'react-number-format';
 import { IContract } from '@/types/Contracts/Contracts';
 
-
 export default function ContractForm() {
     const dispatch = useDispatch<AppDispatch>();
     const { currentContract } = useSelector(
@@ -134,7 +133,9 @@ export default function ContractForm() {
                                             label: filial.loja,
                                         }))}
                                         filterOption={(input: string, option) =>
-                                            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                                            (option?.label ?? '')
+                                                .toLowerCase()
+                                                .includes(input.toLowerCase())
                                         }
                                         className="w-full mb-4"
                                     />

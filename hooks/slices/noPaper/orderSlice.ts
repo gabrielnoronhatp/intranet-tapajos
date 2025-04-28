@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk} from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { api } from '@/app/service/api';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
@@ -8,9 +8,9 @@ import { Item } from '@/types/noPaper/Order/ItemOrder';
 import { Parcela } from '@/types/noPaper/Order/Parcela';
 import { OrderState } from '@/types/noPaper/Order/OrderState';
 
-const initialState:OrderState = {
+const initialState: OrderState = {
     id: '',
-    dtlanc: null as string | null ,
+    dtlanc: null as string | null,
     ramoOP: '',
     notaOP: '',
     qtparcelasOP: 0,
@@ -44,7 +44,7 @@ const initialState:OrderState = {
             valorUnitario: 0,
             valorTotal: 0,
             valor: 0,
-            centrocusto: [] ,
+            centrocusto: [],
         },
     ],
     observacaoOP: null,
@@ -116,7 +116,8 @@ const orderSlice = createSlice({
     initialState,
     reducers: {
         prepareOrderData: (state, action) => {
-            const { itens, centrosCusto, valorImposto, ...rest } = action.payload;
+            const { itens, centrosCusto, valorImposto, ...rest } =
+                action.payload;
             const produtosOP = itens.map((item: Item) => ({
                 produto: item.produto,
                 valor: item.valor,
@@ -127,7 +128,9 @@ const orderSlice = createSlice({
             }));
 
             state.id = '';
-            state.dtlanc = rest.dtlanc ? format(rest.dtlanc, 'yyyy-MM-dd') : null;
+            state.dtlanc = rest.dtlanc
+                ? format(rest.dtlanc, 'yyyy-MM-dd')
+                : null;
             state.ramoOP = rest.ramo || null;
             state.notaOP = rest.notaFiscal || null;
             state.qtparcelasOP = rest.installments || null;

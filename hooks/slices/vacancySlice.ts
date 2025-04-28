@@ -1,7 +1,11 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { Vacancy, CreateVacancyPayload } from '@/types/vacancy/IVacancy';
-import { EmailAprovado, EmailEntrevista, EmailRecusado } from '@/types/vacancy/IEmail';
+import {
+    EmailAprovado,
+    EmailEntrevista,
+    EmailRecusado,
+} from '@/types/vacancy/IEmail';
 
 interface Candidate {
     id: string;
@@ -46,31 +50,31 @@ export interface AllTalent {
     };
 }
 
-    interface VacancyState {
-        vacancies: Vacancy[];
+interface VacancyState {
+    vacancies: Vacancy[];
+    loading: boolean;
+    error: string | null;
+    currentVacancy: Vacancy | null;
+    candidates: CandidateWithAnalysis[];
+    candidatesLoading: boolean;
+    departments: string[];
+    departmentsLoading: boolean;
+    positions: string[];
+    positionsLoading: boolean;
+    allTalents: {
+        data: AllTalent[];
+        total: number;
+        page: number;
+        limit: number;
+        totalPages: number;
         loading: boolean;
+    };
+    emailStatus: {
+        loading: boolean;
+        success: boolean;
         error: string | null;
-        currentVacancy: Vacancy | null;
-        candidates: CandidateWithAnalysis[];
-        candidatesLoading: boolean;
-        departments: string[];
-        departmentsLoading: boolean;
-        positions: string[];
-        positionsLoading: boolean;
-        allTalents: {
-            data: AllTalent[];
-            total: number;
-            page: number;
-            limit: number;
-            totalPages: number; 
-            loading: boolean;
-        };
-        emailStatus: {
-            loading: boolean;
-            success: boolean;
-            error: string | null;
-        };
-    }
+    };
+}
 
 const initialState: VacancyState = {
     vacancies: [],
@@ -145,7 +149,7 @@ export const fetchVacancyById = createAsyncThunk(
                     Authorization: `Bearer ${auth.accessToken}`,
                 },
             });
-     
+
             return response.data;
         } catch (error) {
             if (axios.isAxiosError(error)) {
@@ -442,7 +446,10 @@ export const fetchDepartments = createAsyncThunk(
 
 export const fetchAllTalents = createAsyncThunk(
     'vacancy/fetchAllTalents',
-    async ({ page, limit }: { page: number; limit: number }, { getState, rejectWithValue }) => {
+    async (
+        { page, limit }: { page: number; limit: number },
+        { getState, rejectWithValue }
+    ) => {
         try {
             const { auth } = getState() as {
                 auth: { accessToken: string | null };
@@ -464,18 +471,21 @@ export const fetchAllTalents = createAsyncThunk(
             // A API já retorna no formato correto, não precisamos mapear
             return {
                 items: response.data, // Aqui estão os candidatos no formato correto
-                total: response.data.length, 
+                total: response.data.length,
                 page: page,
                 limit: limit,
-                totalPages: Math.ceil(response.data.length / limit)
+                totalPages: Math.ceil(response.data.length / limit),
             };
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
                 return rejectWithValue(
-                    error.response?.data?.message || 'Erro ao buscar todos os talentos'
+                    error.response?.data?.message ||
+                        'Erro ao buscar todos os talentos'
                 );
             }
-            return rejectWithValue('Erro desconhecido ao buscar todos os talentos');
+            return rejectWithValue(
+                'Erro desconhecido ao buscar todos os talentos'
+            );
         }
     }
 );
@@ -598,7 +608,6 @@ const vacancySlice = createSlice({
     name: 'vacancy',
     initialState,
     reducers: {
-       
         setError(state, action: PayloadAction<string | null>) {
             state.error = action.payload;
         },
@@ -794,7 +803,6 @@ const vacancySlice = createSlice({
         });
 
         //case to add current vacancy
-      
     },
 });
 

@@ -1,4 +1,3 @@
-
 export interface IFile {
     filename: string;
     file_url: string;

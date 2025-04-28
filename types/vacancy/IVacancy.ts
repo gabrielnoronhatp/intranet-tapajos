@@ -1,4 +1,4 @@
-export type Vacancy =  {
+export type Vacancy = {
     departamento_vaga: string;
     diferencial: string;
     imagem_capa: string;
@@ -14,9 +14,7 @@ export type Vacancy =  {
     limit_candidatos: number;
     data_inicial: string;
     data_criacao: string;
-}
- 
-
+};
 
 export interface CreateVacancyPayload {
     nome_vaga: string;
@@ -31,5 +29,3 @@ export interface CreateVacancyPayload {
     url_link?: string | null;
     criado_por?: string | null;
 }
-
-

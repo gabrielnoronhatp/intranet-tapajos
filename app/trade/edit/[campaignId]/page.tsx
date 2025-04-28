@@ -64,14 +64,15 @@ export default function CampaignEdit() {
     );
     const [escalaData, setEscalaData] = useState<IEscala[]>([]);
     const [isEditing, setIsEditing] = useState(false);
-    const [editingParticipant, setEditingParticipant] = useState<IParticipants | null>(null);
-   
+    const [editingParticipant, setEditingParticipant] =
+        useState<IParticipants | null>(null);
+
     useEffect(() => {
         if (campaignId) {
             dispatch(fetchCampaignById(campaignId));
             dispatch(fetchFiliais());
         }
-    }, [dispatch, campaignId , productName]);
+    }, [dispatch, campaignId, productName]);
 
     useEffect(() => {
         if (currentCampaign) {
@@ -157,11 +158,12 @@ export default function CampaignEdit() {
 
         if (isEditing && editingParticipant) {
             const metaValorNumber = parseFloat(String(meta_valor));
-            
+
             const updatedParticipant: Partial<IParticipants> = {
                 meta: tipoMeta,
                 meta_valor: tipoMeta === 'VALOR' ? metaValorNumber : 0,
-                meta_quantidade: tipoMeta === 'QUANTIDADE' ? metaValorNumber : 0,
+                meta_quantidade:
+                    tipoMeta === 'QUANTIDADE' ? metaValorNumber : 0,
                 premiacao: String(premiacao),
                 tipo_meta: tipoMeta,
                 idcampanha_distribuicao: Number(campaignId),
@@ -170,15 +172,11 @@ export default function CampaignEdit() {
                 nome: editingParticipant.nome,
                 tipo: editingParticipant.tipo,
                 label: editingParticipant.label,
-                metrica: tipoMeta
+                metrica: tipoMeta,
             };
 
             // Log para debug
-            console.log('Atualizando participante:', {
-                campaignId,
-                participantId: editingParticipant.idparticipante,
-                participantData: updatedParticipant
-            });
+           
 
             dispatch(
                 updateParticipant({
@@ -197,7 +195,9 @@ export default function CampaignEdit() {
                     setEditingParticipant(null);
                 })
                 .catch((error) => {
-                    message.error(`Erro ao atualizar participante: ${error.message}`);
+                    message.error(
+                        `Erro ao atualizar participante: ${error.message}`
+                    );
                 });
             return;
         }
@@ -223,14 +223,13 @@ export default function CampaignEdit() {
                     : Number(operatorFound.codusur);
 
             const metaValorNumber = parseFloat(String(meta_valor));
-            
+
             const participante: Partial<IParticipants> = {
                 modelo:
                     tipoOperador === 'teleoperador' ? 'teleoperador' : 'RCA',
                 meta: tipoMeta,
                 idparticipante,
-                meta_valor:
-                    tipoMeta === 'VALOR' ? metaValorNumber : 0,
+                meta_valor: tipoMeta === 'VALOR' ? metaValorNumber : 0,
                 meta_quantidade:
                     tipoMeta === 'QUANTIDADE' ? metaValorNumber : 0,
                 premiacao,
@@ -243,7 +242,7 @@ export default function CampaignEdit() {
                 metrica: tipoMeta,
             };
 
-            console.log('Novo participante:', participante);
+           
             setOperadores([...operadores, participante as IParticipants]);
             setSelectedOperador('');
             setMetaValor('');
@@ -433,9 +432,15 @@ export default function CampaignEdit() {
         setIsEditing(true);
         setEditingParticipant(participant);
         setSelectedOperador(participant.nome);
-        setTipoOperador(participant.modelo === 'teleoperador' ? 'teleoperador' : 'vendedor');
+        setTipoOperador(
+            participant.modelo === 'teleoperador' ? 'teleoperador' : 'vendedor'
+        );
         setTipoMeta(participant.tipo_meta || 'VALOR');
-        setMetaValor(participant.tipo_meta === 'VALOR' ? participant.meta_valor : participant.meta_quantidade);
+        setMetaValor(
+            participant.tipo_meta === 'VALOR'
+                ? participant.meta_valor
+                : participant.meta_quantidade
+        );
         setPremiacao(participant.premiacao);
     };
 
@@ -448,9 +453,6 @@ export default function CampaignEdit() {
     };
 
     useEffect(() => {
-        if (filiais && filiais.length > 0) {
-            console.log('Filiais carregadas:', filiais);
-        }
     }, [filiais]);
 
     return (
@@ -563,7 +565,10 @@ export default function CampaignEdit() {
                                     defaultActiveFirstOption={false}
                                     filterOption={false}
                                     onSearch={handleSearchOperador}
-                                    onSelect={(value, option: any) => {
+                                    onSelect={(
+                                        value,
+                                        option: { value: string; label: string }
+                                    ) => {
                                         setSelectedOperador(option.label);
                                     }}
                                     options={(operators || []).map(
@@ -636,11 +641,14 @@ export default function CampaignEdit() {
                                         title: 'Meta',
                                         key: 'meta',
                                         render: (record: IParticipants) => {
-                                            const value = record.tipo_meta === 'VALOR' 
-                                                ? record.meta_valor 
-                                                : record.meta_quantidade;
-                                            
-                                            return value !== undefined ? value.toLocaleString('pt-BR') : '0';
+                                            const value =
+                                                record.tipo_meta === 'VALOR'
+                                                    ? record.meta_valor
+                                                    : record.meta_quantidade;
+
+                                            return value !== undefined
+                                                ? value.toLocaleString('pt-BR')
+                                                : '0';
                                         },
                                     },
                                     {
@@ -648,7 +656,9 @@ export default function CampaignEdit() {
                                         dataIndex: 'premiacao',
                                         key: 'premiacao',
                                         render: (text: string) =>
-                                            parseFloat(text).toLocaleString('pt-BR'),
+                                            parseFloat(text).toLocaleString(
+                                                'pt-BR'
+                                            ),
                                     },
                                     {
                                         title: 'Tipo',
@@ -662,16 +672,33 @@ export default function CampaignEdit() {
                                             <div className="flex space-x-2">
                                                 <Button
                                                     className="bg-blue-500 hover:bg-blue-600 p-1"
-                                                    onClick={() => handleEditParticipant(record)}
+                                                    onClick={() =>
+                                                        handleEditParticipant(
+                                                            record
+                                                        )
+                                                    }
                                                 >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        fill="none"
+                                                        viewBox="0 0 24 24"
+                                                        strokeWidth={1.5}
+                                                        stroke="currentColor"
+                                                        className="w-4 h-4"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
+                                                        />
                                                     </svg>
                                                 </Button>
                                                 <Button
                                                     className="bg-red-500 hover:bg-red-600"
                                                     onClick={() =>
-                                                        showDeleteConfirm(record)
+                                                        showDeleteConfirm(
+                                                            record
+                                                        )
                                                     }
                                                 >
                                                     Remover
@@ -830,7 +857,7 @@ export default function CampaignEdit() {
                                 Escala
                             </h2>
                             <MetaTable
-                                isEditing={true}    
+                                isEditing={true}
                                 campaignId={campaignId}
                                 escala={
                                     escalaProcessada && {

@@ -35,17 +35,16 @@ export function Sidebar({ isOpen }: SidebarProps) {
             icon: <FileChartColumnIncreasing className="h-6 w-6" />,
             label: 'Trade',
             children: [
-                {  
+                {
                     icon: <FileChartColumnIncreasing className="h-6 w-6" />,
                     key: '/trade/list',
                     label: <Link href="/trade/list">Campanhas </Link>,
                     className: 'iconsidebar',
-
                 },
                 {
                     icon: <FileChartColumnIncreasing className="h-6 w-6" />,
                     key: '/tradeNegotiations',
-                    label: <Link href="/tradeNegotiations">Negociações</Link>,
+                    label: <Link href="/tradeNegotiations/list">Negociações</Link>,
                     className: 'iconsidebar',
                 },
             ],
@@ -64,27 +63,18 @@ export function Sidebar({ isOpen }: SidebarProps) {
 
     return (
         <aside
-        className={`fixed left-0 top-16 h-[calc(100vh-4rem)] bg-white border-r transition-all duration-300 z-40 ${
-            isOpen ? 'w-64' : 'w-16'
-        }`}
-    >
-        <Menu
-            mode="inline"
-            selectedKeys={[pathname]}
-            items={menuItems}
-            className={`h-full [&_.ant-menu-item]:flex [&_.ant-menu-item]:items-center ${
-                !isOpen ? '[&_.ant-menu-submenu-arrow]:mt-4' : ''
+            className={`fixed left-0 top-16 h-[calc(100vh-4rem)] bg-white border-r transition-all duration-300 z-40 ${
+                isOpen ? 'w-64' : 'w-16'
             }`}
-
-        />
-    </aside>
+        >
+            <Menu
+                mode="inline"
+                selectedKeys={[pathname]}
+                items={menuItems}
+                className={`h-full [&_.ant-menu-item]:flex [&_.ant-menu-item]:items-center ${
+                    !isOpen ? '[&_.ant-menu-submenu-arrow]:mt-4' : ''
+                }`}
+            />
+        </aside>
     );
 }
-
-
-
-
-
-
-
-

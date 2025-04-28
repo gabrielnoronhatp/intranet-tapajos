@@ -3,38 +3,36 @@ import { Item } from './ItemOrder';
 import { OrderData } from './OrderData';
 import { Parcela } from './Parcela';
 
-
-
 export interface OrderState {
     dtlanc?: string | null;
     id?: number | string;
     cnpj?: string;
-    qtparcelasOP?: number ;
-    contagerencialOP?: string ;
-    fornecedorOP?: string ;
-    lojaOP?: string ;
-    serieOP?: string ;
-    metodoOP?: string ;
+    qtparcelasOP?: number;
+    contagerencialOP?: string;
+    fornecedorOP?: string;
+    lojaOP?: string;
+    serieOP?: string;
+    metodoOP?: string;
     produtosOP?: Item[];
     tipopixOP?: string | null;
     chavepixOP?: string | null;
     datapixOP?: string | null;
-    opcaoLancOP?: string ;
+    opcaoLancOP?: string;
     ccustoOP?: CentroCusto[];
     userOP?: string;
     files?: File[];
     dataVencimentoOP?: string | null;
     observacaoOP?: string | null;
-    qtitensOP?: number ;
+    qtitensOP?: number;
     valorimpostoOP?: number;
-    ramoOP?: string ;
-    notaOP?: string ; 
+    ramoOP?: string;
+    notaOP?: string;
     idtipo?: string;
     dataEmissao?: Date;
     dtavistaOP?: string | null;
     bancoOP?: string | null;
     agenciaOP?: string | null;
-    parcelasOP?: Parcela[]; 
+    parcelasOP?: Parcela[];
     dtdepositoOP?: string | null;
     loading?: boolean;
     canceled?: boolean;
@@ -46,7 +44,7 @@ export interface OrderState {
     tipoLancamento?: string;
     assinatura1?: string;
     assinatura2?: string;
-    assinatura3?: string;    
+    assinatura3?: string;
     formaPagamento?: string;
     open?: boolean;
     selectedFornecedor?: string;
@@ -79,4 +77,3 @@ export interface UploadParams {
     orderId: string;
     files: File[];
 }
-

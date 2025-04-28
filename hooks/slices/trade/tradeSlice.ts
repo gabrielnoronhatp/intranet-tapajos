@@ -427,38 +427,46 @@ export const sendMetaTable = createAsyncThunk(
         try {
             const state = getState() as RootState;
             const currentCampaign = state.trade.currentCampaign;
-            
+
             // Processar os dados formatados para preservar valores originais quando possível
-            const formattedData = metaData.formattedMetas.map(meta => {
+            const formattedData = metaData.formattedMetas.map((meta) => {
                 const newMeta: Record<string, any> = { ...meta };
-                
+
                 // Se estamos editando e temos uma campanha atual com dados de escala
-                if (metaData.isEditing && 
-                    currentCampaign?.escala && 
-                    currentCampaign.escala.length > 0 && 
-                    meta.linha) {
-                    
+                if (
+                    metaData.isEditing &&
+                    currentCampaign?.escala &&
+                    currentCampaign.escala.length > 0 &&
+                    meta.linha
+                ) {
                     // Encontrar a linha correspondente na escala original
                     const originalRow = currentCampaign.escala.find(
-                        row => row.linha === meta.linha
+                        (row) => row.linha === meta.linha
                     );
-                    
+
                     if (originalRow) {
                         // Para cada coluna na meta atual
-                        Object.keys(newMeta).forEach(key => {
+                        Object.keys(newMeta).forEach((key) => {
                             // Se a propriedade começa com "coluna" e o valor é 0, verificar se existe um valor original
-                            if (key.startsWith('coluna') && 
-                                (newMeta[key] === 0 || newMeta[key] === null || newMeta[key] === undefined)) {
-                                
+                            if (
+                                key.startsWith('coluna') &&
+                                (newMeta[key] === 0 ||
+                                    newMeta[key] === null ||
+                                    newMeta[key] === undefined)
+                            ) {
                                 // Se o valor original existe e não é 0, usar o valor original
-                                if (originalRow[key] !== undefined && originalRow[key] !== null && originalRow[key] !== 0) {
+                                if (
+                                    originalRow[key] !== undefined &&
+                                    originalRow[key] !== null &&
+                                    originalRow[key] !== 0
+                                ) {
                                     newMeta[key] = originalRow[key];
                                 }
                             }
                         });
                     }
                 }
-                
+
                 return newMeta;
             });
 
@@ -581,10 +589,10 @@ export const updateParticipant = createAsyncThunk(
             campaignId,
             participantId,
             participantData,
-        }: { 
-            campaignId: string; 
-            participantId: number; 
-            participantData: Partial<IParticipants> 
+        }: {
+            campaignId: string;
+            participantId: number;
+            participantData: Partial<IParticipants>;
         },
         { rejectWithValue }
     ) => {
@@ -660,10 +668,11 @@ const tradeSlice = createSlice({
             })
             .addCase(updateCampaign.fulfilled, (state, action) => {
                 if (state.campaigns) {
-                    state.campaigns = state.campaigns.map((campaign: ICampaign) =>
-                        campaign.id === action.payload.id
-                            ? action.payload
-                        : campaign
+                    state.campaigns = state.campaigns.map(
+                        (campaign: ICampaign) =>
+                            campaign.id === action.payload.id
+                                ? action.payload
+                                : campaign
                     );
                 }
             })
@@ -675,8 +684,8 @@ const tradeSlice = createSlice({
             .addCase(deleteCampaign.fulfilled, (state: ICampaign, action) => {
                 if (state.campaigns) {
                     state.campaigns = state.campaigns.filter(
-                    (campaign: ICampaign) => campaign.id !== action.payload
-                );
+                        (campaign: ICampaign) => campaign.id !== action.payload
+                    );
                 }
             })
             .addCase(fetchProducts.pending, (state) => {
@@ -705,7 +714,8 @@ const tradeSlice = createSlice({
             .addCase(deactivateCampaign.fulfilled, (state, action) => {
                 if (state.campaigns) {
                     const index = state.campaigns.findIndex(
-                        (campaign: ICampaign) => campaign.id === action.payload.id
+                        (campaign: ICampaign) =>
+                            campaign.id === action.payload.id
                     );
                     if (index !== -1) {
                         state.campaigns[index].status = 'desativado';
@@ -736,18 +746,21 @@ const tradeSlice = createSlice({
             .addCase(sendMetaTable.rejected, (state: ICampaign) => {
                 state.status = 'failed';
             })
-            .addCase(deleteParticipant.fulfilled, (state: ICampaign, action) => {
-                if (state.currentCampaign?.participantes) {
-                    state.currentCampaign.participantes =
-                        state.currentCampaign.participantes.filter(
-                            (p: IParticipants) => p.id !== action.payload
-                        );
+            .addCase(
+                deleteParticipant.fulfilled,
+                (state: ICampaign, action) => {
+                    if (state.currentCampaign?.participantes) {
+                        state.currentCampaign.participantes =
+                            state.currentCampaign.participantes.filter(
+                                (p: IParticipants) => p.id !== action.payload
+                            );
+                    }
                 }
-            })
+            )
             .addCase(deleteParticipant.rejected, (state: ICampaign) => {
                 state.status = 'failed';
             })
-            .addCase(deleteItem.fulfilled, (state:ICampaign, action) => {
+            .addCase(deleteItem.fulfilled, (state: ICampaign, action) => {
                 if (state.currentCampaign?.itens) {
                     state.currentCampaign.itens =
                         state.currentCampaign.itens.filter(
@@ -774,31 +787,44 @@ const tradeSlice = createSlice({
                 updateParticipant.fulfilled,
                 (state: ICampaign, action) => {
                     if (state.currentCampaign?.participantes) {
-                        state.currentCampaign.participantes = state.currentCampaign.participantes.map(
-                            (p: IParticipants) => p.id === action.payload.id ? action.payload : p
-                        );
+                        state.currentCampaign.participantes =
+                            state.currentCampaign.participantes.map(
+                                (p: IParticipants) =>
+                                    p.id === action.payload.id
+                                        ? action.payload
+                                        : p
+                            );
                     }
                 }
             )
             .addCase(updateParticipant.rejected, (state: ICampaign) => {
                 state.status = 'failed';
             })
-            .addCase(deleteItemFromCampaign.fulfilled, (state:  ICampaign, action) => {
-                const { campaignId, id } = action.payload;
-                if (state?.currentCampaign?.id === campaignId) {
-                    if (state.currentCampaign.itens) {
-                        state.currentCampaign.itens =
-                            state.currentCampaign.itens.filter(
-                                (i: IProduct) => i.id !== id
-                            );
+            .addCase(
+                deleteItemFromCampaign.fulfilled,
+                (state: ICampaign, action) => {
+                    const { campaignId, id } = action.payload;
+                    if (state?.currentCampaign?.id === campaignId) {
+                        if (state.currentCampaign.itens) {
+                            state.currentCampaign.itens =
+                                state.currentCampaign.itens.filter(
+                                    (i: IProduct) => i.id !== id
+                                );
+                        }
                     }
                 }
-            })
-            .addCase(cloneCampaign.fulfilled, (state: ICampaign, action:any) => {
-                if (action.payload) {
-                    state.campaigns = [...(state.campaigns || []), action.payload];
+            )
+            .addCase(
+                cloneCampaign.fulfilled,
+                (state: ICampaign, action: any) => {
+                    if (action.payload) {
+                        state.campaigns = [
+                            ...(state.campaigns || []),
+                            action.payload,
+                        ];
+                    }
                 }
-            });
+            );
     },
 });
 

@@ -1,7 +1,6 @@
 'use client';
 
-import React, {  useState } from 'react';
-
+import React, { useState } from 'react';
 
 import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
 import { Navbar } from '@/components/layout/navbar';
@@ -100,11 +99,7 @@ const MultiChartComponent: React.FC = () => {
 };
 
 export default function ContractForm() {
-   
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  
-  
-
 
     return (
         <AuthGuard>
@@ -116,8 +111,8 @@ export default function ContractForm() {
                 <main
                     className={`pt-16 transition-all duration-300 ${isSidebarOpen ? 'ml-64' : 'ml-16'}`}
                 >
-                 <LineChartComponent />
-                 <MultiChartComponent />
+                    <LineChartComponent />
+                    <MultiChartComponent />
                 </main>
             </div>
         </AuthGuard>

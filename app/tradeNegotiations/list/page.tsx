@@ -6,9 +6,9 @@ import { Sidebar } from '@/components/layout/sidebar';
 import { FloatingActionButton } from '@/components/nopaper/floating-action-button';
 import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
 import { useState } from 'react';
-import { TableTrade } from '@/components/trade/trade-list';
+import { TableTradeNegotiations } from '@/components/tradeNegotiations/trade-table-negotiations';
 
-export default function TradeList() {
+export default function TradeNegotiationsList() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
     return (
@@ -29,19 +29,19 @@ export default function TradeList() {
                             <div className="flex justify-between items-center mb-6">
                                 <div>
                                     <h1 className="text-2xl font-bold text-primary">
-                                        Trade
+                                        Trade Negociações
                                     </h1>
                                     <p className="text-muted-foreground mt-1">
-                                        Listagem de Campanhas
+                                        Listagem de Negociações
                                     </p>
                                 </div>
                             </div>
 
                             <div className="rounded-lg border bg-card">
-                                <TableTrade />
+                                <TableTradeNegotiations />
                             </div>
 
-                            <FloatingActionButton href="/trade" />
+                            <FloatingActionButton href="/tradeNegotiations" />
                         </div>
                     </main>
                 </div>

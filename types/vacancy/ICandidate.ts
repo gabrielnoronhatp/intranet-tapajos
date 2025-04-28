@@ -1,4 +1,4 @@
-import { IAnalysis } from "./IAnalysis";
+import { IAnalysis } from './IAnalysis';
 
 export interface ICandidate {
     id: string;

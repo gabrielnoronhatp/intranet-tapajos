@@ -67,79 +67,84 @@ Este projeto é uma aplicação web moderna desenvolvida com **Next.js**, **Redu
 
 ### Aplicações
 
-1. **@vacancies**  
-   - **Descrição**: Gerencia as vagas de emprego dentro da empresa, permitindo a criação, edição e exclusão de vagas, além de listar candidatos.  
-   - **Melhorias Sugeridas**:  
-     - Implementar paginação para listas de vagas e candidatos.  
-     - Melhorar a interface de usuário para facilitar a navegação e busca de vagas.
+1. **@vacancies**
 
-2. **@trade**  
-   - **Descrição**: Gerencia campanhas de vendas, incluindo a criação, edição e exclusão de campanhas, além de gerenciar participantes e itens associados.  
-   - **Melhorias Sugeridas**:  
-     - Adicionar relatórios de desempenho das campanhas.  
-     - Implementar notificações para atualizações de status das campanhas.
+    - **Descrição**: Gerencia as vagas de emprego dentro da empresa, permitindo a criação, edição e exclusão de vagas, além de listar candidatos.
+    - **Melhorias Sugeridas**:
+        - Implementar paginação para listas de vagas e candidatos.
+        - Melhorar a interface de usuário para facilitar a navegação e busca de vagas.
 
-3. **@noPaper**  
-   - **Descrição**: Gerencia ordens de pagamento e fornecedores, permitindo o upload de documentos e a gestão de contas gerenciais.  
-   - **Melhorias Sugeridas**:  
-     - Melhorar a segurança no upload de arquivos.  
-     - Implementar logs de auditoria para ações críticas.
+2. **@trade**
+
+    - **Descrição**: Gerencia campanhas de vendas, incluindo a criação, edição e exclusão de campanhas, além de gerenciar participantes e itens associados.
+    - **Melhorias Sugeridas**:
+        - Adicionar relatórios de desempenho das campanhas.
+        - Implementar notificações para atualizações de status das campanhas.
+
+3. **@noPaper**
+    - **Descrição**: Gerencia ordens de pagamento e fornecedores, permitindo o upload de documentos e a gestão de contas gerenciais.
+    - **Melhorias Sugeridas**:
+        - Melhorar a segurança no upload de arquivos.
+        - Implementar logs de auditoria para ações críticas.
 
 ---
 
 ### Slices do Redux
 
-1. **@vacancySlice.ts**  
-   - **Função**: Gerencia o estado das vagas de emprego, incluindo operações assíncronas para buscar, criar, atualizar e deletar vagas.  
-   - **Melhorias Sugeridas**:  
-     - Adicionar tratamento de erros mais robusto.  
-     - Implementar caching para reduzir chamadas desnecessárias à API.
+1. **@vacancySlice.ts**
 
-2. **@tradeSlice.ts**  
-   - **Função**: Gerencia o estado das campanhas de vendas, incluindo operações para buscar, criar, atualizar e deletar campanhas, participantes e itens.  
-   - **Melhorias Sugeridas**:  
-     - Melhorar a eficiência das operações de atualização em massa.  
-     - Adicionar suporte para múltiplos idiomas.
+    - **Função**: Gerencia o estado das vagas de emprego, incluindo operações assíncronas para buscar, criar, atualizar e deletar vagas.
+    - **Melhorias Sugeridas**:
+        - Adicionar tratamento de erros mais robusto.
+        - Implementar caching para reduzir chamadas desnecessárias à API.
 
-3. **@authSlice.ts**  
-   - **Função**: Gerencia o estado de autenticação do usuário, incluindo login, logout e persistência de sessão.  
-   - **Melhorias Sugeridas**:  
-     - Implementar autenticação multifator.  
-     - Melhorar a segurança do armazenamento de tokens.
+2. **@tradeSlice.ts**
 
-4. **@noPaperSlice.ts**  
-   - **Função**: Gerencia o estado relacionado a fornecedores e ordens de pagamento, incluindo operações para buscar dados de fornecedores e gerenciar uploads de arquivos.  
-   - **Melhorias Sugeridas**:  
-     - Implementar validação de dados mais rigorosa.  
-     - Melhorar a interface de usuário para a gestão de fornecedores.
+    - **Função**: Gerencia o estado das campanhas de vendas, incluindo operações para buscar, criar, atualizar e deletar campanhas, participantes e itens.
+    - **Melhorias Sugeridas**:
+        - Melhorar a eficiência das operações de atualização em massa.
+        - Adicionar suporte para múltiplos idiomas.
 
-5. **@orderSlice.ts**  
-   - **Função**: Gerencia o estado das ordens de pagamento, incluindo operações para submeter e cancelar ordens.  
-   - **Melhorias Sugeridas**:  
-     - Adicionar histórico de alterações para ordens.  
-     - Implementar notificações para mudanças de status.
+3. **@authSlice.ts**
+
+    - **Função**: Gerencia o estado de autenticação do usuário, incluindo login, logout e persistência de sessão.
+    - **Melhorias Sugeridas**:
+        - Implementar autenticação multifator.
+        - Melhorar a segurança do armazenamento de tokens.
+
+4. **@noPaperSlice.ts**
+
+    - **Função**: Gerencia o estado relacionado a fornecedores e ordens de pagamento, incluindo operações para buscar dados de fornecedores e gerenciar uploads de arquivos.
+    - **Melhorias Sugeridas**:
+        - Implementar validação de dados mais rigorosa.
+        - Melhorar a interface de usuário para a gestão de fornecedores.
+
+5. **@orderSlice.ts**
+    - **Função**: Gerencia o estado das ordens de pagamento, incluindo operações para submeter e cancelar ordens.
+    - **Melhorias Sugeridas**:
+        - Adicionar histórico de alterações para ordens.
+        - Implementar notificações para mudanças de status.
 
 ---
 
 ## Como Executar o Projeto
 
-1. **Instalação**  
-   - Certifique-se de ter o Node.js instalado.  
-   - Execute `npm install` para instalar as dependências.
+1. **Instalação**
 
-2. **Execução**  
-   - Use `npm run dev` para iniciar o servidor de desenvolvimento.  
-   - Acesse `http://localhost:3000` no seu navegador.
+    - Certifique-se de ter o Node.js instalado.
+    - Execute `npm install` para instalar as dependências.
 
-3. **Build**  
-   - Execute `npm run build` para criar uma versão de produção.  
-   - Use `npm start` para iniciar o servidor de produção.
+2. **Execução**
+
+    - Use `npm run dev` para iniciar o servidor de desenvolvimento.
+    - Acesse `http://localhost:3000` no seu navegador.
+
+3. **Build**
+    - Execute `npm run build` para criar uma versão de produção.
+    - Use `npm start` para iniciar o servidor de produção.
 
 ---
 
 ## Considerações Finais
 
 Este projeto é uma base sólida para uma intranet corporativa, utilizando tecnologias modernas e uma estrutura bem organizada. No entanto, há espaço para melhorias em termos de segurança, eficiência e experiência do usuário. A implementação das melhorias sugeridas pode aumentar significativamente a robustez e a usabilidade da aplicação.
-
-
-

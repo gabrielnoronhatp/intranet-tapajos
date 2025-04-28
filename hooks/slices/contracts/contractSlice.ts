@@ -4,8 +4,6 @@ import { apiDev } from '@/app/service/api';
 import toast from 'react-hot-toast';
 import { ServiceType } from '@/types/Contracts/ServiceType';
 
-
-
 interface ContractState {
     contracts: IContract[];
     loading: boolean;
@@ -78,9 +76,13 @@ export const fetchServiceTypes = createAsyncThunk(
             return serviceTypes;
         } catch (error) {
             if (error instanceof Error) {
-                toast.error('Erro ao buscar tipos de serviço: ' + error.message);
+                toast.error(
+                    'Erro ao buscar tipos de serviço: ' + error.message
+                );
             } else {
-                toast.error('Erro ao buscar tipos de serviço: ' + String(error));
+                toast.error(
+                    'Erro ao buscar tipos de serviço: ' + String(error)
+                );
             }
             throw error;
         }
@@ -120,8 +122,8 @@ export const uploadContractFile = createAsyncThunk(
 export const fetchContractFiles = createAsyncThunk(
     'contracts/fetchContractFiles',
     async (contractId: number) => {
-            const response = await apiDev.get(`contracts/${contractId}/files`);
-            return { contractId, files: response.data };
+        const response = await apiDev.get(`contracts/${contractId}/files`);
+        return { contractId, files: response.data };
     }
 );
 
@@ -174,7 +176,7 @@ export const updateContract = createAsyncThunk(
             setTimeout(() => {
                 window.location.href = '/contracts/list';
             }, 1000);
-            return response.data;   
+            return response.data;
         } catch (error) {
             if (error instanceof Error) {
                 toast.error('Erro ao atualizar contrato: ' + error.message);

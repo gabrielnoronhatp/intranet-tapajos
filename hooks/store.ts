@@ -21,7 +21,10 @@ const store = configureStore({
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
             serializableCheck: {
-                ignoredActions: ['vacancy/createVacancy/pending', 'vacancy/updateVacancy/pending'],
+                ignoredActions: [
+                    'vacancy/createVacancy/pending',
+                    'vacancy/updateVacancy/pending',
+                ],
                 ignoredPaths: ['vacancy.fileUpload'],
             },
         }),

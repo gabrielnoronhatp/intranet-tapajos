@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { useState, useEffect } from 'react';
-import { useDispatch  } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { Select, Input } from 'antd';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { FilialSelect } from '@/components/nopaper/store-select';
@@ -16,7 +16,7 @@ interface OriginDataProps {
     onChange: (field: keyof OrderState, value: string | number) => void; // Alterado para OrderData
 }
 
-const OriginData: React.FC<OriginDataProps> = ({ data  }) => {
+const OriginData: React.FC<OriginDataProps> = ({ data }) => {
     const {
         ramoOP,
         opcaoLancOP,

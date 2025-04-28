@@ -26,7 +26,6 @@ const initialData: Employee[] = [
         primeiraExperiencia: false,
         idade: 30,
     },
-   
 ];
 
 export function EmployeeList() {
@@ -63,8 +62,7 @@ export function EmployeeList() {
         },
         { title: 'Idade', dataIndex: 'idade', key: 'idade' },
     ];
-   
-    
+
     return (
         <div className="rounded-md border bg-card p-4">
             <div className="mb-4 grid grid-cols-3 gap-4">

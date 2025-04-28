@@ -46,17 +46,15 @@ const { TabPane } = Tabs;
 
 export interface PageProps {
     name?: string;
-    params?: any;
-    searchParams?: any;
+    params?: {
+        id: string;
+    };
+    searchParams?: {
+        [key: string]: string | string[] | undefined;
+    };
 }
 
-interface VacancyCandidatesPageProps {
-    name: string;
-}
-
-export default function VacancyCandidatesPage({
-    name,
-}: any) {
+export default function VacancyCandidatesPage({ name }: any) {
     const { id } = useParams();
     const dispatch = useDispatch<AppDispatch>();
     const { currentVacancy, candidates, candidatesLoading, loading } =
@@ -207,7 +205,7 @@ export default function VacancyCandidatesPage({
             title: 'Disponível',
             dataIndex: ['candidate', 'is_disponivel'],
             key: 'is_disponivel',
-              onFilter: (value: string, record: ICandidate) =>
+            onFilter: (value: string, record: ICandidate) =>
                 record.is_disponivel === value,
         },
         {
@@ -367,14 +365,14 @@ export default function VacancyCandidatesPage({
                                             </div>
                                         ) : candidates &&
                                           candidates.filter(
-                                              (c:any) =>
+                                              (c: any) =>
                                                   c.analise?.status ===
                                                   'aprovado'
                                           ).length > 0 ? (
                                             <Table
                                                 columns={columns as any}
                                                 dataSource={candidates.filter(
-                                                    (c:any) =>
+                                                    (c: any) =>
                                                         c.analise?.status ===
                                                         'aprovado'
                                                 )}
@@ -406,14 +404,14 @@ export default function VacancyCandidatesPage({
                                             </div>
                                         ) : candidates &&
                                           candidates.filter(
-                                              (c:any) =>
+                                              (c: any) =>
                                                   c.analise?.status ===
                                                   'entrevista'
                                           ).length > 0 ? (
                                             <Table
                                                 columns={columns as any}
                                                 dataSource={candidates.filter(
-                                                    (c:any) =>
+                                                    (c: any) =>
                                                         c.analise?.status ===
                                                         'entrevista'
                                                 )}
@@ -445,14 +443,14 @@ export default function VacancyCandidatesPage({
                                             </div>
                                         ) : candidates &&
                                           candidates.filter(
-                                              (c:any) =>
+                                              (c: any) =>
                                                   c.analise?.status ===
                                                   'recusado'
                                           ).length > 0 ? (
                                             <Table
                                                 columns={columns as any}
                                                 dataSource={candidates.filter(
-                                                    (c:any      ) =>
+                                                    (c: any) =>
                                                         c.analise?.status ===
                                                         'recusado'
                                                 )}
@@ -590,8 +588,11 @@ export default function VacancyCandidatesPage({
                                             </Tag>
                                         </Descriptions.Item>
                                         <Descriptions.Item label="Disponível">
-                                            <Tag >
-                                                {selectedCandidate.candidate?.is_disponivel}
+                                            <Tag>
+                                                {
+                                                    selectedCandidate.candidate
+                                                        ?.is_disponivel
+                                                }
                                             </Tag>
                                         </Descriptions.Item>
                                         <Descriptions.Item label="Analisado">

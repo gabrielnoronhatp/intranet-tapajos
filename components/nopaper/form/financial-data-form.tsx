@@ -10,15 +10,14 @@ import { fetchContasGerenciais } from '@/hooks/slices/noPaper/noPaperSlice';
 
 import { Select } from 'antd';
 import { RootState } from '@/hooks/store';
-import { OrderState  } from '@/types/noPaper/Order/OrderState';  
+import { OrderState } from '@/types/noPaper/Order/OrderState';
 import { OrderData } from '@/types/noPaper/Order/OrderData';
 import { Parcela } from '@/types/noPaper/Order/Parcela';
 
-    interface FinancialDataProps {
+interface FinancialDataProps {
     data: OrderData;
     onChange: (field: keyof OrderState, value: string | number) => void;
 }
-
 
 export default function FinancialData({ data, onChange }: FinancialDataProps) {
     const dispatch = useDispatch();
@@ -40,12 +39,9 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
     const { contasGerenciais } = useSelector(
         (state: RootState) => state.noPaper
     );
-    
-
- 
 
     useEffect(() => {
-        dispatch(fetchContasGerenciais() as any );
+        dispatch(fetchContasGerenciais() as any);
     }, [dispatch]);
 
     const formatDate = (dateString: string) => {
@@ -58,7 +54,6 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
 
     const handleFormaPagamentoChange = (value: string) => {
         onChange('metodoOP', value);
-      
 
         let newParcelasOP: any = [];
 
@@ -74,17 +69,14 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                 },
             ];
         } else if (value === 'boleto') {
-            newParcelasOP = Array.from(
-                { length: qtparcelasOP || 1 },
-                () => ({
-                    parcela: '',
-                    banco: '',
-                    agencia: '',
-                    conta: '',
-                    tipopixOP: '',
-                    chavepixOP: '',
-                })
-            );
+            newParcelasOP = Array.from({ length: qtparcelasOP || 1 }, () => ({
+                parcela: '',
+                banco: '',
+                agencia: '',
+                conta: '',
+                tipopixOP: '',
+                chavepixOP: '',
+            }));
         } else if (value === 'deposito') {
             newParcelasOP = [
                 {
@@ -113,7 +105,11 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
         onChange('qtparcelasOP', newParcelasOP.length);
     };
 
-    const handleParcelasChange = (index: number, field: string, value: string | number) => {
+    const handleParcelasChange = (
+        index: number,
+        field: string,
+        value: string | number
+    ) => {
         const updatedParcelas = [...parcelasOP];
         updatedParcelas[index] = {
             ...updatedParcelas[index],
@@ -136,7 +132,6 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                         { value: 'pix', label: 'PIX' },
                     ]}
                 />
-                
 
                 {metodoOP === 'boleto' && (
                     <div className="space-y-2">
@@ -164,12 +159,14 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                                             chavepixOP: '',
                                         })
                                     );
-                                    onChange('parcelasOP', newParcelasOP as any);
+                                    onChange(
+                                        'parcelasOP',
+                                        newParcelasOP as any
+                                    );
                                 }
                             }}
                             className="form-control"
                         />
-                       
                     </div>
                 )}
 
@@ -193,7 +190,6 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                             }
                             className="form-control"
                         />
-                      
 
                         {metodoOP === 'deposito' && (
                             <>
@@ -213,7 +209,6 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                                     placeholder="Banco"
                                     className="form-control"
                                 />
-                               
 
                                 <Label className="text-xs font-semibold text-primary uppercase">
                                     Agência
@@ -231,7 +226,7 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                                     placeholder="Agência"
                                     className="form-control"
                                 />
-                              
+
                                 <Label className="text-xs font-semibold text-primary uppercase">
                                     Conta
                                 </Label>
@@ -248,7 +243,6 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                                     placeholder="Conta"
                                     className="form-control"
                                 />
-                               
                             </>
                         )}
 
@@ -283,7 +277,6 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                                     ]}
                                     label=""
                                 />
-                              
 
                                 <Label className="text-xs font-semibold text-primary uppercase">
                                     Chave PIX
@@ -301,7 +294,6 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                                     placeholder="Insira a Chave PIX"
                                     className="form-control"
                                 />
-                            
                             </>
                         )}
                     </div>
@@ -325,7 +317,6 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                         label: conta.conta,
                     }))}
                 />
-               
             </div>
         </FormSection>
     );

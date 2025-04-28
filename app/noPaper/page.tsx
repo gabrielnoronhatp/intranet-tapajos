@@ -34,7 +34,10 @@ export default function NoPaper() {
     const [isSidebarOpen] = useState(false);
     const [isViewOpen] = useState(false);
 
-    const handleSetState = (field: keyof OrderState, value: OrderState[keyof OrderState]) => {
+    const handleSetState = (
+        field: keyof OrderState,
+        value: OrderState[keyof OrderState]
+    ) => {
         if ((field === 'lojaOP' || field === 'fornecedorOP') && !value) {
             console.error(`${field} não pode ser vazio.`);
             return;
@@ -72,10 +75,11 @@ export default function NoPaper() {
         }
 
         try {
-            const orderWithUser: any= {
+            const orderWithUser = {
                 ...orderData,
                 userOP: user.username,
-            };
+                id: orderData.id || 0,
+            } as OrderData;
 
             const response = await dispatch(submitOrder(orderWithUser));
             const opId = response.payload?.id;
@@ -201,38 +205,66 @@ export default function NoPaper() {
                                         accept=".xls,.xlsx,.pdf,.jpg,.jpeg,.png"
                                         beforeUpload={beforeUpload}
                                         fileList={fileList}
-                                        onChange={({ fileList: newFileList }) => {
+                                        onChange={({
+                                            fileList: newFileList,
+                                        }) => {
                                             setFileList(newFileList);
                                         }}
-                                        customRequest={async ({ file, onSuccess, }) => {
+                                        customRequest={async ({
+                                            file,
+                                            onSuccess,
+                                        }) => {
                                             try {
                                                 const formData = new FormData();
-                                                formData.append('files', file as File);
+                                                formData.append(
+                                                    'files',
+                                                    file as File
+                                                );
 
-                                                const response = await api.post(`upload/${orderData?.id}`, formData, {
-                                                    headers: { 'Content-Type': 'multipart/form-data' },
-                                                });
+                                                const response = await api.post(
+                                                    `upload/${orderData?.id}`,
+                                                    formData,
+                                                    {
+                                                        headers: {
+                                                            'Content-Type':
+                                                                'multipart/form-data',
+                                                        },
+                                                    }
+                                                );
 
                                                 if (response.status !== 200) {
-                                                    throw new Error('Upload failed');
+                                                    throw new Error(
+                                                        'Upload failed'
+                                                    );
                                                 }
 
-                                                message.success('Arquivo enviado com sucesso!', 3);
+                                                message.success(
+                                                    'Arquivo enviado com sucesso!',
+                                                    3
+                                                );
                                                 onSuccess?.(response.data);
                                             } catch (error: unknown) {
-                                                console.error('Upload error:', error);
-                                                message.error('Falha ao enviar o arquivo. Tente novamente.', 3);
-                                            
+                                                console.error(
+                                                    'Upload error:',
+                                                    error
+                                                );
+                                                message.error(
+                                                    'Falha ao enviar o arquivo. Tente novamente.',
+                                                    3
+                                                );
                                             }
                                         }}
                                     >
                                         <div>
                                             <PlusOutlined />
-                                            <div style={{ marginTop: 8 }}>Upload</div>
+                                            <div style={{ marginTop: 8 }}>
+                                                Upload
+                                            </div>
                                         </div>
                                     </Upload>
                                     <div className="text-sm text-gray-500 mt-2">
-                                        Você pode anexar múltiplos arquivos (Excel, PDF, JPG ou PNG)
+                                        Você pode anexar múltiplos arquivos
+                                        (Excel, PDF, JPG ou PNG)
                                     </div>
                                 </div>
 

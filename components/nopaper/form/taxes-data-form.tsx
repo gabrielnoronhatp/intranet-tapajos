@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react'
+import React from 'react';
 import { FormSection } from '../form-section';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -46,14 +46,13 @@ export default function TaxesData({ data, onChange }: TaxesDataProps) {
         const quantidade = parseInt(e.target.value, 10);
         onChange('qtitensOP', quantidade);
 
-        const newItens:any = Array.from(
+        const newItens: any = Array.from(
             { length: quantidade },
             (index: number) =>
                 produtosOP[index] || { produto: '', valor: 0, centroCusto: [] }
         );
         onChange('produtosOP', newItens as any);
     };
-
 
     return (
         <FormSection title="Dados de Itens e Impostos">

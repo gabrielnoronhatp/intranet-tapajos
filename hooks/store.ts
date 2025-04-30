@@ -7,7 +7,7 @@ import contractReducer from './slices/contracts/contractSlice';
 import tradeReducer from './slices/trade/tradeSlice';
 import tokenReducer from './slices/token/tokenSlice';
 import vacancyReducer from './slices/vacancySlice';
-import tradeNegotiationsReducer from './slices/trade/tradeNegotiations';
+import tradeNegotiationsReducer from './slices/trade/tradeNegotiationsSlice';
 const store = configureStore({
     reducer: {
         noPaper: noPaperReducer,

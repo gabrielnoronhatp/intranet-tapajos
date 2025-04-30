@@ -16,7 +16,7 @@ import {
     searchNegotiationCampaigns,
     deleteNegotiationCampaign,
     INegotiationCampaign,
-} from '@/hooks/slices/trade/tradeNegotiations';
+} from '@/hooks/slices/trade/tradeNegotiationsSlice';
 import { Eye, Edit, Trash2, Search, Copy } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import useTokenRefresh from '@/hooks/useTokenRefresh';

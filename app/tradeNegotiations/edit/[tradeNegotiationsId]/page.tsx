@@ -4,7 +4,7 @@ import NegotiationsRegistration from '../../page';
 
 export default function EditNegotiationPage() {
     const params = useParams();
-    const id = Number(params.id);
+    const id = params.tradeNegotiationsId;
   
     return (
         <NegotiationsRegistration id={id} />

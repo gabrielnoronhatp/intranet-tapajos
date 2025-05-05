@@ -37,6 +37,15 @@ export interface INegociacaoProduto {
   valor?: number;
 }
 
+export interface INegociacaoContato {
+  id?: number;
+  id_negociacao: number;
+  nome: string;
+  email: string;
+  telefone: string;
+  last_update?: string;
+}
+
 export interface IItemCampanha {
   id: number;
   descricao: string;

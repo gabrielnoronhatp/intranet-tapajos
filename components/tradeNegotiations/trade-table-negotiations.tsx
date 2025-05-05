@@ -8,6 +8,8 @@ import {
     Space,
     Form,
     message,
+    Modal,
+    Spin,
 } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/hooks/store';
@@ -16,6 +18,11 @@ import {
     searchNegotiationCampaigns,
     deleteNegotiationCampaign,
     INegotiationCampaign,
+    fetchNegotiationObjetoById,
+    fetchNegotiationEmpresasById,
+    fetchNegotiationItemsById,
+    fetchNegotiationProdutosById,
+    fetchNegotiationById,
 } from '@/hooks/slices/trade/tradeNegotiationsSlice';
 import { Eye, Edit, Trash2, Search, Copy } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -29,6 +36,12 @@ export function TableTradeNegotiations() {
     const dispatch = useDispatch<AppDispatch>();
     const router = useRouter();
     const refreshToken = useTokenRefresh();
+    const [modalVisible, setModalVisible] = useState(false);
+    const [modalLoading, setModalLoading] = useState(false);
+    const [negociacaoDetalhe, setNegociacaoDetalhe] = useState<any>(null);
+    const [negociacaoIdDetalhe, setNegociacaoIdDetalhe] = useState<
+        number | null
+    >(null);
 
     const {
         campaigns = [],
@@ -80,12 +93,36 @@ export function TableTradeNegotiations() {
         dispatch(fetchNegotiationCampaigns());
     };
 
-    const handleViewNegotiation = (id: number) => {
-        router.push(`/trade/negotiations/view/${id}`);
+    const handleViewNegotiation = async (id: number) => {
+        setModalVisible(true);
+        setModalLoading(true);
+        setNegociacaoIdDetalhe(id);
+        try {
+            const [negociacao, objeto, empresas, itens, produtos] =
+                await Promise.all([
+                    dispatch(fetchNegotiationById(id)).unwrap(),
+                    dispatch(fetchNegotiationObjetoById(id)).unwrap(),
+                    dispatch(fetchNegotiationEmpresasById(id)).unwrap(),
+                    dispatch(fetchNegotiationItemsById(id)).unwrap(),
+                    dispatch(fetchNegotiationProdutosById(id)).unwrap(),
+                ]);
+            setNegociacaoDetalhe({
+                negociacao,
+                objeto,
+                empresas,
+                itens,
+                produtos,
+            });
+            console.log('Negociação detalhe:', negociacaoDetalhe);
+        } catch (err) {
+            message.error('Erro ao buscar detalhes da negociação');
+        } finally {
+            setModalLoading(false);
+        }
     };
 
     const handleEditNegotiation = (id: number) => {
-        router.push(`/trade/negotiations/edit/${id}`);
+        router.push(`/tradeNegotiations/edit/${id}`);
     };
 
     const handleDeleteNegotiation = (id: number) => {
@@ -179,12 +216,7 @@ export function TableTradeNegotiations() {
                         className="cursor-pointer hover:scale-110 transition-transform"
                         size={18}
                     />
-                    <Copy
-                        color="#11833b"
-                        onClick={() => handleDuplicateNegotiation(record)}
-                        className="cursor-pointer hover:scale-110 transition-transform"
-                        size={18}
-                    />
+
                     <Trash2
                         color="#ff4d4f"
                         onClick={() => handleDeleteNegotiation(record.id)}
@@ -253,6 +285,61 @@ export function TableTradeNegotiations() {
                 />
                 <FloatingActionButton href="/tradeNegotiations" />
             </div>
+
+            <Modal
+                open={modalVisible}
+                onCancel={() => setModalVisible(false)}
+                footer={null}
+                width={900}
+                title="Detalhes da Negociação"
+            >
+                {modalLoading ? (
+                    <div className="flex justify-center items-center h-40">
+                        <Spin size="large" />
+                    </div>
+                ) : negociacaoDetalhe ? (
+                    <div>
+                        <h2 className="text-lg font-bold mb-2 text-green-700">
+                            {negociacaoDetalhe.negociacao?.descricao}
+                        </h2>
+                        <div className="mb-2">
+                            <b>Período:</b>{' '}
+                            {negociacaoDetalhe.negociacao?.data_inicial} até{' '}
+                            {negociacaoDetalhe.negociacao?.data_final}
+                        </div>
+                        <div className="mb-2">
+                            <b>Usuário:</b>{' '}
+                            {negociacaoDetalhe.negociacao?.usuario}
+                        </div>
+                        <div className="mb-2">
+                            <b>Objeto:</b> {negociacaoDetalhe.objeto?.descricao}{' '}
+                            ({negociacaoDetalhe.objeto?.sigla})
+                        </div>
+                        <div className="mb-2">
+                            <b>Itens:</b>
+                            <ul className="list-disc ml-6">
+                                <li key={negociacaoDetalhe.itens?.id}>
+                                    <b>{negociacaoDetalhe.itens?.descricao}</b>
+                                    <ul className="ml-4">
+                                        <li>
+                                            <b>Empresas:</b>{' '}
+                                            {negociacaoDetalhe.empresas
+                                                ?.descricao || 'Nenhuma'}
+                                        </li>
+                                        <li>
+                                            <b>Produtos:</b>{' '}
+                                            {negociacaoDetalhe.produtos
+                                                ?.descricao || 'Nenhum'}
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                ) : (
+                    <div>Não foi possível carregar os detalhes.</div>
+                )}
+            </Modal>
         </div>
     );
 }

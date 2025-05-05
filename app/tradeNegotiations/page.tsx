@@ -9,8 +9,6 @@ import {
     Table,
     message,
     Tabs,
-    Modal,
-    Form,
     InputNumber,
     Button as AntButton,
 } from 'antd';
@@ -22,56 +20,95 @@ import {
     createNegotiationItem,
     createNegotiationEmpresa,
     createNegotiationProduto,
-    fetchFiliais,
-    fetchProdutos,
+    createNegotiationContato,
     addEmpresaLocal,
     removeEmpresaLocal,
     addProdutoLocal,
     removeProdutoLocal,
+    addContatoLocal,
+    removeContatoLocal,
     resetLocalData,
+    fetchItensObjeto,
+    createItemObjeto,
+    fetchFiliais,
+    ICadastroItensObjeto,
+    fetchNegotiationCampaignById,
+    fetchNegotiationItems,
+    fetchNegotiationEmpresas,
+    fetchNegotiationProdutos,
+    fetchNegotiationContatos,
+    deleteNegotiationEmpresa,
+    deleteNegotiationProduto,
+    deleteNegotiationContato,
+    updateNegotiationCampaign,
 } from '@/hooks/slices/trade/tradeNegotiationsSlice';
-import {
-    INegociacaoEmpresa,
-    INegociacaoProduto,
-    IFilial,
-    IProduto,
-} from '@/types/Trade/TradeNegotiations/ITradeNegotiations';
+
+import { fetchProductsByType } from '@/hooks/slices/trade/tradeSlice';
 import { DeleteOutlined } from '@ant-design/icons';
+import { useParams } from 'next/navigation';
 
 const { TabPane } = Tabs;
 
+interface IContatoTemp {
+    nome: string;
+    email: string;
+    telefone: string;
+    key: number;
+    id?: number;
+}
+
+interface ILojaSelect {
+    id: number;
+    loja?: string;
+    nome?: string;
+    descricao?: string;
+}
+
+interface IFilialExtended {
+    id?: number;
+    idempresa?: number;
+    loja?: string;
+    nome?: string;
+    descricao?: string;
+}
+
+interface IProdutoSelect {
+    id?: number;
+    idproduto?: number;
+    codprod?: number;
+    nome?: string;
+    descricao?: string;
+}
+
 export default function NegotiationsRegistration() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-    const [tables, setTables] = useState<{ id: number; descricao: string }[]>(
-        []
-    );
-    const [nextTableId, setNextTableId] = useState(1);
-    const [contacts, setContacts] = useState<
-        { nome: string; email: string; celular: string; key: number }[]
+    const [tables, setTables] = useState<
+        {
+            id: number;
+            descricao: string;
+            id_item_objeto?: number;
+            id_item_negociacao?: number;
+        }[]
     >([]);
-    const [contactInput, setContactInput] = useState({
+    const [nextTableId, setNextTableId] = useState(1);
+    const [contatosTemp, setContatosTemp] = useState<IContatoTemp[]>([]);
+    const [contatoInput, setContatoInput] = useState({
         nome: '',
         email: '',
-        celular: '',
+        telefone: '',
     });
 
     const [activeTabKeys, setActiveTabKeys] = useState<Record<number, string>>(
         {}
     );
     const [itemDescricao, setItemDescricao] = useState('');
-    const [isItemModalVisible, setIsItemModalVisible] = useState(false);
-
-    // Estados para loja selecionada
-    const [selectedLoja, setSelectedLoja] = useState<IFilial | null>(null);
-    const [lojaInput, setLojaInput] = useState({
-        meta: 0,
-        premiacao: '',
-    });
-
-    // Estados para produto selecionado
-    const [selectedProduto, setSelectedProduto] = useState<IProduto | null>(
-        null
-    );
+    const [itemSigla, setItemSigla] = useState('');
+    const [showNewItemInput, setShowNewItemInput] = useState(false);
+    const [selectedItem, setSelectedItem] =
+        useState<ICadastroItensObjeto | null>(null);
+    const [selectedLoja, setSelectedLoja] = useState<ILojaSelect | null>(null);
+    const [selectedProduto, setSelectedProduto] =
+        useState<IProdutoSelect | null>(null);
     const [produtoInput, setProdutoInput] = useState({
         unidades: 0,
         valor: 0,
@@ -82,29 +119,44 @@ export default function NegotiationsRegistration() {
     const [dataFinal, setDataFinal] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [negociacaoId, setNegociacaoId] = useState<number | null>(null);
+    const [isEditMode, setIsEditMode] = useState(false);
 
     const dispatch = useDispatch<AppDispatch>();
     const { user } = useSelector((state: RootState) => state.auth);
     const {
         error,
-        filiais = [],
-        produtosCatalogo = [],
         empresas = [],
         produtos = [],
+        itensObjeto = [],
+        filiais = [],
     } = useSelector((state: RootState) => state.tradeNegotiations);
+    const { products = [] } = useSelector((state: RootState) => state.trade);
 
-    const filiaisArray = Array.isArray(filiais) ? filiais : [];
-    const produtosCatalogoArray = Array.isArray(produtosCatalogo)
-        ? produtosCatalogo
-        : [];
     const empresasArray = Array.isArray(empresas) ? empresas : [];
     const produtosArray = Array.isArray(produtos) ? produtos : [];
-
+    const itensObjetoArray = Array.isArray(itensObjeto) ? itensObjeto : [];
+    const productsArray = Array.isArray(products) ? products : [];
+    const filiaisArray = Array.isArray(filiais)
+        ? (filiais as IFilialExtended[])
+        : [];
+    const params = useParams();
+    const id = params.tradeNegotiationsId;
     useEffect(() => {
+        console.log('Componente inicializado, props ID:', id);
         dispatch(fetchNegotiationCampaigns());
+        dispatch(fetchItensObjeto());
+        dispatch(fetchProductsByType({ busca: '', type: 'produto' }));
         dispatch(fetchFiliais());
-        dispatch(fetchProdutos());
-    }, [dispatch]);
+        if (id) {
+            console.log(
+                'Modo de edição ativado, carregando dados para ID:',
+                id
+            );
+            setIsEditMode(true);
+            setNegociacaoId(Number(id));
+            carregarDadosEdicao(Number(id));
+        }
+    }, [dispatch, id]);
 
     useEffect(() => {
         if (error) {
@@ -112,26 +164,178 @@ export default function NegotiationsRegistration() {
         }
     }, [error]);
 
-    const showItemModal = () => {
-        setItemDescricao('');
-        setIsItemModalVisible(true);
-    };
+    const carregarDadosEdicao = async (negociacaoId: number) => {
+        try {
+            setIsLoading(true);
+            console.log(
+                'Iniciando carregamento de dados para edição, ID:',
+                negociacaoId
+            );
 
-    const handleItemModalCancel = () => {
-        setIsItemModalVisible(false);
+            console.log('Disparando fetchNegotiationCampaignById...');
+            const campanhaResult = await dispatch(
+                fetchNegotiationCampaignById(negociacaoId)
+            ).unwrap();
+            console.log(
+                'Dados da campanha carregados:',
+                JSON.stringify(campanhaResult)
+            );
+
+            if (campanhaResult) {
+                console.log(
+                    'Atualizando campos do formulário com dados da campanha...'
+                );
+                console.log('Descrição:', campanhaResult.descricao);
+                console.log('Data Inicial:', campanhaResult.data_inicial);
+                console.log('Data Final:', campanhaResult.data_final);
+
+                setDescricao(campanhaResult.descricao || '');
+                setDataInicial(campanhaResult.data_inicial || '');
+                setDataFinal(campanhaResult.data_final || '');
+
+                setTimeout(() => {
+                    console.log('Valores atualizados:');
+                    console.log('Descrição (state):', descricao);
+                    console.log('Data Inicial (state):', dataInicial);
+                    console.log('Data Final (state):', dataFinal);
+                }, 100);
+            } else {
+                message.error(
+                    'Não foi possível carregar os dados da negociação'
+                );
+                return;
+            }
+
+            // Carregar os itens da negociação
+            const itensResult = await dispatch(
+                fetchNegotiationItems(negociacaoId)
+            ).unwrap();
+            console.log('Itens da negociação carregados:', itensResult);
+
+            if (
+                !itensResult ||
+                !Array.isArray(itensResult) ||
+                itensResult.length === 0
+            ) {
+                console.warn('Nenhum item encontrado para esta negociação');
+                setIsLoading(false);
+                return;
+            }
+
+            const tabelasTemp = [];
+            let novoNextTableId = nextTableId;
+
+            // Para cada item, vamos criar uma tabela correspondente
+            for (const item of itensResult) {
+                console.log('Processando item:', item);
+
+                const novaTabela = {
+                    id: novoNextTableId,
+                    descricao: item.descricao || '',
+                    id_item_objeto: item.id_objeto || 0,
+                    id_item_negociacao: item.id, // ID real do item na base
+                };
+
+                tabelasTemp.push(novaTabela);
+
+                // Configurar a tab ativa para este item
+                setActiveTabKeys((prev) => ({
+                    ...prev,
+                    [novaTabela.id]: 'loja',
+                }));
+
+                // Carregar empresas deste item
+                try {
+                    const empresasResult = await dispatch(
+                        fetchNegotiationEmpresas({
+                            negociacaoId,
+                            itemId: item.id,
+                        })
+                    ).unwrap();
+
+                    console.log('Empresas do item carregadas:', empresasResult);
+
+                    // Mapear empresas para o formato da store
+                    if (empresasResult && Array.isArray(empresasResult)) {
+                        for (const empresa of empresasResult) {
+                            const empresaLocalFormat = {
+                                ...empresa,
+                                id_item: novaTabela.id, // ID local, não o do banco
+                            };
+                            dispatch(addEmpresaLocal(empresaLocalFormat));
+                        }
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar empresas do item:', error);
+                }
+
+                // Carregar produtos deste item
+                try {
+                    const produtosResult = await dispatch(
+                        fetchNegotiationProdutos({
+                            negociacaoId,
+                            itemId: item.id,
+                        })
+                    ).unwrap();
+
+                    console.log('Produtos do item carregados:', produtosResult);
+
+                    // Mapear produtos para o formato da store
+                    if (produtosResult && Array.isArray(produtosResult)) {
+                        for (const produto of produtosResult) {
+                            const produtoLocalFormat = {
+                                ...produto,
+                                id_item: novaTabela.id, // ID local, não o do banco
+                            };
+                            dispatch(addProdutoLocal(produtoLocalFormat));
+                        }
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar produtos do item:', error);
+                }
+
+                novoNextTableId++;
+            }
+
+            console.log('Tabelas criadas:', tabelasTemp);
+            setTables(tabelasTemp);
+            setNextTableId(novoNextTableId);
+
+            // Carregar contatos da negociação
+            try {
+                const contatosResult = await dispatch(
+                    fetchNegotiationContatos(negociacaoId)
+                ).unwrap();
+                console.log('Contatos carregados:', contatosResult);
+
+                if (contatosResult && Array.isArray(contatosResult)) {
+                    setContatosTemp(
+                        contatosResult.map((contato, index) => ({
+                            nome: contato.nome || '',
+                            email: contato.email || '',
+                            telefone: contato.telefone || '',
+                            key: index,
+                            id: contato.id,
+                        }))
+                    );
+                }
+            } catch (error) {
+                console.error('Erro ao carregar contatos:', error);
+            }
+        } catch (error) {
+            console.error('Erro geral ao carregar dados para edição:', error);
+            message.error('Erro ao carregar dados. Tente novamente.');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleAddItem = () => {
-        if (!itemDescricao) {
-            message.error('Por favor, insira uma descrição para o item.');
-            return;
-        }
-
-        if (!negociacaoId) {
-        
+        if (selectedItem) {
             const newItem = {
                 id: nextTableId,
-                descricao: itemDescricao,
+                descricao: selectedItem.descricao,
+                id_item_objeto: selectedItem.id,
             };
             setTables([...tables, newItem]);
             setNextTableId(nextTableId + 1);
@@ -139,32 +343,54 @@ export default function NegotiationsRegistration() {
                 ...prev,
                 [newItem.id]: 'loja',
             }));
-        } else {
-            dispatch(
-                createNegotiationItem({
-                    id_negociacao: negociacaoId,
-                    descricao: itemDescricao,
-                })
-            )
+            setSelectedItem(null);
+        } else if (showNewItemInput) {
+            if (!itemDescricao || !itemSigla) {
+                message.error(
+                    'Por favor, preencha todos os campos do novo item.'
+                );
+                return;
+            }
+
+            const itemData = {
+                descricao: itemDescricao,
+                sigla: itemSigla,
+                usuario: user?.username || 'Usuário',
+            };
+
+            dispatch(createItemObjeto(itemData))
                 .unwrap()
                 .then((result) => {
                     const newItem = {
-                        id: result.id,
+                        id: nextTableId,
                         descricao: result.descricao,
+                        id_item_objeto: result.id,
                     };
                     setTables([...tables, newItem]);
+                    setNextTableId(nextTableId + 1);
                     setActiveTabKeys((prev) => ({
                         ...prev,
                         [newItem.id]: 'loja',
                     }));
                     message.success('Item adicionado com sucesso!');
+
+                    setItemDescricao('');
+                    setItemSigla('');
+                    setShowNewItemInput(false);
                 })
                 .catch(() => {
                     message.error('Erro ao adicionar item. Tente novamente.');
                 });
+        } else {
+            message.error('Por favor, selecione um item ou crie um novo.');
         }
+    };
 
-        setIsItemModalVisible(false);
+    const toggleNewItemInput = () => {
+        setShowNewItemInput(!showNewItemInput);
+        setSelectedItem(null);
+        setItemDescricao('');
+        setItemSigla('');
     };
 
     const handleTabChange = (tabNumber: number, activeKey: string) => {
@@ -174,105 +400,136 @@ export default function NegotiationsRegistration() {
         }));
     };
 
-    // Adicionar nova empresa ao item
-    const handleAddEmpresa = (tableId: number) => {
-        if (!selectedLoja) {
-            message.error('Por favor, selecione uma loja.');
-            return;
-        }
-
-        const novaEmpresa: INegociacaoEmpresa = {
+    const handleAddEmpresa = (
+        filialId: number,
+        filialLoja: string,
+        tableId: number
+    ) => {
+        const novaEmpresa = {
             id_negociacao: negociacaoId || 0,
             id_item: tableId,
-            id_empresa: selectedLoja.id,
-            descricao: selectedLoja.descricao,
-            meta: lojaInput.meta,
-            premiacao: lojaInput.premiacao,
+            id_empresa: filialId,
+            descricao: filialLoja,
         };
 
-        if (negociacaoId) {
-            // Se a negociação já existe, envia para API
-            dispatch(createNegotiationEmpresa(novaEmpresa))
-                .unwrap()
-                .then(() => {
-                    message.success('Loja adicionada com sucesso!');
-                    setSelectedLoja(null);
-                    setLojaInput({ meta: 0, premiacao: '' });
-                })
-                .catch(() => {
-                    message.error('Erro ao adicionar loja. Tente novamente.');
-                });
-        } else {
-            // Caso contrário, adiciona localmente
-            dispatch(addEmpresaLocal(novaEmpresa));
-            setSelectedLoja(null);
-            setLojaInput({ meta: 0, premiacao: '' });
-        }
+        console.log('Adicionando empresa:', novaEmpresa);
+
+        dispatch(addEmpresaLocal(novaEmpresa));
+        setSelectedLoja(null);
+
+        message.success('Loja adicionada com sucesso!');
     };
 
-    // Adicionar novo produto ao item
     const handleAddProduto = (tableId: number) => {
+        console.log('Adicionando produto:', selectedProduto);
         if (!selectedProduto) {
             message.error('Por favor, selecione um produto.');
             return;
         }
 
-        const novoProduto: INegociacaoProduto = {
+        if (!produtoInput.unidades || produtoInput.unidades <= 0) {
+            message.error('Por favor, informe uma quantidade válida.');
+            return;
+        }
+
+        const novoProduto = {
             id_negociacao: negociacaoId || 0,
             id_item: tableId,
-            id_produto: selectedProduto.id,
-            descricao: selectedProduto.descricao,
+            id_produto: selectedProduto?.codprod as number,
+            descricao: selectedProduto.descricao || selectedProduto.nome || '',
             unidades: produtoInput.unidades,
-            valor: produtoInput.valor,
         };
 
-        if (negociacaoId) {
-            // Se a negociação já existe, envia para API
-            dispatch(createNegotiationProduto(novoProduto))
-                .unwrap()
-                .then(() => {
-                    message.success('Produto adicionado com sucesso!');
-                    setSelectedProduto(null);
-                    setProdutoInput({ unidades: 0, valor: 0 });
-                })
-                .catch(() => {
-                    message.error(
-                        'Erro ao adicionar produto. Tente novamente.'
-                    );
-                });
-        } else {
-            // Caso contrário, adiciona localmente
-            dispatch(addProdutoLocal(novoProduto));
-            setSelectedProduto(null);
-            setProdutoInput({ unidades: 0, valor: 0 });
-        }
+        dispatch(addProdutoLocal(novoProduto));
+        setSelectedProduto(null);
+        setProdutoInput({ unidades: 0, valor: 0 });
+        message.success('Produto adicionado com sucesso!');
     };
 
-    // Remover empresa da lista
     const handleRemoveEmpresa = (id?: number) => {
-        if (id) {
-            dispatch(removeEmpresaLocal(id));
+        console.log('id empresa', id);
+        if (!id) return;
+
+        if (isEditMode && id > 0) {
+            // Remover da API se estiver em modo edição e for um registro existente
+            dispatch(deleteNegotiationEmpresa(id))
+                .then(() => {
+                    message.success('Loja removida com sucesso!');
+                })
+                .catch((error) => {
+                    console.error('Erro ao remover loja:', error);
+                    message.error('Erro ao remover loja. Tente novamente.');
+                });
         }
+
+        // Remover localmente de qualquer forma
+        dispatch(removeEmpresaLocal(id));
     };
 
-    // Remover produto da lista
     const handleRemoveProduto = (id?: number) => {
-        if (id) {
-            dispatch(removeProdutoLocal(id));
+        if (!id) return;
+
+        if (isEditMode && id > 0) {
+            // Remover da API se estiver em modo edição e for um registro existente
+            dispatch(deleteNegotiationProduto(id))
+                .then(() => {
+                    message.success('Produto removido com sucesso!');
+                })
+                .catch((error) => {
+                    console.error('Erro ao remover produto:', error);
+                    message.error('Erro ao remover produto. Tente novamente.');
+                });
         }
+
+        // Remover localmente de qualquer forma
+        dispatch(removeProdutoLocal(id));
     };
 
     const addContact = () => {
-        if (!contactInput.nome) {
+        if (!contatoInput.nome) {
             message.error('Nome é obrigatório para adicionar um contato');
             return;
         }
 
-        setContacts([...contacts, { ...contactInput, key: contacts.length }]);
-        setContactInput({ nome: '', email: '', celular: '' });
+        const newContact = {
+            ...contatoInput,
+            telefone: contatoInput.telefone || '',
+            key: contatosTemp.length,
+        };
+        setContatosTemp([...contatosTemp, newContact]);
+
+        if (negociacaoId) {
+            dispatch(
+                addContatoLocal({
+                    id_negociacao: negociacaoId,
+                    nome: contatoInput.nome,
+                    email: contatoInput.email,
+                    telefone: contatoInput.telefone || '',
+                })
+            );
+        }
+
+        setContatoInput({ nome: '', email: '', telefone: '' });
     };
 
-    // Salvar a negociação completa
+    const handleRemoveContato = (key: number, id?: number) => {
+        if (isEditMode && id) {
+            // Remover da API se estiver em modo edição e for um registro existente
+            dispatch(deleteNegotiationContato(id))
+                .then(() => {
+                    message.success('Contato removido com sucesso!');
+                })
+                .catch((error) => {
+                    console.error('Erro ao remover contato:', error);
+                    message.error('Erro ao remover contato. Tente novamente.');
+                });
+        }
+
+        // Remover localmente
+        setContatosTemp(contatosTemp.filter((c) => c.key !== key));
+        dispatch(removeContatoLocal(key));
+    };
+
     const handleSubmit = async () => {
         if (!descricao || !dataInicial || !dataFinal) {
             message.error('Por favor, preencha todos os campos obrigatórios');
@@ -295,87 +552,190 @@ export default function NegotiationsRegistration() {
                 ? dataFinal.split('T')[0]
                 : dataFinal;
 
-            // Primeiro, criar a negociação principal
-            const negociationData = {
-                descricao: descricao,
-                data_inicial: dataInicialFormatted,
-                data_final: dataFinalFormatted,
-                usuario: user?.username || 'Usuário',
-            };
-
-            const result = await dispatch(
-                createNegotiationCampaign(negociationData)
-            ).unwrap();
-            setNegociacaoId(result.id);
-
-            // Depois, salvar cada item
-            for (const tabela of tables) {
-                // Se não temos ID de negociação, algo deu errado
-                if (!result.id) continue;
-
-                const itemData = {
-                    id_negociacao: result.id,
-                    descricao: tabela.descricao,
+            if (isEditMode) {
+                // Atualizar a negociação existente
+                const negociationData = {
+                    descricao: descricao,
+                    data_inicial: dataInicialFormatted,
+                    data_final: dataFinalFormatted,
+                    usuario: user?.username || 'Usuário',
                 };
 
-                const itemResult = await dispatch(
-                    createNegotiationItem(itemData)
+                await dispatch(
+                    updateNegotiationCampaign({
+                        id: negociacaoId as number,
+                        data: negociationData,
+                    })
                 ).unwrap();
 
-                // Agora salvar as empresas relacionadas a este item
-                const empresasDoItem = empresasArray.filter(
-                    (empresa) => empresa.id_item === tabela.id
+                // Processar alterações em itens, empresas e produtos
+                for (const tabela of tables) {
+                    const idItemNegociacao = tabela.id_item_negociacao || 0;
+                    let idItem = idItemNegociacao;
+
+                    if (!idItemNegociacao) {
+                        // Se é um novo item, criar na API
+                        const itemData = {
+                            id_negociacao: negociacaoId as number,
+                            id_objeto: tabela.id_item_objeto || 0,
+                            descricao: tabela.descricao,
+                        };
+
+                        const itemResult = await dispatch(
+                            createNegotiationItem(itemData)
+                        ).unwrap();
+                        idItem = itemResult.id;
+                    }
+
+                    // Processar empresas deste item (novas adições foram feitas na store)
+                    const empresasDoItem = empresasArray.filter(
+                        (empresa) =>
+                            empresa.id_item === tabela.id && !empresa.id
+                    );
+
+                    for (const empresa of empresasDoItem) {
+                        const empresaData = {
+                            id_negociacao: negociacaoId as number,
+                            id_item: idItem,
+                            id_empresa: empresa.id_empresa,
+                            descricao: empresa.descricao,
+                        };
+                        await dispatch(
+                            createNegotiationEmpresa(empresaData)
+                        ).unwrap();
+                    }
+
+                    // Processar produtos deste item (novas adições)
+                    const produtosDoItem = produtosArray.filter(
+                        (produto) =>
+                            produto.id_item === tabela.id && !produto.id
+                    );
+
+                    for (const produto of produtosDoItem) {
+                        const produtoData = {
+                            id_negociacao: negociacaoId as number,
+                            id_item: idItem,
+                            id_produto: produto.id_produto,
+                            descricao: produto.descricao,
+                            unidades: produto.unidades,
+                        };
+                        await dispatch(
+                            createNegotiationProduto(produtoData)
+                        ).unwrap();
+                    }
+                }
+
+                // Processar novos contatos (sem ID)
+                const novosContatos = contatosTemp.filter(
+                    (contato) => !contato.id
                 );
-                for (const empresa of empresasDoItem) {
-                    const empresaData: INegociacaoEmpresa = {
-                        id_negociacao: result.id,
-                        id_item: itemResult.id,
-                        id_empresa: empresa.id_empresa,
-                        descricao: empresa.descricao,
-                        meta: empresa.meta,
-                        premiacao: empresa.premiacao,
+
+                for (const contato of novosContatos) {
+                    const contatoData = {
+                        id_negociacao: negociacaoId as number,
+                        nome: contato.nome,
+                        email: contato.email,
+                        telefone: contato.telefone,
                     };
                     await dispatch(
-                        createNegotiationEmpresa(empresaData)
+                        createNegotiationContato(contatoData)
                     ).unwrap();
                 }
 
-                // E os produtos relacionados a este item
-                const produtosDoItem = produtosArray.filter(
-                    (produto) => produto.id_item === tabela.id
-                );
-                for (const produto of produtosDoItem) {
-                    const produtoData: INegociacaoProduto = {
-                        id_negociacao: result.id,
-                        id_item: itemResult.id,
-                        id_produto: produto.id_produto,
-                        descricao: produto.descricao,
-                        unidades: produto.unidades,
-                        valor: produto.valor,
+                message.success('Negociação atualizada com sucesso!');
+            } else {
+                // Código existente para criação de nova negociação
+                const negociationData = {
+                    descricao: descricao,
+                    data_inicial: dataInicialFormatted,
+                    data_final: dataFinalFormatted,
+                    usuario: user?.username || 'Usuário',
+                };
+
+                const result = await dispatch(
+                    createNegotiationCampaign(negociationData)
+                ).unwrap();
+
+                const idNegociacao = result.id;
+                setNegociacaoId(idNegociacao);
+
+                for (const tabela of tables) {
+                    if (!idNegociacao) continue;
+
+                    const itemData = {
+                        id_negociacao: idNegociacao,
+                        id_objeto: tabela.id_item_objeto || 0,
+                        descricao: tabela.descricao,
+                    };
+
+                    const itemResult = await dispatch(
+                        createNegotiationItem(itemData)
+                    ).unwrap();
+
+                    const idItem = itemResult.id;
+
+                    const empresasDoItem = empresasArray.filter(
+                        (empresa) => empresa.id_item === tabela.id
+                    );
+
+                    for (const empresa of empresasDoItem) {
+                        const empresaData = {
+                            id_negociacao: idNegociacao,
+                            id_item: idItem,
+                            id_empresa: empresa.id_empresa,
+                            descricao: empresa.descricao,
+                        };
+                        await dispatch(
+                            createNegotiationEmpresa(empresaData)
+                        ).unwrap();
+                    }
+
+                    const produtosDoItem = produtosArray.filter(
+                        (produto) => produto.id_item === tabela.id
+                    );
+
+                    for (const produto of produtosDoItem) {
+                        const produtoData = {
+                            id_negociacao: idNegociacao,
+                            id_item: idItem,
+                            id_produto: produto.id_produto,
+                            descricao: produto.descricao,
+                            unidades: produto.unidades,
+                        };
+                        await dispatch(
+                            createNegotiationProduto(produtoData)
+                        ).unwrap();
+                    }
+                }
+
+                for (const contato of contatosTemp) {
+                    const contatoData = {
+                        id_negociacao: idNegociacao,
+                        nome: contato.nome,
+                        email: contato.email,
+                        telefone: contato.telefone,
                     };
                     await dispatch(
-                        createNegotiationProduto(produtoData)
+                        createNegotiationContato(contatoData)
                     ).unwrap();
                 }
+
+                message.success('Negociação cadastrada com sucesso!');
             }
-
-            message.success('Negociação cadastrada com sucesso!');
-            // Limpar os estados após o cadastro bem-sucedido
             setDescricao('');
             setDataInicial('');
             setDataFinal('');
             setTables([]);
-            setContacts([]);
+            setContatosTemp([]);
             dispatch(resetLocalData());
         } catch (error) {
             console.error('Erro ao salvar negociação:', error);
-            message.error('Erro ao cadastrar negociação. Tente novamente.');
+            message.error('Erro ao processar negociação. Tente novamente.');
         } finally {
             setIsLoading(false);
         }
     };
 
-    // Filtrar empresas e produtos relacionados a um determinado item
     const getEmpresasDoItem = (itemId: number) => {
         return empresasArray.filter((empresa) => empresa.id_item === itemId);
     };
@@ -436,12 +796,92 @@ export default function NegotiationsRegistration() {
                                 <h2 className="text-lg font-bold text-green-600">
                                     Itens da Campanha
                                 </h2>
-                                <Button
-                                    onClick={showItemModal}
-                                    className="bg-green-500 hover:bg-green-600"
-                                >
-                                    Adicionar Item
-                                </Button>
+                            </div>
+
+                            <div className="mb-4">
+                                {!showNewItemInput ? (
+                                    <div className="flex gap-2">
+                                        <Select
+                                            showSearch
+                                            className="flex-1"
+                                            placeholder="Selecione um item..."
+                                            value={selectedItem?.id}
+                                            onChange={(value) => {
+                                                const item =
+                                                    itensObjetoArray.find(
+                                                        (i) => i.id === value
+                                                    );
+                                                setSelectedItem(item || null);
+                                            }}
+                                            filterOption={(input, option) =>
+                                                (option?.label ?? '')
+                                                    .toLowerCase()
+                                                    .includes(
+                                                        input.toLowerCase()
+                                                    )
+                                            }
+                                            options={itensObjetoArray.map(
+                                                (item) => ({
+                                                    value: item.id,
+                                                    label: `${item.sigla} - ${item.descricao}`,
+                                                })
+                                            )}
+                                        />
+                                        <Button
+                                            onClick={toggleNewItemInput}
+                                            className="bg-blue-500 hover:bg-blue-600"
+                                        >
+                                            Novo Item
+                                        </Button>
+                                        <Button
+                                            onClick={handleAddItem}
+                                            className="bg-green-500 hover:bg-green-600"
+                                            disabled={!selectedItem}
+                                        >
+                                            Adicionar Item
+                                        </Button>
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col gap-2">
+                                        <div className="flex gap-2">
+                                            <Input
+                                                placeholder="Descrição do Item"
+                                                value={itemDescricao}
+                                                onChange={(e) =>
+                                                    setItemDescricao(
+                                                        e.target.value
+                                                    )
+                                                }
+                                                className="flex-1"
+                                            />
+                                            <Input
+                                                placeholder="Sigla"
+                                                value={itemSigla}
+                                                onChange={(e) =>
+                                                    setItemSigla(e.target.value)
+                                                }
+                                                className="w-24"
+                                            />
+                                        </div>
+                                        <div className="flex gap-2 justify-end">
+                                            <Button
+                                                onClick={toggleNewItemInput}
+                                                className="bg-gray-200 hover:bg-gray-300"
+                                            >
+                                                Cancelar
+                                            </Button>
+                                            <Button
+                                                onClick={handleAddItem}
+                                                className="bg-green-500 hover:bg-green-600"
+                                                disabled={
+                                                    !itemDescricao || !itemSigla
+                                                }
+                                            >
+                                                Salvar Item
+                                            </Button>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             {tables.length === 0 ? (
@@ -491,31 +931,46 @@ export default function NegotiationsRegistration() {
                                                         }
                                                         options={filiaisArray.map(
                                                             (filial) => ({
-                                                                value: filial.id,
-                                                                label: `${filial.codigo} - ${filial.descricao}`,
+                                                                value: filial.idempresa,
+                                                                label: filial.loja,
                                                             })
                                                         )}
                                                         onChange={(value) => {
-                                                            const loja =
+                                                            const filialSelecionada =
                                                                 filiaisArray.find(
                                                                     (f) =>
-                                                                        f.id ===
+                                                                        f.idempresa ===
                                                                         value
                                                                 );
-                                                            setSelectedLoja(
-                                                                loja || null
-                                                            );
+                                                            if (
+                                                                filialSelecionada
+                                                            ) {
+                                                                console.log(
+                                                                    'Filial selecionada:',
+                                                                    filialSelecionada
+                                                                );
+                                                                setSelectedLoja(
+                                                                    filialSelecionada
+                                                                );
+                                                            }
                                                         }}
-                                                        value={selectedLoja?.id}
+                                                        value={null}
                                                     />
 
                                                     <Button
                                                         className="bg-green-500 hover:bg-green-600"
-                                                        onClick={() =>
-                                                            handleAddEmpresa(
-                                                                tabela.id
-                                                            )
-                                                        }
+                                                        disabled={!selectedLoja}
+                                                        onClick={() => {
+                                                            if (selectedLoja) {
+                                                                handleAddEmpresa(
+                                                                    selectedLoja.id,
+                                                                    selectedLoja.loja ||
+                                                                        selectedLoja.nome ||
+                                                                        '',
+                                                                    tabela.id
+                                                                );
+                                                            }
+                                                        }}
                                                     >
                                                         Adicionar
                                                     </Button>
@@ -537,7 +992,6 @@ export default function NegotiationsRegistration() {
                                                                 'id_empresa',
                                                             key: 'id_empresa',
                                                         },
-
                                                         {
                                                             title: 'Ação',
                                                             key: 'acao',
@@ -588,25 +1042,61 @@ export default function NegotiationsRegistration() {
                                                                     input.toLowerCase()
                                                                 )
                                                         }
-                                                        options={produtosCatalogoArray.map(
+                                                        options={productsArray.map(
                                                             (produto) => ({
-                                                                value: produto.id,
-                                                                label: `${produto.codigo} - ${produto.descricao}`,
+                                                                value: produto.codprod,
+                                                                label:
+                                                                    produto.descricao ||
+                                                                    produto.nome ||
+                                                                    String(
+                                                                        produto.id
+                                                                    ),
                                                             })
                                                         )}
                                                         onChange={(value) => {
-                                                            const produto =
-                                                                produtosCatalogoArray.find(
+                                                            const produtoSelecionado =
+                                                                productsArray.find(
                                                                     (p) =>
-                                                                        p.id ===
-                                                                        value
+                                                                        String(
+                                                                            p.codprod
+                                                                        ) ===
+                                                                        String(
+                                                                            value
+                                                                        )
                                                                 );
-                                                            setSelectedProduto(
-                                                                produto || null
-                                                            );
+                                                            // Converter para o formato IProdutoSelect
+                                                            if (
+                                                                produtoSelecionado
+                                                            ) {
+                                                                const produtoFormatado: IProdutoSelect =
+                                                                    {
+                                                                        id: produtoSelecionado.id,
+                                                                        idproduto:
+                                                                            produtoSelecionado.id,
+                                                                        codprod:
+                                                                            Number(
+                                                                                produtoSelecionado.codprod
+                                                                            ),
+                                                                        nome: produtoSelecionado.nome,
+                                                                        descricao:
+                                                                            produtoSelecionado.descricao,
+                                                                    };
+                                                                setSelectedProduto(
+                                                                    produtoFormatado
+                                                                );
+                                                                console.log(
+                                                                    'Produto selecionado e convertido:',
+                                                                    produtoFormatado
+                                                                );
+                                                            } else {
+                                                                setSelectedProduto(
+                                                                    null
+                                                                );
+                                                            }
                                                         }}
                                                         value={
-                                                            selectedProduto?.id
+                                                            selectedProduto?.codprod ||
+                                                            null
                                                         }
                                                     />
                                                     <InputNumber
@@ -659,13 +1149,6 @@ export default function NegotiationsRegistration() {
                                                             key: 'unidades',
                                                         },
                                                         {
-                                                            title: 'Valor',
-                                                            dataIndex: 'valor',
-                                                            key: 'valor',
-                                                            render: (valor) =>
-                                                                `R$ ${valor?.toFixed(2) || '0.00'}`,
-                                                        },
-                                                        {
                                                             title: 'Ação',
                                                             key: 'acao',
                                                             render: (
@@ -707,10 +1190,10 @@ export default function NegotiationsRegistration() {
                             <div className="flex gap-2 mb-2">
                                 <Input
                                     placeholder="Nome"
-                                    value={contactInput.nome}
+                                    value={contatoInput.nome}
                                     onChange={(e) =>
-                                        setContactInput({
-                                            ...contactInput,
+                                        setContatoInput({
+                                            ...contatoInput,
                                             nome: e.target.value,
                                         })
                                     }
@@ -718,22 +1201,22 @@ export default function NegotiationsRegistration() {
                                 />
                                 <Input
                                     placeholder="Email"
-                                    value={contactInput.email}
+                                    value={contatoInput.email}
                                     onChange={(e) =>
-                                        setContactInput({
-                                            ...contactInput,
+                                        setContatoInput({
+                                            ...contatoInput,
                                             email: e.target.value,
                                         })
                                     }
                                     className="flex-1"
                                 />
                                 <Input
-                                    placeholder="Número de Celular"
-                                    value={contactInput.celular}
+                                    placeholder="Número de Telefone"
+                                    value={contatoInput.telefone}
                                     onChange={(e) =>
-                                        setContactInput({
-                                            ...contactInput,
-                                            celular: e.target.value,
+                                        setContatoInput({
+                                            ...contatoInput,
+                                            telefone: e.target.value,
                                         })
                                     }
                                     className="flex-1"
@@ -746,7 +1229,7 @@ export default function NegotiationsRegistration() {
                                 </Button>
                             </div>
                             <Table
-                                dataSource={contacts}
+                                dataSource={contatosTemp}
                                 columns={[
                                     {
                                         title: 'Nome',
@@ -759,9 +1242,9 @@ export default function NegotiationsRegistration() {
                                         key: 'email',
                                     },
                                     {
-                                        title: 'Número de Celular',
-                                        dataIndex: 'celular',
-                                        key: 'celular',
+                                        title: 'Telefone',
+                                        dataIndex: 'telefone',
+                                        key: 'telefone',
                                     },
                                     {
                                         title: 'Ação',
@@ -771,12 +1254,9 @@ export default function NegotiationsRegistration() {
                                                 danger
                                                 icon={<DeleteOutlined />}
                                                 onClick={() => {
-                                                    setContacts(
-                                                        contacts.filter(
-                                                            (c) =>
-                                                                c.key !==
-                                                                record.key
-                                                        )
+                                                    handleRemoveContato(
+                                                        record.key,
+                                                        record.id
                                                     );
                                                 }}
                                             />
@@ -802,35 +1282,6 @@ export default function NegotiationsRegistration() {
                     </div>
                 </div>
             </main>
-
-            <Modal
-                title="Adicionar Item"
-                open={isItemModalVisible}
-                onOk={handleAddItem}
-                onCancel={handleItemModalCancel}
-                okText="Adicionar"
-                cancelText="Cancelar"
-            >
-                <Form layout="vertical">
-                    <Form.Item
-                        label="Descrição do Item"
-                        required
-                        rules={[
-                            {
-                                required: true,
-                                message:
-                                    'Por favor, informe a descrição do item',
-                            },
-                        ]}
-                    >
-                        <Input
-                            placeholder="Ex: Campanha de Inverno, Promoção de Verão, etc."
-                            value={itemDescricao}
-                            onChange={(e) => setItemDescricao(e.target.value)}
-                        />
-                    </Form.Item>
-                </Form>
-            </Modal>
         </div>
     );
 }

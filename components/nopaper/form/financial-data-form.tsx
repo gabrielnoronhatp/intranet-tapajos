@@ -60,7 +60,7 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
         if (value === 'pix') {
             newParcelasOP = [
                 {
-                    parcela: datapixOP,
+                    parcela: datapixOP ?? null,
                     banco: bancoOP || '',
                     agencia: agenciaOP || '',
                     conta: contaOP || '',
@@ -70,33 +70,33 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
             ];
         } else if (value === 'boleto') {
             newParcelasOP = Array.from({ length: qtparcelasOP || 1 }, () => ({
-                parcela: '',
+                parcela: null,
                 banco: '',
                 agencia: '',
                 conta: '',
-                tipopixOP: '',
-                chavepixOP: '',
+                tipopix: '',
+                chavepix: '',
             }));
         } else if (value === 'deposito') {
             newParcelasOP = [
                 {
-                    parcela: dtdepositoOP,
+                    parcela: dtdepositoOP ?? null,
                     banco: bancoOP || '',
                     agencia: agenciaOP || '',
                     conta: contaOP || '',
-                    tipopixOP: tipopixOP || '',
-                    chavepixOP: chavepixOP || '',
+                    tipopix: tipopixOP || '',
+                    chavepix: chavepixOP || '',
                 },
             ];
         } else if (value === 'avista') {
             newParcelasOP = [
                 {
-                    parcela: dtavista,
+                    parcela: dtavista ?? null,
                     banco: '',
                     agencia: '',
                     conta: '',
-                    tipopixOP: '',
-                    chavepixOP: '',
+                    tipopix: '',
+                    chavepix: '',
                 },
             ];
         }
@@ -113,7 +113,7 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
         const updatedParcelas = [...parcelasOP];
         updatedParcelas[index] = {
             ...updatedParcelas[index],
-            [field]: field === 'parcela' ? formatDate(value as string) : value,
+            [field]: field === 'parcela' ? ((value as string) || null) : value,
         };
         onChange('parcelasOP', updatedParcelas as any);
     };
@@ -151,12 +151,12 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                                     const newParcelasOP = Array.from(
                                         { length: value },
                                         () => ({
-                                            parcela: '',
+                                            parcela: null,
                                             banco: '',
                                             agencia: '',
                                             conta: '',
-                                            tipopixOP: '',
-                                            chavepixOP: '',
+                                            tipopix: '',
+                                            chavepix: '',
                                         })
                                     );
                                     onChange(
@@ -171,7 +171,7 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                 )}
 
                 {/* Renderização dinâmica das parcelas */}
-                {parcelasOP.map((parcela: Parcela, index: number) => (
+                {parcelasOP.map((parcela: any, index: number) => (
                     <div key={index} className="space-y-2 border p-2 rounded">
                         <Label className="text-xs font-semibold text-primary uppercase">
                             {metodoOP === 'boleto'
@@ -187,7 +187,7 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
                                     'parcela',
                                     e.target.value
                                 )
-                            }
+                            } 
                             className="form-control"
                         />
 

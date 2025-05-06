@@ -8,7 +8,7 @@ import {
     INegociacaoProduto,
     IFilial,
     IProduto,
-    INegociacaoContato,
+    
 } from '@/types/Trade/TradeNegotiations/ITradeNegotiations';
 import { api } from '@/app/service/api';
 

@@ -212,20 +212,20 @@ export function TableTradeNegotiations() {
                 <div className="flex items-center space-x-2">
                     <Eye
                         color="#11833b"
-                        onClick={() => handleViewNegotiation(record.id)}
+                        onClick={() => handleViewNegotiation(record.id || 0)}
                         className="cursor-pointer hover:scale-110 transition-transform"
                         size={18}
                     />
                     <Edit
                         color="#11833b"
-                        onClick={() => handleEditNegotiation(record.id)}
+                        onClick={() => handleEditNegotiation(record.id || 0)}
                         className="cursor-pointer hover:scale-110 transition-transform"
                         size={18}
                     />
 
                     <Trash2
                         color="#ff4d4f"
-                        onClick={() => handleDeleteNegotiation(record.id)}
+                        onClick={() => handleDeleteNegotiation(record.id || 0)}
                         className="cursor-pointer hover:scale-110 transition-transform"
                         size={18}
                     />

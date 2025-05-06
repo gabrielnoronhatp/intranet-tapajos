@@ -177,9 +177,9 @@ const OriginData: React.FC<OriginDataProps> = ({ data }) => {
 
                 <div className="space-y-4">
                     <FilialSelect
-                        fieldValue={lojaOP}
+                        fieldValue={lojaOP || ''}
                         // validate={true}
-                        ramo={ramoOP}
+                        ramo={ramoOP || ''}
                         // handleSetState={(value: any) =>
                         //     handleFieldChange(lojaOP, value)
                         // }
@@ -189,7 +189,7 @@ const OriginData: React.FC<OriginDataProps> = ({ data }) => {
                         // handleSetState={(value: any) =>
                         //     handleFieldChange(fornecedorOP, value)
                         // }
-                        fieldValue={fornecedorOP}
+                        fieldValue={fornecedorOP || ''}
                         handleSelectChange={handleSelectSupplierChange}
                     />
                 </div>

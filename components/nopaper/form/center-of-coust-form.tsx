@@ -32,7 +32,7 @@ export default function CenterOfCoust({ data, onChange }: CenterOfCoustProps) {
     });
 
     const calculateTotalValue = () => {
-        const totalProdutos = produtosOP.reduce(
+        const totalProdutos = produtosOP?.reduce(
             (sum: number, product: Item) => sum + (Number(product.valor) || 0),
             0
         );

@@ -212,11 +212,14 @@ export default function NegotiationsRegistration() {
             ).unwrap();
             console.log('Itens da negociação carregados:', itensResult);
 
-            if (
-                !itensResult ||
-                !Array.isArray(itensResult) ||
-                itensResult.length === 0
-            ) {
+            // Transforma o resultado em um array, mesmo se for um único objeto
+            const itensArray = Array.isArray(itensResult)
+                ? itensResult
+                : itensResult
+                  ? [itensResult]
+                  : [];
+
+            if (itensArray.length === 0) {
                 console.warn('Nenhum item encontrado para esta negociação');
                 setIsLoading(false);
                 return;
@@ -226,7 +229,7 @@ export default function NegotiationsRegistration() {
             let novoNextTableId = nextTableId;
 
             // Para cada item, vamos criar uma tabela correspondente
-            for (const item of itensResult) {
+            for (const item of itensArray) {
                 console.log('Processando item:', item);
 
                 const novaTabela = {
@@ -950,7 +953,13 @@ export default function NegotiationsRegistration() {
                                                                     filialSelecionada
                                                                 );
                                                                 setSelectedLoja(
-                                                                    filialSelecionada
+                                                                    {
+                                                                        id:
+                                                                            filialSelecionada.idempresa ||
+                                                                            0,
+                                                                        loja: filialSelecionada.loja,
+                                                                        nome: filialSelecionada.nome,
+                                                                    }
                                                                 );
                                                             }
                                                         }}

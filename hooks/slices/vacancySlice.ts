@@ -52,6 +52,7 @@ export interface AllTalent {
 
 interface VacancyState {
     vacancies: Vacancy[];
+    vacancyName: string;
     loading: boolean;
     error: string | null;
     currentVacancy: Vacancy | null;
@@ -80,6 +81,7 @@ const initialState: VacancyState = {
     vacancies: [],
     loading: false,
     error: null,
+    vacancyName: '',
     currentVacancy: null,
     candidates: [],
     candidatesLoading: false,
@@ -617,6 +619,10 @@ const vacancySlice = createSlice({
                 success: false,
                 error: null,
             };
+
+        },
+        setVacancyName(state, action: PayloadAction<string>) {
+            state.vacancyName = action.payload;
         },
     },
     extraReducers: (builder) => {
@@ -801,10 +807,11 @@ const vacancySlice = createSlice({
             state.emailStatus.loading = false;
             state.emailStatus.error = action.payload as string;
         });
+        
 
         //case to add current vacancy
     },
 });
 
-export const { setError, resetEmailStatus } = vacancySlice.actions;
+export const { setError, resetEmailStatus ,setVacancyName} = vacancySlice.actions;
 export default vacancySlice.reducer;

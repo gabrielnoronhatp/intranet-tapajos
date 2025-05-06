@@ -134,12 +134,18 @@ export const fetchNegotiationItems = createAsyncThunk(
     'tradeNegotiations/fetchItems',
     async (negociacaoId: number, { rejectWithValue }) => {
         try {
-            console.log('Chamando fetchNegotiationItems para o ID:', negociacaoId);
+            console.log(
+                'Chamando fetchNegotiationItems para o ID:',
+                negociacaoId
+            );
             const response = await apiInstance.get(
-                `varejo/NegociacaoVarejoItem/?id_negociacao=${negociacaoId}`
+                `varejo/NegociacaoVarejoItem/${negociacaoId}`
             );
             console.log('Resposta de fetchNegotiationItems:', response.data);
-            return response.data;
+
+            // Garantir que retornamos sempre um array, mesmo se a API retornar um único objeto
+            const data = response.data;
+            return Array.isArray(data) ? data : data ? [data] : [];
         } catch (error) {
             console.error('Erro em fetchNegotiationItems:', error);
             if (axios.isAxiosError(error)) {
@@ -158,12 +164,20 @@ export const fetchNegotiationEmpresas = createAsyncThunk(
         { rejectWithValue }
     ) => {
         try {
-            console.log('Chamando fetchNegotiationEmpresas para negociação:', negociacaoId, 'e item:', itemId);
+            console.log(
+                'Chamando fetchNegotiationEmpresas para negociação:',
+                negociacaoId,
+                'e item:',
+                itemId
+            );
             const response = await apiInstance.get(
-                `varejo/NegociacaoVarejoEmpresa/?id_negociacao=${negociacaoId}&id_item=${itemId}`
+                `varejo/NegociacaoVarejoEmpresa/${negociacaoId}`
             );
             console.log('Resposta de fetchNegotiationEmpresas:', response.data);
-            return response.data;
+
+            // Garantir que retornamos sempre um array, mesmo se a API retornar um único objeto
+            const data = response.data;
+            return Array.isArray(data) ? data : data ? [data] : [];
         } catch (error) {
             console.error('Erro em fetchNegotiationEmpresas:', error);
             if (axios.isAxiosError(error)) {
@@ -181,12 +195,20 @@ export const fetchNegotiationProdutos = createAsyncThunk(
         { rejectWithValue }
     ) => {
         try {
-            console.log('Chamando fetchNegotiationProdutos para negociação:', negociacaoId, 'e item:', itemId);
+            console.log(
+                'Chamando fetchNegotiationProdutos para negociação:',
+                negociacaoId,
+                'e item:',
+                itemId
+            );
             const response = await apiInstance.get(
-                `varejo/NegociacaoVarejoProduto/?id_negociacao=${negociacaoId}&id_item=${itemId}`
+                `varejo/NegociacaoVarejoProduto/${negociacaoId}`
             );
             console.log('Resposta de fetchNegotiationProdutos:', response.data);
-            return response.data;
+
+            // Garantir que retornamos sempre um array, mesmo se a API retornar um único objeto
+            const data = response.data;
+            return Array.isArray(data) ? data : data ? [data] : [];
         } catch (error) {
             console.error('Erro em fetchNegotiationProdutos:', error);
             if (axios.isAxiosError(error)) {
@@ -205,7 +227,10 @@ export const fetchNegotiationCampaignById = createAsyncThunk(
             const response = await apiInstance.get(
                 `varejo/NegociacaoVarejo/${id}`
             );
-            console.log('Resposta de fetchNegotiationCampaignById:', response.data);
+            console.log(
+                'Resposta de fetchNegotiationCampaignById:',
+                response.data
+            );
             return response.data;
         } catch (error) {
             console.error('Erro em fetchNegotiationCampaignById:', error);
@@ -413,12 +438,18 @@ export const fetchNegotiationContatos = createAsyncThunk(
     'tradeNegotiations/fetchContatos',
     async (negociacaoId: number, { rejectWithValue }) => {
         try {
-            console.log('Chamando fetchNegotiationContatos para o ID:', negociacaoId);
+            console.log(
+                'Chamando fetchNegotiationContatos para o ID:',
+                negociacaoId
+            );
             const response = await apiInstance.get(
                 `varejo/NegociacaoVarejoContato/?id_negociacao=${negociacaoId}`
             );
             console.log('Resposta de fetchNegotiationContatos:', response.data);
-            return response.data;
+
+            // Garantir que retornamos sempre um array, mesmo se a API retornar um único objeto
+            const data = response.data;
+            return Array.isArray(data) ? data : data ? [data] : [];
         } catch (error) {
             console.error('Erro em fetchNegotiationContatos:', error);
             if (axios.isAxiosError(error)) {
@@ -878,67 +909,52 @@ const negotiationsSlice = createSlice({
             .addCase(fetchNegotiationObjetoById.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(fetchNegotiationObjetoById.fulfilled, (state, action) => {
+            .addCase(fetchNegotiationObjetoById.fulfilled, (state) => {
                 state.loading = false;
-                // Handle the response as needed
             })
             .addCase(fetchNegotiationObjetoById.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload as string;
             })
 
-            // fetchNegotiationEmpresasById
             .addCase(fetchNegotiationEmpresasById.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(
-                fetchNegotiationEmpresasById.fulfilled,
-                (state, action) => {
-                    state.loading = false;
-                    // Handle the response as needed
-                }
-            )
+            .addCase(fetchNegotiationEmpresasById.fulfilled, (state) => {
+                state.loading = false;
+            })
             .addCase(fetchNegotiationEmpresasById.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload as string;
             })
 
-            // fetchNegotiationItemsById
             .addCase(fetchNegotiationItemsById.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(fetchNegotiationItemsById.fulfilled, (state, action) => {
+            .addCase(fetchNegotiationItemsById.fulfilled, (state) => {
                 state.loading = false;
-                // Handle the response as needed
             })
             .addCase(fetchNegotiationItemsById.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload as string;
             })
 
-            // fetchNegotiationProdutosById
             .addCase(fetchNegotiationProdutosById.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(
-                fetchNegotiationProdutosById.fulfilled,
-                (state, action) => {
-                    state.loading = false;
-                    // Handle the response as needed
-                }
-            )
+            .addCase(fetchNegotiationProdutosById.fulfilled, (state) => {
+                state.loading = false;
+            })
             .addCase(fetchNegotiationProdutosById.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload as string;
             })
 
-            // fetchNegotiationById
             .addCase(fetchNegotiationById.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(fetchNegotiationById.fulfilled, (state, action) => {
+            .addCase(fetchNegotiationById.fulfilled, (state) => {
                 state.loading = false;
-                // Handle the response as needed
             })
             .addCase(fetchNegotiationById.rejected, (state, action) => {
                 state.loading = false;
@@ -959,7 +975,7 @@ const negotiationsSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload as string;
             })
-            
+
             .addCase(deleteNegotiationProduto.pending, (state) => {
                 state.loading = true;
             })
@@ -973,7 +989,7 @@ const negotiationsSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload as string;
             })
-            
+
             .addCase(deleteNegotiationContato.pending, (state) => {
                 state.loading = true;
             })

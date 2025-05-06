@@ -24,11 +24,12 @@ import {
     fetchNegotiationProdutosById,
     fetchNegotiationById,
 } from '@/hooks/slices/trade/tradeNegotiationsSlice';
-import { Eye, Edit, Trash2, Search, Copy } from 'lucide-react';
+import { Eye, Edit, Trash2, Search  } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import useTokenRefresh from '@/hooks/useTokenRefresh';
 import dayjs from 'dayjs';
 import { FloatingActionButton } from '../nopaper/floating-action-button';
+import axios from 'axios';
 
 export function TableTradeNegotiations() {
     const [clientSideReady] = useState(false);
@@ -114,8 +115,12 @@ export function TableTradeNegotiations() {
                 produtos,
             });
             console.log('Negociação detalhe:', negociacaoDetalhe);
-        } catch (err) {
-            message.error('Erro ao buscar detalhes da negociação');
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                message.error(error.response?.data?.message || 'Erro ao buscar detalhes da negociação');
+            } else {
+                message.error('Erro ao buscar detalhes da negociação');
+            }
         } finally {
             setModalLoading(false);
         }
@@ -132,15 +137,16 @@ export function TableTradeNegotiations() {
                 message.success('Negociação excluída com sucesso');
                 dispatch(fetchNegotiationCampaigns());
             })
-            .catch((err) => {
-                message.error(`Erro ao excluir negociação: ${err}`);
+            .catch((err: unknown) => {
+                if (axios.isAxiosError(err)) {
+                    message.error(err.response?.data?.message || 'Erro ao excluir negociação');
+                } else {
+                    message.error('Erro ao excluir negociação');
+                }
             });
     };
 
-    const handleDuplicateNegotiation = (record: INegotiationCampaign) => {
-        message.info('Funcionalidade de duplicação será implementada em breve');
-        console.log('Duplicando negociação:', record.id, record.descricao);
-    };
+   
 
     const sortedCampaigns = Array.isArray(campaigns)
         ? [...campaigns].sort((a, b) => {

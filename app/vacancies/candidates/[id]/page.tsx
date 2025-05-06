@@ -54,10 +54,11 @@ export interface PageProps {
     };
 }
 
-export default function VacancyCandidatesPage({ name }: any) {
+export default function VacancyCandidatesPage() {
     const { id } = useParams();
+    
     const dispatch = useDispatch<AppDispatch>();
-    const { currentVacancy, candidates, candidatesLoading, loading } =
+    const { currentVacancy, candidates, candidatesLoading, loading, vacancyName } =
         useSelector((state: RootState) => state.vacancy);
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [selectedCandidate, setSelectedCandidate] = useState<ICandidate>();
@@ -69,7 +70,7 @@ export default function VacancyCandidatesPage({ name }: any) {
         useState<ICandidate | null>(null);
 
     useEffect(() => {
-        console.log(name);
+        console.log(vacancyName);
         if (id) {
             dispatch(fetchVacancyById(id as string));
             dispatch(fetchVacancyCandidates(id as string));
@@ -145,10 +146,12 @@ export default function VacancyCandidatesPage({ name }: any) {
         setPreviewVisible(true);
     };
 
-    const getScoreColor = (score: number) => {
-        if (score < 5) return 'text-red-600';
-        return 'text-green-600';
-    };
+    // const getScoreColor = (score: number) => {
+    //     if (score >= 5 && score < 7) return 'yellow';
+    //     if (score >= 7 && score < 9) return 'green';
+    //     if (score >= 9 && score < 10) return 'blue';
+    //     if (score >= 10) return 'red';
+    // };
 
     const columns = [
         {
@@ -179,6 +182,20 @@ export default function VacancyCandidatesPage({ name }: any) {
             title: 'Email',
             dataIndex: ['candidate', 'email'],
             key: 'email',
+        },
+        {
+            title: 'Score',
+            dataIndex: ['analise', 'score'],
+            key: 'score',
+            sorter: (a: ICandidate, b: ICandidate) => b.analise.score - a.analise.score,
+           
+            render: (score: number) => {
+                if (score >= 5 && score < 7) return <Tag color="yellow">{score}</Tag>;
+                if (score >= 7 && score < 9) return <Tag color="green">{score}</Tag>;
+                if (score >= 9 && score < 10) return <Tag color="blue">{score}</Tag>;
+                if (score >= 10) return <Tag color="red">{score}</Tag>;
+                return score;
+            },
         },
         {
             title: 'Telefone',
@@ -276,7 +293,14 @@ export default function VacancyCandidatesPage({ name }: any) {
             ),
         },
     ];
-
+    
+    const getScoreColor = (score: number) => {
+        if (score >= 5 && score < 7) return 'yellow';
+        if (score >= 7 && score < 9) return 'green';
+        if (score >= 9 && score < 10) return 'blue';
+        if (score >= 10) return 'red';
+        return 'gray';
+    };
     return (
         <AuthGuard>
             <div className="min-h-screen bg-background">
@@ -309,8 +333,8 @@ export default function VacancyCandidatesPage({ name }: any) {
                             <>
                                 <div className="mb-6">
                                     <h1 className="text-2xl font-bold text-primary">
-                                        Candidatos para:{' '}
-                                        {currentVacancy?.nome_vaga}
+                                        Candidatos para: {vacancyName}
+                                       
                                     </h1>
                                     <p className="text-gray-600">
                                         Departamento:{' '}
@@ -334,12 +358,12 @@ export default function VacancyCandidatesPage({ name }: any) {
                                         ) : candidates &&
                                           candidates.length > 0 ? (
                                             <Table
-                                                //TODO REMOVE THIS ANY
                                                 columns={columns as any}
                                                 dataSource={candidates}
-                                                rowKey={(record) =>
+                                                rowKey={(record) => 
                                                     record.candidate.id
                                                 }
+                                                sortDirections={['descend', 'ascend']}
                                                 pagination={{ pageSize: 10 }}
                                             />
                                         ) : (

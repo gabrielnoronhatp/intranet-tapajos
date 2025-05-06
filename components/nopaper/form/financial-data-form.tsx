@@ -123,10 +123,10 @@ export default function FinancialData({ data, onChange }: FinancialDataProps) {
             <div className="space-y-2">
                 <SelectField
                     label="Escolha a Forma de Pagamento"
-                    value={metodoOP}
+                    value={metodoOP || ''}
                     onChange={handleFormaPagamentoChange}
                     options={[
-                        { value: 'avista', label: 'À VISTA' },
+                        { value:'avista', label: 'À VISTA' },
                         { value: 'deposito', label: 'DEPÓSITO' },
                         { value: 'boleto', label: 'BOLETO' },
                         { value: 'pix', label: 'PIX' },

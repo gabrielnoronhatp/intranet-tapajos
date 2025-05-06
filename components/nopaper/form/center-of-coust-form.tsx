@@ -32,10 +32,10 @@ export default function CenterOfCoust({ data, onChange }: CenterOfCoustProps) {
     });
 
     const calculateTotalValue = () => {
-        const totalProdutos = produtosOP.reduce(
+        const totalProdutos = produtosOP?.reduce(
             (sum: number, product: Item) => sum + (Number(product.valor) || 0),
             0
-        );
+        ) || 0;
         return totalProdutos - (Number(valorimpostoOP) || 0);
     };
 
@@ -46,7 +46,7 @@ export default function CenterOfCoust({ data, onChange }: CenterOfCoustProps) {
         const newCenters = Array.from(
             { length: numCenters },
             (_, index): { centrocusto: string; valor: number } => {
-                const centroExistente =
+                const centroExistente = ccustoOP && 
                     index < ccustoOP.length ? ccustoOP[index] : null;
 
                 if (index === numCenters - 1) {
@@ -204,7 +204,7 @@ export default function CenterOfCoust({ data, onChange }: CenterOfCoustProps) {
                             className="form-control w-full p-2 border rounded"
                             prefix="R$ "
                         />
-                        {ccustoOP?.[index]?.valor < 0 && (
+                        {ccustoOP?.[index]?.valor && ccustoOP?.[index]?.valor < 0 && (
                             <p className="text-red-500 text-xs">
                                 Valor não pode ser negativo.
                             </p>

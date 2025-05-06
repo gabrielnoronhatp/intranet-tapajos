@@ -31,6 +31,7 @@ import {
     deleteVacancy,
     fetchDepartments,
     fetchAllTalents,
+    setVacancyName,
 } from '@/hooks/slices/vacancySlice';
 import dayjs from 'dayjs';
 import { Vacancy, CreateVacancyPayload } from '@/types/vacancy/IVacancy';
@@ -42,7 +43,6 @@ import {
 } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import { Users } from 'lucide-react';
-import { CustomTagRender } from '@/components/employees/tags';
 import { AuthGuard } from '@/components/ProtectedRoute/AuthGuard';
 import { talentsColumns } from '@/components/employees/talent-columns';
 
@@ -73,15 +73,9 @@ const { TabPane } = Tabs;
 
 export default function VacanciesPage() {
     const dispatch = useDispatch<AppDispatch>();
-    const {
-        vacancies,
-        loading,
-        error,
-        departments,
-        departmentsLoading,
-        allTalents,
-        positions,
-    } = useSelector((state: RootState) => state.vacancy);
+    const { vacancies, loading, error, allTalents, positions } = useSelector(
+        (state: RootState) => state.vacancy
+    );
     const router = useRouter();
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -430,6 +424,8 @@ export default function VacanciesPage() {
         router.push(
             `/vacancies/candidates/${vacancyId}?vacancyName=${vacancyName}`
         );
+
+        dispatch(setVacancyName(vacancyName));
     };
 
     const handleTableChange = (page: number, pageSize?: number) => {
@@ -822,7 +818,9 @@ export default function VacanciesPage() {
                                         });
                                     }}
                                     onBlur={(e) => {
-                                        const value = (e.target as HTMLInputElement).value;
+                                        const value = (
+                                            e.target as HTMLInputElement
+                                        ).value;
                                         if (
                                             value &&
                                             !positions.includes(value)

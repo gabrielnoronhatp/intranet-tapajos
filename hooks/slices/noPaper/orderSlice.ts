@@ -111,6 +111,27 @@ export const cancelOrder = createAsyncThunk(
     }
 );
 
+export const duplicateOrder = createAsyncThunk(
+    'order/duplicateOrder',
+    async (orderId: number, { rejectWithValue }) => {
+        try {
+            const response = await api.post(`duplicar-ordem/${orderId}`);
+            if (response.status === 200) {
+                toast.success('Ordem duplicada com sucesso! Lembre-se de atualizar o número da nota fiscal. ');
+                return response.data;
+            }
+        } catch (error) {
+            if (error instanceof Error) {
+                toast.error('Erro ao duplicar ordem de pagamento.');
+                return rejectWithValue(error.message);
+            } else {
+                toast.error('Erro ao duplicar ordem de pagamento.');
+                return rejectWithValue(String(error));
+            }
+        }
+    }
+);
+
 const orderSlice = createSlice({
     name: 'order',
     initialState,
@@ -185,6 +206,7 @@ const orderSlice = createSlice({
             }
         },
     },
+     
     extraReducers: (builder) => {
         builder.addCase(cancelOrder.fulfilled, (state) => {
             state.canceled = true;

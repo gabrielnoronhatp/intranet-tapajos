@@ -7,6 +7,7 @@ import {
     Edit,
     FileWarning,
     Trash2,
+    Copy,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { message, Modal } from 'antd';
@@ -21,7 +22,7 @@ import {
 } from '@/hooks/slices/noPaper/noPaperSlice';
 import { useDispatch } from 'react-redux';
 import { OrderState } from '@/types/noPaper/Order/OrderState';
-import { cancelOrder } from '@/hooks/slices/noPaper/orderSlice';
+import { cancelOrder, duplicateOrder } from '@/hooks/slices/noPaper/orderSlice';
 import { ColumnType } from 'antd/es/table';
 import { AppDispatch } from '@/hooks/store';
 interface DataTableOrderProps {
@@ -204,6 +205,16 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
         }
     };
 
+    const handleDuplicateOrder = async (orderId: number) => {
+        try {
+            await dispatch(duplicateOrder(orderId));
+            fetchOrders();
+        } catch (error) {
+            console.error('Erro ao duplicar ordem:', error);
+        }
+        
+    };
+
     const columns = [
         { title: 'ID', dataIndex: 'id', key: 'id' },
         { title: 'Fornecedor', dataIndex: 'fornecedor', key: 'fornecedor' },
@@ -318,6 +329,13 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
                                 onClick={() =>
                                     handleCancelOrderModal(record.id as number)
                                 }
+                                style={{ color: 'green' }}
+                            />
+                        )}
+                        {!isCanceled && (
+                            <Copy
+                                type="link"
+                                onClick={() => handleDuplicateOrder(record.id as number)}
                                 style={{ color: 'green' }}
                             />
                         )}
@@ -472,8 +490,8 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
                                     orderDetails.produtosOP.length > 0 && (
                                         <>
                                             <h3 className="text-md font-bold mt-4">
-                                                Itens Contratados:
-                                            </h3>
+                                            Itens Contratados:
+                                        </h3>
                                             <div className="bg-gray-50 p-4 rounded border">
                                                 {orderDetails.produtosOP.map(
                                                     (item, index) => (
@@ -513,8 +531,8 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
                                     orderDetails.ccustoOP.length > 0 && (
                                         <>
                                             <h3 className="text-md font-bold mt-4">
-                                                Centros de Custo:
-                                            </h3>
+                                            Centros de Custo:
+                                        </h3>
                                             <div className="bg-gray-50 p-4 rounded border">
                                                 {orderDetails.ccustoOP.map(
                                                     (centro, index) => (
@@ -549,8 +567,8 @@ export function DataTableOrder({ searchParams }: DataTableOrderProps) {
                                                     )
                                                 )}
                                             </div>
-                                        </>
-                                    )}
+                                    </>
+                                )}
 
                                 {fileUrls.length > 0 && (
                                     <div className="mt-4">

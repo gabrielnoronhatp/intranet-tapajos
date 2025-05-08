@@ -114,7 +114,7 @@ export default function VacancyCandidatesPage() {
         const fileName = file_cv.split('/').pop();
         if (!fileName) return null;
 
-        return `https://api.rh.grupotapajos.com.br/candidato/cv/${fileName}`;
+        return `https://api.rh.grupotapajos.com.br/candidato/cv/uploads/cv/${fileName}`;
     };
 
     const getCvViewUrl = (file_cv: string) => {

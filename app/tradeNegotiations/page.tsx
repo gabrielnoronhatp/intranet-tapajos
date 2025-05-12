@@ -142,16 +142,11 @@ export default function NegotiationsRegistration() {
     const params = useParams();
     const id = params.tradeNegotiationsId;
     useEffect(() => {
-        console.log('Componente inicializado, props ID:', id);
         dispatch(fetchNegotiationCampaigns());
         dispatch(fetchItensObjeto());
         dispatch(fetchProductsByType({ busca: '', type: 'produto' }));
         dispatch(fetchFiliais());
         if (id) {
-            console.log(
-                'Modo de edição ativado, carregando dados para ID:',
-                id
-            );
             setIsEditMode(true);
             setNegociacaoId(Number(id));
             carregarDadosEdicao(Number(id));
@@ -167,38 +162,15 @@ export default function NegotiationsRegistration() {
     const carregarDadosEdicao = async (negociacaoId: number) => {
         try {
             setIsLoading(true);
-            console.log(
-                'Iniciando carregamento de dados para edição, ID:',
-                negociacaoId
-            );
 
-            console.log('Disparando fetchNegotiationCampaignById...');
             const campanhaResult = await dispatch(
                 fetchNegotiationCampaignById(negociacaoId)
             ).unwrap();
-            console.log(
-                'Dados da campanha carregados:',
-                JSON.stringify(campanhaResult)
-            );
 
             if (campanhaResult) {
-                console.log(
-                    'Atualizando campos do formulário com dados da campanha...'
-                );
-                console.log('Descrição:', campanhaResult.descricao);
-                console.log('Data Inicial:', campanhaResult.data_inicial);
-                console.log('Data Final:', campanhaResult.data_final);
-
                 setDescricao(campanhaResult.descricao || '');
                 setDataInicial(campanhaResult.data_inicial || '');
                 setDataFinal(campanhaResult.data_final || '');
-
-                setTimeout(() => {
-                    console.log('Valores atualizados:');
-                    console.log('Descrição (state):', descricao);
-                    console.log('Data Inicial (state):', dataInicial);
-                    console.log('Data Final (state):', dataFinal);
-                }, 100);
             } else {
                 message.error(
                     'Não foi possível carregar os dados da negociação'
@@ -210,7 +182,6 @@ export default function NegotiationsRegistration() {
             const itensResult = await dispatch(
                 fetchNegotiationItems(negociacaoId)
             ).unwrap();
-            console.log('Itens da negociação carregados:', itensResult);
 
             // Transforma o resultado em um array, mesmo se for um único objeto
             const itensArray = Array.isArray(itensResult)
@@ -220,18 +191,25 @@ export default function NegotiationsRegistration() {
                   : [];
 
             if (itensArray.length === 0) {
-                console.warn('Nenhum item encontrado para esta negociação');
                 setIsLoading(false);
                 return;
             }
+
+            // Buscar TODAS as empresas da negociação
+            const todasEmpresasResult = await dispatch(
+                fetchNegotiationEmpresas(negociacaoId)
+            ).unwrap();
+
+            // Buscar TODOS os produtos da negociação
+            const todosProdutosResult = await dispatch(
+                fetchNegotiationProdutos(negociacaoId)
+            ).unwrap();
 
             const tabelasTemp = [];
             let novoNextTableId = nextTableId;
 
             // Para cada item, vamos criar uma tabela correspondente
             for (const item of itensArray) {
-                console.log('Processando item:', item);
-
                 const novaTabela = {
                     id: novoNextTableId,
                     descricao: item.descricao || '',
@@ -247,60 +225,41 @@ export default function NegotiationsRegistration() {
                     [novaTabela.id]: 'loja',
                 }));
 
-                // Carregar empresas deste item
-                try {
-                    const empresasResult = await dispatch(
-                        fetchNegotiationEmpresas({
-                            negociacaoId,
-                            itemId: item.id,
-                        })
-                    ).unwrap();
+                // Filtrar empresas deste item
+                const empresasDoItem = Array.isArray(todasEmpresasResult)
+                    ? todasEmpresasResult.filter(
+                          (emp) => emp.id_item === item.id
+                      )
+                    : [];
 
-                    console.log('Empresas do item carregadas:', empresasResult);
-
-                    // Mapear empresas para o formato da store
-                    if (empresasResult && Array.isArray(empresasResult)) {
-                        for (const empresa of empresasResult) {
-                            const empresaLocalFormat = {
-                                ...empresa,
-                                id_item: novaTabela.id, // ID local, não o do banco
-                            };
-                            dispatch(addEmpresaLocal(empresaLocalFormat));
-                        }
-                    }
-                } catch (error) {
-                    console.error('Erro ao carregar empresas do item:', error);
+                // Adicionar empresas ao estado local
+                for (const empresa of empresasDoItem) {
+                    const empresaLocalFormat = {
+                        ...empresa,
+                        id_item: novaTabela.id, // ID local, não o do banco
+                    };
+                    dispatch(addEmpresaLocal(empresaLocalFormat));
                 }
 
-                // Carregar produtos deste item
-                try {
-                    const produtosResult = await dispatch(
-                        fetchNegotiationProdutos({
-                            negociacaoId,
-                            itemId: item.id,
-                        })
-                    ).unwrap();
+                // Filtrar produtos deste item
+                const produtosDoItem = Array.isArray(todosProdutosResult)
+                    ? todosProdutosResult.filter(
+                          (prod) => prod.id_item === item.id
+                      )
+                    : [];
 
-                    console.log('Produtos do item carregados:', produtosResult);
-
-                    // Mapear produtos para o formato da store
-                    if (produtosResult && Array.isArray(produtosResult)) {
-                        for (const produto of produtosResult) {
-                            const produtoLocalFormat = {
-                                ...produto,
-                                id_item: novaTabela.id, // ID local, não o do banco
-                            };
-                            dispatch(addProdutoLocal(produtoLocalFormat));
-                        }
-                    }
-                } catch (error) {
-                    console.error('Erro ao carregar produtos do item:', error);
+                // Adicionar produtos ao estado local
+                for (const produto of produtosDoItem) {
+                    const produtoLocalFormat = {
+                        ...produto,
+                        id_item: novaTabela.id, // ID local, não o do banco
+                    };
+                    dispatch(addProdutoLocal(produtoLocalFormat));
                 }
 
                 novoNextTableId++;
             }
 
-            console.log('Tabelas criadas:', tabelasTemp);
             setTables(tabelasTemp);
             setNextTableId(novoNextTableId);
 
@@ -309,7 +268,6 @@ export default function NegotiationsRegistration() {
                 const contatosResult = await dispatch(
                     fetchNegotiationContatos(negociacaoId)
                 ).unwrap();
-                console.log('Contatos carregados:', contatosResult);
 
                 if (contatosResult && Array.isArray(contatosResult)) {
                     setContatosTemp(
@@ -408,14 +366,22 @@ export default function NegotiationsRegistration() {
         filialLoja: string,
         tableId: number
     ) => {
+        // Verifica se já existe esta empresa neste item
+        const empresasDoItem = getEmpresasDoItem(tableId);
+        const jaExiste = empresasDoItem.some((e) => e.id_empresa === filialId);
+
+        if (jaExiste) {
+            message.warning('Esta loja já foi adicionada a este item.');
+            setSelectedLoja(null);
+            return;
+        }
+
         const novaEmpresa = {
             id_negociacao: negociacaoId || 0,
             id_item: tableId,
             id_empresa: filialId,
             descricao: filialLoja,
         };
-
-        console.log('Adicionando empresa:', novaEmpresa);
 
         dispatch(addEmpresaLocal(novaEmpresa));
         setSelectedLoja(null);
@@ -424,7 +390,6 @@ export default function NegotiationsRegistration() {
     };
 
     const handleAddProduto = (tableId: number) => {
-        console.log('Adicionando produto:', selectedProduto);
         if (!selectedProduto) {
             message.error('Por favor, selecione um produto.');
             return;
@@ -432,6 +397,19 @@ export default function NegotiationsRegistration() {
 
         if (!produtoInput.unidades || produtoInput.unidades <= 0) {
             message.error('Por favor, informe uma quantidade válida.');
+            return;
+        }
+
+        // Verifica se já existe este produto neste item
+        const produtosDoItem = getProdutosDoItem(tableId);
+        const jaExiste = produtosDoItem.some(
+            (p) => p.id_produto === selectedProduto?.codprod
+        );
+
+        if (jaExiste) {
+            message.warning('Este produto já foi adicionado a este item.');
+            setSelectedProduto(null);
+            setProdutoInput({ unidades: 0, valor: 0 });
             return;
         }
 
@@ -450,7 +428,6 @@ export default function NegotiationsRegistration() {
     };
 
     const handleRemoveEmpresa = (id?: number) => {
-        console.log('id empresa', id);
         if (!id) return;
 
         if (isEditMode && id > 0) {
@@ -473,7 +450,6 @@ export default function NegotiationsRegistration() {
         if (!id) return;
 
         if (isEditMode && id > 0) {
-            // Remover da API se estiver em modo edição e for um registro existente
             dispatch(deleteNegotiationProduto(id))
                 .then(() => {
                     message.success('Produto removido com sucesso!');
@@ -555,8 +531,10 @@ export default function NegotiationsRegistration() {
                 ? dataFinal.split('T')[0]
                 : dataFinal;
 
+            let currentNegociacaoId = negociacaoId;
+
+            // 1. Criar/atualizar a negociação principal primeiro
             if (isEditMode) {
-                // Atualizar a negociação existente
                 const negociationData = {
                     descricao: descricao,
                     data_inicial: dataInicialFormatted,
@@ -570,84 +548,7 @@ export default function NegotiationsRegistration() {
                         data: negociationData,
                     })
                 ).unwrap();
-
-                // Processar alterações em itens, empresas e produtos
-                for (const tabela of tables) {
-                    const idItemNegociacao = tabela.id_item_negociacao || 0;
-                    let idItem = idItemNegociacao;
-
-                    if (!idItemNegociacao) {
-                        // Se é um novo item, criar na API
-                        const itemData = {
-                            id_negociacao: negociacaoId as number,
-                            id_objeto: tabela.id_item_objeto || 0,
-                            descricao: tabela.descricao,
-                        };
-
-                        const itemResult = await dispatch(
-                            createNegotiationItem(itemData)
-                        ).unwrap();
-                        idItem = itemResult.id;
-                    }
-
-                    // Processar empresas deste item (novas adições foram feitas na store)
-                    const empresasDoItem = empresasArray.filter(
-                        (empresa) =>
-                            empresa.id_item === tabela.id && !empresa.id
-                    );
-
-                    for (const empresa of empresasDoItem) {
-                        const empresaData = {
-                            id_negociacao: negociacaoId as number,
-                            id_item: idItem,
-                            id_empresa: empresa.id_empresa,
-                            descricao: empresa.descricao,
-                        };
-                        await dispatch(
-                            createNegotiationEmpresa(empresaData)
-                        ).unwrap();
-                    }
-
-                    // Processar produtos deste item (novas adições)
-                    const produtosDoItem = produtosArray.filter(
-                        (produto) =>
-                            produto.id_item === tabela.id && !produto.id
-                    );
-
-                    for (const produto of produtosDoItem) {
-                        const produtoData = {
-                            id_negociacao: negociacaoId as number,
-                            id_item: idItem,
-                            id_produto: produto.id_produto,
-                            descricao: produto.descricao,
-                            unidades: produto.unidades,
-                        };
-                        await dispatch(
-                            createNegotiationProduto(produtoData)
-                        ).unwrap();
-                    }
-                }
-
-                // Processar novos contatos (sem ID)
-                const novosContatos = contatosTemp.filter(
-                    (contato) => !contato.id
-                );
-
-                for (const contato of novosContatos) {
-                    const contatoData = {
-                        id_negociacao: negociacaoId as number,
-                        nome: contato.nome,
-                        email: contato.email,
-                        telefone: contato.telefone,
-                    };
-                    await dispatch(
-                        createNegotiationContato(contatoData)
-                    ).unwrap();
-                }
-
-                message.success('Negociação atualizada com sucesso!');
             } else {
-                // Código existente para criação de nova negociação
                 const negociationData = {
                     descricao: descricao,
                     data_inicial: dataInicialFormatted,
@@ -659,14 +560,22 @@ export default function NegotiationsRegistration() {
                     createNegotiationCampaign(negociationData)
                 ).unwrap();
 
-                const idNegociacao = result.id;
-                setNegociacaoId(idNegociacao);
+                currentNegociacaoId = result.id;
+                setNegociacaoId(currentNegociacaoId);
+            }
 
-                for (const tabela of tables) {
-                    if (!idNegociacao) continue;
+            // Criar uma cópia das tabelas para poder atualizar os IDs reais durante o processamento
+            const tabelasAtualizadas = [...tables];
 
+            // 2. Primeiro cria todos os itens e atualiza seus IDs
+            for (let i = 0; i < tabelasAtualizadas.length; i++) {
+                const tabela = tabelasAtualizadas[i];
+                const idItemNegociacao = tabela.id_item_negociacao || 0;
+                let idItemReal = idItemNegociacao;
+
+                if (!idItemReal) {
                     const itemData = {
-                        id_negociacao: idNegociacao,
+                        id_negociacao: currentNegociacaoId as number,
                         id_objeto: tabela.id_item_objeto || 0,
                         descricao: tabela.descricao,
                     };
@@ -674,63 +583,85 @@ export default function NegotiationsRegistration() {
                     const itemResult = await dispatch(
                         createNegotiationItem(itemData)
                     ).unwrap();
+                    
+                    idItemReal = itemResult.id;
+                    tabelasAtualizadas[i] = {
+                        ...tabela,
+                        id_item_negociacao: idItemReal
+                    };
+                }
+            }
 
-                    const idItem = itemResult.id;
-
-                    const empresasDoItem = empresasArray.filter(
-                        (empresa) => empresa.id_item === tabela.id
-                    );
-
-                    for (const empresa of empresasDoItem) {
+            // 3. Depois, usando os IDs reais dos itens, salva empresas e produtos
+            for (const tabela of tabelasAtualizadas) {
+                const idItemReal = tabela.id_item_negociacao as number;
+                
+                // Processar empresas
+                const empresasDoItem = getEmpresasDoItem(tabela.id);
+                for (const empresa of empresasDoItem) {
+                    if (!empresa.id || empresa.id < 0) {
                         const empresaData = {
-                            id_negociacao: idNegociacao,
-                            id_item: idItem,
+                            id_negociacao: currentNegociacaoId as number,
+                            id_item: idItemReal,
                             id_empresa: empresa.id_empresa,
                             descricao: empresa.descricao,
+                            meta: empresa.meta,
+                            premiacao: empresa.premiacao,
                         };
-                        await dispatch(
-                            createNegotiationEmpresa(empresaData)
-                        ).unwrap();
-                    }
-
-                    const produtosDoItem = produtosArray.filter(
-                        (produto) => produto.id_item === tabela.id
-                    );
-
-                    for (const produto of produtosDoItem) {
-                        const produtoData = {
-                            id_negociacao: idNegociacao,
-                            id_item: idItem,
-                            id_produto: produto.id_produto,
-                            descricao: produto.descricao,
-                            unidades: produto.unidades,
-                        };
-                        await dispatch(
-                            createNegotiationProduto(produtoData)
-                        ).unwrap();
+                        
+                        // Força aguardar o salvamento de cada empresa
+                        await dispatch(createNegotiationEmpresa(empresaData)).unwrap();
                     }
                 }
 
-                for (const contato of contatosTemp) {
+                // Processar produtos
+                const produtosDoItem = getProdutosDoItem(tabela.id);
+                for (const produto of produtosDoItem) {
+                    if (!produto.id || produto.id < 0) {
+                        const produtoData = {
+                            id_negociacao: currentNegociacaoId as number,
+                            id_item: idItemReal,
+                            id_produto: produto.id_produto,
+                            descricao: produto.descricao,
+                            unidades: produto.unidades,
+                            valor: produto.valor,
+                        };
+                        
+                        // Força aguardar o salvamento de cada produto
+                        await dispatch(createNegotiationProduto(produtoData)).unwrap();
+                    }
+                }
+            }
+
+            // 4. Por último, processa os contatos
+            for (const contato of contatosTemp) {
+                if (!contato.id) {
                     const contatoData = {
-                        id_negociacao: idNegociacao,
+                        id_negociacao: currentNegociacaoId as number,
                         nome: contato.nome,
                         email: contato.email,
                         telefone: contato.telefone,
                     };
-                    await dispatch(
-                        createNegotiationContato(contatoData)
-                    ).unwrap();
+                    await dispatch(createNegotiationContato(contatoData)).unwrap();
                 }
-
-                message.success('Negociação cadastrada com sucesso!');
             }
+
+            message.success(`Negociação ${isEditMode ? 'atualizada' : 'cadastrada'} com sucesso!`);
+            
+            // Limpar estados
             setDescricao('');
             setDataInicial('');
             setDataFinal('');
             setTables([]);
             setContatosTemp([]);
             dispatch(resetLocalData());
+
+            // IMPORTANTE: Aguardar 2 segundos antes de redirecionar para garantir que 
+            // todas as operações assíncronas tenham tempo de serem completadas
+            setTimeout(() => {
+                window.location.href = '/tradeNegotiations/list';
+            }, 2000);
+            
         } catch (error) {
             console.error('Erro ao salvar negociação:', error);
             message.error('Erro ao processar negociação. Tente novamente.');
@@ -739,12 +670,22 @@ export default function NegotiationsRegistration() {
         }
     };
 
-    const getEmpresasDoItem = (itemId: number) => {
-        return empresasArray.filter((empresa) => empresa.id_item === itemId);
+    // Função auxiliar para obter empresas filtradas pelo ID LOCAL da tabela
+    const getEmpresasDoItem = (tableId: number) => {
+        // Filtra o array global de empresas pelo id_item que corresponde ao ID local da tabela
+        const empresasFiltradas = empresasArray.filter(
+            (empresa) => empresa.id_item === tableId
+        );
+        return empresasFiltradas;
     };
 
-    const getProdutosDoItem = (itemId: number) => {
-        return produtosArray.filter((produto) => produto.id_item === itemId);
+    // Função auxiliar para obter produtos filtrados pelo ID LOCAL da tabela
+    const getProdutosDoItem = (tableId: number) => {
+        // Filtra o array global de produtos pelo id_item que corresponde ao ID local da tabela
+        const produtosFiltrados = produtosArray.filter(
+            (produto) => produto.id_item === tableId
+        );
+        return produtosFiltrados;
     };
 
     return (
@@ -948,10 +889,6 @@ export default function NegotiationsRegistration() {
                                                             if (
                                                                 filialSelecionada
                                                             ) {
-                                                                console.log(
-                                                                    'Filial selecionada:',
-                                                                    filialSelecionada
-                                                                );
                                                                 setSelectedLoja(
                                                                     {
                                                                         id:
@@ -1093,10 +1030,6 @@ export default function NegotiationsRegistration() {
                                                                 setSelectedProduto(
                                                                     produtoFormatado
                                                                 );
-                                                                console.log(
-                                                                    'Produto selecionado e convertido:',
-                                                                    produtoFormatado
-                                                                );
                                                             } else {
                                                                 setSelectedProduto(
                                                                     null
@@ -1190,8 +1123,6 @@ export default function NegotiationsRegistration() {
                                 ))
                             )}
                         </div>
-
-                        {/* Tabela de Contatos */}
                         <div className="bg-white p-4 rounded shadow mt-4">
                             <h2 className="text-lg font-bold text-green-600">
                                 Contatos

@@ -160,15 +160,13 @@ export const fetchNegotiationItems = createAsyncThunk(
 export const fetchNegotiationEmpresas = createAsyncThunk(
     'tradeNegotiations/fetchEmpresas',
     async (
-        { negociacaoId, itemId }: { negociacaoId: number; itemId: number },
+        negociacaoId: number,
         { rejectWithValue }
     ) => {
         try {
             console.log(
                 'Chamando fetchNegotiationEmpresas para negociação:',
-                negociacaoId,
-                'e item:',
-                itemId
+                negociacaoId
             );
             const response = await apiInstance.get(
                 `varejo/NegociacaoVarejoEmpresa/${negociacaoId}`
@@ -191,15 +189,13 @@ export const fetchNegotiationEmpresas = createAsyncThunk(
 export const fetchNegotiationProdutos = createAsyncThunk(
     'tradeNegotiations/fetchProdutosItem',
     async (
-        { negociacaoId, itemId }: { negociacaoId: number; itemId: number },
+        negociacaoId: number,
         { rejectWithValue }
     ) => {
         try {
             console.log(
                 'Chamando fetchNegotiationProdutos para negociação:',
-                negociacaoId,
-                'e item:',
-                itemId
+                negociacaoId
             );
             const response = await apiInstance.get(
                 `varejo/NegociacaoVarejoProduto/${negociacaoId}`
@@ -605,13 +601,22 @@ const negotiationsSlice = createSlice({
             state.error = null;
         },
         addEmpresaLocal: (state, action: PayloadAction<INegociacaoEmpresa>) => {
-            console.log('Adicionando empresa local:', action.payload);
-            // Gerar um ID local temporário para identificação
-            const newEmpresa = {
-                ...action.payload,
-                id: Math.floor(Math.random() * 10000), // ID temporário
-            };
-            state.empresas.push(newEmpresa);
+            // Verifica se já existe uma empresa com o mesmo id_empresa para o mesmo id_item
+            const existe = state.empresas.some(
+                (empresa) =>
+                    empresa.id_item === action.payload.id_item &&
+                    empresa.id_empresa === action.payload.id_empresa
+            );
+            if (!existe) {
+                console.log('Adicionando empresa local:', action.payload);
+                const newEmpresa = {
+                    ...action.payload,
+                    id: action.payload.id || Math.floor(Math.random() * -10000), // ID negativo temporário
+                };
+                state.empresas.push(newEmpresa);
+            } else {
+                console.log('Empresa já existe localmente para este item:', action.payload);
+            }
         },
         removeEmpresaLocal: (state, action: PayloadAction<number>) => {
             state.empresas = state.empresas.filter(
@@ -619,13 +624,22 @@ const negotiationsSlice = createSlice({
             );
         },
         addProdutoLocal: (state, action: PayloadAction<INegociacaoProduto>) => {
-            console.log('Adicionando produto local:', action.payload);
-            // Gerar um ID local temporário para identificação
-            const newProduto = {
-                ...action.payload,
-                id: Math.floor(Math.random() * 10000), // ID temporário
-            };
-            state.produtos.push(newProduto);
+            // Verifica se já existe um produto com o mesmo id_produto para o mesmo id_item
+            const existe = state.produtos.some(
+                (produto) =>
+                    produto.id_item === action.payload.id_item &&
+                    produto.id_produto === action.payload.id_produto
+            );
+            if (!existe) {
+                console.log('Adicionando produto local:', action.payload);
+                const newProduto = {
+                    ...action.payload,
+                    id: action.payload.id || Math.floor(Math.random() * -10000), // ID negativo temporário
+                };
+                state.produtos.push(newProduto);
+            } else {
+                console.log('Produto já existe localmente para este item:', action.payload);
+            }
         },
         removeProdutoLocal: (state, action: PayloadAction<number>) => {
             state.produtos = state.produtos.filter(

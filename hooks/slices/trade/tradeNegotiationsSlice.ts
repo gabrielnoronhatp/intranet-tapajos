@@ -8,7 +8,6 @@ import {
     INegociacaoProduto,
     IFilial,
     IProduto,
-    
 } from '@/types/Trade/TradeNegotiations/ITradeNegotiations';
 import { api } from '@/app/service/api';
 
@@ -159,10 +158,7 @@ export const fetchNegotiationItems = createAsyncThunk(
 // Buscar empresas de um item
 export const fetchNegotiationEmpresas = createAsyncThunk(
     'tradeNegotiations/fetchEmpresas',
-    async (
-        negociacaoId: number,
-        { rejectWithValue }
-    ) => {
+    async (negociacaoId: number, { rejectWithValue }) => {
         try {
             console.log(
                 'Chamando fetchNegotiationEmpresas para negociação:',
@@ -188,10 +184,7 @@ export const fetchNegotiationEmpresas = createAsyncThunk(
 
 export const fetchNegotiationProdutos = createAsyncThunk(
     'tradeNegotiations/fetchProdutosItem',
-    async (
-        negociacaoId: number,
-        { rejectWithValue }
-    ) => {
+    async (negociacaoId: number, { rejectWithValue }) => {
         try {
             console.log(
                 'Chamando fetchNegotiationProdutos para negociação:',
@@ -246,9 +239,6 @@ export const createNegotiationCampaign = createAsyncThunk(
                 'varejo/NegociacaoVarejo/',
                 campaignData
             );
-            setTimeout(() => {
-                window.location.href = '/tradeNegotiations/list';
-            }, 1000);
             return response.data;
         } catch (error) {
             if (axios.isAxiosError(error)) {
@@ -615,7 +605,10 @@ const negotiationsSlice = createSlice({
                 };
                 state.empresas.push(newEmpresa);
             } else {
-                console.log('Empresa já existe localmente para este item:', action.payload);
+                console.log(
+                    'Empresa já existe localmente para este item:',
+                    action.payload
+                );
             }
         },
         removeEmpresaLocal: (state, action: PayloadAction<number>) => {
@@ -638,7 +631,10 @@ const negotiationsSlice = createSlice({
                 };
                 state.produtos.push(newProduto);
             } else {
-                console.log('Produto já existe localmente para este item:', action.payload);
+                console.log(
+                    'Produto já existe localmente para este item:',
+                    action.payload
+                );
             }
         },
         removeProdutoLocal: (state, action: PayloadAction<number>) => {

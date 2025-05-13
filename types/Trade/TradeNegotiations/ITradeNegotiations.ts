@@ -23,6 +23,7 @@ export interface INegociacaoEmpresa {
   last_update?: string;
   meta?: number;
   premiacao?: string;
+  id_item_original?: number;
 }
 
 
@@ -35,6 +36,7 @@ export interface INegociacaoProduto {
   unidades: number;
   last_update?: string;
   valor?: number;
+  id_item_original?: number;
 }
 
 export interface INegociacaoContato {

@@ -178,12 +178,10 @@ export default function NegotiationsRegistration() {
                 return;
             }
 
-            // Carregar os itens da negociação
             const itensResult = await dispatch(
                 fetchNegotiationItems(negociacaoId)
             ).unwrap();
 
-            // Transforma o resultado em um array, mesmo se for um único objeto
             const itensArray = Array.isArray(itensResult)
                 ? itensResult
                 : itensResult
@@ -195,12 +193,10 @@ export default function NegotiationsRegistration() {
                 return;
             }
 
-            // Buscar TODAS as empresas da negociação
             const todasEmpresasResult = await dispatch(
                 fetchNegotiationEmpresas(negociacaoId)
             ).unwrap();
 
-            // Buscar TODOS os produtos da negociação
             const todosProdutosResult = await dispatch(
                 fetchNegotiationProdutos(negociacaoId)
             ).unwrap();
@@ -208,51 +204,45 @@ export default function NegotiationsRegistration() {
             const tabelasTemp = [];
             let novoNextTableId = nextTableId;
 
-            // Para cada item, vamos criar uma tabela correspondente
             for (const item of itensArray) {
                 const novaTabela = {
                     id: novoNextTableId,
                     descricao: item.descricao || '',
                     id_item_objeto: item.id_objeto || 0,
-                    id_item_negociacao: item.id, // ID real do item na base
+                    id_item_negociacao: item.id,
                 };
 
                 tabelasTemp.push(novaTabela);
 
-                // Configurar a tab ativa para este item
                 setActiveTabKeys((prev) => ({
                     ...prev,
                     [novaTabela.id]: 'loja',
                 }));
 
-                // Filtrar empresas deste item
                 const empresasDoItem = Array.isArray(todasEmpresasResult)
                     ? todasEmpresasResult.filter(
                           (emp) => emp.id_item === item.id
                       )
                     : [];
 
-                // Adicionar empresas ao estado local
                 for (const empresa of empresasDoItem) {
                     const empresaLocalFormat = {
                         ...empresa,
-                        id_item: novaTabela.id, // ID local, não o do banco
+                        id_item: novaTabela.id,
                     };
                     dispatch(addEmpresaLocal(empresaLocalFormat));
                 }
 
-                // Filtrar produtos deste item
                 const produtosDoItem = Array.isArray(todosProdutosResult)
                     ? todosProdutosResult.filter(
                           (prod) => prod.id_item === item.id
                       )
                     : [];
 
-                // Adicionar produtos ao estado local
                 for (const produto of produtosDoItem) {
                     const produtoLocalFormat = {
                         ...produto,
-                        id_item: novaTabela.id, // ID local, não o do banco
+                        id_item: novaTabela.id,
                     };
                     dispatch(addProdutoLocal(produtoLocalFormat));
                 }
@@ -263,7 +253,6 @@ export default function NegotiationsRegistration() {
             setTables(tabelasTemp);
             setNextTableId(novoNextTableId);
 
-            // Carregar contatos da negociação
             try {
                 const contatosResult = await dispatch(
                     fetchNegotiationContatos(negociacaoId)
@@ -378,7 +367,8 @@ export default function NegotiationsRegistration() {
 
         const novaEmpresa = {
             id_negociacao: negociacaoId || 0,
-            id_item: tableId,
+            id_item: tableId, // ID local da tabela (será mapeado para o ID real depois)
+            id_item_original: tableId, // Adicionando um campo para guardar o ID local original
             id_empresa: filialId,
             descricao: filialLoja,
         };
@@ -415,7 +405,8 @@ export default function NegotiationsRegistration() {
 
         const novoProduto = {
             id_negociacao: negociacaoId || 0,
-            id_item: tableId,
+            id_item: tableId, // ID local da tabela (será mapeado para o ID real depois)
+            id_item_original: tableId, // Adicionando um campo para guardar o ID local original
             id_produto: selectedProduto?.codprod as number,
             descricao: selectedProduto.descricao || selectedProduto.nome || '',
             unidades: produtoInput.unidades,
@@ -564,10 +555,9 @@ export default function NegotiationsRegistration() {
                 setNegociacaoId(currentNegociacaoId);
             }
 
-            // Criar uma cópia das tabelas para poder atualizar os IDs reais durante o processamento
             const tabelasAtualizadas = [...tables];
+            const mapaDeIds = new Map();
 
-            // 2. Primeiro cria todos os itens e atualiza seus IDs
             for (let i = 0; i < tabelasAtualizadas.length; i++) {
                 const tabela = tabelasAtualizadas[i];
                 const idItemNegociacao = tabela.id_item_negociacao || 0;
@@ -580,60 +570,122 @@ export default function NegotiationsRegistration() {
                         descricao: tabela.descricao,
                     };
 
-                    const itemResult = await dispatch(
-                        createNegotiationItem(itemData)
-                    ).unwrap();
-                    
-                    idItemReal = itemResult.id;
-                    tabelasAtualizadas[i] = {
-                        ...tabela,
-                        id_item_negociacao: idItemReal
-                    };
+                    try {
+                        const itemResult = await dispatch(
+                            createNegotiationItem(itemData)
+                        ).unwrap();
+
+                        idItemReal = itemResult.id;
+
+                        mapaDeIds.set(tabela.id, idItemReal);
+                        tabelasAtualizadas[i] = {
+                            ...tabela,
+                            id_item_negociacao: idItemReal,
+                        };
+
+                        produtosArray.forEach((produto, idx) => {
+                            if (
+                                produto.id_item === tabela.id ||
+                                produto.id_item_original === tabela.id
+                            ) {
+                                produtosArray[idx] = {
+                                    ...produto,
+                                    id_item: idItemReal,
+                                };
+                            }
+                        });
+
+                        empresasArray.forEach((empresa, idx) => {
+                            if (
+                                empresa.id_item === tabela.id ||
+                                empresa.id_item_original === tabela.id
+                            ) {
+                                empresasArray[idx] = {
+                                    ...empresa,
+                                    id_item: idItemReal,
+                                };
+                            }
+                        });
+                    } catch (erro) {
+                        console.error(`Erro ao criar item ${i + 1}:`, erro);
+                        message.error(
+                            `Erro ao criar item ${tabela.descricao}. Continuando com os próximos...`
+                        );
+                    }
+                } else {
+                    mapaDeIds.set(tabela.id, idItemReal);
+                    console.log(
+                        `Item ${i + 1} já existente com ID:`,
+                        idItemReal
+                    );
                 }
             }
 
-            // 3. Depois, usando os IDs reais dos itens, salva empresas e produtos
-            for (const tabela of tabelasAtualizadas) {
-                const idItemReal = tabela.id_item_negociacao as number;
-                
-                // Processar empresas
-                const empresasDoItem = getEmpresasDoItem(tabela.id);
+            console.log(
+                'Mapa de IDs local -> real:',
+                Object.fromEntries(mapaDeIds)
+            );
+            console.log('Tabelas atualizadas:', tabelasAtualizadas);
+
+            await new Promise((resolve) => setTimeout(resolve, 500));
+
+            for (let i = 0; i < tabelasAtualizadas.length; i++) {
+                const tabela = tabelasAtualizadas[i];
+                const idLocalTabela = tabela.id;
+                const idItemReal = mapaDeIds.get(idLocalTabela);
+
+                console.log(
+                    `Processando item ${i + 1}/${tabelasAtualizadas.length}: Local ID ${idLocalTabela} -> Real ID ${idItemReal}`
+                );
+
+                if (!idItemReal) {
+                    console.error(
+                        `ID real não encontrado para a tabela ${idLocalTabela}. Pulando...`
+                    );
+                    continue;
+                }
+
+                const empresasDoItem = getEmpresasDoItem(idLocalTabela);
+                console.log(
+                    `Empresas encontradas para o item ${idLocalTabela}:`,
+                    empresasDoItem
+                );
+
                 for (const empresa of empresasDoItem) {
                     if (!empresa.id || empresa.id < 0) {
                         const empresaData = {
+                            ...empresa,
                             id_negociacao: currentNegociacaoId as number,
                             id_item: idItemReal,
-                            id_empresa: empresa.id_empresa,
-                            descricao: empresa.descricao,
-                            meta: empresa.meta,
-                            premiacao: empresa.premiacao,
                         };
-                        
-                        // Força aguardar o salvamento de cada empresa
-                        await dispatch(createNegotiationEmpresa(empresaData)).unwrap();
+                        await dispatch(
+                            createNegotiationEmpresa(empresaData)
+                        ).unwrap();
                     }
                 }
 
-                // Processar produtos
-                const produtosDoItem = getProdutosDoItem(tabela.id);
+                const produtosDoItem = getProdutosDoItem(idLocalTabela);
+                console.log(
+                    `Produtos encontrados para o item ${idLocalTabela}:`,
+                    produtosDoItem
+                );
+
                 for (const produto of produtosDoItem) {
                     if (!produto.id || produto.id < 0) {
                         const produtoData = {
+                            ...produto,
                             id_negociacao: currentNegociacaoId as number,
                             id_item: idItemReal,
-                            id_produto: produto.id_produto,
-                            descricao: produto.descricao,
-                            unidades: produto.unidades,
-                            valor: produto.valor,
                         };
-                        
-                        // Força aguardar o salvamento de cada produto
-                        await dispatch(createNegotiationProduto(produtoData)).unwrap();
+                        await dispatch(
+                            createNegotiationProduto(produtoData)
+                        ).unwrap();
                     }
                 }
+
+                await new Promise((resolve) => setTimeout(resolve, 300));
             }
 
-            // 4. Por último, processa os contatos
             for (const contato of contatosTemp) {
                 if (!contato.id) {
                     const contatoData = {
@@ -642,13 +694,21 @@ export default function NegotiationsRegistration() {
                         email: contato.email,
                         telefone: contato.telefone,
                     };
-                    await dispatch(createNegotiationContato(contatoData)).unwrap();
+
+                    try {
+                        await dispatch(
+                            createNegotiationContato(contatoData)
+                        ).unwrap();
+                    } catch (erro) {
+                        console.error('Erro ao salvar contato:', erro);
+                    }
                 }
             }
 
-            message.success(`Negociação ${isEditMode ? 'atualizada' : 'cadastrada'} com sucesso!`);
-            
-            // Limpar estados
+            message.success(
+                `Negociação ${isEditMode ? 'atualizada' : 'cadastrada'} com sucesso!`
+            );
+
             setDescricao('');
             setDataInicial('');
             setDataFinal('');
@@ -656,12 +716,9 @@ export default function NegotiationsRegistration() {
             setContatosTemp([]);
             dispatch(resetLocalData());
 
-            // IMPORTANTE: Aguardar 2 segundos antes de redirecionar para garantir que 
-            // todas as operações assíncronas tenham tempo de serem completadas
             setTimeout(() => {
                 window.location.href = '/tradeNegotiations/list';
-            }, 2000);
-            
+            }, 3000);
         } catch (error) {
             console.error('Erro ao salvar negociação:', error);
             message.error('Erro ao processar negociação. Tente novamente.');
@@ -670,20 +727,20 @@ export default function NegotiationsRegistration() {
         }
     };
 
-    // Função auxiliar para obter empresas filtradas pelo ID LOCAL da tabela
     const getEmpresasDoItem = (tableId: number) => {
-        // Filtra o array global de empresas pelo id_item que corresponde ao ID local da tabela
         const empresasFiltradas = empresasArray.filter(
-            (empresa) => empresa.id_item === tableId
+            (empresa) =>
+                empresa.id_item === tableId ||
+                empresa.id_item_original === tableId
         );
         return empresasFiltradas;
     };
 
-    // Função auxiliar para obter produtos filtrados pelo ID LOCAL da tabela
     const getProdutosDoItem = (tableId: number) => {
-        // Filtra o array global de produtos pelo id_item que corresponde ao ID local da tabela
         const produtosFiltrados = produtosArray.filter(
-            (produto) => produto.id_item === tableId
+            (produto) =>
+                produto.id_item === tableId ||
+                produto.id_item_original === tableId
         );
         return produtosFiltrados;
     };

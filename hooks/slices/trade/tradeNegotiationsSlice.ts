@@ -576,6 +576,26 @@ export const deleteNegotiationContato = createAsyncThunk(
         }
     }
 );
+export const deleteNegotiationItem = createAsyncThunk('tradeNegotiations/deleteItem',
+    async (id: number, { rejectWithValue }) => {
+try {
+    await apiInstance.delete(`varejo/NegociacaoVarejoItem/${id}`);
+    return id;
+} catch (error) {
+    if (axios.isAxiosError(error)) {
+        return rejectWithValue(error.response?.data || error.message);
+    }
+    throw error;
+}
+    }
+);
+
+
+
+ 
+
+
+
 
 const negotiationsSlice = createSlice({
     name: 'tradeNegotiations',

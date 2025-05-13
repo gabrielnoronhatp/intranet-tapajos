@@ -27,7 +27,6 @@ import {
     removeProdutoLocal,
     addContatoLocal,
     removeContatoLocal,
-    resetLocalData,
     fetchItensObjeto,
     createItemObjeto,
     fetchFiliais,
@@ -41,6 +40,7 @@ import {
     deleteNegotiationProduto,
     deleteNegotiationContato,
     updateNegotiationCampaign,
+    deleteNegotiationItem,
 } from '@/hooks/slices/trade/tradeNegotiationsSlice';
 
 import { fetchProductsByType } from '@/hooks/slices/trade/tradeSlice';
@@ -355,7 +355,6 @@ export default function NegotiationsRegistration() {
         filialLoja: string,
         tableId: number
     ) => {
-        // Verifica se já existe esta empresa neste item
         const empresasDoItem = getEmpresasDoItem(tableId);
         const jaExiste = empresasDoItem.some((e) => e.id_empresa === filialId);
 
@@ -367,8 +366,8 @@ export default function NegotiationsRegistration() {
 
         const novaEmpresa = {
             id_negociacao: negociacaoId || 0,
-            id_item: tableId, // ID local da tabela (será mapeado para o ID real depois)
-            id_item_original: tableId, // Adicionando um campo para guardar o ID local original
+            id_item: tableId,
+            id_item_original: tableId,
             id_empresa: filialId,
             descricao: filialLoja,
         };
@@ -390,7 +389,6 @@ export default function NegotiationsRegistration() {
             return;
         }
 
-        // Verifica se já existe este produto neste item
         const produtosDoItem = getProdutosDoItem(tableId);
         const jaExiste = produtosDoItem.some(
             (p) => p.id_produto === selectedProduto?.codprod
@@ -405,8 +403,8 @@ export default function NegotiationsRegistration() {
 
         const novoProduto = {
             id_negociacao: negociacaoId || 0,
-            id_item: tableId, // ID local da tabela (será mapeado para o ID real depois)
-            id_item_original: tableId, // Adicionando um campo para guardar o ID local original
+            id_item: tableId,
+            id_item_original: tableId,
             id_produto: selectedProduto?.codprod as number,
             descricao: selectedProduto.descricao || selectedProduto.nome || '',
             unidades: produtoInput.unidades,
@@ -422,7 +420,6 @@ export default function NegotiationsRegistration() {
         if (!id) return;
 
         if (isEditMode && id > 0) {
-            // Remover da API se estiver em modo edição e for um registro existente
             dispatch(deleteNegotiationEmpresa(id))
                 .then(() => {
                     message.success('Loja removida com sucesso!');
@@ -433,7 +430,6 @@ export default function NegotiationsRegistration() {
                 });
         }
 
-        // Remover localmente de qualquer forma
         dispatch(removeEmpresaLocal(id));
     };
 
@@ -451,7 +447,6 @@ export default function NegotiationsRegistration() {
                 });
         }
 
-        // Remover localmente de qualquer forma
         dispatch(removeProdutoLocal(id));
     };
 
@@ -484,7 +479,6 @@ export default function NegotiationsRegistration() {
 
     const handleRemoveContato = (key: number, id?: number) => {
         if (isEditMode && id) {
-            // Remover da API se estiver em modo edição e for um registro existente
             dispatch(deleteNegotiationContato(id))
                 .then(() => {
                     message.success('Contato removido com sucesso!');
@@ -495,7 +489,6 @@ export default function NegotiationsRegistration() {
                 });
         }
 
-        // Remover localmente
         setContatosTemp(contatosTemp.filter((c) => c.key !== key));
         dispatch(removeContatoLocal(key));
     };
@@ -524,7 +517,6 @@ export default function NegotiationsRegistration() {
 
             let currentNegociacaoId = negociacaoId;
 
-            // 1. Criar/atualizar a negociação principal primeiro
             if (isEditMode) {
                 const negociationData = {
                     descricao: descricao,
@@ -608,24 +600,11 @@ export default function NegotiationsRegistration() {
                         });
                     } catch (erro) {
                         console.error(`Erro ao criar item ${i + 1}:`, erro);
-                        message.error(
-                            `Erro ao criar item ${tabela.descricao}. Continuando com os próximos...`
-                        );
                     }
                 } else {
                     mapaDeIds.set(tabela.id, idItemReal);
-                    console.log(
-                        `Item ${i + 1} já existente com ID:`,
-                        idItemReal
-                    );
                 }
             }
-
-            console.log(
-                'Mapa de IDs local -> real:',
-                Object.fromEntries(mapaDeIds)
-            );
-            console.log('Tabelas atualizadas:', tabelasAtualizadas);
 
             await new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -633,10 +612,6 @@ export default function NegotiationsRegistration() {
                 const tabela = tabelasAtualizadas[i];
                 const idLocalTabela = tabela.id;
                 const idItemReal = mapaDeIds.get(idLocalTabela);
-
-                console.log(
-                    `Processando item ${i + 1}/${tabelasAtualizadas.length}: Local ID ${idLocalTabela} -> Real ID ${idItemReal}`
-                );
 
                 if (!idItemReal) {
                     console.error(
@@ -646,10 +621,6 @@ export default function NegotiationsRegistration() {
                 }
 
                 const empresasDoItem = getEmpresasDoItem(idLocalTabela);
-                console.log(
-                    `Empresas encontradas para o item ${idLocalTabela}:`,
-                    empresasDoItem
-                );
 
                 for (const empresa of empresasDoItem) {
                     if (!empresa.id || empresa.id < 0) {
@@ -665,10 +636,6 @@ export default function NegotiationsRegistration() {
                 }
 
                 const produtosDoItem = getProdutosDoItem(idLocalTabela);
-                console.log(
-                    `Produtos encontrados para o item ${idLocalTabela}:`,
-                    produtosDoItem
-                );
 
                 for (const produto of produtosDoItem) {
                     if (!produto.id || produto.id < 0) {
@@ -709,16 +676,9 @@ export default function NegotiationsRegistration() {
                 `Negociação ${isEditMode ? 'atualizada' : 'cadastrada'} com sucesso!`
             );
 
-            setDescricao('');
-            setDataInicial('');
-            setDataFinal('');
-            setTables([]);
-            setContatosTemp([]);
-            dispatch(resetLocalData());
-
             setTimeout(() => {
                 window.location.href = '/tradeNegotiations/list';
-            }, 3000);
+            }, 1000);
         } catch (error) {
             console.error('Erro ao salvar negociação:', error);
             message.error('Erro ao processar negociação. Tente novamente.');
@@ -743,6 +703,25 @@ export default function NegotiationsRegistration() {
                 produto.id_item_original === tableId
         );
         return produtosFiltrados;
+    };
+
+    const handleRemoveTable = async (tableId: number) => {
+        const tableToRemove = tables.find((table) => table.id === tableId);
+
+        if (isEditMode && tableToRemove?.id_item_negociacao) {
+            try {
+                await dispatch(
+                    deleteNegotiationItem(tableToRemove.id_item_negociacao)
+                ).unwrap();
+                message.success('Item deletado com sucesso!');
+            } catch (error) {
+                console.error('Erro ao deletar item:', error);
+                message.error('Erro ao deletar item. Tente novamente.');
+                return;
+            }
+        }
+
+        setTables(tables.filter((table) => table.id !== tableId));
     };
 
     return (
@@ -896,10 +875,19 @@ export default function NegotiationsRegistration() {
                                         key={tabela.id}
                                         className="bg-white p-4 rounded shadow mb-4 border border-gray-200"
                                     >
-                                        <h3 className="text-md font-bold text-green-600 mb-3">
-                                            Item: {tabela.descricao} (#
-                                            {tabela.id})
-                                        </h3>
+                                        <div className="flex justify-between items-center">
+                                            <h3 className="text-md font-bold text-green-600 mb-3">
+                                                Item: {tabela.descricao} (#
+                                                {tabela.id})
+                                            </h3>
+                                            <AntButton
+                                                danger
+                                                icon={<DeleteOutlined />}
+                                                onClick={() =>
+                                                    handleRemoveTable(tabela.id)
+                                                }
+                                            />
+                                        </div>
 
                                         <Tabs
                                             activeKey={

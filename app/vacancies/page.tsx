@@ -581,7 +581,7 @@ export default function VacanciesPage() {
                     <div className="p-6">
                         <div className="flex justify-between items-center mb-6">
                             <h1 className="text-2xl font-bold text-primary">
-                                Gerenciamento de Vagas
+                                Gerenciamento de Vagas : 
                             </h1>
                             <Button
                                 type="primary"
